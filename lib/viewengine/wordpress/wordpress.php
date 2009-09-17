@@ -35,6 +35,6 @@
 		include(TEMPLATEPATH.$args['template']);
 		exit;
 	}
-	if(!defined('PREROUTE'))	
+	if(!defined('PREROUTE'))
 		add_action('template_redirect','render_views');
 ?>

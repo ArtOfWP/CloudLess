@@ -20,24 +20,54 @@ class MySqlDatabase implements IDatabase{
 		$table='DROP TABLE `'.strtolower(get_class($object)).'`';
 		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING); 
 		$this->db->exec($table);
+		$arrays = ObjectUtility::getArrayProperties($object);
+		foreach($arrays as $array){
+			$settings=ObjectUtility::getCommentDecoration($object,$array.'List');
+			$relation=array_key_exists_v('dbrelation',$settings);
+			if($relation){
+				$name=array_key_exists_v('dbrelationname',$settings);
+				$class = new $relation;
+				if(!array_key_exists($name,$this->relations))
+					$this->relations[$name]=array(strtolower(get_class($class).'_id'),strtolower(get_class($object).'_id'));
+			}
+		}
 	}
 	function createTable($object){
+		Debug::Value('create table',strtolower(get_class($object)));
 		$table='CREATE TABLE `'.strtolower(get_class($object)).'` (';
 		$columns =	ObjectUtility::getPropertiesAndValues($object);
+		Debug::Message('gettings columns');
 		foreach($columns as $property => $value){
 			$column=strtolower($property);
 			$table.=' `'.$column.'` ';
 			if($column=='id')
 				$table.='INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,';
 			else{
-				if(is_int($value)){
+				$settings=ObjectUtility::getCommentDecoration($object,'get'.$property);				
+				if(!isset($value)){
+					$dbfield=strtolower(array_key_exists_v('dbfield',$settings));					
+					if($dbfield=='varchar'){
+						$length=(int)array_key_exists_v('dblength',$settings);
+						if($length)
+							$table.='VARCHAR('.$length.') NOT NULL default \'\',';
+						else{
+							$table.='VARCHAR(45) NOT NULL default \'\',';
+						}						
+					}else if($dbfield=='text')
+						$table.='TEXT NOT NULL default \'\',';
+					else if($dbfield=='int')
+						$table.='INTEGER NOT NULL default 0,';					
+					else{
+						$table.='VARCHAR(45) NOT NULL default \'\',';
+					}
+				}
+				else if(is_int($value)){
 					$table.='INTEGER NOT NULL default '.$value.',';
 				}
 				else if(is_string($value)){
-					$settings=ObjectUtility::getCommentDecoration($object,'get'.$property);
-					$text=array_key_exists_v('text',$settings);
-					if($text)
-						$table.='TEXT NOT NULL default \'\'';
+					$dbfield=array_key_exists_v('dbfield',$settings);
+					if($dbfield=='text')
+						$table.='TEXT NOT NULL default \'\',';
 					else{
 						$length=array_key_exists_v('dblength',$settings);
 						if($length)

@@ -1,5 +1,6 @@
 <?php
 // Configures AoiSora for WordPress use
+echo 'AoiSora';
 define('VIEWENGINE','wordpress');
 if(!defined('DEBUG'))
 	define('DEBUG',true);

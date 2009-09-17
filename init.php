@@ -1,5 +1,6 @@
 <?php
-include('config.php');
+define('PACKAGEPATH',dirname(__FILE__).'/');
+include(PACKAGEPATH.'config.php');
 function load($dir){
 	$handle = opendir($dir);
 	while(false !== ($resource = readdir($handle))) {
@@ -12,12 +13,14 @@ function load($dir){
 	}
 	closedir($handle);
 }
-include('lib/Route.php');
-include('lib/Debug.php');
-load(dirname(__FILE__).'/lib/helpers/');
-load(dirname(__FILE__).'/lib/core/');
-load(dirname(__FILE__).'/lib/controllers/');
-include('lib/viewengine/'.VIEWENGINE.'.php');
+include(PACKAGEPATH.'lib/Route.php');
+include(PACKAGEPATH.'lib/Debug.php');
+load(PACKAGEPATH.'lib/helpers/');
+load(PACKAGEPATH.'lib/core/');
+load(PACKAGEPATH.'lib/controllers/');
+global $loadviewengine;
+if($loadviewengine)
+	include(PACKAGEPATH.'lib/viewengine/'.VIEWENGINE.'.php');
 global $db;
 $db = new MySqlDatabase();
 $appsSettings=AoiSoraSettings::getApplications();
