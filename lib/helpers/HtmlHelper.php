@@ -149,6 +149,15 @@ class HtmlHelper{
 		$class=$class?' class=\''.$class.'\' ':'';
 		echo '<a href=\''.$path.'\''.$class.'>'.$text.'</a>';
 	}
+	static function img($src,$alt=false){
+		$alt=$alt?" alt='".$alt."'":'';
+		echo "<img src='$src' $alt />";
+	}
+	static function imglink($src,$path,$alt=false,$class=false){
+		$class=$class?' class=\''.$class.'\' ':'';
+		$alt=$alt?" alt='".$alt."'":'';
+		echo "<a href='$path' $class><img src='$src' $alt /></a>";		
+	}
 	static function table($data,$headlines=false){
 		$table='<table class="widefat post fixed">';
 		$tbody.='<tbody>';

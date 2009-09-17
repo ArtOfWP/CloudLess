@@ -1,6 +1,11 @@
 <?php
 define('PREROUTE',true);
-include('init.php');
+define('LOADAPPS',true);
+global $loadviewengine;
+$loadviewengine='WordPress';
+echo file_exists('../../../wp-load.php');
+require_once('../../../wp-load.php');
+require_once('init.php');
 
 $success=Route::reroute();
 		if($success){

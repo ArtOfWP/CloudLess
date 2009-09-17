@@ -9,5 +9,10 @@ Author URI: http://andreasnurbo.com/
 */
 
 // Configures/loads AoiSora
+define('DEBUG',true);
+define('PACKAGEPATH',dirname(__FILE__).'/');
+define('LOADAPPS',true);
+global $loadviewengine;
+$loadviewengine='WordPress';
 require('init.php');
 ?>

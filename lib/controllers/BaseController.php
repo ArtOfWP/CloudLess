@@ -9,8 +9,8 @@ class BaseController{
 	private function initiate(){
 		$item= get_class($this);
 		$this->controller =str_replace('Controller','',$item);
-		global $wp_query;
-		$this->values=$wp_query->query_vars;
+
+		$this->values=Communication::getQueryString();
 		unset($this->values[CONTROLLERKEY]);
 		unset($this->values[ACTIONKEY]);		
 	}
@@ -19,7 +19,7 @@ class BaseController{
 		Debug::Message('Loaded '.$this->controller.' extends Basecontroller');
 		if($automatic){
 			Debug::Message('Executing automatic action');
-			$action=array_key_exists_v(ACTIONKEY,$_GET);
+			$action=array_key_exists_v(ACTIONKEY,Communication::getQueryString());
 			if(!isset($action) || empty($action))
 				$action='index';
 			$this->$action();

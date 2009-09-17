@@ -45,9 +45,7 @@ abstract class CrudController extends BaseController{
 		$this->loadFromPost();
 		$this->crudItem->create();
 //		if(Communication::useRedirect()=='referer')
-//		$goback=wp_get_referer();
-//		wp_redirect($gopack);
-//			Communication::redirectTo(Communication::getReferer());
+//		Communication::redirectTo(Communication::getReferer());
 	}
 	function update(){
 		$this->loadFromPost();
@@ -70,7 +68,26 @@ abstract class CrudController extends BaseController{
 		Debug::Value('Uploaded',Communication::getUpload($properties));
 		$values=Communication::getFormValues($properties);
 		Debug::Value('Loaded values from post',$values);
-		print_r(Communication::getUpload($properties));
+		$uploads=Communication::getUpload($properties);
+		print_r($uploads);
+		foreach($uploads as $property => $upload){
+			$path=PACKAGEPATH.'uploads/'.$upload["name"];
+			move_uploaded_file($upload["tmp_name"],$path);
+			$values[$property]='/AoiSora/uploads/'.$upload["name"];
+			$image = new Resize_Image;
+			$image->new_width = 100;
+			$image->new_height = 100;
+			$image->image_to_resize = $path; // Full Path to the file
+			$image->ratio = true; // Keep Aspect Ratio?
+			// Name of the new image (optional) - If it's not set a new will be added automatically
+			$image->new_image_name = preg_replace('/\.[^.]*$/', '', $upload["name"]);
+			/* Path where the new image should be saved. If it's not set the script will output the image without saving it */
+			$image->save_folder = PACKAGEPATH.'uploads/thumbs/';
+			$process = $image->resize();
+			if($process['result'] && $image->save_folder){
+				echo 'The new image ('.$process['new_file_path'].') has been saved.';
+			}			
+		}
 		ObjectUtility::setProperties($this->crudItem,$values);
 	}
 

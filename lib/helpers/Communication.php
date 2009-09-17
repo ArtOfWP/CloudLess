@@ -28,6 +28,17 @@ class Communication{
 		else if(strcasecmp($tempMethod,DELETE)==0)
 			return DELETE;
 	}
+	static function getQueryString(){
+		if(defined('TESTING')){
+			global $testquery;
+			return $testquery;	
+		}else{
+			global $wp_query;
+			if(isset($wp_query))
+			return $wp_query->query_vars;
+			else $_GET;
+		}
+	}
 	static function getFormValues($keys){
 		$values = array();	
 		$values=array_intersect_key($_POST,$keys);
@@ -38,7 +49,10 @@ class Communication{
 		return $files;
 	}
 	static function getReferer(){
-		return $_SERVER['HTTP_REFERER'];
+		if(function_exists('wp_get_referer'))
+			return wp_get_referer();
+		else
+			return $_SERVER['HTTP_REFERER'];
 	}
 		
 	static function redirectTo($url,$data=false){
