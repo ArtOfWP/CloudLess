@@ -2,6 +2,8 @@
 global $viewcontent;
 class BaseController{
 	protected $controller;
+	protected $action;
+	protected $filter;
 	private $render=true;
 	public $bag=array();
 	public $viewcontent;
@@ -9,8 +11,8 @@ class BaseController{
 	private function initiate(){
 		$item= get_class($this);
 		$this->controller =str_replace('Controller','',$item);
-
 		$this->values=Communication::getQueryString();
+		$this->values+=Communication::getFormValues();
 		unset($this->values[CONTROLLERKEY]);
 		unset($this->values[ACTIONKEY]);		
 	}
@@ -38,8 +40,21 @@ class BaseController{
 			$viewcontent=$this->viewcontent;
 		}
 	}
-	function Render($controller,$action){
+	function RenderToAction($action){
 		$view=$this->findView($this->controller,$action);		
+		ob_start();
+		if($view){
+			include($view);
+			$this->viewcontent=ob_get_contents();
+		}else
+			$this->viewcontent='Could not find view: '.$action.' '.$view;
+		$this->render=false;
+		ob_end_clean();
+		global $viewcontent;
+		$viewcontent=$this->viewcontent;		
+	}
+	function Render($controller,$action){
+		$view=$this->findView($controller,$action);		
 		ob_start();
 		if($view){
 			include($view);

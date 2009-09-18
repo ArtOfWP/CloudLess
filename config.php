@@ -1,6 +1,6 @@
 <?php
 // Configures AoiSora for WordPress use
-define('VIEWENGINE','wordpress');
+define('VIEWENGINE','WordPress');
 if(!defined('LOADAPPS'))
 	define('LOADAPPS',true);
 	

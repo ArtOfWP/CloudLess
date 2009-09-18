@@ -1,5 +1,5 @@
 <?php
 interface IFilter{
-	function Execute($controller,$action,$data);
+	function perform($controller,$action,$data);
 }
 ?>

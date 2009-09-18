@@ -39,10 +39,13 @@ class Communication{
 			else $_GET;
 		}
 	}
-	static function getFormValues($keys){
+	static function getFormValues($keys=false){
+		if($keys){
 		$values = array();	
 		$values=array_intersect_key($_POST,$keys);
 		return $values;
+		}
+		return $_POST;
 	}
 	static function getUpload($keys){
 		$files=array_intersect_key($_FILES,$keys);

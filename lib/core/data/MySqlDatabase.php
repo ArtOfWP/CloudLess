@@ -54,7 +54,7 @@ class MySqlDatabase implements IDatabase{
 							$table.='VARCHAR(45) NOT NULL default \'\',';
 						}						
 					}else if($dbfield=='text')
-						$table.='TEXT NOT NULL default \'\',';
+						$table.='TEXT NOT NULL,';
 					else if($dbfield=='int')
 						$table.='INTEGER NOT NULL default 0,';					
 					else{
@@ -67,7 +67,7 @@ class MySqlDatabase implements IDatabase{
 				else if(is_string($value)){
 					$dbfield=array_key_exists_v('dbfield',$settings);
 					if($dbfield=='text')
-						$table.='TEXT NOT NULL default \'\',';
+						$table.='TEXT NOT NULL,';
 					else{
 						$length=array_key_exists_v('dblength',$settings);
 						if($length)
