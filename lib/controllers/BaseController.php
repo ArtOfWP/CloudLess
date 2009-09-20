@@ -4,6 +4,7 @@ class BaseController{
 	protected $controller;
 	protected $action;
 	protected $filter;
+	protected $title;
 	private $render=true;
 	public $bag=array();
 	public $viewcontent;
@@ -19,6 +20,8 @@ class BaseController{
 	function BaseController($automatic=true){
 		$this->initiate();
 		Debug::Message('Loaded '.$this->controller.' extends Basecontroller');
+		if($this->filter)
+			$this->filter->perform($this,false);
 		if($automatic){
 			Debug::Message('Executing automatic action');
 			$action=array_key_exists_v(ACTIONKEY,Communication::getQueryString());
@@ -51,7 +54,9 @@ class BaseController{
 		$this->render=false;
 		ob_end_clean();
 		global $viewcontent;
-		$viewcontent=$this->viewcontent;		
+		$viewcontent=$this->viewcontent;
+		global $aoisoratitle;
+		$aoisoratitle=$this->title;		
 	}
 	function Render($controller,$action){
 		$view=$this->findView($controller,$action);		
@@ -65,6 +70,8 @@ class BaseController{
 		ob_end_clean();
 		global $viewcontent;
 		$viewcontent=$this->viewcontent;
+		global $aoisoratitle;
+		$aoisoratitle=$this->title;
 	}
 	function Notfound(){
 		ob_start();

@@ -19,16 +19,15 @@ function loadAoiSora(){
 	include(PACKAGEPATH.'config.php');
 	include(PACKAGEPATH.'lib/Route.php');
 	include(PACKAGEPATH.'lib/Debug.php');
-	Debug::Message('Loading AoiSora');	
 	load(PACKAGEPATH.'lib/helpers/');
 	load(PACKAGEPATH.'lib/core/');
+	load(PACKAGEPATH.'lib/filters/');	
 	load(PACKAGEPATH.'lib/controllers/');
 	global $loadviewengine;
 	if($loadviewengine)
 		include(PACKAGEPATH.'lib/viewengine/'.VIEWENGINE.'/'.VIEWENGINE.'.php');
 }
 function loadApplications(){
-	Debug::Message('Loading AoiSora Applications');
 	$appsSettings=AoiSoraSettings::getApplications();
 	global $apps;
 	$apps=array();

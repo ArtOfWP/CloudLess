@@ -3,7 +3,6 @@ define('PREROUTE',true);
 define('LOADAPPS',true);
 global $loadviewengine;
 $loadviewengine='WordPress';
-echo file_exists('../../../wp-load.php');
 require_once('../../../wp-load.php');
 require_once('init.php');
 

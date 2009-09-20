@@ -58,6 +58,12 @@ abstract class ApplicationBase{
 		if(method_exists($this,'onafteruninstall'))
 			$this->onafteruninstall();			
 	}
+	function render_title($title,$sep=" &mdash; ",$placement="left"){
+//		Debug::Message('Render Title');
+		global $aoisoratitle;
+		$title.=$aoisoratitle." $sep ";
+		return $title;
+	}
 	private function delete(){
 		global $db;		
 		foreach($this->models as $model){
