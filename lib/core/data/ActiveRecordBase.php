@@ -15,8 +15,8 @@ abstract class ActiveRecordBase{
 				}
 			}
 		}
-		Debug::Message('<strong>Create '.$vo['table'].'</strong>');
-		Debug::Value('Values',$vo['values']);
+//		Debug::Message('<strong>Create '.$vo['table'].'</strong>');
+//		Debug::Value('Values',$vo['values']);
 		global $db;
 		$id=$db->insert($vo);
 		$this->setId($id);

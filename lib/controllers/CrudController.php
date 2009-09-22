@@ -44,12 +44,17 @@ abstract class CrudController extends BaseController{
 	function create(){
 		$this->loadFromPost();
 		$this->crudItem->create();
-//		if(Communication::useRedirect()=='referer')
-//		Communication::redirectTo(Communication::getReferer());
+		$redirect=Communication::useRedirect();
+		if($redirect)
+			if(strtolower($redirect)=='referer')
+				Communication::redirectTo(Communication::getReferer());
+			else
+				Communication::redirectTo($redirect);
 	}
 	function update(){
 		$this->loadFromPost();
 		$this->crudItem->update();
+		Communication::redirectTo(Communication::getReferer());
 	}
 	function delete(){
 		$this->loadFromPost();
@@ -63,13 +68,13 @@ abstract class CrudController extends BaseController{
 	}
 	private function loadFromPost(){
 		$properties = ObjectUtility::getPropertiesAndValues($this->crudItem);
-		Debug::Message('LoadFromPost');
-		Debug::Value('Loaded properties/values from'.get_class($this->crudItem),$properties);
-		Debug::Value('Uploaded',Communication::getUpload($properties));
+//		Debug::Message('LoadFromPost');
+//		Debug::Value('Loaded properties/values from'.get_class($this->crudItem),$properties);
+//		Debug::Value('Uploaded',Communication::getUpload($properties));
 		$values=Communication::getFormValues($properties);
-		Debug::Value('Loaded values from post',$values);
+//		Debug::Value('Loaded values from post',$values);
 		$uploads=Communication::getUpload($properties);
-		print_r($uploads);
+//		print_r($uploads);
 		foreach($uploads as $property => $upload){
 			$path=PACKAGEPATH.'uploads/'.$upload["name"];
 			move_uploaded_file($upload["tmp_name"],$path);
@@ -84,9 +89,9 @@ abstract class CrudController extends BaseController{
 			/* Path where the new image should be saved. If it's not set the script will output the image without saving it */
 			$image->save_folder = PACKAGEPATH.'uploads/thumbs/';
 			$process = $image->resize();
-			if($process['result'] && $image->save_folder){
-				echo 'The new image ('.$process['new_file_path'].') has been saved.';
-			}			
+//			if($process['result'] && $image->save_folder){
+//				echo 'The new image ('.$process['new_file_path'].') has been saved.';
+//			}			
 		}
 		ObjectUtility::setProperties($this->crudItem,$values);
 	}

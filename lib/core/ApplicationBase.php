@@ -4,12 +4,30 @@ abstract class ApplicationBase{
 	private $models=array();
 	private $dir;
 	private $app;
-	function ApplicationBase($appName,$appDir){
+	public $options;
+	function ApplicationBase($appName,$appDir,$useOptions=false){
+		if($useOptions)
+			$this->options= new WpOption($appName);
 		$this->dir=$appDir;
 		$this->app=$appName;
 		$this->installfrompath=$appDir.'/app/core/domain/';
-		register_activation_hook("$appName/$appName.php", array(&$this,'activate'));
-		register_deactivation_hook("$appName/$appName.php", array(&$this,'deactivate'));
+		if(is_admin()){
+			register_activation_hook("$appName/$appName.php", array(&$this,'activate'));
+			register_deactivation_hook("$appName/$appName.php", array(&$this,'deactivate'));
+			register_uninstall_hook("$appName/$appName.php", array(&$this,'delete'));
+			if(method_exists($this,'onplugin_page_link'))
+				add_filter( 'plugin_action_links', array(&$this,'plugin_page_links'), 10, 2 );
+		}
+	}
+	function plugin_page_links($links, $file){
+		static $this_plugin;
+		if ( ! $this_plugin ) $this_plugin = "$this->app/$this->app.php";
+		
+		if ( $file == $this_plugin ){
+			$plugin_link=$this->onplugin_page_link();
+			array_unshift( $links, $plugin_link); // before other links
+		}
+		return $links;
 	}
 	function activate(){
 		if(method_exists($this,'onactivate'))
@@ -52,25 +70,23 @@ abstract class ApplicationBase{
 		$this->models=array();
 		$this->load($this->installfrompath);
 		$result=true;		
-		$this->delete();
+		$this->drop();
 		if($result)
 			AoiSoraSettings::uninstallApplication($this->app);
 		if(method_exists($this,'onafteruninstall'))
 			$this->onafteruninstall();			
 	}
-	function render_title($title,$sep=" &mdash; ",$placement="left"){
-//		Debug::Message('Render Title');
-		global $aoisoratitle;
-		$title.=$aoisoratitle." $sep ";
-		return $title;
-	}
-	private function delete(){
+	private function drop(){
 		global $db;		
 		foreach($this->models as $model){
 			$m = new $model();
 			$db->dropTable($m);
 		}
 		$db->dropStoredRelations();		
+	}
+	function delete(){
+		if($this->options)
+			$this->options->delete();
 	}	
 	private function load($dir){
 		Debug::Value('Loading directory',$dir);
@@ -85,7 +101,6 @@ abstract class ApplicationBase{
 				}
 			}
 		}
-		var_dump($this->models);
 		closedir($handle);
 	}
 	protected function printContent(){

@@ -14,6 +14,7 @@ class HtmlHelper{
 		$elements=ObjectUtility::getPropertiesAndValues($object);
 		$upload=$method==POST?'enctype="multipart/form-data"':'';
 		$theForm='<form id=\''.$id.'\' action=\''.$action.'\' method=\''.$method.'\' '.$upload.'  ><table class=\'form-table\'>';
+		$theForm.=HtmlHelper::input('_referer','hidden','referer');
 		foreach($elements as $id => $value){
 			if($id=='Id'){
 				if($value>0)

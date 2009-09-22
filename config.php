@@ -5,7 +5,7 @@ if(!defined('LOADAPPS'))
 	define('LOADAPPS',true);
 	
 if(!defined('DEBUG'))
-	define('DEBUG',true);
+	define('DEBUG',false);
 if(!defined('SQLDEBUG'))
 	define('SQLDEBUG',false);
 if(!defined('HOST')){

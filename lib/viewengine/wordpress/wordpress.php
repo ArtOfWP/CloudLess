@@ -45,4 +45,10 @@
 		add_action('template_redirect','render_views');
 		
 	add_filter('query_vars', 'register_aoisora_query_vars');
+	function aoisora_render_title($title,$sep=" &mdash; ",$placement="left"){
+		global $aoisoratitle;
+		$title.=$aoisoratitle." $sep ";
+		return $title;
+	}
+	add_filter('wp_title','aoisora_render_title',10,3);
 ?>

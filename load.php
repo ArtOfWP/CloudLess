@@ -23,17 +23,21 @@ function loadAoiSora(){
 	load(PACKAGEPATH.'lib/core/');
 	load(PACKAGEPATH.'lib/filters/');	
 	load(PACKAGEPATH.'lib/controllers/');
+	include(PACKAGEPATH.'AoiSoraApp.php');
+
 	global $loadviewengine;
+	
 	if($loadviewengine)
-		include(PACKAGEPATH.'lib/viewengine/'.VIEWENGINE.'/'.VIEWENGINE.'.php');
+		load(PACKAGEPATH.'lib/viewengine/'.VIEWENGINE.'/');//.VIEWENGINE.'.php');
 }
 function loadApplications(){
 	$appsSettings=AoiSoraSettings::getApplications();
 	global $apps;
 	$apps=array();
-	foreach($appsSettings as $app){
-		$apps[]=$app->getValue();
-		loadApp($app->getValue());
+	if($appsSettings)
+	foreach($appsSettings as $app => $path){
+		$apps[]=$path;
+		loadApp($path);
 	}
 }
 ?>

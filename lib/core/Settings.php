@@ -1,38 +1,54 @@
 <?php
 class AoiSoraSettings{
 	static function addApplication($name,$loadpath){
-		$setting = new Setting();
-		$setting->setApplication($name);
-		$setting->setKey('path');
-		$setting->setValue($loadpath);
-		$setting->save();
-//		Debug::Message('AddApplication');
-//		Debug::Value('Setting',$setting->getValue());
+		global $aoiSoraApp;
+		$apps=$aoiSoraApp->options->applications;
+		if(!is_array($apps))
+			$apps=array();
+		$apps[$name]=$loadpath;
+		$aoiSoraApp->options->applications=$apps;
+//		$aoiSoraApp->options->applications[$name]=$loadpath;
+		$aoiSoraApp->options->save();
+		Debug::Message('AddApplication');
+		Debug::Value('Options',$aoiSoraApp->options->getArray());
 	}
 	static function removeApplication($name){
-		$setting = new Setting();
-		Delete::createFrom($setting)->whereAnd(R::Eq('application',$name))->where(R::Eq('key','path'))->execute();
+		global $aoiSoraApp;
+		$apps=$aoiSoraApp->options->applications;
+		unset($apps[$name]);
+		$aoiSoraApp->options->applications=$apps;
+		$aoiSoraApp->options->save();
+		Debug::Message('RemoveApplication');
+		Debug::Value('Options',$aoiSoraApp->options->getArray());		
 	}
 	static function getApplications(){
-		$s = new Setting();
-		return Query::createFrom($s)->where(R::Eq('Key','path'))->execute();
+		global $aoiSoraApp;
+		return $aoiSoraApp->options->applications;
 	}
 	static function installApplication($app){
-		$setting = new Setting();
-		$setting->setApplication($app);
-		$setting->setKey('installed');
-		$setting->setValue(true);
-		$setting->save();
+		global $aoiSoraApp;
+		$inst=	$aoiSoraApp->options->installed;
+		if(!is_array($inst))
+			$inst=array();
+		$inst[]=$app;
+		$aoiSoraApp->options->installed=$inst;
+//		$aoiSoraApp->options->installed[]=$app;
+		$aoiSoraApp->options->save();
 	}
 	static function uninstallApplication($app){
-		$setting = new Setting();
-		Delete::createFrom($setting)->whereAnd(R::Eq('application',$app))->where(R::Eq('key','installed'))->execute();
+		global $aoiSoraApp;
+		$apps=$aoiSoraApp->options->installed;
+		$apps = array_diff($apps,array($app));
+		$apps=array_values($apps);
+		$aoiSoraApp->options->installed=$apps;
+		$aoiSoraApp->options->save();		
 	}	
 	static function installed($app){
-		$s = new Setting();
-		$r=Query::createFrom($s)->whereAnd(R::Eq('application',$app))->where(R::Eq('key','installed'))->execute();
-		if(isset($r) && !empty($r) && sizeof($r)>0)
-			return true;
+		global $aoiSoraApp;
+		$apps=$aoiSoraApp->options->installed;
+		if($apps)
+			if(in_array($app,$apps))
+				return true;
 		return false;
 	}
 }
