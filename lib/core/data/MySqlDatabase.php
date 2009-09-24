@@ -7,6 +7,8 @@ class MySqlDatabase implements IDatabase{
 	function MySqlDatabase(){
 		if(defined('HOST'))
 			$this->connect(HOST,DATABASE,USERNAME,PASSWORD);
+		else
+			$this->connect(DB_HOST,DB_NAME,DB_USER,DB_PASSWORD);
 	}
 	function connect($host,$database,$username,$password){
 		try {
@@ -17,7 +19,8 @@ class MySqlDatabase implements IDatabase{
 		}
 	}
 	function dropTable($object){
-		$table='DROP TABLE `'.strtolower(get_class($object)).'`';
+		global $db_prefix;
+		$table='DROP TABLE `'.$db_prefix.strtolower(get_class($object)).'`';
 		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING); 
 		$this->db->exec($table);
 		$arrays = ObjectUtility::getArrayProperties($object);
@@ -33,8 +36,9 @@ class MySqlDatabase implements IDatabase{
 		}
 	}
 	function createTable($object){
-		Debug::Value('create table',strtolower(get_class($object)));
-		$table='CREATE TABLE `'.strtolower(get_class($object)).'` (';
+		global $db_prefix;
+		Debug::Value('create table',$db_prefix.strtolower(get_class($object)));
+		$table='CREATE TABLE `'.$db_prefix.strtolower(get_class($object)).'` (';
 		$columns =	ObjectUtility::getPropertiesAndValues($object);
 		Debug::Message('gettings columns');
 		foreach($columns as $property => $value){
@@ -101,9 +105,8 @@ class MySqlDatabase implements IDatabase{
 	
 	function insert($row){
 		if(is_array($row)){
-			global $prefix;
-			$prefix='';
-			$prepared='INSERT INTO `'.$prefix.strtolower($row['table']).'`';
+			global $db_prefix;
+			$prepared='INSERT INTO `'.$db_prefix.strtolower($row['table']).'`';
 			$colval=$row['values'];
 			foreach($colval as $column => $value)
 				if(!empty($value)){
@@ -130,6 +133,38 @@ class MySqlDatabase implements IDatabase{
 		}else
 			die('MySqlDatabase->insert only accepts arrays. See documentation for structure');
 		return (int)$this->db->lastInsertId();
+	}
+	function update($row,$restriction){
+		if(is_array($row)){
+			global $db_prefix;
+			$prepared='UPDATE `'.$db_prefix.strtolower($row['table']).'` ';
+			$colval=$row['values'];
+			foreach($colval as $column => $value)
+				if(!empty($value)){
+					$column=strtolower($column);
+					$columns[]="$column=:$column";					
+					$values[':'.$column]=$value;
+				}
+			$prepared.=' SET '.implode(',',$columns).' ';
+			$prepared.=' WHERE '.$restriction->toSQL();
+			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING); 
+			$stmt=$this->db->prepare($prepared);
+			Debug::Value('Sql statement',$prepared);				
+    		Debug::Value('SQL Params',$values);	
+			if (!$stmt) {
+				Debug::Value('Error occured when preparing sql statement',$prepared);				
+	    		Debug::Value('SQL Params',$values);				
+			    Debug::Value('PDO::errorInfo()',$this->db->errorInfo());
+			}
+						
+			if (!$stmt->execute($values)) {
+				Debug::Value('Error with sql statement',$prepared);				
+			    Debug::Value('SQL Params',$values);
+				Debug::Message('PDO::errorInfo()');print_r($this->db->errorInfo());				
+			}
+		}else
+			die('MySqlDatabase->update only accepts arrays. See documentation for structure');
+//		return (int)$this->db->lastInsertId();
 	}
 	function query($q){
 		$from=implode(',',$q->from);
@@ -210,16 +245,18 @@ class MySqlDatabase implements IDatabase{
 		$this->db=null;
 	}
 	function createStoredRelations(){
+		global $db_prefix;
 		$relations=$this->relations;
 		foreach($relations as $table => $columns){
-			$table=' CREATE TABLE `'.$table.'` ( `'.$columns[0].'` INTEGER NOT NULL, `'.$columns[1].'` INTEGER NOT NULL)';
+			$table=' CREATE TABLE `'.$db_prefix.$table.'` ( `'.$columns[0].'` INTEGER NOT NULL, `'.$columns[1].'` INTEGER NOT NULL)';
 			$this->db->exec($table);
 		}
 	}
 	function dropStoredRelations(){
+		global $db_prefix;
 		$relations=$this->relations;
 		foreach($relations as $table => $columns){
-			$table='DROP TABLE `'.$table.'`';
+			$table='DROP TABLE `'.$db_prefix.$table.'`';
 			$this->db->exec($table);
 		}
 	}

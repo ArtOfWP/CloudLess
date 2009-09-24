@@ -10,11 +10,20 @@ class HtmlHelper{
 		else*/
 			HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/create',POST,'Add new',$classes);
 	}
+	static function updateForm($id,$object,$path=SUBPATH,$classes=false){
+/*		if(VIEWENGINE=='wordpress')
+			if(function_exists('is_admin') && is_admin())
+				HtmlHelper::form($id,$object,POSTPATH.'/AoiSora/preroute.php?'.CONTROLLERKEY.'='.strtolower(get_class($object)).'&'.ACTIONKEY.'=create',POST,'Add new',$classes);		
+			else
+				HtmlHelper::form($id,$object,$path.'/index.php?'.CONTROLLERKEY.'&'.get_class($object).'&'.ACTIONKEY.'=create',POST,'Add new',$classes);				
+		else*/
+			HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/update',POST,'Save',$classes);
+	}	
 	static function form($id,$object,$action,$method,$submit='Send',$classes=false){
 		$elements=ObjectUtility::getPropertiesAndValues($object);
 		$upload=$method==POST?'enctype="multipart/form-data"':'';
 		$theForm='<form id=\''.$id.'\' action=\''.$action.'\' method=\''.$method.'\' '.$upload.'  ><table class=\'form-table\'>';
-		$theForm.=HtmlHelper::input('_referer','hidden','referer');
+		$theForm.=HtmlHelper::input('_redirect','hidden','referer');
 		foreach($elements as $id => $value){
 			if($id=='Id'){
 				if($value>0)

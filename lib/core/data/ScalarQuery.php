@@ -17,12 +17,14 @@ class CountQuery{
 	var $depends=array();
 	var $returnType;
 	public function from($table){
-		$this->statement['from'][]=$this->addMark($table);
+		global $db_prefix;
+		$this->statement['from'][]=$this->addMark($db_prefix.$table);
 		return $this;		
 	}
 	public function select($property,$table=false){
+		global $db_prefix;
 		$property=$this->addMark(strtolower($property));
-		$this->statement['select'][]=$table?'COUNT('.$this->addMark($table).'.'.$property.')':'COUNT('.$property.')';
+		$this->statement['select'][]=$db_prefix.$table?'COUNT('.$this->addMark($db_prefix.$table).'.'.$property.')':'COUNT('.$property.')';
 		return $this;		
 	}
 	public function where($restriction){

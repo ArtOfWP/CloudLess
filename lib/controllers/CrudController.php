@@ -25,7 +25,7 @@ abstract class CrudController extends BaseController{
 			else if($this->methodIs(PUT))
 				$this->update();
 			else if($this->methodIs(DELETE))
-				$this->delete();		
+				$this->delete();
 		}
 	}
 	function createnew(){
@@ -44,6 +44,9 @@ abstract class CrudController extends BaseController{
 	function create(){
 		$this->loadFromPost();
 		$this->crudItem->create();
+		$this->redirect();
+	}
+	private function redirect(){
 		$redirect=Communication::useRedirect();
 		if($redirect)
 			if(strtolower($redirect)=='referer')
@@ -54,12 +57,11 @@ abstract class CrudController extends BaseController{
 	function update(){
 		$this->loadFromPost();
 		$this->crudItem->update();
-		Communication::redirectTo(Communication::getReferer());
-	}
+		$this->redirect();	}
 	function delete(){
 		$this->loadFromPost();
 		$this->crudItem->delete();
-		Communication::redirectTo(Communication::getReferer(),array('delete'=>'success'));		
+		$this->redirect();
 	}	
 	private function methodIs($method){
 		if(Communication::getMethod()==$method)
@@ -74,8 +76,8 @@ abstract class CrudController extends BaseController{
 		$values=Communication::getFormValues($properties);
 //		Debug::Value('Loaded values from post',$values);
 		$uploads=Communication::getUpload($properties);
-//		print_r($uploads);
 		foreach($uploads as $property => $upload){
+			if(strlen($upload["name"])>0){
 			$path=PACKAGEPATH.'uploads/'.$upload["name"];
 			move_uploaded_file($upload["tmp_name"],$path);
 			$values[$property]='/AoiSora/uploads/'.$upload["name"];
@@ -92,6 +94,9 @@ abstract class CrudController extends BaseController{
 //			if($process['result'] && $image->save_folder){
 //				echo 'The new image ('.$process['new_file_path'].') has been saved.';
 //			}			
+			}else{
+				$values[$property]='';
+			}
 		}
 		ObjectUtility::setProperties($this->crudItem,$values);
 	}

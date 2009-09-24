@@ -1,5 +1,5 @@
 <?php
-class WpSecurity implements ISecurity{
+class WpSecurity{
 	function get_current_user(){
 		global $current_user;
 	    get_currentuserinfo();

@@ -8,9 +8,10 @@ class R{
 	var $method;
 		
 	static function Eq($property,$value,$isProperty=false){
+		global $db_prefix;
 		$r = new R();
 		if($property instanceof ActiveRecordBase){
-			$r->table=strtolower(get_class($property));
+			$r->table=$db_prefix.strtolower(get_class($property));
 			$r->column='id';
 		}else
 			$r->column=strtolower($property);
@@ -18,7 +19,7 @@ class R{
 		if($isProperty){
 			$p=explode('.',$value);
 			if(sizeof($p)>1){
-				$r->foreigntable=strtolower($p[0]);
+				$r->foreigntable=$db_prefix.strtolower($p[0]);
 				$r->foreigncolumn=strtolower($p[1]);
 			}else
 				$r->column=$p[0];

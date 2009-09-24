@@ -1,8 +1,9 @@
 <?php
 class Delete{
 	function Delete($table=false){
-		if($table)
+		if($table){
 			$this->from($this->addMark($table));
+		}
 	}
 	static function createFrom($object,$lazy=true){
 		$maintable=strtolower(get_class($object));
@@ -14,7 +15,8 @@ class Delete{
 	}	
 	private $statement=array();
 	public function from($table){
-		$this->statement['from'][]=$this->addMark($table);
+		global $db_prefix;
+		$this->statement['from'][]=$this->addMark($db_prefix.$table);
 		return $this;		
 	}
 	public function where($restriction){
@@ -58,8 +60,9 @@ class Delete{
 
 class Query{
 	function Query($table=false){
-		if($table)
-			$this->from($this->addMark($table));
+		if($table){
+			$this->from($table);
+		}
 	}
 	static function createFrom($object,$lazy=true){
 		$maintable=strtolower(get_class($object));
@@ -70,9 +73,9 @@ class Query{
 			if(!$lazy){
 				$dependson=array_key_exists_v('dbrelation',ObjectUtility::getCommentDecoration($object,'get'.$property));
 				if($dependson){
-					'select * from this, dependson where this.property=dependson.id';
+					//'select * from this, dependson where this.property=dependson.id';
 					$temp= new $dependson();
-					$table=strtolower($dependson);
+//					$table=$db_prefix.strtolower($dependson);
 					$gProperty= Query::createFrom($temp,$lazy)
 								->where(R::Eq($temp,'id'));
 					$q->depends[$property]=$gProperty;
@@ -89,12 +92,14 @@ class Query{
 	var $depends=array();
 	var $returnType;
 	public function from($table){
-		$this->statement['from'][]=$this->addMark($table);
+		global $db_prefix;
+		$this->statement['from'][]=$this->addMark($db_prefix.$table);
 		return $this;		
 	}
 	public function select($property,$table=false){
+		global $db_prefix;
 		$property=$this->addMark(strtolower($property));
-		$this->statement['select'][]=$table?$this->addMark($table).'.'.$property:$property;
+		$this->statement['select'][]=$table?$this->addMark($db_prefix.$table).'.'.$property:$property;
 		return $this;		
 	}
 	public function where($restriction){

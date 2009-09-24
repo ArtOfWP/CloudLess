@@ -3,10 +3,6 @@
 		define('APPPATH',dirname(__FILE__).'/');
 	else
 		define('APPPATH',WP_PLUGIN_DIR);
-	define('LIB','/app/');
-	define('DOMAIN',LIB.'domain/');
-	define('VIEWS',LIB.'views/');
-	define('CONTROLLERS',LIB.'/controllers/');
 	if(!defined('PREROUTE'))
 		define('POSTPATH',WP_PLUGIN_URL);
 	if(defined('PREROUTE')){

@@ -5,6 +5,7 @@ class BaseController{
 	protected $action;
 	protected $filter;
 	protected $title;
+	protected $redirect;
 	private $render=true;
 	public $bag=array();
 	public $viewcontent;
@@ -89,6 +90,8 @@ class BaseController{
 		return $viewcontent;
 	}
 	private function findView($controller,$action){
+		$controller=strtolower($controller);
+		$action=strtolower($action);
 		global $apps;
 		$found=false;
 		$total=sizeof($apps);

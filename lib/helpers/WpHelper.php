@@ -2,16 +2,19 @@
 class WpHelper{
 	
 	/**
-	    $optionsgourp=name of the optionsgroup you want to generate a form, for.
-		$optionNames=array('Label'=>'key');
+	    $optiongroup=name of the optionsgroup you want to generate a form, for. If isarray optiongroup is the name of the option with the array.
+		$options=array('Label'=>'key');
 		if $optionNames is not supplied the function will retrieve the options it self and use the optionkey as label.
 	 */
-	static function simpleOptionsForm($optiongroup,$options=false){		
+	static function simpleOptionsForm($optiongroup,$options=false,$isarray=false){		
 		if(!$options){
 			$options=array();
 			global $new_whitelist_options;
 			$options=$new_whitelist_options[$optiongroup];
 		}
+		$values=false;
+		if($isarray)
+			$values=get_option($optiongroup);
 		?>
 		<form method="post" action="options.php">
 			<?php settings_fields($optiongroup); ?>
@@ -35,17 +38,17 @@ class WpHelper{
 			?>
 				<tr valign="top">
 					<th scope="row">
-						<label for="<?php echo $key ?>"><?php if(is_int($label)) echo str_replace('_',' ',$key); else echo $label ?></label></th>
+						<label for="<?php echo $values?$values[$key]:$key ?>"><?php if(is_int($label)) echo str_replace('_',' ',$values?$values[$key]:$key ); else echo $label ?></label></th>
 					<td>
 					<?php 
 						if($type):
 							if($type=='textarea'):?>
-								<textarea id="<?php echo $key ?>" name="<?php echo $key ?>"><?php echo get_option($key); ?></textarea>
+								<textarea id="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" name="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>"><?php echo $values?$values[$key]:get_option($key); ?></textarea>
 					<?php 	elseif($type=='checkbox'):?>
-								<input type="checkbox" id="<?php echo $key ?>" name="<?php echo $key ?>" value="1" <?php echo get_option($key)?'checked=\"checked\"':''; ?> />					
+								<input type="checkbox" id="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" name="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" value="1" <?php echo $values?$values[$key]:get_option($key)?'checked=\"checked\"':''; ?> />					
 					<?php	elseif(strpos($type,'dropdown')!==false):?>
-					<?php 		$selected=get_option($key);	?>
-								<select id="<?php echo $key ?>" name="<?php echo $key ?>">
+					<?php 		$selected=$values?$values[$key]:get_option($key);	?>
+								<select id="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" name="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>">
 					<?php 		foreach($dropdown as $text => $value):?>
 					<?php 			
 									if($selected==$value)
@@ -57,7 +60,7 @@ class WpHelper{
 								</select>
 					<?php 	endif;?>
 					<?php else:?>
-								<input type="text" id="<?php echo $key ?>" name="<?php echo $key ?>" value="<?php echo get_option($key); ?>" />
+								<input type="text" id="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" name="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" value="<?php echo $values?$values[$key]:get_option($key); ?>" />
 					<?php endif;?>
 					</td>
 				</tr>
