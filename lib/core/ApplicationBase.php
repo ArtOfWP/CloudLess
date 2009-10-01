@@ -17,11 +17,20 @@ abstract class ApplicationBase{
 			register_activation_hook("$appName/$appName.php", array(&$this,'activate'));
 			register_deactivation_hook("$appName/$appName.php", array(&$this,'deactivate'));
 			register_uninstall_hook("$appName/$appName.php", array(&$this,'delete'));
-			if(method_exists($this,'onplugin_page_link'))
+			if(method_exists($this,'on_plugin_page_link'))
 				add_filter( 'plugin_action_links', array(&$this,'plugin_page_links'), 10, 2 );
+			if(method_exists($this,'on_init_admin'))
+				add_action('init', array(&$this,'on_init_admin'));
+			if(method_exists($this,'on_admin_menu'))
+				add_action('admin_menu',array(&$this,'on_admin_menu'));
+		}else{
+			if(method_exists($this,'on_add_page_links'))
+				add_filter('wp_list_pages', array(&$this,'on_add_page_links'));	
+			if(method_exists($this,'render_view_template'))
+				add_filter('render_from_template',array(&$this,'render_view_template'));
+			if(method_exists($this,'on_init'))
+				add_action('init', array(&$this,'on_init'));
 		}
-		if(method_exists($this,'render_view_template'))
-			add_filter('render_from_template',array(&$this,'render_view_template'));
 		if($useOptions){
 			$this->options= new WpOption($appName);
 			if(method_exists($this,'on_load_options'))
@@ -40,7 +49,7 @@ abstract class ApplicationBase{
 		if ( ! $this_plugin ) $this_plugin = "$this->app/$this->app.php";
 		
 		if ( $file == $this_plugin ){
-			$plugin_link=$this->onplugin_page_link();
+			$plugin_link=$this->on_plugin_page_link();
 			array_unshift( $links, $plugin_link); // before other links
 		}
 		return $links;
@@ -118,10 +127,6 @@ abstract class ApplicationBase{
 			}
 		}
 		closedir($handle);
-	}
-	protected function printContent(){
-		global $viewcontent;
-		echo $viewcontent;
 	}
 }
 ?>

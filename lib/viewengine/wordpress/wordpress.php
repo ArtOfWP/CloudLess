@@ -37,7 +37,7 @@
 		include(TEMPLATEPATH.$args['template']);
 		exit;
 	}
-	if(!defined('PREROUTE'))
+	if(!defined('PREROUTE') && !is_admin())
 		add_action('template_redirect','render_views');
 		
 	add_filter('query_vars', 'register_aoisora_query_vars');

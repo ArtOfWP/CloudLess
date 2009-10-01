@@ -98,28 +98,6 @@ abstract class ActiveRecordBase{
 		return $item;
 	}
 	
-	protected function p_findByProperty($property,$value,$lazy=false){
-		return Query::createFrom($this,$lazy)->where(R::Eq($property,$value))->execute();
-	}
-	protected function p_slicedFindAll($firstResult,$maxResult,$order,$restrictions){
-		return Query::createFrom($this)
-			->limit($firstResult,$maxResult)
-			->orderBy($order)
-			->where($restrictions)
-			->execute();
-	}
-	
-	protected function p_findAll(){
-		return Query::createFrom($this)->execute();
-
-	}
-	protected function p_getById($id,$lazy=false){
-
-		$objects= Query::createFrom($this,$lazy)
-				  ->where(R::Eq($this,$id))
-				  ->execute();
-		return sizeof($objects)==1?$objects[0]:false;
-	}
 	public function __call($method,$arguments){
 		if($this->getId()){
 			if(empty($arguments)){

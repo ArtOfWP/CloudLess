@@ -64,10 +64,13 @@ class Query{
 			$this->from($table);
 		}
 	}
-	static function createFrom($object,$lazy=true){
-		$maintable=strtolower(get_class($object));
+	static function createFrom($class,$lazy=true){
+		if(is_object($class))
+			$class=get_class($class);
+		$maintable=strtolower($class);
 		$q = new Query($maintable);
-		$q->returnType=get_class($object);
+		$q->returnType=$class;
+		$object = new $class();
 		$properties =ObjectUtility::getProperties($object);
 		foreach($properties as $property){
 			if(!$lazy){

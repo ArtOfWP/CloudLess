@@ -2,22 +2,10 @@
 
 class HtmlHelper{
 	static function createForm($id,$object,$path=SUBPATH,$classes=false){
-/*		if(VIEWENGINE=='wordpress')
-			if(function_exists('is_admin') && is_admin())
-				HtmlHelper::form($id,$object,POSTPATH.'/AoiSora/preroute.php?'.CONTROLLERKEY.'='.strtolower(get_class($object)).'&'.ACTIONKEY.'=create',POST,'Add new',$classes);		
-			else
-				HtmlHelper::form($id,$object,$path.'/index.php?'.CONTROLLERKEY.'&'.get_class($object).'&'.ACTIONKEY.'=create',POST,'Add new',$classes);				
-		else*/
-			HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/create',POST,'Add new',$classes);
+		HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/create',POST,'Add new',$classes);
 	}
 	static function updateForm($id,$object,$path=SUBPATH,$classes=false){
-/*		if(VIEWENGINE=='wordpress')
-			if(function_exists('is_admin') && is_admin())
-				HtmlHelper::form($id,$object,POSTPATH.'/AoiSora/preroute.php?'.CONTROLLERKEY.'='.strtolower(get_class($object)).'&'.ACTIONKEY.'=create',POST,'Add new',$classes);		
-			else
-				HtmlHelper::form($id,$object,$path.'/index.php?'.CONTROLLERKEY.'&'.get_class($object).'&'.ACTIONKEY.'=create',POST,'Add new',$classes);				
-		else*/
-			HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/update',POST,'Save',$classes);
+		HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/update',POST,'Save',$classes);
 	}	
 	static function form($id,$object,$action,$method,$submit='Send',$classes=false){
 		$elements=ObjectUtility::getPropertiesAndValues($object);
@@ -29,8 +17,10 @@ class HtmlHelper{
 				if($value>0)
 					$theForm.=HtmlHelper::input($id,'hidden',$value);
 			}else{
+				$settings=ObjectUtility::getCommentDecoration($object,'get'.$id);				
+				if(array_key_exists('new',$settings))
+					continue;
 				$theForm.='<tr valign=\'top\'>';	
-				$settings=ObjectUtility::getCommentDecoration($object,'get'.$id);
 				$field=array_key_exists_v('field',$settings);
 					$theForm.='<th scope=\'row\'>';
 					$theForm.=HtmlHelper::label($id);
@@ -47,7 +37,7 @@ class HtmlHelper{
 						$value=$temp->findAll();
 					}
 					$theForm.=HtmlHelper::select($id,$value);
-					if($dbfield){
+					if($dbfield && array_key_exists_v('addnew',$settings)=='true'){
 						ob_start();
 						HtmlHelper::a('Add new',Communication::cleanUrl($_SERVER["REQUEST_URI"]).'?page='.strtolower($dbfield).'&action=createnew');
 						$theForm.=ob_get_contents();
@@ -57,7 +47,7 @@ class HtmlHelper{
 				else if($field=='url'){
 					$theForm.=HtmlHelper::input($id,'text',$value);
 					ob_start();
-					HtmlHelper::a('Test affiliate link',$value);
+					HtmlHelper::a('Test link',$value);
 					$theForm.='<br />'.ob_get_contents();
 					ob_end_clean();
 				}

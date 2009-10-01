@@ -50,8 +50,8 @@ class MySqlDatabase implements IDatabase{
 				$settings=ObjectUtility::getCommentDecoration($object,'get'.$property);				
 				if(!isset($value)){
 					$dbfield=strtolower(array_key_exists_v('dbfield',$settings));					
-					if($dbfield=='varchar'){
-						$length=(int)array_key_exists_v('dblength',$settings);
+					if($dbfield=='char'){
+						$length=array_key_exists_v('dblength',$settings);
 						if($length)
 							$table.='VARCHAR('.$length.') NOT NULL default \'\',';
 						else{

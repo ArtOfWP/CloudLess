@@ -10,7 +10,7 @@ if(!defined('LOADAPPS'))
 if(!defined('DEBUG'))
 	define('DEBUG',true);
 if(!defined('SQLDEBUG'))
-	define('SQLDEBUG',false);
+	define('SQLDEBUG',true);
 
 	global $db_prefix;
 	global $table_prefix;
