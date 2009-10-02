@@ -13,7 +13,7 @@ class Debug{
 	static function Value($message,$value){
 		if(Debug::IsActive())
 			if(is_array($value)){
-				Debug::Message('<strong>'.$message.'</strong>');
+				Debug::Message('<p><strong>'.$message.'</strong></p>');
 				echo '<ul>';
 				foreach($value as $key => $val)
 					echo '<li>'.$key.' : '.$val.'</li>';

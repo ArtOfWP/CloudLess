@@ -44,7 +44,7 @@ abstract class CrudController extends BaseController{
 	function create(){
 		$this->loadFromPost();
 		$this->crudItem->create();
-		$this->redirect();
+//		$this->redirect();
 	}
 	private function redirect(){
 		$redirect=Communication::useRedirect();
@@ -70,11 +70,16 @@ abstract class CrudController extends BaseController{
 	}
 	private function loadFromPost(){
 		$properties = ObjectUtility::getPropertiesAndValues($this->crudItem);
-//		Debug::Message('LoadFromPost');
-//		Debug::Value('Loaded properties/values from'.get_class($this->crudItem),$properties);
-//		Debug::Value('Uploaded',Communication::getUpload($properties));
+		Debug::Message('LoadFromPost');
+		$arrvalues=Communication::getFormValues();
+		Debug::Value('Post',$arrvalues);
+
+		//		Debug::Value('Uploaded',Communication::getUpload($properties));
 		$values=Communication::getFormValues($properties);
-//		Debug::Value('Loaded values from post',$values);
+		Debug::Value('Loaded properties/values from'.get_class($this->crudItem),$values);		
+		$arrprop=ObjectUtility::getArrayPropertiesAndValues($this->crudItem);
+		$lists=array_search_key('_list',$arrvalues);
+		Debug::Value('Loaded values from post',$lists);
 		$uploads=Communication::getUpload($properties);
 		foreach($uploads as $property => $upload){
 			if(strlen($upload["name"])>0){
@@ -99,6 +104,20 @@ abstract class CrudController extends BaseController{
 			}
 		}
 		ObjectUtility::setProperties($this->crudItem,$values);
+		foreach($lists as $method => $value){
+			$settings=ObjectUtility::getCommentDecoration($this->crudItem,str_ireplace("_list","",$method).'List');
+			$dbrelation=array_key_exists_v('dbrelation',$settings);
+			$values=explode(',',$value);
+			$objects=array();
+			foreach($values as $value)
+				if($dbrelation){
+					$object= new $dbrelation;
+					$object->setName($value);
+					$object->save();
+					$objects[]=$object;
+				}
+			ObjectUtility::addToArray($this->crudItem,str_ireplace("_list","",$method),$objects);
+		}
 	}
 
 }

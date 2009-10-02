@@ -29,7 +29,7 @@ abstract class ActiveRecordBase{
 			if($values)
 				foreach($values as $value){
 					if($table && is_subclass_of($value,'ActiveRecordBase')){
-						$value->create();
+						$value->save();
 						$col1=strtolower(get_class($value)).'_id';
 						$col2=strtolower(get_class($this)).'_id';
 						$row['table']=$table;
@@ -88,10 +88,15 @@ abstract class ActiveRecordBase{
 		}
 	}
 	function save(){
-		if($this->getId()>0)
-			$this->update();
-		else
-			$this->create();
+		$doit=true;
+		if(method_exists($this,'on_pre_save'))
+			$doit=$this->on_pre_save();
+		Debug::Message('Save Doit',$doit);
+		if($doit)
+			if($this->getId()>0)
+				$this->update();
+			else
+				$this->create();
 	}
 	static function _($class){
 		$item = new $class();

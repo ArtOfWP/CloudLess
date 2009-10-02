@@ -119,6 +119,8 @@ class MySqlDatabase implements IDatabase{
 			$prepared.=' VALUES('.implode(',',$params).')';
 			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING); 
 			$stmt=$this->db->prepare($prepared);
+		    Debug::Value('SQL',$prepared);
+		    Debug::Value('SQL Params',$params);
 			if (!$stmt) {
 				Debug::Value('Error occured when preparing sql statement',$prepared);				
 	    		Debug::Value('SQL Params',$values);				

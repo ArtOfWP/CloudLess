@@ -1,10 +1,14 @@
 <?php
 
 class HtmlHelper{
-	static function createForm($id,$object,$path=SUBPATH,$classes=false){
+	static function createForm($id,$object,$path=false,$classes=false){
+		if(!$path)
+			$path=get_bloginfo('url');
 		HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/create',POST,'Add new',$classes);
 	}
-	static function updateForm($id,$object,$path=SUBPATH,$classes=false){
+	static function updateForm($id,$object,$path=false,$classes=false){
+		if(!$path)
+			$path=get_bloginfo('url');
 		HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/update',POST,'Save',$classes);
 	}	
 	static function form($id,$object,$action,$method,$submit='Send',$classes=false){
@@ -75,7 +79,7 @@ class HtmlHelper{
 					$list='';
 					if($value!=null)
 						$list=implode($seperator,$value);
-					$theForm.=HtmlHelper::input($id,'text',$list);
+					$theForm.=HtmlHelper::input($id.'_list','text',$list);
 				}else if($field=='multiple'){					
 					$dbfield=array_key_exists_v('dbrelation',$settings);
 					if($dbfield){
@@ -174,7 +178,7 @@ class HtmlHelper{
 				$tbody.='<td>'.$row->$method().'</td>';
 			}
 			ob_start();
-			HtmlHelper::deleteButton('Delete',$row->getId(),SUBPATH.'/ShopItem/delete');
+			HtmlHelper::deleteButton('Delete',$row->getId(),get_bloginfo('url').'/'.get_class($row).'/delete');
 			$tbody.='<td style=\'width:50px;\'>'.ob_get_contents().'</td>';
 			ob_end_clean();			
 			$tbody.='</tr>';

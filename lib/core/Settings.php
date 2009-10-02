@@ -7,7 +7,6 @@ class AoiSoraSettings{
 			$apps=array();
 		$apps[$name]=$loadpath;
 		$aoiSoraApp->options->applications=$apps;
-//		$aoiSoraApp->options->applications[$name]=$loadpath;
 		$aoiSoraApp->options->save();
 		Debug::Message('AddApplication');
 		Debug::Value('Options',$aoiSoraApp->options->getArray());
