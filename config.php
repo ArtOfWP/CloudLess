@@ -8,9 +8,9 @@ if(!defined('LOADAPPS'))
 	define('VIEWS',LIB.'views/');
 	define('CONTROLLERS',LIB.'/controllers/');
 if(!defined('DEBUG'))
-	define('DEBUG',true);
+	define('DEBUG',false);
 if(!defined('SQLDEBUG'))
-	define('SQLDEBUG',true);
+	define('SQLDEBUG',false);
 
 	global $db_prefix;
 	global $table_prefix;

@@ -4,7 +4,9 @@ class AdminPages{
 	private $menutitle;
 	private $accesslevel;
 	private $name;
-	function AdminPages($pagetitle,$menutitle,$accesslevel,$name){
+	private $dir;
+	function AdminPages($app,$pagetitle,$menutitle,$accesslevel,$name){
+		$this->dir=$app->dir;
 		$this->pagetitle=$pagetitle;
 		$this->menutitle=$menutitle;
 		$this->accesslevel=$accesslevel;
@@ -17,15 +19,15 @@ class AdminPages{
 		add_submenu_page($this->name,$pagetitle,$menutitle,$accesslevel,$controller,array(&$this,$action));
 	}
 	function addOptionsPage($pagetitle,$menutitle,$accesslevel){
-		add_options_page($pagetitle,$menutitle,$accesslevel,str_replace(" ","",strtolower($menutitle)),array(&$this,'settings'));		
+		add_options_page($pagetitle,$menutitle,$accesslevel,str_replace(" ","",strtolower($menutitle)),array(&$this,'options'));		
 	}
 	function none(){}
 	function __call($method,$args){
 		if(method_exists($this,$method))
 			$this->$method();
 		else{
-			if(strtolower($method)=='settings')
-				include('app/views/settings.php');
+			if(strtolower($method)=='options')
+				include($this->dir. '/app/views/options.php');
 			else{
 				Route::reroute();
 				$this->printContent();

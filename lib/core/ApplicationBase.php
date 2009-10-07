@@ -2,23 +2,27 @@
 abstract class ApplicationBase{
 	protected $installfrompath;
 	private $models=array();
-	private $dir;
+	public $pluginname;
+	public $dir;
 	public $app;
 	public $options;
 	function ApplicationBase($appName,$appDir,$useOptions=false){
 		$this->dir=$appDir;
 		$this->app=$appName;
+		$this->pluginname="$appName/$appName.php";
 		$this->installfrompath=$appDir.'/app/core/domain/';
 		if(method_exists($this,'on_register_query_vars'))
 			add_filter('query_vars', array(&$this,'register_query_vars'));
 		if(is_admin()){
 			if($useOptions)
 				add_action( 'admin_init', array(&$this,'register_settings' ));			
-			register_activation_hook("$appName/$appName.php", array(&$this,'activate'));
-			register_deactivation_hook("$appName/$appName.php", array(&$this,'deactivate'));
-			register_uninstall_hook("$appName/$appName.php", array(&$this,'delete'));
+			register_activation_hook($this->pluginname, array(&$this,'activate'));
+			register_deactivation_hook($this->pluginname, array(&$this,'deactivate'));
+			register_uninstall_hook($this->pluginname, array(&$this,'delete'));
 			if(method_exists($this,'on_plugin_page_link'))
-				add_filter( 'plugin_action_links', array(&$this,'plugin_page_links'), 10, 2 );
+				add_filter( 'plugin_action_links_'.$this->pluginname, array(&$this,'plugin_page_links'), 10, 2 );
+			if(method_exists($this,'on_after_plugin_row'))
+				add_action( 'after_plugin_row_'.$this->pluginname, array(&$this,'after_plugin_row'), 10, 2 );				
 			if(method_exists($this,'on_init_admin'))
 				add_action('init', array(&$this,'on_init_admin'));
 			if(method_exists($this,'on_admin_menu'))
@@ -44,14 +48,18 @@ abstract class ApplicationBase{
 	function register_settings(){
 		WpHelper::registerSettings($this->app,array($this->app));
 	}
-	function plugin_page_links($links, $file){
-		static $this_plugin;
-		if ( ! $this_plugin ) $this_plugin = "$this->app/$this->app.php";
+	function after_plugin_row($plugin_file, $plugin_data){
+//		 $plugin_file, $plugin_data, $context
+    echo '<tr class="plugin-update-tr"><td colspan="5" class="plugin-update">' . $plugin_file .' '. var_dump($plugin_data) .' '. $context . '</td></tr>';
+	}
+	function plugin_page_links($links){
+//		static $this_plugin;
+//		if ( ! $this_plugin ) $this_plugin = "$this->app/$this->app.php";
 		
-		if ( $file == $this_plugin ){
+//		if ( $file == $this_plugin ){
 			$plugin_link=$this->on_plugin_page_link();
 			array_unshift( $links, $plugin_link); // before other links
-		}
+//		}
 		return $links;
 	}
 	function activate(){

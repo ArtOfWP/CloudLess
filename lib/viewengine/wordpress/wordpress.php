@@ -18,6 +18,7 @@
 	function register_aoisora_query_vars($public_query_vars) {
 		$public_query_vars[] = "controller";
 		$public_query_vars[] = "action";
+		$public_query_vars[] = "result";
 		return $public_query_vars;
 	}
 	function render_views(){

@@ -32,11 +32,13 @@ class Communication{
 		if(defined('TESTING')){
 			global $testquery;
 			return $testquery;	
-		}else{
+		}else{/*
 			global $wp_query;
+			var_dump($wp_query->query_vars);
 			if(isset($wp_query))
-			return $wp_query->query_vars;
-			else $_GET;
+				return $wp_query->query_vars;
+			else */
+				return $_GET;
 		}
 	}
 	static function getFormValues($keys=false){
@@ -60,7 +62,7 @@ class Communication{
 		
 	static function redirectTo($url,$data=false){
 		if(function_exists('wp_redirect'))
-			wp_redirect($url);
+			wp_redirect($url.$data);
 		else{
 			header( 'Location: '.$url );
 			exit;

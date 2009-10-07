@@ -94,5 +94,8 @@ class WpHelper{
 		$list.='</ul>';
 		return $list;
 	}
+	static function notification($id,$message){
+		echo "<div id='$id' class='updated fade'>$message</div>";
+	}
 }
 ?>

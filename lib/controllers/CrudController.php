@@ -30,6 +30,7 @@ abstract class CrudController extends BaseController{
 	}
 	function createnew(){
 		$this->bag['new']=$this->crudItem;
+		$this->bag['result']=array_key_exists_v('result',$this->values);
 		$this->Render($this->controller,'createnew');		
 	}
 	function listall(){
@@ -44,15 +45,17 @@ abstract class CrudController extends BaseController{
 	function create(){
 		$this->loadFromPost();
 		$this->crudItem->create();
-//		$this->redirect();
+		$this->redirect('&result=1');
 	}
-	private function redirect(){
+	private function redirect($query=false){
+		if(defined('NOREDIRECT') && NOREDIRECT)
+			return;
 		$redirect=Communication::useRedirect();
 		if($redirect)
 			if(strtolower($redirect)=='referer')
-				Communication::redirectTo(Communication::getReferer());
+				Communication::redirectTo(Communication::getReferer(),$query);
 			else
-				Communication::redirectTo($redirect);
+				Communication::redirectTo($redirect,$query);
 	}
 	function update(){
 		$this->loadFromPost();

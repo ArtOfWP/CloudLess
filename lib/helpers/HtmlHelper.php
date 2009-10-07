@@ -4,18 +4,21 @@ class HtmlHelper{
 	static function createForm($id,$object,$path=false,$classes=false){
 		if(!$path)
 			$path=get_bloginfo('url');
-		HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/create',POST,'Add new',$classes);
+		HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/create',POST,'Add new',strtolower(get_class($object)),$classes);
 	}
 	static function updateForm($id,$object,$path=false,$classes=false){
 		if(!$path)
 			$path=get_bloginfo('url');
-		HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/update',POST,'Save',$classes);
+		HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/update',POST,'Save',strtolower(get_class($object)),$classes);
 	}	
-	static function form($id,$object,$action,$method,$submit='Send',$classes=false){
+	static function form($id,$object,$action,$method,$submit='Send',$nonce=false,$classes=false){
 		$elements=ObjectUtility::getPropertiesAndValues($object);
 		$upload=$method==POST?'enctype="multipart/form-data"':'';
 		$theForm='<form id=\''.$id.'\' action=\''.$action.'\' method=\''.$method.'\' '.$upload.'  ><table class=\'form-table\'>';
 		$theForm.=HtmlHelper::input('_redirect','hidden','referer');
+		if($nonce)
+			$theForm.=HtmlHelper::input('_wpnonce','hidden',wp_create_nonce($nonce));
+			
 		foreach($elements as $id => $value){
 			if($id=='Id'){
 				if($value>0)
@@ -138,8 +141,10 @@ class HtmlHelper{
 	static function option($value,$display){
 		return '<option value=\''.$value.'\'>'.$display.'</option>';
 	}
-	static function deleteButton($text,$value,$path){
+	static function deleteButton($text,$value,$path,$nonce){
 		$theForm='<form action=\''.urldecode($path).'\' method=\''.POST.'\' >';
+		$theForm.=HtmlHelper::input('_redirect','hidden','referer');
+		$theForm.=HtmlHelper::input('_wpnonce','hidden',wp_create_nonce($nonce));		
 		$theForm.=HtmlHelper::input('_method','hidden','delete');
 		$theForm.=HtmlHelper::input('Id','hidden',$value);
 		$theForm.=HtmlHelper::input('delete'.$value,'submit',$text,'button-secondary');
@@ -166,9 +171,10 @@ class HtmlHelper{
 		$table='<table class="widefat post fixed">';
 		$tbody.='<tbody>';
 		foreach($data as $row){
+			$class=strtolower(get_class($row));
 			$tbody.='<tr>';
 			ob_start();
-			HtmlHelper::viewLink($_SERVER["REQUEST_URI"].'&controller='.get_class($row),'Edit',$row->getId());
+			HtmlHelper::viewLink($_SERVER["REQUEST_URI"].'&controller='.$class,'Edit',$row->getId());
 			$tbody.='<td style=\'width:50px;vertical-align:middle;\'>'.ob_get_contents().'</td>';
 			ob_end_clean();
 			if(!$headlines)
@@ -178,7 +184,7 @@ class HtmlHelper{
 				$tbody.='<td>'.$row->$method().'</td>';
 			}
 			ob_start();
-			HtmlHelper::deleteButton('Delete',$row->getId(),get_bloginfo('url').'/'.get_class($row).'/delete');
+			HtmlHelper::deleteButton('Delete',$row->getId(),get_bloginfo('url').'/'.$class.'/delete',$class);
 			$tbody.='<td style=\'width:50px;\'>'.ob_get_contents().'</td>';
 			ob_end_clean();			
 			$tbody.='</tr>';
