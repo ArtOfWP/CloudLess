@@ -37,13 +37,23 @@ class HtmlHelper{
 				if($field=='textarea'){
 					$theForm.=HtmlHelper::textarea($id,$value);	
 				}
+				else if($field=='image'){
+					ob_start();
+					HtmlHelper::img(WP_PLUGIN_URL.$value);
+					$theForm.=ob_get_contents().'<br />';
+					ob_end_clean();
+					if($value)
+						$theForm.=HtmlHelper::input($id.'_hasimage','hidden',$value?'1':'');					
+					$theForm.=HtmlHelper::input($id,'file',$value);
+				}
 				else if($field=='dropdown'){
 					$dbfield=array_key_exists_v('dbrelation',$settings);
 					if($dbfield){
 						$temp = new $dbfield();
-						$value=$temp->findAll();
+						$selects=$temp->findAll();
 					}
-					$theForm.=HtmlHelper::select($id,$value);
+//					$theForm.="<p>$value</p>";
+					$theForm.=HtmlHelper::select($id,$selects,false,$value);
 					if($dbfield && array_key_exists_v('addnew',$settings)=='true'){
 						ob_start();
 						HtmlHelper::a('Add new',Communication::cleanUrl($_SERVER["REQUEST_URI"]).'?page='.strtolower($dbfield).'&action=createnew');
@@ -122,7 +132,7 @@ class HtmlHelper{
 	static function textarea($id,$value,$class=false){
 		return '<textarea id=\''.$id.'\' name=\''.$id.'\' rows=\'10\'  cols=\'20\'>'.$value.'</textarea>';
 	}
-	static function select($id,$array,$multiple=false){
+	static function select($id,$array,$multiple=false,$selectedValues=false){
 		$select='<select id=\''.$id.'\' name=\''.$id.'\'';
 		if($multiple)
 			$select.=' multiple=\'multiple\' style=\'height:70px\' size=\'5\'';
@@ -131,14 +141,16 @@ class HtmlHelper{
 		if(is_array($array))	
 			foreach($array as $element){
 				if(is_string($element) || is_int($element))
-					$select.=HtmlHelper::option($element,$element);				
+					$select.=HtmlHelper::option($element,$element,$selectedValues==$element);				
 				else 
-					$select.=HtmlHelper::option($element->getId(),$element);
+					$select.=HtmlHelper::option($element->getId(),$element,$selectedValues==$element.'' );
 			}
 		$select.='</select>';
 		return $select;
 	}
-	static function option($value,$display){
+	static function option($value,$display,$selected=false){
+		if($selected)
+			return '<option selected="selected" value=\''.$value.'\'>'.$display.'</option>';		
 		return '<option value=\''.$value.'\'>'.$display.'</option>';
 	}
 	static function deleteButton($text,$value,$path,$nonce){
@@ -174,7 +186,7 @@ class HtmlHelper{
 			$class=strtolower(get_class($row));
 			$tbody.='<tr>';
 			ob_start();
-			HtmlHelper::viewLink($_SERVER["REQUEST_URI"].'&controller='.$class,'Edit',$row->getId());
+			HtmlHelper::viewLink(admin_url("admin.php?page=$class&action=edit"),'Edit',$row->getId());
 			$tbody.='<td style=\'width:50px;vertical-align:middle;\'>'.ob_get_contents().'</td>';
 			ob_end_clean();
 			if(!$headlines)

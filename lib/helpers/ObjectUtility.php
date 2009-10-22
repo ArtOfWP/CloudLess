@@ -5,6 +5,7 @@ class ObjectUtility{
 		$class = new ReflectionClass(get_class($object));
 		$methods= $class->getMethods(ReflectionMethod::IS_PUBLIC);
 		$properties=array();
+		Debug::Value('Class',get_class($object));
 		foreach($methods as $method)
 			if(strpos($method->getName() ,'get')!==false && !$method->isStatic()){
 				$property=str_replace('get','',$method->getName());
@@ -58,6 +59,7 @@ class ObjectUtility{
 	}
 	
 	static function setProperties($object,$values){
+//		Debug::Value('SetProp for ',get_class($object));
 		foreach($values as $property => $value){
 			$method=new ReflectionMethod(get_class($object),'set'.$property);
 			$method->invoke($object,$value);

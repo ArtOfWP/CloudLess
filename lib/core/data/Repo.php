@@ -1,9 +1,11 @@
 <?php
 class Repo{
-	static function findAll($class){
-		return Query::createFrom($class)->execute();		
+	static function findAll($class,$lazy=false){
+		return Query::createFrom($class,$lazy)->execute();		
 	}
 	static function getById($class,$id,$lazy=false){
+		Debug::Value('Repo::getById',$class);
+		Debug::Value('Id=',$id);
 		$objects= Query::createFrom($class,$lazy)
 				  ->where(R::Eq(new $class,$id))
 				  ->execute();

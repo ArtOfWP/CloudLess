@@ -10,11 +10,11 @@ abstract class CrudController extends BaseController{
 		
 		if($automatic){
 			Debug::Message('Executing automatic action');
-			$action=array_key_exists_v(ACTIONKEY,$_GET);
+			$action=array_key_exists_v(ACTIONKEY,$this->values);
 			if($action)
 				$this->$action();
 			else if($this->methodIs(GET)){
-				$id=array_key_exists_v('Id',$_GET);
+				$id=array_key_exists_v('Id',$this->values);
 				if($id)
 					$this->edit($id);
 				else
@@ -34,12 +34,16 @@ abstract class CrudController extends BaseController{
 		$this->Render($this->controller,'createnew');		
 	}
 	function listall(){
-		$this->bag['all']=$this->crudItem->findAll();
+		$this->bag['all']=Repo::findAll(get_class($this->crudItem),true);
 		$this->Render($this->controller,'listall');
 	}
-	function edit($id){
-		$this->loadFromPost();
-		$this->bag['edit']=$this->crudItem->getById($id);
+	function edit(){
+		var_dump($this->values);
+		$id=array_key_exists_v('Id',$this->values);		
+		Debug::Value('Action','Edit');
+		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,true);
+//		$this->loadFromPost();
+		$this->bag['edit']=$this->crudItem;//$this->crudItem->getById($id);
 		$this->Render($this->controller,'edit');
 	}
 	function create(){
@@ -58,6 +62,8 @@ abstract class CrudController extends BaseController{
 				Communication::redirectTo($redirect,$query);
 	}
 	function update(){
+		$id=array_key_exists_v('Id',$this->values);		
+		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,false);		
 		$this->loadFromPost();
 		$this->crudItem->update();
 		$this->redirect();	}
@@ -74,15 +80,15 @@ abstract class CrudController extends BaseController{
 	private function loadFromPost(){
 		$properties = ObjectUtility::getPropertiesAndValues($this->crudItem);
 		Debug::Message('LoadFromPost');
-		$arrvalues=Communication::getFormValues();
+		$arrvalues=$this->values;
 		Debug::Value('Post',$arrvalues);
 
 		//		Debug::Value('Uploaded',Communication::getUpload($properties));
 		$values=Communication::getFormValues($properties);
-		Debug::Value('Loaded properties/values from'.get_class($this->crudItem),$values);		
+		Debug::Value('Loaded properties/values for '.get_class($this->crudItem),$values);		
 		$arrprop=ObjectUtility::getArrayPropertiesAndValues($this->crudItem);
 		$lists=array_search_key('_list',$arrvalues);
-		Debug::Value('Loaded values from post',$lists);
+		Debug::Value('Loaded listvalues from post',$lists);
 		$uploads=Communication::getUpload($properties);
 		foreach($uploads as $property => $upload){
 			if(strlen($upload["name"])>0){
@@ -103,13 +109,16 @@ abstract class CrudController extends BaseController{
 //				echo 'The new image ('.$process['new_file_path'].') has been saved.';
 //			}			
 			}else{
-				$values[$property]='';
+				if(!isset($this->values[$property.'_hasimage']))
+					$values[$property]='';
 			}
 		}
 		ObjectUtility::setProperties($this->crudItem,$values);
 		foreach($lists as $method => $value){
 			$settings=ObjectUtility::getCommentDecoration($this->crudItem,str_ireplace("_list","",$method).'List');
 			$dbrelation=array_key_exists_v('dbrelation',$settings);
+			if(sizeof($value)<2)
+				continue;
 			$values=explode(',',$value);
 			$objects=array();
 			foreach($values as $value)

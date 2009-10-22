@@ -44,7 +44,7 @@ class R{
 			$this->value=$value;
 	}	
 	function getParameter(){
-		return array(':'.$this->column,$this->value);
+		return array(':'.$this->column=>$this->value);
 	}
 	function toSQL(){
 		switch($this->method){

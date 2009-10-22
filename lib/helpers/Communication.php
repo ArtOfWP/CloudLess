@@ -32,12 +32,11 @@ class Communication{
 		if(defined('TESTING')){
 			global $testquery;
 			return $testquery;	
-		}else{/*
+		}else{
 			global $wp_query;
-			var_dump($wp_query->query_vars);
-			if(isset($wp_query))
+			if(isset($wp_query) && !empty($wp_query->query_vars))
 				return $wp_query->query_vars;
-			else */
+			else 
 				return $_GET;
 		}
 	}

@@ -46,21 +46,26 @@ abstract class ActiveRecordBase{
 		->where(R::Eq($this,$this->getId()))
 		->execute();
 	}
-	function update(){		
+	function update(){	
+		Debug::Value('Update',get_class($this));	
 		$properties =ObjectUtility::getPropertiesAndValues($this);
+		Debug::Value('Properties',$properties);
 		$vo=array();
 		$vo['table']=strtolower(get_class($this));
 		$vo['values']=array();
 		foreach($properties as $key =>$value){
-			if(isset($value)){
+			Debug::Value($key,isset($value));
+			if($key!='Id' && isset($value)){
 				if($value instanceof ActiveRecordBase){					
-					$value->create();
+					Debug::Message($key.' instanceof ARB');
+//					$value->create();
 					$vo['values'][$key]=$value->getId();										
 				}else{
 					$vo['values'][$key]=$value;
 				}
 			}
 		}
+		var_dump($vo);
 //		Debug::Message('<strong>Create '.$vo['table'].'</strong>');
 //		Debug::Value('Values',$vo['values']);
 		global $db;
@@ -71,9 +76,10 @@ abstract class ActiveRecordBase{
 		foreach($lists as $list =>$values){
 			$settings=ObjectUtility::getCommentDecoration($this,$list.'List');
 			$table=array_key_exists_v('dbrelationname',$settings);
-			if($values){
+			if(sizeof($values)>0){
 				foreach($values as $value){
 					if($table && is_subclass_of($value,'ActiveRecordBase')){
+						Debug::Value('Update list',$table);
 						$value->update();
 /*						$col1=strtolower(get_class($value)).'_id';
 						$col2=strtolower(get_class($this)).'_id';
@@ -84,7 +90,8 @@ abstract class ActiveRecordBase{
 						$row=null;*/
 					}	
 				}
-			}
+			}else
+				Delete::createFrom($table)->where(R::Eq($vo['table'].'_id',$this))->execute();
 		}
 	}
 	function save(){

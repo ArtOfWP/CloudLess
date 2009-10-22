@@ -13,9 +13,9 @@ function initiate_db(){
 	global $db;
 	$db = new MySqlDatabase();	
 }
-add_action('plugins_loaded','close_connection');
+//add_action('plugins_loaded','close_connection');
 function close_connection(){
-	echo "<h1>TEST</h1>";	
+//	echo "<h1>TEST</h1>";	
 	global $db;
 	$db->close();
 }

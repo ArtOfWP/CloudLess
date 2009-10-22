@@ -6,23 +6,25 @@ class Query{
 			$this->from($table);
 		}
 	}
-	static function createFrom($class,$lazy=true){
+	static function createFrom($class,$lazy=false){
 		if(is_object($class))
 			$class=get_class($class);
 		$maintable=strtolower($class);
 		$q = new Query($maintable);
 		$q->returnType=$class;
 		$object = new $class();
+		Debug::Value('createFrom',$class);
 		$properties =ObjectUtility::getProperties($object);
 		foreach($properties as $property){
-			if(!$lazy){
+			if($lazy){
 				$dependson=array_key_exists_v('dbrelation',ObjectUtility::getCommentDecoration($object,'get'.$property));
 				if($dependson){
 					//'select * from this, dependson where this.property=dependson.id';
 					$temp= new $dependson();
 //					$table=$db_prefix.strtolower($dependson);
-					$gProperty= Query::createFrom($temp,$lazy)
+					$gProperty= Query::createFrom($temp,false)
 								->where(R::Eq($temp,'id'));
+					Debug::Value('Depends',R::Eq($temp,'id')->toSQL());
 					$q->depends[$property]=$gProperty;
 				}
 			}

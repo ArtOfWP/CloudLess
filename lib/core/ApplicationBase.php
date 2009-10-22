@@ -24,9 +24,11 @@ abstract class ApplicationBase{
 			if(method_exists($this,'on_after_plugin_row'))
 				add_action( 'after_plugin_row_'.$this->pluginname, array(&$this,'after_plugin_row'), 10, 2 );				
 			if(method_exists($this,'on_init_admin'))
-				add_action('init', array(&$this,'on_init_admin'));
+				add_action('init', array(&$this,'on_init_admin'));				
 			if(method_exists($this,'on_admin_menu'))
 				add_action('admin_menu',array(&$this,'on_admin_menu'));
+			if(method_exists($this,'on_rewrite_rules_array'))
+				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));				
 		}else{
 			if(method_exists($this,'on_add_page_links'))
 				add_filter('wp_list_pages', array(&$this,'on_add_page_links'));	
@@ -34,6 +36,8 @@ abstract class ApplicationBase{
 				add_filter('render_from_template',array(&$this,'render_view_template'));
 			if(method_exists($this,'on_init'))
 				add_action('init', array(&$this,'on_init'));
+			if(method_exists($this,'on_rewrite_rules_array'))
+				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
 		}
 		if($useOptions){
 			$this->options= new WpOption($appName);

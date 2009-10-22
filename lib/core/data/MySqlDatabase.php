@@ -141,12 +141,13 @@ class MySqlDatabase implements IDatabase{
 			global $db_prefix;
 			$prepared='UPDATE `'.$db_prefix.strtolower($row['table']).'` ';
 			$colval=$row['values'];
-			foreach($colval as $column => $value)
-				if(!empty($value)){
+			foreach($colval as $column => $value){
+//				if(!empty($value)){
 					$column=strtolower($column);
 					$columns[]="$column=:$column";					
 					$values[':'.$column]=$value;
 				}
+			$values=array_merge($values,$restriction->getParameter());
 			$prepared.=' SET '.implode(',',$columns).' ';
 			$prepared.=' WHERE '.$restriction->toSQL();
 			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING); 
@@ -180,7 +181,8 @@ class MySqlDatabase implements IDatabase{
 				$where.=$clause->toSQL();
 				if($clause->hasValue()){
 					$param=$clause->getParameter();
-					$params[$param[0]]=$param[1];
+					Debug::Value('Param',$param);
+					$params=array_merge($params,$param);
 				}
 			}
 	    }
@@ -217,7 +219,7 @@ class MySqlDatabase implements IDatabase{
 				$where.=$clause->toSQL();
 				if($clause->hasValue()){
 					$param=$clause->getParameter();
-					$params[$param[0]]=$param[1];
+					$params=array_merge($params,$param);
 				}
 			}
 	    }
