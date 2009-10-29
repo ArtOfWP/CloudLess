@@ -54,7 +54,11 @@ abstract class ApplicationBase{
 	}
 	function after_plugin_row($plugin_file, $plugin_data){
 //		 $plugin_file, $plugin_data, $context
-    echo '<tr class="plugin-update-tr"><td colspan="5" class="plugin-update">' . $plugin_file .' '. var_dump($plugin_data) .' '. $context . '</td></tr>';
+/*
+array(9) { ["Name"]=>  string(17) "Wp Affiliate Shop" ["Title"]=>  string(17) "Wp Affiliate Shop" ["PluginURI"]=>  string(26) "http://wpaffiliateshop.com" ["Description"]=>  string(59) "Makes it easy to integrate an affiliate shop into WordPress" ["Author"]=>  string(15) "Cyonite Systems" ["AuthorURI"]=>  string(26) "http://cyonitesystems.com/" ["Version"]=>  string(4) "9.09" ["TextDomain"]=>  string(0) "" ["DomainPath"]=>  string(0) "" } 
+ */
+	echo '<tr class="plugin-update-tr"><td colspan="3" class="plugin-update"><div class="update-message">There is a new version of '.$plugin_data['Name'].' available. <a href="http://andreasnurbo.com/thesite/wp-admin/plugin-install.php?tab=plugin-information&amp;plugin=all-in-one-seo-pack&amp;TB_iframe=true&amp;width=640&amp;height=754" class="thickbox" title="All in One SEO Pack">View version 1.6.7 Details</a> or <a href="update.php?action=upgrade-plugin&amp;plugin=all-in-one-seo-pack%2Fall_in_one_seo_pack.php&amp;_wpnonce=f30aed80d5">upgrade automatically</a>.</div></td></tr>';
+//    echo '<tr class="plugin-update-tr"><td colspan="5" class="plugin-update">' . $plugin_file .' '. $context . '</td></tr>';
 	}
 	function plugin_page_links($links){
 //		static $this_plugin;

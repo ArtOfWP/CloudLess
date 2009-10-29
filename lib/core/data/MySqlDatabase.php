@@ -179,7 +179,9 @@ class MySqlDatabase implements IDatabase{
 			foreach($q->where as $clause){
 				
 				$where.=$clause->toSQL();
-				if($clause->hasValue()){
+				if($clause->method==' IN ')
+					$params=array_merge($params,$clause->getParameters());				
+				else if($clause->hasValue()){
 					$param=$clause->getParameter();
 					Debug::Value('Param',$param);
 					$params=array_merge($params,$param);

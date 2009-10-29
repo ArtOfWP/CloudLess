@@ -58,7 +58,8 @@ class BaseController{
 		global $viewcontent;
 		$viewcontent=$this->viewcontent;
 		global $aoisoratitle;
-		$aoisoratitle=$this->title;		
+		$aoisoratitle=$this->title;
+		Debug::Value('TITLE',$aoisoratitle);
 	}
 	function Render($controller,$action){
 		$view=$this->findView($controller,$action);		
@@ -74,7 +75,7 @@ class BaseController{
 		global $viewcontent;
 		$viewcontent=$this->viewcontent;
 		global $aoisoratitle;
-		$aoisoratitle=$this->title;
+		$aoisoratitle=$this->title;		
 	}
 	function Notfound(){
 		ob_start();
@@ -83,7 +84,7 @@ class BaseController{
 		$this->viewcontent=ob_get_contents();
 		ob_end_clean();
 		global $viewcontent;
-		$viewcontent=$this->viewcontent;		
+		$viewcontent=$this->viewcontent;
 	}
 	static function ViewContents(){
 		global $viewcontent;

@@ -1,8 +1,8 @@
 <?php
 class Route{
 	static function reroute(){
-		$controller=array_key_exists_v(CONTROLLERKEY,$_GET);
-		$action = array_key_exists_v(ACTIONKEY,$_GET);
+		$controller=array_key_exists_v(CONTROLLERKEY,Communication::getQueryString());
+		$action = array_key_exists_v(ACTIONKEY,Communication::getQueryString());
 		$success=true;
 		if($action && $controller)
 			$success=Route::rerouteToAction($controller,$action);

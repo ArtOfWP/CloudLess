@@ -3,13 +3,13 @@
 class HtmlHelper{
 	static function createForm($id,$object,$path=false,$classes=false){
 		if(!$path)
-			$path=get_bloginfo('url');
-		HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/create',POST,'Add new',strtolower(get_class($object)),$classes);
+			$path=get_bloginfo('url').'/'.get_class($object).'/create';
+		HtmlHelper::form($id,$object,$path,POST,'Add new',strtolower(get_class($object)),$classes);
 	}
 	static function updateForm($id,$object,$path=false,$classes=false){
 		if(!$path)
-			$path=get_bloginfo('url');
-		HtmlHelper::form($id,$object,$path.'/'.get_class($object).'/update',POST,'Save',strtolower(get_class($object)),$classes);
+			$path=get_bloginfo('url').'/'.get_class($object).'/update';
+		HtmlHelper::form($id,$object,$path,POST,'Save',strtolower(get_class($object)),$classes);
 	}	
 	static function form($id,$object,$action,$method,$submit='Send',$nonce=false,$classes=false){
 		$elements=ObjectUtility::getPropertiesAndValues($object);
@@ -170,9 +170,10 @@ class HtmlHelper{
 		$class=$class?' class=\''.$class.'\' ':'';
 		echo '<a href=\''.$path.'\''.$class.'>'.$text.'</a>';
 	}
-	static function img($src,$alt=false){
+	static function img($src,$alt=false,$class=false){
+		$class=$class?" class='$class'":'';
 		$alt=$alt?" alt='".$alt."'":'';
-		echo "<img src='$src' $alt />";
+		echo "<img $class src='$src' $alt />";
 	}
 	static function imglink($src,$path,$alt=false,$class=false){
 		$class=$class?' class=\''.$class.'\' ':'';

@@ -34,17 +34,16 @@
 		else{
 			die("Controller: <strong>" . $wp_query->query_vars[CONTROLLERKEY] . "</strong> page: <strong>" . $wp_query->query_vars[ACTIONKEY] . "</strong>");
 		}
-		$args=apply_filters('render_from_template', array(CONTROLLERKEY=> $controller,ACTIONKEY=>$action,'template'=>TEMPLATEPATH));
-		include(TEMPLATEPATH.$args['template']);
-		exit;
+//		$args=apply_filters('render_from_template', array(CONTROLLERKEY=> $controller,ACTIONKEY=>$action,'template'=>TEMPLATEPATH));
+//		include(TEMPLATEPATH.$args['template']);
+//		exit;
 	}
-	if(!defined('PREROUTE') && !is_admin())
-		add_action('template_redirect','render_views');
-		
+//	if(!defined('PREROUTE') && !is_admin())
+//		add_action('template_redirect','render_views');
 	add_filter('query_vars', 'register_aoisora_query_vars');
 	function aoisora_render_title($title,$sep=" &mdash; ",$placement="left"){
 		global $aoisoratitle;
-		$title.=$aoisoratitle." $sep ";
+		$title= $aoisoratitle." $sep $title";
 		return $title;
 	}
 	add_filter('wp_title','aoisora_render_title',10,3);

@@ -65,7 +65,6 @@ abstract class ActiveRecordBase{
 				}
 			}
 		}
-		var_dump($vo);
 //		Debug::Message('<strong>Create '.$vo['table'].'</strong>');
 //		Debug::Value('Values',$vo['values']);
 		global $db;

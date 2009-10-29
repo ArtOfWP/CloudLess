@@ -97,7 +97,6 @@ class Query{
 				$object = new $class();			
 				ObjectUtility::setProperties($object,$row);
 				if(sizeof($this->depends)>0){
-					echo 'Has dependings';
 					foreach($this->depends as $property => $query){
 						$getproperty='get'.$property;
 						$value=(int)$object->$getproperty();

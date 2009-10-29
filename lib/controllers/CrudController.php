@@ -38,7 +38,6 @@ abstract class CrudController extends BaseController{
 		$this->Render($this->controller,'listall');
 	}
 	function edit(){
-		var_dump($this->values);
 		$id=array_key_exists_v('Id',$this->values);		
 		Debug::Value('Action','Edit');
 		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,true);

@@ -12,6 +12,8 @@ class Repo{
 		return sizeof($objects)==1?$objects[0]:false;
 	}
 	static function findByProperty($class,$property,$value,$lazy=false){
+		if(is_array($value))
+			return Query::createFrom($class,$lazy)->where(R::In($property,$value))->execute();		
 		return Query::createFrom($class,$lazy)->where(R::Eq($property,$value))->execute();		
 	}
 	static function slicedFindAll($class,$firstResult,$maxResult,$order,$restrictions){
