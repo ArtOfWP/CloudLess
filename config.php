@@ -11,7 +11,8 @@ if(!defined('DEBUG'))
 	define('DEBUG',false);
 if(!defined('SQLDEBUG'))
 	define('SQLDEBUG',false);
-
+if(!defined('NOREDIRECT'))
+	define('NOREDIRECT',false);
 	global $db_prefix;
 	global $table_prefix;
 	$db_prefix=$table_prefix.'aoisora_';

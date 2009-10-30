@@ -18,6 +18,7 @@ class Query{
 		foreach($properties as $property){
 			if($lazy){
 				$dependson=array_key_exists_v('dbrelation',ObjectUtility::getCommentDecoration($object,'get'.$property));
+				Debug::Value('dbrelation',$dependson);
 				if($dependson){
 					//'select * from this, dependson where this.property=dependson.id';
 					$temp= new $dependson();
@@ -29,7 +30,25 @@ class Query{
 				}
 			}
 			$q->select($property,$maintable);
-		}
+		}/*
+		$arrays=ObjectUtility::getArrayProperties($object);
+		foreach($arrays as $array){
+			if($lazy){
+				$dependson=array_key_exists_v('dbrelation',ObjectUtility::getCommentDecoration($object,$array));
+				Debug::Value('dbrelation',$dependson);
+				
+				if($dependson){
+					$dbrelationname=array_key_exists_v('dbrelationname',ObjectUtility::getCommentDecoration($object,$array));
+					//'select * from this, dependson where this.property=dependson.id';
+					$temp= new $dependson();
+//					$table=$db_prefix.strtolower($dependson);
+					$gProperty= Query::createFrom($temp,false)
+								->where(R::Eq($temp,'id'));
+					Debug::Value('Depends',R::Eq($temp,'id')->toSQL());
+					$q->depends[$array]=$gProperty;
+				}
+			}
+		}*/		
 		return $q;
 	}
 	static function create(){
@@ -90,6 +109,7 @@ class Query{
 	function execute(){
 		global $db;
 		$rows=$db->query($this);
+		Debug::Value('Rows returned',sizeof($rows));
 		$class=$this->returnType;
 		$objects=array();
 		if(sizeof($rows)>0)

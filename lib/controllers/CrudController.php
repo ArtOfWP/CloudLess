@@ -114,11 +114,14 @@ abstract class CrudController extends BaseController{
 		}
 		ObjectUtility::setProperties($this->crudItem,$values);
 		foreach($lists as $method => $value){
+			Debug::Value($method,$value);
 			$settings=ObjectUtility::getCommentDecoration($this->crudItem,str_ireplace("_list","",$method).'List');
 			$dbrelation=array_key_exists_v('dbrelation',$settings);
-			if(sizeof($value)<2)
+			Debug::Value($method,$dbrelation);
+			$values=explode(',',$value);			
+			if(sizeof($values)<2)
 				continue;
-			$values=explode(',',$value);
+			Debug::Message('Continue');
 			$objects=array();
 			foreach($values as $value)
 				if($dbrelation){

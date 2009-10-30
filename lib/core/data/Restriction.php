@@ -5,6 +5,7 @@ class R{
 	var $foreigntable;
 	var $foreigncolumn;
 	var $value;
+	var $hasvalue=false;
 	var $values=array();
 	var $parameters=array();
 	var $method;
@@ -30,9 +31,37 @@ class R{
 				$r->value=$value->getId();			
 			else
 				$r->value=$value;
+			$r->hasvalue=true;
 		}
 		return $r;		
 	}
+	static function EqP($class,$property,$value,$isProperty=false){
+		global $db_prefix;
+		$r = new R();
+		if($class instanceof ActiveRecordBase){
+			$r->table=$db_prefix.strtolower(get_class($class));
+			$r->column=$property;
+		}else{
+			$r->table=$db_prefix.strtolower($class);
+			$r->column=$property;
+		}
+		$r->method='=';
+		if($isProperty){
+			$p=explode('.',$value);
+			if(sizeof($p)>1){
+				$r->foreigntable=$db_prefix.strtolower($p[0]);
+				$r->foreigncolumn=strtolower($p[1]);
+			}else
+				$r->column=$p[0];
+		}else{
+			if($value instanceof ActiveRecordBase)
+				$r->value=$value->getId();			
+			else
+				$r->value=$value;
+			$r->hasvalue=true;
+		}
+		return $r;		
+	}	
 	static function In($property,$values){
 		global $db_prefix;
 		$r = new R();
@@ -65,7 +94,7 @@ class R{
 		return $r;
 	}
 	function hasValue(){
-		return !empty($this->value);
+		return $this->hasvalue;
 	}
 	function setParameter($param,$value){
 		if(strtolower($param)==$this->column)

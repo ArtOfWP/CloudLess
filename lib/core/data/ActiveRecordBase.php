@@ -116,7 +116,7 @@ abstract class ActiveRecordBase{
 				$settings=ObjectUtility::getCommentDecoration($this,$method);
 				$foreign=$settings['dbrelation'];
 				$temp=new $foreign();
-				
+				$foreign=strtolower($foreign);
 				if(strpos($method,'List')!==false){
 					$method=str_replace('get','',$method);									
 					$settings=ObjectUtility::getCommentDecoration($this,$method);
@@ -125,7 +125,7 @@ abstract class ActiveRecordBase{
 					$table=strtolower(get_class($this));
 /*					$stmt->From($foreigntable);
 					$stmt->From($this);*/
-					$properties =ObjectUtility::getProperties(new $foreigntable);
+					$properties =ObjectUtility::getProperties($temp);
 					
 /*					foreach($properties as $property)
 						$stmt->Select($foreigntable.'.'.strtolower($property));
@@ -134,12 +134,18 @@ abstract class ActiveRecordBase{
 //						$stmt->Where(R::Eq());
 //						$db->select($select);
 // select * from item, company,relation WHERE item.id = relation.item_id AND company.id=relation.company_id
-					$q=Query::createFrom($foreigntable);
-					foreach($properties as $property)
-						$q->select($property,$foreigntable);/**/
+					Debug::Value('Relationname',$settings['dbrelationname']);
+
+					$q=Query::createFrom($temp);
 					$q->from($settings['dbrelationname']);
-					$q->whereAnd(R::Eq(new $foreigntable,$foreigntable.'_id'));
-					$q->where(R::Eq($this,$table.'_id'));
+					$q->whereAnd(R::Eq($temp,$settings['dbrelationname'].'.'.$foreign.'_id',true));
+					$q->where(R::Eq($table.'_id',$this));
+					$list=$q->execute();
+					$method='add'.str_replace('List','',$method);
+					foreach($list as $li){
+						$this->$method($li);
+					}
+					return $list;
 					
 				}else{
 					$temp= $temp->getById($this->$method());
