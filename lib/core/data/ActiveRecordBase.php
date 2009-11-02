@@ -8,7 +8,8 @@ abstract class ActiveRecordBase{
 		foreach($properties as $key =>$value){
 			if(isset($value)){
 				if($value instanceof ActiveRecordBase){					
-					$value->create();
+					if($value->getId()===false)
+						$value->create();
 					$vo['values'][$key]=$value->getId();										
 				}else{
 					$vo['values'][$key]=$value;
@@ -30,12 +31,14 @@ abstract class ActiveRecordBase{
 				foreach($values as $value){
 					if($table && is_subclass_of($value,'ActiveRecordBase')){
 						$value->save();
-						$col1=strtolower(get_class($value)).'_id';
-						$col2=strtolower(get_class($this)).'_id';
-						$row['table']=$table;
-						$row['values'][$col1]=$value->getId();
-						$row['values'][$col2]=$this->getId();
-						$db->insert($row);
+						if($value->getId()){
+							$col1=strtolower(get_class($value)).'_id';
+							$col2=strtolower(get_class($this)).'_id';
+							$row['table']=$table;
+							$row['values'][$col1]=$value->getId();
+							$row['values'][$col2]=$this->getId();
+							$db->insert($row);
+						}
 						$row=null;
 					}	
 				}

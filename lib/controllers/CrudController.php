@@ -50,7 +50,7 @@ abstract class CrudController extends BaseController{
 		$this->crudItem->create();
 		$this->redirect('&result=1');
 	}
-	private function redirect($query=false){
+	function redirect($query=false){
 		if(defined('NOREDIRECT') && NOREDIRECT)
 			return;
 		$redirect=Communication::useRedirect();

@@ -14,6 +14,7 @@ function load($dir){
 function loadApp($dir){
 	load($dir.'/app/core/');
 	load($dir.'/app/controllers/');
+	load($dir.'/app/views/widgets/');
 }
 function loadAoiSora(){
 	include(PACKAGEPATH.'config.php');

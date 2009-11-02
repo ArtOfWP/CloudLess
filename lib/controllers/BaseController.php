@@ -77,6 +77,11 @@ class BaseController{
 		global $aoisoratitle;
 		$aoisoratitle=$this->title;		
 	}
+	function RenderText($text){
+		$this->render=false;
+		global $viewcontent;
+		$viewcontent=$text;
+	}
 	function Notfound(){
 		ob_start();
 		include(VIEWS.$controller.'/'.$action.'.php');

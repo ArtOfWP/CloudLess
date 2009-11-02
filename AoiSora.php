@@ -14,8 +14,11 @@ define('LOADAPPS',true);
 global $loadviewengine;
 $loadviewengine='WordPress';
 require('init.php');
-add_action('muplugins_loaded','test');
-function test(){
-	echo ' <p>Muplugins loaded</p>';
+
+function viewcomponent($app,$component,$params){
+	include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/views/components/$component/$component.php"));
+	$c = new $component($params);
+	$c->render();
 }
+
 ?>
