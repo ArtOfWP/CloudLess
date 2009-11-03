@@ -30,6 +30,8 @@ abstract class ApplicationBase{
 			if(method_exists($this,'on_rewrite_rules_array'))
 				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));				
 		}else{
+			if(method_exists($this,'on_wp_print_styles'))
+				add_action('wp_print_styles',array(&$this,'print_styles'));
 			if(method_exists($this,'on_add_page_links'))
 				add_filter('wp_list_pages', array(&$this,'on_add_page_links'));	
 			if(method_exists($this,'render_view_template'))
@@ -143,6 +145,17 @@ array(9) { ["Name"]=>  string(17) "Wp Affiliate Shop" ["Title"]=>  string(17) "W
 			}
 		}
 		closedir($handle);
+	}
+	function print_styles(){
+		$styles=$this->on_wp_print_styles();
+		foreach($styles as $name => $file){
+	        $myStyleUrl = WP_PLUGIN_URL .'/'.$this->app.$file;
+	        $myStyleFile = WP_PLUGIN_DIR .'/'.$this->app.$file;
+	        if ( file_exists($myStyleFile) ) {
+	            wp_register_style($name, $myStyleUrl);
+	            wp_enqueue_style( $name);
+	        }
+		}
 	}
 }
 ?>

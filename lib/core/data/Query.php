@@ -64,8 +64,12 @@ class Query{
 	}
 	public function select($property,$table=false){
 		global $db_prefix;
-		$property=$this->addMark(strtolower($property));
-		$this->statement['select'][]=$table?$this->addMark($db_prefix.$table).'.'.$property:$property;
+		if($property instanceof SelectFunction){
+			$this->statement['select'][]=$property->toSQL($this->addMark($property->getColumn()));
+		}else{
+			$property=$this->addMark(strtolower($property));
+			$this->statement['select'][]=$table?$this->addMark($db_prefix.$table).'.'.$property:$property;
+		}
 		return $this;		
 	}
 	public function where($restriction){
@@ -110,26 +114,30 @@ class Query{
 		global $db;
 		$rows=$db->query($this);
 		Debug::Value('Rows returned',sizeof($rows));
-		$class=$this->returnType;
-		$objects=array();
-		if(sizeof($rows)>0)
-			foreach($rows as $row){
-				$object = new $class();			
-				ObjectUtility::setProperties($object,$row);
-				if(sizeof($this->depends)>0){
-					foreach($this->depends as $property => $query){
-						$getproperty='get'.$property;
-						$value=(int)$object->$getproperty();
-						if($value){			
-							$query->setParameter('id',$value);
-							$value=$query->execute();
-							ObjectUtility::setProperties($object,array($property => $value[0]));
+		if(isset($this->returnType)){
+			$class=$this->returnType;
+			$objects=array();
+			if(sizeof($rows)>0){
+				foreach($rows as $row){
+					$object = new $class();			
+					ObjectUtility::setProperties($object,$row);
+					if(sizeof($this->depends)>0){
+						foreach($this->depends as $property => $query){
+							$getproperty='get'.$property;
+							$value=(int)$object->$getproperty();
+							if($value){			
+								$query->setParameter('id',$value);
+								$value=$query->execute();
+								ObjectUtility::setProperties($object,array($property => $value[0]));
+							}
 						}
 					}
+					$objects[]=$object;
 				}
-				$objects[]=$object;
 			}
-		return $objects;
+			return $objects;
+		}else
+			return $rows;
 	}
 	
 	function __get($property){

@@ -213,5 +213,8 @@ class HtmlHelper{
 		$table.='</table>';
 		echo $table;
 	}
+	static function ActionPath($class,$type){
+		echo get_bloginfo('url').'/'.strtolower($class).'/'.strtolower($type);
+	}
 }
 ?>
