@@ -93,6 +93,11 @@ class R{
 		$r->method=' AND ';
 		return $r;
 	}
+	static function _Or(){
+		$r = new R();
+		$r->method=' OR ';
+		return $r;
+	}	
 	function hasValue(){
 		return $this->hasvalue;
 	}

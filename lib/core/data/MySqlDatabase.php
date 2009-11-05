@@ -59,8 +59,11 @@ class MySqlDatabase implements IDatabase{
 						}						
 					}else if($dbfield=='text')
 						$table.='TEXT NOT NULL,';
-					else if($dbfield=='int')
-						$table.='INTEGER NOT NULL default 0,';					
+					else if(stristr('int',$dbfield))
+						$table.="$dbfield NOT NULL default 0,";					
+					else if(stristr('decimal',$dbfield)){
+						$table.="$dbfield NOT NULL default 0,";						
+					}
 					else{
 						$table.='VARCHAR(45) NOT NULL default \'\',';
 					}

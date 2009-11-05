@@ -166,8 +166,10 @@ class HtmlHelper{
 	static function viewLink($uri,$text,$id){
 		echo '<a href=\''.$uri.'&Id='.$id.'\' class=\'button-secondary\' >'.$text.'</a>';
 	}
-	static function a($text,$path,$class=false){
+	static function a($text,$path,$class=false,$return=false){
 		$class=$class?' class=\''.$class.'\' ':'';
+		if($return)
+			return '<a href=\''.$path.'\''.$class.'>'.$text.'</a>';
 		echo '<a href=\''.$path.'\''.$class.'>'.$text.'</a>';
 	}
 	static function img($src,$alt=false,$class=false){

@@ -87,6 +87,11 @@ class Query{
 		$this->statement['where'][]=R::_And();
 		return $this;
 	}
+	public function whereOr($restriction){
+		$this->where($restriction);
+		$this->statement['where'][]=R::_Or();
+		return $this;
+	}	
 	public function order($order){
 		if(is_array($order))
 			$this->statement['order']+=$order;

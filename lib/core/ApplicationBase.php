@@ -28,7 +28,9 @@ abstract class ApplicationBase{
 			if(method_exists($this,'on_admin_menu'))
 				add_action('admin_menu',array(&$this,'on_admin_menu'));
 			if(method_exists($this,'on_rewrite_rules_array'))
-				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));				
+				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));	
+			if(method_exists($this,'on_admin_print_styles'))
+				add_action('admin_init',array(&$this,'print_admin_styles'));							
 		}else{
 			if(method_exists($this,'on_wp_print_styles'))
 				add_action('wp_print_styles',array(&$this,'print_styles'));
@@ -147,15 +149,22 @@ array(9) { ["Name"]=>  string(17) "Wp Affiliate Shop" ["Title"]=>  string(17) "W
 		closedir($handle);
 	}
 	function print_styles(){
-		$styles=$this->on_wp_print_styles();
-		foreach($styles as $name => $file){
+		$this->loadstyles($this->on_wp_print_styles());
+		
+	}
+	private function loadstyles($styles){
+			foreach($styles as $name => $file){
 	        $myStyleUrl = WP_PLUGIN_URL .'/'.$this->app.$file;
 	        $myStyleFile = WP_PLUGIN_DIR .'/'.$this->app.$file;
 	        if ( file_exists($myStyleFile) ) {
 	            wp_register_style($name, $myStyleUrl);
 	            wp_enqueue_style( $name);
 	        }
-		}
+		}		
+	}
+	function print_admin_styles(){
+		$this->loadstyles($this->on_admin_print_styles());
+		
 	}
 }
 ?>
