@@ -13,6 +13,7 @@ function load($dir){
 }
 function loadApp($dir){
 	load($dir.'/app/core/');
+//	load($dir.'/app/core/wordpress/');	
 	load($dir.'/app/controllers/');
 	load($dir.'/app/views/widgets/');
 }
