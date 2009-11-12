@@ -39,11 +39,14 @@ class HtmlHelper{
 				}
 				else if($field=='image'){
 					ob_start();
-					HtmlHelper::img(WP_PLUGIN_URL.$value);
+					if(strpos($value,'http')===false)
+						HtmlHelper::img(WP_PLUGIN_URL.$value);
+					else
+						HtmlHelper::img($value);					
 					$theForm.=ob_get_contents().'<br />';
 					ob_end_clean();
 					if($value)
-						$theForm.=HtmlHelper::input($id.'_hasimage','hidden',$value?'1':'');					
+						$theForm.=HtmlHelper::input($id.'_hasimage','hidden',$value?$value:'');					
 					$theForm.=HtmlHelper::input($id,'file',$value);
 				}
 				else if($field=='dropdown'){
@@ -86,19 +89,29 @@ class HtmlHelper{
 			
 			if($field){
 				if($field=='text'){
+					$dbfield=array_key_exists_v('dbrelation',$settings);
+					$value=array();
+					if($dbfield){
+						$method=$id.'List';
+						$value=$object->$method(); //Repo::findAll($dbfield);
+						if($value)
+							break;
+						else{
+							$method=$id.'ListLazy';
+							$value=$object->$method();
+						}
+					}
 					$seperator=array_key_exists_v('seperator',$settings);
 					if(!$seperator)
 						$seperator=',';
-					$list='';
-					if($value!=null)
-						$list=implode($seperator,$value);
+					if($value)
+					$list=implode($seperator,$value);
 					$theForm.=HtmlHelper::input($id.'_list','text',$list);
 				}else if($field=='multiple'){					
 					$dbfield=array_key_exists_v('dbrelation',$settings);
 					if($dbfield){
-						$temp = new $dbfield();
-						$value=$temp->findAll();
-					}					
+						$value=Repo::findAll($dbfield);
+					}
 					$theForm.=HtmlHelper::select($id,$value,true);
 					if($dbfield){
 						ob_start();
@@ -130,7 +143,7 @@ class HtmlHelper{
 		return '<input id=\''.$id.'\' name=\''.$id.'\' type=\''.$type.'\' value=\''.$value.'\' />';
 	}
 	static function textarea($id,$value,$class=false){
-		return '<textarea id=\''.$id.'\' name=\''.$id.'\' rows=\'10\'  cols=\'20\'>'.$value.'</textarea>';
+		return '<textarea id=\''.$id.'\' name=\''.$id.'\' rows=\'14\'  cols=\'40\'>'.$value.'</textarea>';
 	}
 	static function select($id,$array,$multiple=false,$selectedValues=false){
 		$select='<select id=\''.$id.'\' name=\''.$id.'\'';

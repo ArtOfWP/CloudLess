@@ -29,7 +29,8 @@ abstract class CrudController extends BaseController{
 		}
 	}
 	function createnew(){
-		$this->bag['new']=$this->crudItem;
+		if(!isset($this->bag['new']) || empty($this->bag['new']))
+			$this->bag['new']=$this->crudItem;
 		$this->bag['result']=array_key_exists_v('result',$this->values);
 		$this->Render($this->controller,'createnew');		
 	}
@@ -90,26 +91,51 @@ abstract class CrudController extends BaseController{
 		Debug::Value('Loaded listvalues from post',$lists);
 		$uploads=Communication::getUpload($properties);
 		foreach($uploads as $property => $upload){
+			Debug::Message('CHECKING UPLOADS');
 			if(strlen($upload["name"])>0){
-			$path=PACKAGEPATH.'uploads/'.$upload["name"];
-			move_uploaded_file($upload["tmp_name"],$path);
-			$values[$property]='/AoiSora/uploads/'.$upload["name"];
-			$image = new Resize_Image;
-			$image->new_width = 100;
-			$image->new_height = 100;
-			$image->image_to_resize = $path; // Full Path to the file
-			$image->ratio = true; // Keep Aspect Ratio?
-			// Name of the new image (optional) - If it's not set a new will be added automatically
-			$image->new_image_name = preg_replace('/\.[^.]*$/', '', $upload["name"]);
-			/* Path where the new image should be saved. If it's not set the script will output the image without saving it */
-			$image->save_folder = PACKAGEPATH.'uploads/thumbs/';
-			$process = $image->resize();
-//			if($process['result'] && $image->save_folder){
-//				echo 'The new image ('.$process['new_file_path'].') has been saved.';
-//			}			
+				Debug::Message('FOUND UPLOAD');
+				$path=PACKAGEPATH.'uploads/'.$upload["name"];
+				move_uploaded_file($upload["tmp_name"],$path);
+				$values[$property]='/AoiSora/uploads/'.$upload["name"];
+				$image = new Resize_Image;
+				$image->new_width = 100;
+				$image->new_height = 100;
+				$image->image_to_resize = $path; // Full Path to the file
+				$image->ratio = true; // Keep Aspect Ratio?
+				// Name of the new image (optional) - If it's not set a new will be added automatically
+				$image->new_image_name = preg_replace('/\.[^.]*$/', '', $upload["name"]);
+				/* Path where the new image should be saved. If it's not set the script will output the image without saving it */
+				$image->save_folder = PACKAGEPATH.'uploads/thumbs/';
+				$process = $image->resize();
+	//			if($process['result'] && $image->save_folder){
+	//				echo 'The new image ('.$process['new_file_path'].') has been saved.';
+	//			}			
 			}else{
-				if(!isset($this->values[$property.'_hasimage']))
-					$values[$property]='';
+				if(!isset($this->values[$property.'_hasimage'])){
+					$values[$property]='';					
+				}
+				else{
+					if(strpos($this->values[$property.'_hasimage'],'ttp')==1){			
+						$url = $this->values[$property.'_hasimage'];
+						$name=str_replace(' ','-',urldecode(basename($url)));
+						$path=PACKAGEPATH.'uploads/'.$name;					
+						$values[$property]='/AoiSora/uploads/'.$name;
+						
+						Http::save_image($url,$path);
+//						file_put_contents($path, file_get_contents($url));
+						
+						$image = new Resize_Image;
+						$image->new_width = 100;
+						$image->new_height = 100;
+						$image->image_to_resize = $path; // Full Path to the file
+						$image->ratio = true; // Keep Aspect Ratio?
+						// Name of the new image (optional) - If it's not set a new will be added automatically
+						$image->new_image_name = preg_replace('/\.[^.]*$/', '', $name);
+						/* Path where the new image should be saved. If it's not set the script will output the image without saving it */
+						$image->save_folder = PACKAGEPATH.'uploads/thumbs/';
+						$process = $image->resize();
+					}
+				}
 			}
 		}
 		ObjectUtility::setProperties($this->crudItem,$values);
