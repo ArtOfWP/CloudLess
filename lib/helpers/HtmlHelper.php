@@ -11,14 +11,14 @@ class HtmlHelper{
 			$path=get_bloginfo('url').'/'.get_class($object).'/update';
 		HtmlHelper::form($id,$object,$path,POST,'Save',strtolower(get_class($object)),$classes);
 	}	
-	static function form($id,$object,$action,$method,$submit='Send',$nonce=false,$classes=false){
+	static function form($formid,$object,$action,$method,$submit='Send',$nonce=false,$classes=false){
 		$elements=ObjectUtility::getPropertiesAndValues($object);
 		$upload=$method==POST?'enctype="multipart/form-data"':'';
-		$theForm='<form id=\''.$id.'\' action=\''.$action.'\' method=\''.$method.'\' '.$upload.'  ><table class=\'form-table\'>';
+		$theForm='<form id=\''.$formid.'\' action=\''.$action.'\' method=\''.$method.'\' '.$upload.'  ><table class=\'form-table\'>';
 		$theForm.=HtmlHelper::input('_redirect','hidden','referer');
 		if($nonce)
 			$theForm.=HtmlHelper::input('_wpnonce','hidden',wp_create_nonce($nonce));
-			
+		$validation=array();
 		foreach($elements as $id => $value){
 			if($id=='Id'){
 				if($value>0)
@@ -27,6 +27,12 @@ class HtmlHelper{
 				$settings=ObjectUtility::getCommentDecoration($object,'get'.$id);				
 				if(array_key_exists('new',$settings))
 					continue;
+				$rules=array_key_exists_v('validation',$settings);
+				if($rules){
+					$rules=str_replace('=',':',$rules);
+					$rules=str_replace('|',',',$rules);
+					$validation[$id]='{'.$rules.'}';
+				}
 				$theForm.='<tr valign=\'top\'>';	
 				$field=array_key_exists_v('field',$settings);
 					$theForm.='<th scope=\'row\'>';
@@ -86,6 +92,12 @@ class HtmlHelper{
 			$theForm.='<th scope=\'row\'>';
 			$theForm.=HtmlHelper::label($id);
 			$theForm.='</th><td>';
+			$rules=array_key_exists_v('validation',$settings);
+			if($rules){
+				$rules=str_replace('=',':',$rules);
+				$rules=str_replace('|',',',$rules);
+				$validation[$id.'_list']='{'.$rules.'}';
+			}
 			
 			if($field){
 				if($field=='text'){
@@ -94,9 +106,7 @@ class HtmlHelper{
 					if($dbfield){
 						$method=$id.'List';
 						$value=$object->$method(); //Repo::findAll($dbfield);
-						if($value)
-							break;
-						else{
+						if(!$value){
 							$method=$id.'ListLazy';
 							$value=$object->$method();
 						}
@@ -132,7 +142,14 @@ class HtmlHelper{
 		else
 			$theForm.=HtmlHelper::input('submit','submit',$submit,"button-primary");
 		$theForm.='</p></form>';
-		echo $theForm;
+		$script='';
+		if(sizeof($validation)>0){
+			$rules=array();
+			foreach($validation as $id => $rule)
+				$rules[]=$id.':'.$rule;
+			$script='<script>jQuery(document).ready(function(){jQuery("#'.$formid.'").validate({rules:{'.implode(',',$rules).'}});});</script>';		
+		}
+		echo $theForm.$script;
 	}
 	static function label($id){
 		return '<label for=\''.$id.'\'>'.$id.':</label>';
