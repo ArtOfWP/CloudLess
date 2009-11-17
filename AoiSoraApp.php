@@ -12,6 +12,11 @@ class AoiSoraApp{
 		register_activation_hook("$appName/$appName.php", array(&$this,'activate'));
 		register_deactivation_hook("$appName/$appName.php", array(&$this,'deactivate'));
 		register_uninstall_hook("$appName/$appName.php", array(&$this,'delete'));
+		$this->load_js();
+	}
+	function load_js(){
+		wp_register_script('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core'));
+		wp_register_style('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.css'));
 	}
 	function activate(){
 		$this->options->save();

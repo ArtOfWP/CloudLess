@@ -144,18 +144,26 @@ abstract class CrudController extends BaseController{
 			$settings=ObjectUtility::getCommentDecoration($this->crudItem,str_ireplace("_list","",$method).'List');
 			$dbrelation=array_key_exists_v('dbrelation',$settings);
 			Debug::Value($method,$dbrelation);
-			$values=explode(',',$value);			
-			if(sizeof($values)<2)
-				continue;
-			Debug::Message('Continue');
-			$objects=array();
-			foreach($values as $value)
-				if($dbrelation){
-					$object= new $dbrelation;
-					$object->setName($value);
-					$object->save();
-					$objects[]=$object;
+			$field=array_key_exists_v('field',$settings);
+			$objects=array();	
+			if($field=='text'){
+				$values=explode(',',$value);
+				if(sizeof($values)<2)
+					continue;
+				foreach($values as $value){
+					if($dbrelation && $field=='text'){
+						$object= new $dbrelation;
+						$object->setName($value);
+						$object->save();
+						$objects[]=$object;
+					}
 				}
+			}
+			else if($dbrelation){
+					$object=Repo::getById($dbrelation,$value);
+					$objects[]=$object;					
+				}
+				
 			ObjectUtility::addToArray($this->crudItem,str_ireplace("_list","",$method),$objects);
 		}
 	}

@@ -45,6 +45,14 @@ abstract class ActiveRecordBase{
 		}
 	}
 	function delete(){
+		$lists=ObjectUtility::getArrayPropertiesAndValues($this);
+		$column=strtolower(get_class($this)).'_id';
+		foreach($lists as $list =>$values){
+			$settings=ObjectUtility::getCommentDecoration($this,$list.'List');
+			$table=array_key_exists_v('dbrelationname',$settings);
+			if($table)
+				Delete::createFrom($table)->where(R::Eq($column,$this))->execute();
+		}
 		Delete::createFrom($this)
 		->where(R::Eq($this,$this->getId()))
 		->execute();

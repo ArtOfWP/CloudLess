@@ -172,8 +172,8 @@ array(9) { ["Name"]=>  string(17) "Wp Affiliate Shop" ["Title"]=>  string(17) "W
 		$scripts = $this->on_admin_print_scripts();
 		foreach($scripts as $name => $file){
 			//wp_register_script($name,$file);
-			//add_action('admin_print_scripts',$name);			
-			wp_enqueue_script($name,$file);
+			//add_action('admin_print_scripts',$name);
+				wp_enqueue_script($name,$file);
 		}
 	}
 }
