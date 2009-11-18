@@ -185,9 +185,9 @@ jQuery(function(){
 	}
 	static function notification($id,$message,$error=false){
 		if($error)
-			echo "<div id='$id' class='ui-state-error'>$message</div>";		
+			echo "<div id=\"$id\" class=\"ui-state-error\">$message</div>";		
 		else
-			echo "<div id='$id' class='ui-state-highlight'>$message</div>";
+			echo "<div id=\"$id\" class=\"ui-state-highlight\">$message</div>";
 	}
 }
 ?>

@@ -36,6 +36,8 @@ abstract class ApplicationBase{
 		}else{
 			if(method_exists($this,'on_wp_print_styles'))
 				add_action('wp_print_styles',array(&$this,'print_styles'));
+			if(method_exists($this,'on_wp_print_scripts'))
+				add_action('wp_print_scripts',array(&$this,'print_scripts'));
 			if(method_exists($this,'on_add_page_links'))
 				add_filter('wp_list_pages', array(&$this,'on_add_page_links'));	
 			if(method_exists($this,'render_view_template'))
@@ -175,6 +177,9 @@ array(9) { ["Name"]=>  string(17) "Wp Affiliate Shop" ["Title"]=>  string(17) "W
 			//add_action('admin_print_scripts',$name);
 				wp_enqueue_script($name,$file);
 		}
+	}
+	function print_scripts(){
+		$this->on_wp_print_scripts();		
 	}
 }
 ?>

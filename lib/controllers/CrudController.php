@@ -48,7 +48,7 @@ abstract class CrudController extends BaseController{
 	}
 	function create(){
 		$this->loadFromPost();
-		$this->crudItem->create();
+		$this->crudItem->save();
 		$this->redirect('&result=1');
 	}
 	function redirect($query=false){
@@ -57,7 +57,7 @@ abstract class CrudController extends BaseController{
 		$redirect=Communication::useRedirect();
 		if($redirect)
 			if(strtolower($redirect)=='referer')
-				Communication::redirectTo(Communication::getReferer(),$query);
+				Communication::redirectTo(str_replace('&result=1','',Communication::getReferer()),$query);
 			else
 				Communication::redirectTo($redirect,$query);
 	}
@@ -65,7 +65,7 @@ abstract class CrudController extends BaseController{
 		$id=array_key_exists_v('Id',$this->values);		
 		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,false);		
 		$this->loadFromPost();
-		$this->crudItem->update();
+		$this->crudItem->save();
 		$this->redirect();	}
 	function delete(){
 		$this->loadFromPost();
@@ -153,7 +153,7 @@ abstract class CrudController extends BaseController{
 				foreach($values as $value){
 					if($dbrelation && $field=='text'){
 						$object= new $dbrelation;
-						$object->setName($value);
+						$object->setName(trim($value));
 						$object->save();
 						$objects[]=$object;
 					}
