@@ -6,7 +6,7 @@ function load($dir){
 			if(is_dir($dir.$resource))
 				load($dir.$resource.'/');
 			else
-			 	include($dir.$resource);
+			 	include_once($dir.$resource);
 		}
 	}
 	closedir($handle);

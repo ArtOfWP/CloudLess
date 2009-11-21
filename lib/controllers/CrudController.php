@@ -1,5 +1,5 @@
 <?php
-
+include_once('BaseController.php');
 abstract class CrudController extends BaseController{
 	protected $crudItem;
 	public $bag=array();
@@ -63,10 +63,11 @@ abstract class CrudController extends BaseController{
 	}
 	function update(){
 		$id=array_key_exists_v('Id',$this->values);		
-		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,false);		
+//		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,false);		
 		$this->loadFromPost();
 		$this->crudItem->save();
-		$this->redirect();	}
+		$this->redirect('&result=1');
+	}
 	function delete(){
 		$this->loadFromPost();
 		$this->crudItem->delete();

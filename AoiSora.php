@@ -15,8 +15,10 @@ global $loadviewengine;
 $loadviewengine='WordPress';
 require('init.php');
 
-function viewcomponent($app,$component,$params){
+function viewcomponent($app,$component,$params=false){
 	include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/views/components/$component/$component.php"));
+	if(!$params)
+		$params=array();
 	$c = new $component($params);
 	$c->render();
 }

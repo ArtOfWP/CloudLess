@@ -87,17 +87,22 @@ abstract class ActiveRecordBase{
 			$settings=ObjectUtility::getCommentDecoration($this,$list.'List');
 			$table=array_key_exists_v('dbrelationname',$settings);
 			if(sizeof($values)>0){
+				$delete=true;
 				foreach($values as $value){
 					if($table && is_subclass_of($value,'ActiveRecordBase')){
 						Debug::Value('Update list',$table);
-						$value->update();
-/*						$col1=strtolower(get_class($value)).'_id';
+//						$value->save();
+						$col1=strtolower(get_class($value)).'_id';
 						$col2=strtolower(get_class($this)).'_id';
+						if($delete){
+						Delete::create()->from($table)->where(R::Eq($col2,$this->getId()))->execute();						
+						$delete=false;
+						}
 						$row['table']=$table;
 						$row['values'][$col1]=$value->getId();
 						$row['values'][$col2]=$this->getId();
-						$db->update($row);
-						$row=null;*/
+						$db->insert($row);
+						$row=null;
 					}	
 				}
 			}else

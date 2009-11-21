@@ -1,5 +1,5 @@
 <?php
-class MySqlDatabase implements IDatabase{
+class MySqlDatabase{
 	private $db;
 	private $stmt;
 	private $relations=array();

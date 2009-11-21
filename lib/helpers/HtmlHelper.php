@@ -44,7 +44,7 @@ class HtmlHelper{
 				if(!$field)
 					$field='text';
 				if($field=='textarea'){
-					$theForm.=HtmlHelper::textarea($id,$value,false,true);
+					$theForm.=HtmlHelper::textarea($id,stripslashes($value),false,true);
 				}
 				else if($field=='image'){
 					if(strpos($value,'http')===false)
@@ -221,9 +221,11 @@ class HtmlHelper{
 			return 	"<img $class src='$src' $alt />";
 		echo "<img $class src='$src' $alt />";
 	}
-	static function imglink($src,$path,$alt=false,$class=false){
+	static function imglink($src,$path,$alt=false,$class=false,$dontprint=false){
 		$class=$class?' class=\''.$class.'\' ':'';
 		$alt=$alt?" alt='".$alt."'":'';
+		if($dontprint)
+			return "<a href='$path' $class><img src='$src' $alt /></a>";
 		echo "<a href='$path' $class><img src='$src' $alt /></a>";
 	}
 	static function table($data,$headlines=false){
