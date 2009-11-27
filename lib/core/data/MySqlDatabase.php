@@ -175,6 +175,7 @@ class MySqlDatabase{
 	function query($q){
 		$from=implode(',',$q->from);
 	    $columns=implode(',',$q->select);
+	    $order='';
 	    $where='';
 	    $params=array(); 
 	    if($q->hasWhere())
@@ -191,9 +192,15 @@ class MySqlDatabase{
 				}
 			}
 	    }
+	    if(sizeof($q->order)>0){
+		    $order=' ORDER BY '.implode(',',$q->order);	    	
+	    }
+	    if($q->hasLimit()){
+	    	$limit = ' LIMIT '.$q->offset.','.$q->limit.' ';
+	    }
 		if($where)
 			$where =' WHERE '.$where;
-	    $prepared='SELECT '.$columns.' FROM '.$from.$where;
+	    $prepared='SELECT '.$columns.' FROM '.$from.$where.$order.$limit;
 	    if(defined('SQLDEBUG') && SQLDEBUG){
 		    Debug::Value('SQL',$prepared);
 		    Debug::Value('SQL Params',$params);

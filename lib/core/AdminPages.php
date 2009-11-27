@@ -5,14 +5,19 @@ class AdminPages{
 	private $accesslevel;
 	private $name;
 	private $dir;
-	function AdminPages($app,$pagetitle,$menutitle,$accesslevel,$name){
+	private $icon_url;
+	function AdminPages($app,$pagetitle,$menutitle,$accesslevel,$name,$icon_url=false){
 		$this->dir=$app->dir;
 		$this->pagetitle=$pagetitle;
 		$this->menutitle=$menutitle;
 		$this->accesslevel=$accesslevel;
 		$this->name=$name;
+		$this->icon_url=$icon_url;
 	}
 	function addMenu(){
+		if($this->icon_url)
+		add_menu_page($this->pagetitle,$this->menutitle,$this->accesslevel,$this->name,array(&$this,'none'),$this->icon_url);		
+		else
 		add_menu_page($this->pagetitle,$this->menutitle,$this->accesslevel,$this->name,array(&$this,'none'));
 	}
 	function addSubmenu($pagetitle,$menutitle,$accesslevel,$controller,$action){

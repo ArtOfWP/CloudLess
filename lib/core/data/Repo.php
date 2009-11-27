@@ -8,6 +8,7 @@ class Repo{
 		Debug::Value('Id=',$id);
 		$objects= Query::createFrom($class,$lazy)
 				  ->where(R::Eq(new $class,$id))
+				  ->limit(0,1)
 				  ->execute();
 		return sizeof($objects)==1?$objects[0]:false;
 	}
@@ -19,7 +20,7 @@ class Repo{
 	static function slicedFindAll($class,$firstResult,$maxResult,$order,$restrictions){
 		return Query::createFrom($class)
 			->limit($firstResult,$maxResult)
-			->orderBy($order)
+			->order($order)
 			->where($restrictions)
 			->execute();		
 	}

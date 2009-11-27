@@ -9,7 +9,29 @@ class R{
 	var $values=array();
 	var $parameters=array();
 	var $method;
-		
+
+
+	static function Ge($property,$value,$isProperty=false){
+		$r=R::Eq($property,$value,$isProperty);
+		$r->method='>=';
+		return $r;		
+	}
+	static function Le($property,$value,$isProperty=false){
+		$r=R::Eq($property,$value,$isProperty);
+		$r->method='<=';
+		return $r;		
+	}
+	
+	static function Lt($property,$value,$isProperty=false){
+		$r=R::Eq($property,$value,$isProperty);
+		$r->method='<';
+		return $r;		
+	}
+	static function Gt($property,$value,$isProperty=false){
+		$r=R::Eq($property,$value,$isProperty);
+		$r->method='>';
+		return $r;		
+	}
 	static function Eq($property,$value,$isProperty=false){
 		global $db_prefix;
 		$r = new R();

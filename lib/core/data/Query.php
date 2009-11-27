@@ -1,6 +1,8 @@
 <?php
 
 class Query{
+	public $limit;
+	public $offset;
 	function Query($table=false){
 		if($table){
 			$this->from($table);
@@ -97,6 +99,7 @@ class Query{
 			$this->statement['order']+=$order;
 		else
 			$this->statement['order'][]=$order;
+		return $this;
 	}
 	public function hasWhere(){
 		return !empty($this->statement['where']);
@@ -150,6 +153,7 @@ class Query{
 			case 'from':
 			case 'select':
 			case 'where':
+			case 'order':
 				return $this->statement[$property];
 		}
 	}

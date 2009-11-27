@@ -42,13 +42,13 @@ abstract class CrudController extends BaseController{
 		$id=array_key_exists_v('Id',$this->values);		
 		Debug::Value('Action','Edit');
 		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,true);
-//		$this->loadFromPost();
-		$this->bag['edit']=$this->crudItem;//$this->crudItem->getById($id);
+		$this->bag['edit']=$this->crudItem;
 		$this->Render($this->controller,'edit');
 	}
-	function create(){
+	function create($redirect=true){
 		$this->loadFromPost();
 		$this->crudItem->save();
+		if($redirect)
 		$this->redirect('&result=1');
 	}
 	function redirect($query=false){
@@ -61,12 +61,12 @@ abstract class CrudController extends BaseController{
 			else
 				Communication::redirectTo($redirect,$query);
 	}
-	function update(){
+	function update($redirect=true){
 		$id=array_key_exists_v('Id',$this->values);		
-//		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,false);		
 		$this->loadFromPost();
 		$this->crudItem->save();
-		$this->redirect('&result=1');
+		if($redirect)
+			$this->redirect('&result=1');
 	}
 	function delete(){
 		$this->loadFromPost();
@@ -149,7 +149,7 @@ abstract class CrudController extends BaseController{
 			$objects=array();	
 			if($field=='text'){
 				$values=explode(',',$value);
-				if(sizeof($values)<2)
+				if(sizeof($values)==0)
 					continue;
 				foreach($values as $value){
 					if($dbrelation && $field=='text'){

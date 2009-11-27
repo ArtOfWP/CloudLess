@@ -14,5 +14,19 @@ class Order{
 		$this->property=$property;
 		$this->order=$order;
 	}
+	private function addMark($ct){
+		return '`'.$ct.'`';
+	}	
+	function __toString(){
+		global $db_prefix;
+		$temp='';
+		$p=explode('.',$this->property);
+		if(sizeof($p)>1){
+			$temp=$this->addMark($db_prefix.strtolower($p[0]));
+			$temp.=$this->addMark(strtolower($p[1]));
+		}else
+			$temp=$this->addMark($this->property);
+		return $temp.' '.$this->order;
+	}
 }
 ?>

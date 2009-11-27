@@ -86,33 +86,37 @@ abstract class ActiveRecordBase{
 		foreach($lists as $list =>$values){
 			$settings=ObjectUtility::getCommentDecoration($this,$list.'List');
 			$table=array_key_exists_v('dbrelationname',$settings);
+			Debug::Value('List values',$values);
 			if(sizeof($values)>0){
 				$delete=true;
 				foreach($values as $value){
 					if($table && is_subclass_of($value,'ActiveRecordBase')){
 						Debug::Value('Update list',$table);
-//						$value->save();
+						$value->save();
 						$col1=strtolower(get_class($value)).'_id';
 						$col2=strtolower(get_class($this)).'_id';
 						if($delete){
 						Delete::create()->from($table)->where(R::Eq($col2,$this->getId()))->execute();						
 						$delete=false;
 						}
+						Debug::Message('Prepare relation insert');
 						$row['table']=$table;
 						$row['values'][$col1]=$value->getId();
 						$row['values'][$col2]=$this->getId();
 						$db->insert($row);
-						$row=null;
+						$row=array();
 					}	
 				}
-			}else
+			}else{
+				Debug::Message('Delete single entity');
 				Delete::createFrom($table)->where(R::Eq($vo['table'].'_id',$this))->execute();
+			}
 		}
 	}
 	function save(){
 		$doit=true;
 		if(method_exists($this,'on_pre_save'))
-			$doit=$this->on_pre_save();
+			$doit=$this->on_pre_save();		
 		Debug::Message('Save Doit',$doit);
 		if($doit)
 			if($this->getId()>0)
