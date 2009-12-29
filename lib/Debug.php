@@ -28,5 +28,26 @@ class Debug{
 			echo "before that you were in ".$thisfile[1]['file']." on ".$thisfile[1]['line'].'</p>';  
 		}
 	}
+	static function timeIt(){
+		$r= new RunningTime();
+		$r->start();
+		return $r;
+	}
+}
+class RunningTime{
+	private $starttime;
+	private $endtime;
+	function start(){
+		$this->starttime= microtime(true);
+	}
+	function stop(){
+		$this->endtime= microtime(true);
+	}
+	function timerun(){
+		return $this->endtime-$this->starttime;
+	}
+	function __toString(){
+		return $this->timerun();
+	}
 }
 ?>

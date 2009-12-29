@@ -1,4 +1,5 @@
 <?php
+Debug::Message('Loaded wordpress viewengine');
 	if(!defined('WP_PLUGIN_DIR'))
 		define('APPPATH',dirname(__FILE__).'/');
 	else
@@ -47,4 +48,11 @@
 		return $title;
 	}
 	add_filter('wp_title','aoisora_render_title',10,3);
+	function viewcomponent($app,$component,$params=false){
+		include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/views/components/$component/$component.php"));
+		if(!$params)
+			$params=array();
+		$c = new $component($params);
+		$c->render();
+	}
 ?>

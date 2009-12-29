@@ -10,7 +10,8 @@ class Route{
 			$success=Route::rerouteToController($controller);
 		else
 			$success=false;
-		
+		Debug::Message('Rerouting');
+		Debug::Value('Success',$success);
 		return $success;
 	}
 	static function rerouteToController($controller){
@@ -25,6 +26,7 @@ class Route{
 	}
 	static function rerouteToAction($controller,$action){
 		$controller=$controller.'Controller';
+		Debug::Value('RerouteToAction',$controller.'->'.$action);
 		if(class_exists($controller)){
 			if(method_exists($controller,$action)){
 				$ctrl=new $controller(false);

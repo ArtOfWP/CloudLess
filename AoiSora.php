@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: AoiSora
-Plugin URI: http://artofwp.com/shop
+Plugin URI: http://artofwp.com/wpdk
 Description: A PHP MVC Framework for WordPress
-Version: 9.09
+Version: 9.12
 Author: Andreas Nurbo
 Author URI: http://andreasnurbo.com/
 */
@@ -14,13 +14,5 @@ define('LOADAPPS',true);
 global $loadviewengine;
 $loadviewengine='WordPress';
 require('init.php');
-
-function viewcomponent($app,$component,$params=false){
-	include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/views/components/$component/$component.php"));
-	if(!$params)
-		$params=array();
-	$c = new $component($params);
-	$c->render();
-}
 
 ?>

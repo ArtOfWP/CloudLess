@@ -3,7 +3,12 @@ class MySqlDatabase{
 	private $db;
 	private $stmt;
 	private $relations=array();
-
+	private $indexes=array();
+	private $indextype=array();
+	static function instance(){
+		global $db;
+		return $db;
+	}
 	function MySqlDatabase(){
 		if(defined('HOST'))
 			$this->connect(HOST,DATABASE,USERNAME,PASSWORD);
@@ -13,6 +18,7 @@ class MySqlDatabase{
 	function connect($host,$database,$username,$password){
 		try {
 			$this->db = new PDO('mysql:host='.$host.';dbname='.$database, $username, $password);
+		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT); 			
 		} catch (PDOException $e) {
     		print "Error!: " . $e->getMessage() . "<br/>";
     		die();
@@ -21,7 +27,6 @@ class MySqlDatabase{
 	function dropTable($object){
 		global $db_prefix;
 		$table='DROP TABLE `'.$db_prefix.strtolower(get_class($object)).'`';
-		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING); 
 		$this->db->exec($table);
 		$arrays = ObjectUtility::getArrayProperties($object);
 		foreach($arrays as $array){
@@ -37,17 +42,20 @@ class MySqlDatabase{
 	}
 	function createTable($object){
 		global $db_prefix;
-		Debug::Value('create table',$db_prefix.strtolower(get_class($object)));
-		$table='CREATE TABLE `'.$db_prefix.strtolower(get_class($object)).'` (';
+		$tablename=$db_prefix.strtolower(get_class($object));
+		Debug::Value('create table',$tablename);
+		$table='CREATE TABLE `'.$tablename.'` (';
 		$columns =	ObjectUtility::getPropertiesAndValues($object);
+		$csettings=ObjectUtility::getClassCommentDecoration($object);
+		$tableengine=array_key_exists_v('table',$csettings);
 		Debug::Message('gettings columns');
 		foreach($columns as $property => $value){
-			$column=strtolower($property);
+			$settings=ObjectUtility::getCommentDecoration($object,'get'.$property);
+			$column=strtolower($property);			
 			$table.=' `'.$column.'` ';
 			if($column=='id')
 				$table.='INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,';
-			else{
-				$settings=ObjectUtility::getCommentDecoration($object,'get'.$property);				
+			else{				
 				if(!isset($value)){
 					$dbfield=strtolower(array_key_exists_v('dbfield',$settings));					
 					if($dbfield=='char'){
@@ -57,12 +65,15 @@ class MySqlDatabase{
 						else{
 							$table.='VARCHAR(45) NOT NULL default \'\',';
 						}						
-					}else if($dbfield=='text')
+					}else if($dbfield=='boolean'){
+						$table.="tinyint(1) NOT NULL default 0,";						
+					}
+					else if($dbfield=='text')
 						$table.='TEXT NOT NULL,';
-					else if(stristr('int',$dbfield))
+					else if(stristr($dbfield,'int'))
 						$table.="$dbfield NOT NULL default 0,";					
-					else if(stristr('decimal',$dbfield)){
-						$table.="$dbfield NOT NULL default 0,";						
+					else if(stristr($dbfield,'decimal')){
+						$table.=str_replace('|',',',$dbfield)." NOT NULL default 0,";						
 					}
 					else{
 						$table.='VARCHAR(45) NOT NULL default \'\',';
@@ -75,6 +86,8 @@ class MySqlDatabase{
 					$dbfield=array_key_exists_v('dbfield',$settings);
 					if($dbfield=='text')
 						$table.='TEXT NOT NULL,';
+					else if($dbfield=='datetime')
+						$table.='DATETIME NOT NULL,';
 					else{
 						$length=array_key_exists_v('dblength',$settings);
 						if($length)
@@ -85,12 +98,40 @@ class MySqlDatabase{
 					}
 				}
 			}
+			$dbindexkind=array_key_exists_v('dbindexkind',$settings);
+			$dbindexorder=array_key_exists_v('dbindexorder',$settings);
+			if($dbindexkind=='primary'){
+				Debug::Message('Primary index');
+				if($dbindexorder>0)
+					$this->indexes[$tablename]['primary'][intval($dbindexorder)]=' `'.$column.'` ';
+				else
+					$this->indexes[$tablename][$dbindexname]='`'.$column.'` ';
+				$this->indextype[$tablename]['primary']='PRIMARY KEY';
+			}
+			$dbindexname=array_key_exists_v('dbindexname',$settings);
+			if($dbindexname){
+				Debug::Message('Index '.$dbindexname);
+				if($dbindexorder>0){
+					$this->indexes[$tablename][$dbindexname][intval($dbindexorder)]=' `'.$column.'` ';
+				}else
+					$this->indexes[$tablename][$dbindexname]=' `'.$column.'` ';
+				$this->indextype[$tablename][$dbindexname]=$dbindexkind;
+			}			
 		}
 		$table=rtrim($table,",");
-		$table.=') ENGINE InnoDB';
+		if($tableengine)
+			$table.=") ENGINE $tableengine";
+		else
+			$table.=") ENGINE InnoDB";
 		
-		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING); 
-		$this->db->exec($table);
+		try{
+			$this->db->exec($table);
+		}
+		catch(Exception $exception)
+		{
+			Debug::Value('Error with sql statement',$table);
+			Debug::Message('PDO::errorInfo()');print_r($this->db->errorInfo());	
+		}
 
 
 		$arrays = ObjectUtility::getArrayProperties($object);
@@ -105,7 +146,6 @@ class MySqlDatabase{
 			}
 		}		
 	}
-	
 	function insert($row){
 		if(is_array($row)){
 			global $db_prefix;
@@ -253,6 +293,10 @@ class MySqlDatabase{
 				Debug::Value('PDO::errorInfo()',$this->db->errorInfo());
 			}			
 	}
+	function executeSQL($sql){
+		$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);		
+		$this->db->exec($sql) or die(var_dump($this->db->errorInfo()));
+	}
 	private function bindParams(&$stmt,$param,$value){
 		$stmt->bindParam($param,$value);
 	}
@@ -264,8 +308,14 @@ class MySqlDatabase{
 		global $db_prefix;
 		$relations=$this->relations;
 		foreach($relations as $table => $columns){
-			$table=' CREATE TABLE `'.$db_prefix.$table.'` ( `'.$columns[0].'` INTEGER NOT NULL, `'.$columns[1].'` INTEGER NOT NULL)';
-			$this->db->exec($table);
+			$table=' CREATE TABLE `'.$db_prefix.$table.'` ( `'.$columns[0].'` INTEGER NOT NULL, `'.$columns[1].'` INTEGER NOT NULL,';
+			$table.="PRIMARY KEY (`$columns[0]`,`$columns[1]`)) ENGINE = InnoDB;";
+			try{
+				$this->db->exec($table);
+			}catch(Exception $exception){
+				echo $exception;
+				Debug::Message($table);
+			}
 		}
 	}
 	function dropStoredRelations(){
@@ -276,5 +326,26 @@ class MySqlDatabase{
 			$this->db->exec($table);
 		}
 	}
+	function createStoredIndexes(){
+		global $db_prefix;
+
+		foreach($this->indexes as $table => $data){
+			foreach($data as $indexname => $columns){	
+				$indextype=$this->indextype[$table][$indexname];
+				if(is_array($columns)){
+					ksort($columns);
+					$columns=implode(",",$columns);
+				}
+				$sql='ALTER TABLE `'.$table.'` ';			
+				if($indexname=='primary')
+					$sql.=" ADD PRIMARY KEY ($columns);";
+				else
+					$sql.=" ADD $indextype `$indexname` ($columns);"; 
+				$this->db->exec("ALTER IGNORE TABLE $table DROP INDEX $indexname");
+				$this->db->exec($sql);
+				Debug::Value('Index Sql',$sql);				
+			}
+		}		
+	}
 }
-?>
+?> 

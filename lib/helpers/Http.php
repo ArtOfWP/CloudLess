@@ -33,6 +33,21 @@ class Http{
 		curl_close ($ch);
 		return $cache;
 	}
+	static function save_file($url,$fullpath){
+    $out = fopen($fullpath, 'wb');
+    if ($out == FALSE){
+      print "File not opened<br>";
+      exit;
+    }
+    $ch = curl_init();
+           
+    curl_setopt($ch, CURLOPT_FILE, $out);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_exec($ch);
+   
+    curl_close($ch); 	
+	}
 
 }
 ?>

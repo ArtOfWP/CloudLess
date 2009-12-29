@@ -3,12 +3,13 @@ class ObjectUtility{
 
 	static function getProperties($object){
 		$class = new ReflectionClass(get_class($object));
+		$class->getDocComment();
 		$methods= $class->getMethods(ReflectionMethod::IS_PUBLIC);
 		$properties=array();
 		Debug::Value('Class',get_class($object));
 		foreach($methods as $method)
 			if(strpos($method->getName() ,'get')!==false && !$method->isStatic()){
-				$property=str_replace('get','',$method->getName());
+				$property=substr($method->getName(),3);
 				$properties[]=$property;	
 			}
 		return $properties;
@@ -52,7 +53,7 @@ class ObjectUtility{
 		$properties=array();
 		foreach($methods as $method){
 			if(strpos($method->getName(),'get')!==false && !$method->isStatic()){
-				$properties[str_replace('get','',$method->getName())]=$method->invoke($object);
+				$properties[substr($method->getName(),3)]=$method->invoke($object);
 			}
 		}
 		return $properties;
@@ -65,7 +66,21 @@ class ObjectUtility{
 			$method->invoke($object,$value);
 		}	
 	}
-	
+	static function getClassCommentDecoration($object){
+		$class = new ReflectionClass(get_class($object));
+		$comment=$class->getDocComment();
+		$comment=str_replace('/**','',$comment);
+		$comment=str_replace('*/','',$comment);
+		$settings=array();
+		if(strlen($comment)>4){
+			$temp=explode(',',$comment);
+			foreach($temp as $setting){
+				$x=explode(':',trim($setting));
+				$settings[$x[0]]=$x[1];
+			}
+		}
+		return $settings;
+	}
 	static function getCommentDecoration($object,$method){
 		$rmethod=new ReflectionMethod(get_class($object),$method);
 		$comment=$rmethod->getDocComment();

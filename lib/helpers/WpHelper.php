@@ -134,14 +134,14 @@ jQuery(function(){
 							if($type=='textarea'):?>
 								<textarea id="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" name="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>"><?php echo $values?$values[$key]:get_option($key); ?></textarea>
 					<?php 	elseif($type=='checkbox'):?>
-								<input type="checkbox" id="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" name="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" value="1" <?php echo $values?$values[$key]:get_option($key)?'checked=\"checked\"':''; ?> />					
+								<input type="checkbox" id="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" name="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" value="1" <?php echo $values?$values[$key]:get_option($key)?'checked="checked"':''; ?> />					
 					<?php	elseif(strpos($type,'dropdown')!==false):?>
 					<?php 		$selected=$values?$values[$key]:get_option($key);	?>
 								<select id="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" name="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>">
 					<?php 		foreach($dropdown as $text => $value):?>
 					<?php 			
 									if($selected==$value)
-										$selected=' selected=\"selected\" ';?>
+										$selected=' selected="selected" ';?>
 									<option  <?php echo $selected ?>value="<?php echo $value; ?>">
 										<?php if(is_int($text)): echo $value; else: echo $text; endif; 	echo '  '.$text.' '.$value;?>
 									</option>
@@ -188,6 +188,35 @@ jQuery(function(){
 			echo "<div id=\"$id\" class=\"ui-state-error\">$message</div>";		
 		else
 			echo "<div id=\"$id\" class=\"ui-state-highlight\">$message</div>";
+	}
+	static function insertPage($title,$slug,$content,$status='draft',$author=false){
+		global $wpdb,$wp_rewrite;		
+		$page= array();
+		global $user_ID;
+      	get_currentuserinfo();
+      	$user=$author?$author:$user_ID;
+		$query = "INSERT $wpdb->posts SET post_title='$title',
+											post_name='$slug',
+											post_content='$content',
+											post_parent='0',
+											post_author='$user',
+											post_status='$status',
+											post_type='page',
+											post_date=now(),
+											post_date_gmt=utc_timestamp(),
+											post_modified=now(),
+											post_modified_gmt=utc_timestamp(),
+											comment_status='closed',
+											ping_status='closed',
+											post_excerpt='',
+											to_ping='',     
+											pinged='',      
+											post_content_filtered='',
+											menu_order=0";
+
+										
+		$wpdb->query($query);	
+		$wp_rewrite->flush_rules();	
 	}
 }
 ?>

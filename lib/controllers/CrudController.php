@@ -124,7 +124,7 @@ abstract class CrudController extends BaseController{
 						
 						Http::save_image($url,$path);
 //						file_put_contents($path, file_get_contents($url));
-						
+//get_option( 'upload_path' )						
 						$image = new Resize_Image;
 						$image->new_width = 100;
 						$image->new_height = 100;

@@ -72,6 +72,9 @@ class HtmlHelper{
 					$theForm.=HtmlHelper::input($id,'text',str_replace('"','',$value),false,true);
 					$theForm.='<br />'.HtmlHelper::a('Test link',$value,false,true);
 				}
+				else if($field=='currency'){
+					$theForm.=HtmlHelper::currencydropdown($id,$value,true);
+				}
 				else
 				$theForm.=HtmlHelper::input($id,$field,stripslashes(str_replace('"','',$value)),false,true);
 				$theForm.='</td></tr>';
@@ -167,6 +170,17 @@ class HtmlHelper{
 		echo "<textarea id=\"$id\" name=\"$id\" rows=\"14\" cols=\"40\" $class>$value</textarea>";
 			
 	}
+	static function currencydropdown($id,$selectedCurrency,$dontprint=false){
+		$currency=array("USD"=>"United States Dollars","CAD"=>"Canada Dollars","EUR"=>"Euro","GBP"=>"United Kingdom Pounds");
+		$select="<select id=\"$id\" name=\"$id\" >";
+		foreach($currency as $key => $element){
+			$select.=HtmlHelper::option(str_replace('"','',$key),$element,$selectedCurrency==$element,true);
+		}
+		$select.='</select>';
+		if($dontprint)
+			return $select;
+		echo $select;
+	}
 	static function select($id,$array,$multiple=false,$selectedValues=false,$dontprint=false){
 		$select="<select id=\"$id\" name=\"$id\"";
 		if($multiple)
@@ -175,8 +189,10 @@ class HtmlHelper{
 		$select.=HtmlHelper::option(0,'None',false,true);
 		if(is_array($array))
 		foreach($array as $element){
-			if(is_string($element) || is_int($element))
-			$select.=HtmlHelper::option(str_replace('"','',$element),$element,$selectedValues==$element,true);
+			if(is_string($element) || is_int($element)){
+				$key=key($array);
+				$select.=HtmlHelper::option(str_replace('"','',$key),$element,$selectedValues==$element,true);
+			}
 			else
 			$select.=HtmlHelper::option($element->getId(),$element,$selectedValues==$element.'',true );
 		}
