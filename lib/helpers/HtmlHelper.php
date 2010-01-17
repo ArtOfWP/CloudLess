@@ -216,7 +216,7 @@ class HtmlHelper{
 		$theForm.=HtmlHelper::input('_wpnonce','hidden',wp_create_nonce($nonce),false,true);
 		$theForm.=HtmlHelper::input('_method','hidden','delete',false,true);
 		$theForm.=HtmlHelper::input('Id','hidden',$value,false,true);
-		$theForm.=HtmlHelper::input('delete'.$value,'submit',$text,'button-secondary',true);
+		$theForm.=str_replace('>'," onclick=\"return confirm('Are you sure you want to delete?')\" >",HtmlHelper::input('delete'.$value,'submit',$text,'button-secondary',true));		
 		$theForm.='</form>';
 		echo $theForm;
 	}

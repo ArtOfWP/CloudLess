@@ -8,9 +8,17 @@ class R{
 	var $hasvalue=false;
 	var $values=array();
 	var $parameters=array();
+	var $columns;
 	var $method;
 
 
+	static function Match($columns,$keywords){
+		$r = new R();
+		$r->method='MATCH';
+		$r->columns=$columns;
+		$r->values=explode(' ',$keywords);
+		return $r;
+	}
 	static function Ge($property,$value,$isProperty=false){
 		$r=R::Eq($property,$value,$isProperty);
 		$r->method='>=';
@@ -135,6 +143,21 @@ class R{
 	}
 	function toSQL(){
 		switch($this->method){
+			case 'MATCH':
+				$sql=' MATCH(';
+				$func=$this->addMark;
+				$count=count($this->columns);
+				for($i=0;$i<$count;$i++){
+					$this->columns[$i]=$this->addMark($this->columns[$i]);
+				}				
+					$sql.=implode(',',$this->columns);
+				$sql.=') AGAINST(';
+				foreach($this->values as $value){
+					$this->parameters[':'.$value]=$value;
+				}
+				$sql.=implode(',',array_keys($this->parameters));				
+				$sql.=' IN BOOLEAN MODE)';
+				return $sql;
 			case ' IN ':
 				$sql='';
 				if($this->table)
@@ -170,6 +193,8 @@ class R{
 	}
 	private function addMark($ct){
 		return '`'.$ct.'`';
+	$cbnetmbpautoPrefix_array = array( 'dppp', 'mdw', 'mup', 'mpo', 'msa', 'ps', 'mfi', 'spl', 'mba', 'dpc', 'mcn', 'ofa' );
 	}
+	
 }
 ?>

@@ -48,7 +48,7 @@ class BaseController{
 		$view=$this->findView($this->controller,$action);		
 		ob_start();
 		if($view){
-			extract($this->bag);			
+			extract($this->bag, EXTR_REFS);			
 			include($view);
 			$this->viewcontent=ob_get_contents();
 		}else
@@ -65,7 +65,7 @@ class BaseController{
 		$view=$this->findView($controller,$action);		
 		ob_start();
 		if($view){
-			extract($this->bag);		
+			extract($this->bag, EXTR_REFS);		
 			include($view);
 			$this->viewcontent=ob_get_contents();
 		}else

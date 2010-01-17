@@ -47,7 +47,7 @@ class RunningTime{
 		return $this->endtime-$this->starttime;
 	}
 	function __toString(){
-		return $this->timerun();
+		return $this->timerun().'';
 	}
 }
 ?>

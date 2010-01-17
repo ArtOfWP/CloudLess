@@ -75,7 +75,11 @@ class Query{
 		return $this;		
 	}
 	public function where($restriction){
-		if($restriction)
+		if(is_array($restriction)){
+			$restrictions=$restriction;
+			foreach($restrictions as $restriction)
+				$this->statement['where'][]=$restriction;			
+		}else
 			$this->statement['where'][]=$restriction;
 		return $this;
 	}

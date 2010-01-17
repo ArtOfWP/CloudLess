@@ -223,7 +223,7 @@ class MySqlDatabase{
 			foreach($q->where as $clause){
 				
 				$where.=$clause->toSQL();
-				if($clause->method==' IN ')
+				if($clause->method==' IN ' || $clause->method=='MATCH')
 					$params=array_merge($params,$clause->getParameters());				
 				else if($clause->hasValue()){
 					$param=$clause->getParameter();

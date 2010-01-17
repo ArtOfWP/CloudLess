@@ -34,5 +34,8 @@ class WpOption{
 	public function getArray(){
 		return $this->options;
 	}
+	public function __ToString(){
+		return "Options for $this->application";
+	}
 }
 ?>

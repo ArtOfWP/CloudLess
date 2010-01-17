@@ -36,13 +36,6 @@ else if ( isset($pagenow) )
 
 $admin_body_class = preg_replace('/[^a-z0-9_-]+/i', '-', $hook_suffix);
 ?>
-<script type="text/javascript">
-//<![CDATA[
-addLoadEvent = function(func){if(typeof jQuery!="undefined")jQuery(document).ready(func);else if(typeof wpOnload!='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};
-var userSettings = {'url':'<?php echo SITECOOKIEPATH; ?>','uid':'<?php if ( ! isset($current_user) ) $current_user = wp_get_current_user(); echo $current_user->ID; ?>','time':'<?php echo time() ?>'};
-var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>', pagenow = '<?php echo substr($pagenow, 0, -4); ?>', adminpage = '<?php echo $admin_body_class; ?>';
-//]]>
-</script>
 <?php 
 
 if ( in_array( $pagenow, array('post.php', 'post-new.php', 'page.php', 'page-new.php') ) ) {
@@ -65,6 +58,8 @@ if ( get_user_setting('mfold') == 'f' ) {
 if ( $is_iphone ) { ?>
 <style type="text/css">.row-actions{visibility:visible;}</style>
 <?php } ?>
+<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.5.5/jquery.validate.min.js"></script>
+
 </head>
 <body class="wp-admin no-js <?php echo apply_filters( 'admin_body_class', '' ) . " $admin_body_class"; ?>">
 <script type="text/javascript">
@@ -105,5 +100,14 @@ echo BaseController::ViewContents(); ?>
 <div class="clear"></div>
 </div>
 <script type="text/javascript">if(typeof wpOnload=='function')wpOnload();</script>
+<?php ?>
+<?php wp_print_scripts() ?>
+<script type="text/javascript">
+//<![CDATA[
+addLoadEvent = function(func){if(typeof jQuery!="undefined")jQuery(document).ready(func);else if(typeof wpOnload!='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};
+var userSettings = {'url':'<?php echo SITECOOKIEPATH; ?>','uid':'<?php if ( ! isset($current_user) ) $current_user = wp_get_current_user(); echo $current_user->ID; ?>','time':'<?php echo time() ?>'};
+var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>', pagenow = '<?php echo substr($pagenow, 0, -4); ?>', adminpage = '<?php echo $admin_body_class; ?>';
+//]]>
+</script>
 </body>
 </html>

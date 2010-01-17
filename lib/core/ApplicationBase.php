@@ -46,6 +46,8 @@ abstract class ApplicationBase{
 				add_action('init', array(&$this,'on_init'));
 			if(method_exists($this,'on_rewrite_rules_array'))
 				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
+			if(method_exists($this,'on_render_footer'))
+				add_action('wp_footer',array(&$this,'on_render_footer'));
 		}
 		if($useOptions){			
 			$this->options= new WpOption($this->app);

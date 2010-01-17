@@ -27,7 +27,7 @@ class WpHelper{
 			<?php endforeach;?>
 			</ul>
 			<?php foreach($tabs as $tabtitle => $options):?>
-			<div id="<?php echo strtolower(str_replace(" ","-",$tabtitle))?>" style="border:solid 1px #3BAAE3">
+			<div id="<?php echo strtolower(str_replace(" ","-",$tabtitle))?>" class="ui-widget-content">
 			<table class="form-table">
 			<?php foreach($options as $key => $option):	
 				$type=false;
