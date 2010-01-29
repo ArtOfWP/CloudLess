@@ -1,6 +1,13 @@
 <?php
 define('ROOT','../../../');
 require(ROOT.'wp-load.php');
+wp_register_style('forms',plugins_url('AoiSora/lib/css/forms.css'));			
+wp_register_style('wordpress',plugins_url('AoiSora/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css'));			
+
+wp_enqueue_style('wordpress');
+wp_enqueue_style('forms');
+wp_enqueue_style('wpaffshopadmin');
+
 //include('../../../wp-admin/index.php');
 require(ROOT.'wp-admin/admin.php');
 ?>
@@ -42,7 +49,6 @@ if ( in_array( $pagenow, array('post.php', 'post-new.php', 'page.php', 'page-new
 	add_action( 'admin_print_footer_scripts', 'wp_tiny_mce', 25 );
 	wp_enqueue_script('quicktags');
 }
-
 do_action('admin_enqueue_scripts', $hook_suffix);
 do_action("admin_print_styles-$hook_suffix");
 do_action('admin_print_styles');

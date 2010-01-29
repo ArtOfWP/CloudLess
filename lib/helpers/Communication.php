@@ -8,7 +8,7 @@ class Communication{
 		
 	}
 	static function cleanUrl($dirty_url){
-		list($clean_url)= explode('?',$dirty_url);
+		list($clean_url)= explode('?',htmlspecialchars(strip_tags($dirty_url),ENT_NOQUOTES));
 		return $clean_url;
 	}
 	static function getMethod(){

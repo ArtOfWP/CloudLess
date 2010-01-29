@@ -77,16 +77,16 @@ array(9) { ["Name"]=>  ["Title"]=> "Wp Affiliate Shop" ["PluginURI"]=>  ["Descri
 		return $links;
 	}
 	function activate(){
-		if(method_exists($this,'on_activate'))
-			$this->on_activate();
 		if(!$this->useInstall)
 			AoiSoraSettings::installApplication($this->app);
 		if($this->useOptions){			
 			$this->options= new WpOption($this->app);
 			if(method_exists($this,'on_load_options'))
-				$this->on_load_options();
+				$this->on_load_options();		
 		}			
 		AoiSoraSettings::addApplication($this->app,$this->dir);
+		if(method_exists($this,'on_activate'))
+			$this->on_activate();		
 	}
 	function deactivate(){
 		if(method_exists($this,'on_deactivate'))

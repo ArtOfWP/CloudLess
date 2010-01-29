@@ -1,4 +1,5 @@
 <?php
+
 class SecurityFilter implements IFilter{
 	private $useraction;
 	private $nonce;

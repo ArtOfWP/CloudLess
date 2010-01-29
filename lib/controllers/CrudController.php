@@ -49,7 +49,9 @@ abstract class CrudController extends BaseController{
 		$this->loadFromPost();
 		$this->crudItem->save();
 		if($redirect)
-		$this->redirect('&result=1');
+			$this->redirect('&result=1');
+		else
+			return $this->crudItem;
 	}
 	function redirect($query=false){
 		if(defined('NOREDIRECT') && NOREDIRECT)

@@ -96,8 +96,8 @@ class BaseController{
 		return $viewcontent;
 	}
 	private function findView($controller,$action){
-		$controller=strtolower($controller);
-		$action=strtolower($action);
+//		$controller=strtolower($controller);
+//		$action=strtolower($action);
 		global $apps;
 		$found=false;
 		$total=sizeof($apps);
@@ -108,6 +108,18 @@ class BaseController{
 			if(file_exists($app.VIEWS.$controller.'/'.$action.'.php'))
 				$found = $app.VIEWS.$controller.'/'.$action.'.php';
 			$i++;
+		}
+		if(!$found){
+			$controller=strtolower($controller);
+			$action=strtolower($action);
+			$i=0;
+			while(!$found && $i<$total){
+				$app=$apps[$i];
+				Debug::Value('Searching',$app.VIEWS.$controller.'/'.$action.'.php');
+				if(file_exists($app.VIEWS.$controller.'/'.$action.'.php'))
+					$found = $app.VIEWS.$controller.'/'.$action.'.php';
+				$i++;
+			}
 		}
 		return $found;
 	}

@@ -5,7 +5,7 @@ Then add this to the beginning of you .htaccess file
 # BEGIN AoiSora
 <IfModule mod_rewrite.c>
 RewriteEngine On
-RewriteBase /plugintesting/
+RewriteBase /{WORDPRESSDIR}/
 RewriteCond %{REQUEST_METHOD} !GET
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

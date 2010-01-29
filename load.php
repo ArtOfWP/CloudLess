@@ -31,10 +31,9 @@ function loadAoiSora(){
 	load(PACKAGEPATH.'lib/controllers/');
 
 	global $loadviewengine;
-	
 	if($loadviewengine)
 		load(PACKAGEPATH.'lib/viewengine/'.VIEWENGINE.'/');//.VIEWENGINE.'.php');
-	include(PACKAGEPATH.'AoiSoraApp.php');		
+	include(PACKAGEPATH.'AoiSoraApp.php');
 }
 function loadApplications(){
 	$appsSettings=AoiSoraSettings::getApplications();

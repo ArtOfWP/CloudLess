@@ -187,7 +187,7 @@ class MySqlDatabase{
 			foreach($colval as $column => $value){
 //				if(!empty($value)){
 					$column=strtolower($column);
-					$columns[]="$column=:$column";					
+					$columns[]="`$column`=:$column";					
 					$values[':'.$column]=$value;
 				}
 			$values=array_merge($values,$restriction->getParameter());
@@ -348,4 +348,4 @@ class MySqlDatabase{
 		}		
 	}
 }
-?> 
+?>

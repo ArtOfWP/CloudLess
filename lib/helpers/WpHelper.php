@@ -23,11 +23,11 @@ class WpHelper{
 			<?php $tabtitles=array_keys($tabs)?>
 			<ul class="ui-corner-none" style="border:none;background:none;">
 			<?php foreach($tabtitles as $tabtitle):?>
-			<li><?php HtmlHelper::a($tabtitle,"#".strtolower(str_replace(" ","-",$tabtitle))) ?></li>
+			<li class="tab" style="border:solid 1px #CCCCCC"><?php HtmlHelper::a($tabtitle,"#".strtolower(str_replace(" ","-",$tabtitle))) ?></li>
 			<?php endforeach;?>
 			</ul>
 			<?php foreach($tabs as $tabtitle => $options):?>
-			<div id="<?php echo strtolower(str_replace(" ","-",$tabtitle))?>" class="ui-widget-content">
+			<div id="<?php echo strtolower(str_replace(" ","-",$tabtitle))?>" class="ui-widget-content ui-corner-top" style="border:solid 1px #797979">
 			<table class="form-table">
 			<?php foreach($options as $key => $option):	
 				$type=false;

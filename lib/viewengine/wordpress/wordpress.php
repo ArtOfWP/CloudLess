@@ -10,7 +10,7 @@ Debug::Message('Loaded wordpress viewengine');
 		define('CONTROLLERKEY','controller');
 		define('ACTIONKEY','action');
 	}else{
-		if(is_admin())
+		if(is_admin() && !array_key_exists('controller',$_GET))
 			define('CONTROLLERKEY','page');
 		else
 			define('CONTROLLERKEY','controller');			
@@ -54,5 +54,9 @@ Debug::Message('Loaded wordpress viewengine');
 			$params=array();
 		$c = new $component($params);
 		$c->render();
+	}
+	add_action('plugins_loaded','aoisora_loaded');
+	function aoisora_loaded(){
+		do_action('aoisora_loaded');
 	}
 ?>

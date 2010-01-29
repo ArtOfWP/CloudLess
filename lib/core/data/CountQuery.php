@@ -55,6 +55,8 @@ class CountQuery{
 	}
 	function execute(){
 		global $db;
+		$this->limit=1;
+		$this->offset=0;
 		$rows=$db->query($this);
 		$count=0;
 		if(sizeof($rows)>0)

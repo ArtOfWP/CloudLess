@@ -3,7 +3,7 @@
 class HtmlHelper{
 	static function createForm($id,$object,$path=false,$classes=false){
 		if(!$path)
-		$path=get_bloginfo('url').'/'.get_class($object).'/create';
+			$path=get_bloginfo('url').'/'.get_class($object).'/create';
 		HtmlHelper::form($id,$object,$path,POST,'Add new',strtolower(get_class($object)),$classes);
 	}
 	static function updateForm($id,$object,$path=false,$classes=false){
@@ -26,7 +26,7 @@ class HtmlHelper{
 			}else{
 				$settings=ObjectUtility::getCommentDecoration($object,'get'.$id);
 				if(array_key_exists('new',$settings))
-				continue;
+					continue;
 				$rules=array_key_exists_v('validation',$settings);
 				$required='required';
 				if($rules){
@@ -62,7 +62,7 @@ class HtmlHelper{
 						$temp = new $dbfield();
 						$selects=$temp->findAll();
 					}
-					//					$theForm.="<p>$value</p>";
+					$values=array_key_exists_v('values',$settings);
 					$theForm.=HtmlHelper::select($id,$selects,false,$value,true);
 					if($dbfield && array_key_exists_v('addnew',$settings)=='true'){
 						$theForm.=HtmlHelper::a('Add new',Communication::cleanUrl($_SERVER["REQUEST_URI"]).'?page='.strtolower($dbfield).'&action=createnew',false,true);
@@ -188,17 +188,17 @@ class HtmlHelper{
 		$select.=' >';
 		$select.=HtmlHelper::option(0,'None',false,true);
 		if(is_array($array))
-		foreach($array as $element){
-			if(is_string($element) || is_int($element)){
-				$key=key($array);
-				$select.=HtmlHelper::option(str_replace('"','',$key),$element,$selectedValues==$element,true);
+			foreach($array as $element){
+				if(is_string($element) || is_int($element)){
+					$key=key($array);
+					$select.=HtmlHelper::option(str_replace('"','',$key),$element,$selectedValues==$element,true);
+				}
+				else
+				$select.=HtmlHelper::option($element->getId(),$element,$selectedValues==$element.'',true );
 			}
-			else
-			$select.=HtmlHelper::option($element->getId(),$element,$selectedValues==$element.'',true );
-		}
 		$select.='</select>';
 		if($dontprint)
-		return $select;
+			return $select;
 		echo $select;
 	}
 	static function option($value,$display,$selected=false,$dontprint=false){
@@ -210,7 +210,7 @@ class HtmlHelper{
 		echo $text;
 
 	}
-	static function deleteButton($text,$value,$path,$nonce){
+	static function deleteButton($text,$value,$path,$nonce,$dontprint=false){
 		$theForm="<form action=\"".urldecode($path)."\" method=\"".POST."\" >";
 		$theForm.=HtmlHelper::input('_redirect','hidden','referer',false,true);
 		$theForm.=HtmlHelper::input('_wpnonce','hidden',wp_create_nonce($nonce),false,true);
@@ -218,9 +218,13 @@ class HtmlHelper{
 		$theForm.=HtmlHelper::input('Id','hidden',$value,false,true);
 		$theForm.=str_replace('>'," onclick=\"return confirm('Are you sure you want to delete?')\" >",HtmlHelper::input('delete'.$value,'submit',$text,'button-secondary',true));		
 		$theForm.='</form>';
+		if($dontprint)
+			return $theForm;
 		echo $theForm;
 	}
-	static function viewLink($uri,$text,$id){
+	static function viewLink($uri,$text,$id,$dontprint=false){
+		if($dontprint)
+			return "<a href=\"$uri&Id=$id\" class=\"button-secondary\" >$text</a>";
 		echo "<a href=\"$uri&Id=$id\" class=\"button-secondary\" >$text</a>";
 	}
 	static function a($text,$path,$class=false,$dontprint=false){
@@ -245,40 +249,72 @@ class HtmlHelper{
 		echo "<a href='$path' $class><img src='$src' $alt /></a>";
 	}
 	static function table($data,$headlines=false){
-		$table='<table class="widefat post fixed">';
+		$table='<table class="ui-widget ui-corner-all">';
 		$tbody.='<tbody>';
 		foreach($data as $row){
 			$class=strtolower(get_class($row));
 			$tbody.='<tr>';
-			ob_start();
-			HtmlHelper::viewLink(admin_url("admin.php?page=$class&action=edit"),'Edit',$row->getId());
-			$tbody.='<td style=\'width:50px;vertical-align:middle;\'>'.ob_get_contents().'</td>';
-			ob_end_clean();
+			$tbody.='<td class="first" style=\'width:50px;vertical-align:middle;\'>'.HtmlHelper::viewLink(admin_url("admin.php?page=$class&action=edit"),'Edit',$row->getId(),true).'</td>';
 			if(!$headlines)
 			$headlines=ObjectUtility::getProperties($row);
+			$tbody.='<td class="center" style="width:20px;">'.HtmlHelper::input('select'.$row->getId(),'checkbox',$row->getId(),false,true).'</td>';
 			foreach($headlines as $column){
 				$method='get'.$column;
 				$tbody.='<td>'.$row->$method().'</td>';
 			}
-			ob_start();
-			HtmlHelper::deleteButton('Delete',$row->getId(),get_bloginfo('url').'/'.$class.'/delete',$class);
-			$tbody.='<td style=\'width:50px;\'>'.ob_get_contents().'</td>';
-			ob_end_clean();
+			$tbody.='<td style=\'width:50px;\'>'.HtmlHelper::deleteButton('Delete',$row->getId(),get_bloginfo('url').'/'.$class.'/delete',$class,true).'</td>';
 			$tbody.='</tr>';
 		}
 		$tbody.='</tbody>';
 		$ths='';
 		foreach($headlines as $column){
-			$ths.='<th>'.$column.'</th>';
+			$ths.='<th class="'.strtolower($column).'">'.$column.'</th>';
 		}
-		$table.='<thead><tr><th style=\'width:50px;\'></th>'.$ths.'<th style=\'width:60px;\'></th></tr></thead>';
-		$table.='<tfoot><tr><th style=\'width:50px;\'></th>'.$ths.'<th style=\'width:600px;\'></th></tr></tfoot>';
+		$table.='<thead><tr><th class="edit"></th><th class="center" style="width:15px;text-align:center">'.HtmlHelper::input('selectAllTop','checkbox','all',false,true).'</th>'.$ths.'<th class="delete"></th></tr></thead>';
+		$table.='<tfoot><tr><th></th><th class="center" style="width:20px;text-align:center">'.HtmlHelper::input('selectAllBottom','checkbox','all',false,true).'</th>'.$ths.'<th class="delete"></th></tr></tfoot>';
 		$table.=$tbody;
-		$table.='</table>';
+		$table.='</table></div>';
 		echo $table;
 	}
 	static function ActionPath($class,$type){
 		echo get_bloginfo('url').'/'.strtolower($class).'/'.strtolower($type);
 	}
+	static function Paging($href,$total,$currentpage,$perpage,$dontprint=false){
+		$paging='<div class="tablenav-pages">';
+		$paging.='<span class="displaying-num">';
+		$pages=ceil($total/$perpage);
+		/*
+		 * Current page 2
+		 * Perpage 10
+		 * Total 23
+		 * Page 1 1-10  1=perpage*currentpage-perpage+1 10=perpage*currentpage
+		 * Page 2 11-20 11=perpage*currentpage-perpage+1 =10*2-10+1=11 20=perpage*currentpage
+		 * Page 3 21-23 21=10*3-10+1=21 23=$total
+		 */
+		$start=$perpage*$currentpage-$perpage+1;
+		$end=($perpage*$currentpage<=$total)?$perpage*$currentpage:$total;
+		$paging.="Displaying $start-$end of ".'<span class="total-type-count">'.intval($total).'</span></span>';
+		if(($currentpage-1)>1)
+			$paging.=HtmlHelper::a('«',"$href?page=".intval($page).'&perpage='.intval($perpage),'page-numbers prev',true);		
+		for($page=1;$page<$pages;$page++)
+			if($page!=$currentpage)
+				$paging.=HtmlHelper::a($page,"$href?page=".intval($page).'&perpage='.intval($perpage),'page-numbers',true);
+			else
+				$paging.='<span class="page-numbers current">'.intval($currentpage).'</span>';			
+		if(($currentpage-1)<$pages)
+			$paging.=HtmlHelper::a('»',"$href?page=".intval($page).'&perpage='.intval($perpage),'page-numbers next',true);
+	}
+	/*$_GET = array_map(’confHtmlEnt’, $_GET);
+
+A nice function is
+
+
+function cleanData($data) {
+$data = trim($data);
+$data = htmlentities($data);
+$data = mysql_real_escape_string($data);
+}
+
+$_POST = array_map('cleanData', $_POST);*/
 }
 ?>

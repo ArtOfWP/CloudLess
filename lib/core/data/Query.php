@@ -88,6 +88,12 @@ class Query{
 		$this->offset=$offset;
 		return $this;
 	}
+	public function And_($restriction){
+		$this->statement['where'][]=R::_And();
+		$this->where($restriction);
+		return $this;
+	}
+	
 	public function whereAnd($restriction){
 		$this->where($restriction);
 		$this->statement['where'][]=R::_And();

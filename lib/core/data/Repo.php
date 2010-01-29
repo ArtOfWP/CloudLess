@@ -24,6 +24,17 @@ class Repo{
 			->where($restrictions)
 			->execute();		
 	}
+	static function findOne($class,$requirement,$lazy=false){
+		$result=array();
+		if($requirement instanceof R)
+			$result= Query::createFrom($class,$lazy)->where($requirement)->limit(0,1)->execute();
+		else
+			die('Supplied $requirement parameter is not an R(equirement) object');
+		if(sizeof($result)>0)
+			return $result[0];
+		else
+			return false;
+	}
 	static function total($class){
 		return CountQuery::createFrom($class)->execute();
 	}

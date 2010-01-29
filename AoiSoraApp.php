@@ -1,9 +1,7 @@
 <?php
-ini_set('error_reporting', E_ALL-E_NOTICE);
-ini_set('display_errors', 1);
-?> 
+//ini_set('error_reporting', E_ALL-E_NOTICE);
+//ini_set('display_errors', 1);
 
-<?php
 class AoiSoraApp{
 	public $options;
 	public function AoiSoraApp(){
@@ -21,11 +19,14 @@ class AoiSoraApp{
 	}
 	function load_js(){
 		wp_register_script('jquery-validate',"http://ajax.microsoft.com/ajax/jquery.validate/1.5.5/jquery.validate.min.js",array('jquery'));
-		wp_register_script('jquery-ui',"http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js");		
 		wp_register_script('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core'));
 		wp_register_style('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.css'));
-		if(is_admin())
+		wp_register_script('jquery-dialog',includes_url('/js/jquery/ui.dialog.js'));
+		wp_register_script('jquery-ui',"http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js");			
+		if(is_admin()){
 			wp_register_style('forms',plugins_url('AoiSora/lib/css/forms.css'));			
+			wp_register_style('wordpress',plugins_url('AoiSora/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css'));			
+		}
 	}
 	function activate(){
 		$this->options->save();

@@ -1,7 +1,6 @@
 <?php
-
-require_once('config.php');
 require_once('load.php');
+
 
 loadAoiSora();
 
