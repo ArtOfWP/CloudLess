@@ -15,7 +15,7 @@ abstract class ApplicationBase{
 		register_activation_hook($file, array(&$this,'activate'));
 		register_deactivation_hook($this->pluginname, array(&$this,'deactivate'));
 		register_uninstall_hook($this->pluginname, array(&$this,'delete'));
-		$this->installfrompath=dirname($appDir).'/app/core/domain/';
+		$this->installfrompath=dirname($file).'/app/core/domain/';
 		$this->useInstall=$useInstall;
 		$this->useOptions=$useOptions;
 		if(method_exists($this,'on_register_query_vars'))
