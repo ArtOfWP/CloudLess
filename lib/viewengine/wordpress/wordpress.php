@@ -1,4 +1,7 @@
 <?php
+	global $table_prefix;
+	global $db_prefix;
+	$db_prefix=$table_prefix.'aoisora_';
 Debug::Message('Loaded wordpress viewengine');
 	if(!defined('WP_PLUGIN_DIR'))
 		define('APPPATH',dirname(__FILE__).'/');
@@ -58,5 +61,13 @@ Debug::Message('Loaded wordpress viewengine');
 	add_action('plugins_loaded','aoisora_loaded');
 	function aoisora_loaded(){
 		do_action('aoisora_loaded');
+	}
+	class ViewEngine{
+		static function createOption($name){
+			return new WpOption($name);
+		}
+		static function createSecurity(){
+			return WpSecurity::instance();
+		}
 	}
 ?>

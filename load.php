@@ -14,8 +14,6 @@ function load($dir){
 function loadApp($dir){
 	if(is_dir($dir.'/app/core/'))
 		load($dir.'/app/core/');
-//	load($dir.'/app/core/wordpress/');
-//	load($dir.'/app/core/domain/');
 	if(is_dir($dir.'/app/controllers/'))
 		load($dir.'/app/controllers/');
 	if(is_dir($dir.'/app/views/widgets'))	
@@ -30,19 +28,9 @@ function loadAoiSora(){
 	load(PACKAGEPATH.'lib/filters/');	
 	load(PACKAGEPATH.'lib/controllers/');
 
-	global $loadviewengine;
-	if($loadviewengine)
+	if(VIEWENGINE=='wordpress'){
 		load(PACKAGEPATH.'lib/viewengine/'.VIEWENGINE.'/');//.VIEWENGINE.'.php');
+	}
 	include(PACKAGEPATH.'AoiSoraApp.php');
-}
-function loadApplications(){
-	$appsSettings=AoiSoraSettings::getApplications();
-	global $apps;
-	$apps=array();
-	if($appsSettings)
-		foreach($appsSettings as $app => $path){
-			$apps[]=$path;
-			loadApp($path);
-		}
 }
 ?>

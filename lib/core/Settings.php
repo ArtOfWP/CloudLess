@@ -9,7 +9,7 @@ class AoiSoraSettings{
 		$aoiSoraApp->options->applications=$apps;
 		$aoiSoraApp->options->save();
 		Debug::Message('AddApplication');
-		Debug::Value('Options',$aoiSoraApp->options->getArray());
+//		Debug::Value('Options',$ops->getArray());
 	}
 	static function removeApplication($name){
 		global $aoiSoraApp;
@@ -25,16 +25,17 @@ class AoiSoraSettings{
 		return $aoiSoraApp->options->applications;
 	}
 	static function installApplication($app){
+		Debug::Message('Install application');
 		global $aoiSoraApp;
 		$inst=	$aoiSoraApp->options->installed;
 		if(!is_array($inst))
 			$inst=array();
 		$inst[]=$app;
 		$aoiSoraApp->options->installed=$inst;
-//		$aoiSoraApp->options->installed[]=$app;
 		$aoiSoraApp->options->save();
 	}
 	static function uninstallApplication($app){
+		Debug::Message('Uninstall application');		
 		global $aoiSoraApp;
 		$apps=$aoiSoraApp->options->installed;
 		$apps = array_diff($apps,array($app));

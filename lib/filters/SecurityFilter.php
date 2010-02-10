@@ -7,11 +7,11 @@ class SecurityFilter implements IFilter{
 		$this->useraction=$useraction;
 	}
 	function perform($controller,$data){
+		$s = Security::create();	
 		if($this->nonce)
-			check_admin_referer($this->nonce);
-		$wps = new WpSecurity();
-		if($wps->current_user_is_logged_in())
-			if($wps->current_user_can($this->useraction))
+			$s->check_nounce($this->nonce);
+		if($s->current_user_is_logged_in())
+			if($s->current_user_can($this->useraction))
 				return true;
 			else{
 				die('You cannot perform this action');

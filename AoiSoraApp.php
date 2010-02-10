@@ -1,17 +1,18 @@
 <?php
-//ini_set('error_reporting', E_ALL-E_NOTICE);
-//ini_set('display_errors', 1);
+ini_set('error_reporting', E_ALL-E_NOTICE);
+ini_set('display_errors', 1);
 
 class AoiSoraApp{
 	public $options;
 	public function AoiSoraApp(){
-		$this->options= new WpOption('AoiSora');
+		$this->options= Option::create('AoiSora');
 		if($this->options->isEmpty()){
 			$this->options->applications=array();
 			$this->options->installed=array();
 			$this->options->save();
 		}
 		$appName='AoiSora';
+		add_action( 'admin_init', array(&$this,'register_settings' ));			
 		register_activation_hook("$appName/$appName.php", array(&$this,'activate'));
 		register_deactivation_hook("$appName/$appName.php", array(&$this,'deactivate'));
 		register_uninstall_hook("$appName/$appName.php", array(&$this,'delete'));
@@ -29,15 +30,18 @@ class AoiSoraApp{
 		}
 	}
 	function activate(){
-		$this->options->save();
+		
 	}
 	function deactivate(){
-		$this->options= new WpOption('AoiSora');
+		$this->options= Option::create('AoiSora');
 		$this->options->delete();
 	}
 	function delete(){
-		$this->options= new WpOption('AoiSora');
+		$this->options= Option::create('AoiSora');
 		$this->options->delete();
+	}
+	function register_settings(){
+		WpHelper::registerSettings("AoiSora/AoiSora.php",array('AoiSora'));		
 	}
 }
 	global $aoiSoraApp;

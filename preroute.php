@@ -1,6 +1,5 @@
 <?php
 define('PREROUTE',true);
-define('LOADAPPS',true);
 global $loadviewengine;
 $loadviewengine='WordPress';
 require_once('../../../wp-load.php');

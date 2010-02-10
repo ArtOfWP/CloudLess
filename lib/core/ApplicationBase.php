@@ -8,11 +8,14 @@ abstract class ApplicationBase{
 	public $options;
 	private $useInstall;
 	private $useOptions;
-	function ApplicationBase($appName,$appDir,$useOptions=false,$useInstall=false){
-		$this->dir=$appDir;
+	function ApplicationBase($appName,$file,$useOptions=false,$useInstall=false){	
+		$this->dir=dirname($file);
 		$this->app=$appName;
-		$this->pluginname="$appName/$appName.php";
-		$this->installfrompath=$appDir.'/app/core/domain/';
+		$this->pluginname=plugin_basename($file);//"$appName/$appName.php";
+		register_activation_hook($file, array(&$this,'activate'));
+		register_deactivation_hook($this->pluginname, array(&$this,'deactivate'));
+		register_uninstall_hook($this->pluginname, array(&$this,'delete'));
+		$this->installfrompath=dirname($appDir).'/app/core/domain/';
 		$this->useInstall=$useInstall;
 		$this->useOptions=$useOptions;
 		if(method_exists($this,'on_register_query_vars'))
@@ -20,9 +23,6 @@ abstract class ApplicationBase{
 		if(is_admin()){
 			if($useOptions)
 				add_action( 'admin_init', array(&$this,'register_settings' ));			
-			register_activation_hook($this->pluginname, array(&$this,'activate'));
-			register_deactivation_hook($this->pluginname, array(&$this,'deactivate'));
-			register_uninstall_hook($this->pluginname, array(&$this,'delete'));
 			if(method_exists($this,'on_plugin_page_link'))
 				add_filter( 'plugin_action_links_'.$this->pluginname, array(&$this,'plugin_page_links'), 10, 2 );
 			if(method_exists($this,'on_plugin_row_message'))
@@ -49,27 +49,27 @@ abstract class ApplicationBase{
 			if(method_exists($this,'on_render_footer'))
 				add_action('wp_footer',array(&$this,'on_render_footer'));
 		}
-		if($useOptions){			
-			$this->options= new WpOption($this->app);
+		$this->init();
+		Debug::Value($appName,$this->app);
+	}
+	private function init(){
+		if($this->useOptions){			
+			$this->options= Option::create($this->app);
 			if(method_exists($this,'on_load_options'))
 				$this->on_load_options();			
 		}
-		Debug::Value($appName,$this->app);		
 	}
 	function register_query_vars($public_query_vars){
 		$vars=$this->on_register_query_vars();
 		return $vars+$public_query_vars;
 	}
-	function register_settings(){
+	function register_settings(){		
 		WpHelper::registerSettings($this->app,array($this->app));
 	}
 	function after_plugin_row($plugin_file, $plugin_data){
-/*
-array(9) { ["Name"]=>  ["Title"]=> "Wp Affiliate Shop" ["PluginURI"]=>  ["Description"]=>   ["Author"]=>  ["AuthorURI"]=> ["Version"]=> ["TextDomain"]=>  ["DomainPath"]=>   } 
- */
 		$display = $this->on_plugin_row_message();
 		extract($display);
-	echo '<tr class="'.$trclass.'" style="'.$trstyle.'"><td colspan="3" class="'.$tdclass.'" style="'.$tdstyle.'"><div class="'.$divclass.'" style="'.$divstyle.'">'.$message.'</div></td></tr>';
+		echo '<tr class="'.$trclass.'" style="'.$trstyle.'"><td colspan="3" class="'.$tdclass.'" style="'.$tdstyle.'"><div class="'.$divclass.'" style="'.$divstyle.'">'.$message.'</div></td></tr>';
 	}
 	function plugin_page_links($links){
 			$plugin_link=$this->on_plugin_page_link();
@@ -77,16 +77,18 @@ array(9) { ["Name"]=>  ["Title"]=> "Wp Affiliate Shop" ["PluginURI"]=>  ["Descri
 		return $links;
 	}
 	function activate(){
+		AoiSoraSettings::addApplication($this->app,$this->dir);
 		if(!$this->useInstall)
 			AoiSoraSettings::installApplication($this->app);
 		if($this->useOptions){			
-			$this->options= new WpOption($this->app);
-			if(method_exists($this,'on_load_options'))
+			$this->options= Option::create($this->app);
+			if(method_exists($this,'on_load_options')){			
 				$this->on_load_options();		
+			}
 		}			
-		AoiSoraSettings::addApplication($this->app,$this->dir);
+
 		if(method_exists($this,'on_activate'))
-			$this->on_activate();		
+			$this->on_activate();
 	}
 	function deactivate(){
 		if(method_exists($this,'on_deactivate'))
@@ -94,7 +96,7 @@ array(9) { ["Name"]=>  ["Title"]=> "Wp Affiliate Shop" ["PluginURI"]=>  ["Descri
 		if(!$this->useInstall)
 			AoiSoraSettings::uninstallApplication($this->app);
 		if($this->useOptions){			
-			$this->options= new WpOption($this->app);
+			$this->options= Option::create($this->app);
 			$this->options->delete();
 		}
 		AoiSoraSettings::removeApplication($this->app);

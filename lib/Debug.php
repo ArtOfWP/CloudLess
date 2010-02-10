@@ -16,7 +16,14 @@ class Debug{
 				Debug::Message('<p><strong>'.$message.'</strong></p>');
 				echo '<ul>';
 				foreach($value as $key => $val)
-					echo '<li>'.$key.' : '.$val.'</li>';
+					if(is_array($val)){
+						echo '<li>'.$key.':<ul>';
+							foreach($val as $key2 => $val2)
+		 						echo '<li>'.$key2.' : '.$val2.'</li>';
+						echo '</ul></li>';
+					}
+					else
+ 						echo '<li>'.$key.' : '.$val.'</li>';
 				echo '</ul>';
 			}else
 				echo '<p><strong>'.$message.':</strong>  '.$value.'</p>';

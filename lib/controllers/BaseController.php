@@ -77,6 +77,19 @@ class BaseController{
 		global $aoisoratitle;
 		$aoisoratitle=$this->title;		
 	}
+	function RenderFile($filepath){
+		ob_start();
+		if(file_exists($filepath)){
+			extract($this->bag, EXTR_REFS);		
+			include($filepath);
+			$this->viewcontent=ob_get_contents();
+		}else
+			$this->viewcontent='Could not find view: '.$$filepath;
+		$this->render=false;
+		ob_end_clean();
+		global $viewcontent;
+		$viewcontent=$this->viewcontent;		
+	}
 	function RenderText($text){
 		$this->render=false;
 		global $viewcontent;
@@ -96,11 +109,10 @@ class BaseController{
 		return $viewcontent;
 	}
 	private function findView($controller,$action){
-//		$controller=strtolower($controller);
-//		$action=strtolower($action);
-		global $apps;
+		$apps=array_values(AoiSoraSettings::getApplications());
 		$found=false;
 		$total=sizeof($apps);
+		Debug::Message('Nbr of apps: '.$total);
 		$i=0;
 		while(!$found && $i<$total){
 			$app=$apps[$i];

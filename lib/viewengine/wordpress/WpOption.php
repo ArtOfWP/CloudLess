@@ -1,32 +1,33 @@
 <?php
-class WpOption{
-	private $application;
+class WpOption implements IOption{
+	private $name;
 	private $options=array();
-	function WpOption($application){
-		$this->application=$application;
-		$this->options=get_option($application);
-		if($this->isEmpty()){
-			$this->options=array();
-			$this->save();
-		}
+	private $initiated=false;
+	function WpOption($name){
+		$this->name=$name;
+		$this->init();
+	}
+	function init(){
+		$this->options=get_option($this->name);
+		if($this->isEmpty())
+			$this->options=array();	
 	}
 	function isEmpty(){
-		if(!isset($this->options) || empty($this->options) || $this->options==NULL)
-			return true;
-		return false;
+		return empty($this->options);
 	}
 	function save(){
-		Debug::Value('Saving options',$this->application);
+		Debug::Value('Saving options',$this->name);
 		Debug::Value('Options',$this->options);
-		update_option($this->application,$this->options);
+		if(get_option($this->name))
+			update_option($this->name,$this->options);
+		else
+			add_option($this->name,$this->options);			
 	}
 	function delete(){
-		delete_option($this->application);
+		delete_option($this->name);
 	}
 	public function __get($option){
-//		if(isset($this->options[$option]))
-			return $this->options[$option];
-//		die("WpOptions: There is no option with key: $option in the options for $this->application");
+		return $this->options[$option];
 	}
 	public function __set($option,$value){
 		$this->options[$option]=$value;
@@ -35,7 +36,7 @@ class WpOption{
 		return $this->options;
 	}
 	public function __ToString(){
-		return "Options for $this->application";
+		return "Options for $this->name";
 	}
 }
 ?>

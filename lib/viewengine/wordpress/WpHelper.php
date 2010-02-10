@@ -183,12 +183,6 @@ jQuery(function(){
 		$list.='</ul>';
 		return $list;
 	}
-	static function notification($id,$message,$error=false){
-		if($error)
-			echo "<div id=\"$id\" class=\"ui-state-error\">$message</div>";		
-		else
-			echo "<div id=\"$id\" class=\"ui-state-highlight\">$message</div>";
-	}
 	static function insertPage($title,$slug,$content,$status='draft',$author=false){
 		global $wpdb,$wp_rewrite;		
 		$page= array();

@@ -10,7 +10,7 @@ class HtmlHelper{
 		if(!$path)
 		$path=get_bloginfo('url').'/'.get_class($object).'/update';
 		HtmlHelper::form($id,$object,$path,POST,'Save',strtolower(get_class($object)),$classes);
-	}
+	}	
 	static function form($formid,$object,$action,$method,$submit='Send',$nonce=false,$classes=false){
 		$elements=ObjectUtility::getPropertiesAndValues($object);
 		$upload=$method==POST?'enctype="multipart/form-data"':'';
@@ -304,6 +304,12 @@ class HtmlHelper{
 		if(($currentpage-1)<$pages)
 			$paging.=HtmlHelper::a('»',"$href?page=".intval($page).'&perpage='.intval($perpage),'page-numbers next',true);
 	}
+	static function notification($id,$message,$error=false){
+		if($error)
+			echo "<div id=\"$id\" class=\"ui-state-error ui-corner-all\">$message</div>";		
+		else
+			echo "<div id=\"$id\" class=\"ui-state-highlight ui-corner-all\">$message</div>";
+	}	
 	/*$_GET = array_map(’confHtmlEnt’, $_GET);
 
 A nice function is
