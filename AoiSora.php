@@ -25,5 +25,3 @@ if(is_admin()){
 		update_option('active_plugins', $active);
 	}
 }
-
-?>

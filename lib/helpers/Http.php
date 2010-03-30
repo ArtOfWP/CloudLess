@@ -1,10 +1,20 @@
 <?php
 class Http{
 	static function get_useragent(){
-		return esc_js(esc_attr($_SERVER['HTTP_USER_AGENT']));
+		return htmlspecialchars(strip_tags($_SERVER['HTTP_USER_AGENT']));
+	}
+	static function get_request_domain(){
+		if(isset($_SERVER['HTTP_REFERER'])){
+   		$parseUrl = parse_url(trim($_SERVER['HTTP_REFERER']));
+		$domain=trim($parseUrl['host'] ? $parseUrl['host'] : array_shift(explode('/', $parseUrl['path'], 2)));
+		}
+   		if(empty($domain))
+   			$domain=trim($_SERVER['HTTP_HOST']);
+		$domain=strtolower($domain);
+		return $domain;
 	}
 	static function get_IP(){
-		return esc_js(esc_attr($_SERVER['REMOTE_ADDR']));
+		return htmlspecialchars(strip_tags($_SERVER['REMOTE_ADDR']));
 	}
 	static function save_image($img,$fullpath='basename'){
 

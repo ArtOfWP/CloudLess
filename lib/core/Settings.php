@@ -1,11 +1,12 @@
 <?php
 class AoiSoraSettings{
-	static function addApplication($name,$loadpath){
+	static function addApplication($name,$loadpath,$version){
 		global $aoiSoraApp;
 		$apps=$aoiSoraApp->options->applications;
 		if(!is_array($apps))
 			$apps=array();
-		$apps[$name]=$loadpath;
+		$apps[$name]['path']=$loadpath;
+		$apps[$name]['version']=$version;
 		$aoiSoraApp->options->applications=$apps;
 		$aoiSoraApp->options->save();
 		Debug::Message('AddApplication');
@@ -19,6 +20,11 @@ class AoiSoraSettings{
 		$aoiSoraApp->options->save();
 		Debug::Message('RemoveApplication');
 		Debug::Value('Options',$aoiSoraApp->options->getArray());		
+	}
+	static function getApplicationVersion($name){
+		global $aoiSoraApp;
+		$apps=$aoiSoraApp->options->applications;
+		return $apps[$name]['version'];
 	}
 	static function getApplications(){
 		global $aoiSoraApp;

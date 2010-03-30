@@ -8,7 +8,7 @@ class WpHelper{
 		$options=array('Label'=>'key');
 		if $optionNames is not supplied the function will retrieve the options it self and use the optionkey as label.
 	 */
-	static function tabbedOptionsForm($optiongroup,$tabs){		
+	static function tabbedOptionsForm($optiongroup,$tabs,$saveAllTabs=true){		
 /*		if(!$options){
 			$options=array();
 			global $new_whitelist_options;
@@ -16,8 +16,9 @@ class WpHelper{
 		}*/
 		$values=get_option($optiongroup);
 		?>
-		
+		<?php if($saveAllTabs):?>
 		<form method="post" action="options.php">
+		<?php endif;?>
 		<div id="<?php echo $optiongroup.'tabs'?>" class="ui-widget">
 			<?php settings_fields($optiongroup); ?>
 			<?php $tabtitles=array_keys($tabs)?>
@@ -28,6 +29,9 @@ class WpHelper{
 			</ul>
 			<?php foreach($tabs as $tabtitle => $options):?>
 			<div id="<?php echo strtolower(str_replace(" ","-",$tabtitle))?>" class="ui-widget-content ui-corner-top" style="border:solid 1px #797979">
+			<?php if(!$saveAllTabs):?>
+			<form method="post" action="options.php">
+			<?php endif;?>			
 			<table class="form-table">
 			<?php foreach($options as $key => $option):	
 				$type=false;
@@ -77,12 +81,17 @@ class WpHelper{
 			<?php endforeach;?>
 			</table>
 								<p class="submit">
-			<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
+			<input type="submit" class="button-primary" value="<?php $saveAllTabs?_e('Save All Changes'):_e('Save Changes'); ?>" />
 			</p>	
+			<?php if(!$saveAllTabs):?>
+			</form>
+			<?php endif;?>			
 			</div>
 			<?php endforeach;?>		
 		</div>					
-		</form>
+			<?php if(!$saveAllTabs):?>
+			</form>
+			<?php endif;?>			
 		<script type="text/javascript">
 jQuery(function(){
 	jQuery("#<?php echo $optiongroup.'tabs' ?>").tabs();

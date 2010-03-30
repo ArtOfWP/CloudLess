@@ -2,6 +2,7 @@
 include_once('BaseController.php');
 abstract class CrudController extends BaseController{
 	protected $crudItem;
+	protected $uploadSubFolder;
 	public $bag=array();
 	function CrudController($automatic=true){
 		parent::BaseController(false);
@@ -9,10 +10,11 @@ abstract class CrudController extends BaseController{
 		Debug::Message('Loaded '.$this->controller.' extends Crudcontroller');
 		
 		if($automatic){
-			Debug::Message('Executing automatic action');
-			$action=array_key_exists_v(ACTIONKEY,$this->values);
-			if($action)
-				$this->$action();
+			Debug::Message('CRUD Executing automatic action');
+			if($this->action){
+				Debug::Message('CRUD Pre Automatic Render');
+				$this->automaticRender();
+			}
 			else if($this->methodIs(GET)){
 				$id=array_key_exists_v('Id',$this->values);
 				if($id)
@@ -81,6 +83,9 @@ abstract class CrudController extends BaseController{
 		return false;			
 	}
 	private function loadFromPost(){
+		$folder='';
+		if($this->uploadSubFolder)
+			$folder=$this->uploadSubFolder.'/';
 		$properties = ObjectUtility::getPropertiesAndValues($this->crudItem);
 		Debug::Message('LoadFromPost');
 		$arrvalues=$this->values;
@@ -97,9 +102,9 @@ abstract class CrudController extends BaseController{
 			Debug::Message('CHECKING UPLOADS');
 			if(strlen($upload["name"])>0){
 				Debug::Message('FOUND UPLOAD');
-				$path=PACKAGEPATH.'uploads/'.$upload["name"];
+				$path=UPLOADS_DIR.$folder.$upload["name"];
 				move_uploaded_file($upload["tmp_name"],$path);
-				$values[$property]='/AoiSora/uploads/'.$upload["name"];
+				$values[$property]=UPLOADS_URI.$folder.$upload["name"];
 				$image = new Resize_Image;
 				$image->new_width = 100;
 				$image->new_height = 100;
@@ -108,7 +113,7 @@ abstract class CrudController extends BaseController{
 				// Name of the new image (optional) - If it's not set a new will be added automatically
 				$image->new_image_name = preg_replace('/\.[^.]*$/', '', $upload["name"]);
 				/* Path where the new image should be saved. If it's not set the script will output the image without saving it */
-				$image->save_folder = PACKAGEPATH.'uploads/thumbs/';
+				$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
 				$process = $image->resize();
 	//			if($process['result'] && $image->save_folder){
 	//				echo 'The new image ('.$process['new_file_path'].') has been saved.';
@@ -121,8 +126,8 @@ abstract class CrudController extends BaseController{
 					if(strpos($this->values[$property.'_hasimage'],'ttp')==1){			
 						$url = $this->values[$property.'_hasimage'];
 						$name=str_replace(' ','-',urldecode(basename($url)));
-						$path=PACKAGEPATH.'uploads/'.$name;					
-						$values[$property]='/AoiSora/uploads/'.$name;
+						$path=UPLOADS_DIR.$folder.$name;					
+						$values[$property]=UPLOADS_URI.$name;
 						
 						Http::save_image($url,$path);
 //						file_put_contents($path, file_get_contents($url));
@@ -135,7 +140,7 @@ abstract class CrudController extends BaseController{
 						// Name of the new image (optional) - If it's not set a new will be added automatically
 						$image->new_image_name = preg_replace('/\.[^.]*$/', '', $name);
 						/* Path where the new image should be saved. If it's not set the script will output the image without saving it */
-						$image->save_folder = PACKAGEPATH.'uploads/thumbs/';
+						$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
 						$process = $image->resize();
 					}
 				}

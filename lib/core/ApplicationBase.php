@@ -1,6 +1,7 @@
 <?php
 abstract class ApplicationBase{
 	protected $installfrompath;
+	protected $VERSION=false;
 	private $models=array();
 	public $pluginname;
 	public $dir;
@@ -8,11 +9,14 @@ abstract class ApplicationBase{
 	public $options;
 	private $useInstall;
 	private $useOptions;
-	function ApplicationBase($appName,$file,$useOptions=false,$useInstall=false){	
+	function ApplicationBase($appName,$file,$useOptions=false,$useInstall=false,$basename=false){	
 		$this->dir=dirname($file);
 		$this->app=$appName;
-		$this->pluginname=plugin_basename($file);//"$appName/$appName.php";
-		register_activation_hook($file, array(&$this,'activate'));
+		if($basename)
+			$this->pluginname=$basename;//"$appName/$appName.php";
+		else
+			$this->pluginname=plugin_basename($file);//"$appName/$appName.php";		
+		register_activation_hook($this->pluginname, array(&$this,'activate'));
 		register_deactivation_hook($this->pluginname, array(&$this,'deactivate'));
 		register_uninstall_hook($this->pluginname, array(&$this,'delete'));
 		$this->installfrompath=dirname($file).'/app/core/domain/';
@@ -53,6 +57,8 @@ abstract class ApplicationBase{
 		Debug::Value($appName,$this->app);
 	}
 	private function init(){
+		if(method_exists($this,'on_initialize'))
+			$this->on_initialize();
 		if($this->useOptions){			
 			$this->options= Option::create($this->app);
 			if(method_exists($this,'on_load_options'))
@@ -77,16 +83,18 @@ abstract class ApplicationBase{
 		return $links;
 	}
 	function activate(){
-		AoiSoraSettings::addApplication($this->app,$this->dir);
-		if(!$this->useInstall)
+		$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);	
+		AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
+		if($oldVersion<$this->VERSION)
+			$this->update();
+		else if(!$this->useInstall)
 			AoiSoraSettings::installApplication($this->app);
 		if($this->useOptions){			
 			$this->options= Option::create($this->app);
 			if(method_exists($this,'on_load_options')){			
 				$this->on_load_options();		
 			}
-		}			
-
+		}
 		if(method_exists($this,'on_activate'))
 			$this->on_activate();
 	}
@@ -151,6 +159,12 @@ abstract class ApplicationBase{
 		if($this->options)
 			$this->options->delete();
 	}	
+	function update(){
+		if(method_exists($this,'on_update')){
+			$this->on_update();
+			require_once('apps/updates/'.$this->VERSION.'.php');
+		}
+	}
 	private function load($dir){
 		Debug::Value('Loading directory',$dir);
 		$handle = opendir($dir);
@@ -187,6 +201,7 @@ abstract class ApplicationBase{
 	}
 	function print_admin_scripts(){
 		$scripts = $this->on_admin_print_scripts();
+		if(is_array($scripts))
 		foreach($scripts as $name => $file){
 			//wp_register_script($name,$file);
 			//add_action('admin_print_scripts',$name);

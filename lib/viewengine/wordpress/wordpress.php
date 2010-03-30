@@ -19,6 +19,8 @@ Debug::Message('Loaded wordpress viewengine');
 			define('CONTROLLERKEY','controller');			
 		define('ACTIONKEY','action');
 	}
+	define('UPLOADS_DIR',get_option('upload_path').'/');
+	define('UPLOADS_URI',get_option( 'upload_url_path' ).'/');
 	function register_aoisora_query_vars($public_query_vars) {
 		$public_query_vars[] = "controller";
 		$public_query_vars[] = "action";
@@ -70,4 +72,3 @@ Debug::Message('Loaded wordpress viewengine');
 			return WpSecurity::instance();
 		}
 	}
-?>

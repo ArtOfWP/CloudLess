@@ -33,8 +33,8 @@ class AoiSoraApp{
 		
 	}
 	function deactivate(){
-		$this->options= Option::create('AoiSora');
-		$this->options->delete();
+//		$this->options= Option::create('AoiSora');
+//		$this->options->delete();
 	}
 	function delete(){
 		$this->options= Option::create('AoiSora');
