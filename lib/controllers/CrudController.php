@@ -3,6 +3,8 @@ include_once('BaseController.php');
 abstract class CrudController extends BaseController{
 	protected $crudItem;
 	protected $uploadSubFolder;
+	protected $width;
+	protected $height;
 	public $bag=array();
 	function CrudController($automatic=true){
 		parent::BaseController(false);
@@ -84,8 +86,14 @@ abstract class CrudController extends BaseController{
 	}
 	private function loadFromPost(){
 		$folder='';
+		$width=100;
+		$heigh=100;
 		if($this->uploadSubFolder)
 			$folder=$this->uploadSubFolder.'/';
+		if($this->width)
+			$width=$this->width;
+		if($this->height)
+			$height=$this->height;			
 		$properties = ObjectUtility::getPropertiesAndValues($this->crudItem);
 		Debug::Message('LoadFromPost');
 		$arrvalues=$this->values;
@@ -93,6 +101,7 @@ abstract class CrudController extends BaseController{
 
 		//		Debug::Value('Uploaded',Communication::getUpload($properties));
 		$values=Communication::getFormValues($properties);
+		$values=array_map('stripslashes',$values);
 		Debug::Value('Loaded properties/values for '.get_class($this->crudItem),$values);		
 		$arrprop=ObjectUtility::getArrayPropertiesAndValues($this->crudItem);
 		$lists=array_search_key('_list',$arrvalues);
@@ -104,20 +113,15 @@ abstract class CrudController extends BaseController{
 				Debug::Message('FOUND UPLOAD');
 				$path=UPLOADS_DIR.$folder.$upload["name"];
 				move_uploaded_file($upload["tmp_name"],$path);
-				$values[$property]=UPLOADS_URI.$folder.$upload["name"];
+				$values[$property]=$upload["name"];
 				$image = new Resize_Image;
-				$image->new_width = 100;
-				$image->new_height = 100;
-				$image->image_to_resize = $path; // Full Path to the file
-				$image->ratio = true; // Keep Aspect Ratio?
-				// Name of the new image (optional) - If it's not set a new will be added automatically
+				$image->new_width = $width;
+				$image->new_height = $height;
+				$image->image_to_resize = $path;
+				$image->ratio = true;
 				$image->new_image_name = preg_replace('/\.[^.]*$/', '', $upload["name"]);
-				/* Path where the new image should be saved. If it's not set the script will output the image without saving it */
 				$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
-				$process = $image->resize();
-	//			if($process['result'] && $image->save_folder){
-	//				echo 'The new image ('.$process['new_file_path'].') has been saved.';
-	//			}			
+				$process = $image->resize();		
 			}else{
 				if(!isset($this->values[$property.'_hasimage'])){
 					$values[$property]='';					
@@ -127,14 +131,12 @@ abstract class CrudController extends BaseController{
 						$url = $this->values[$property.'_hasimage'];
 						$name=str_replace(' ','-',urldecode(basename($url)));
 						$path=UPLOADS_DIR.$folder.$name;					
-						$values[$property]=UPLOADS_URI.$name;
+						$values[$property]=$name;
 						
-						Http::save_image($url,$path);
-//						file_put_contents($path, file_get_contents($url));
-//get_option( 'upload_path' )						
+						Http::save_image($url,$path);					
 						$image = new Resize_Image;
-						$image->new_width = 100;
-						$image->new_height = 100;
+						$image->new_width = $width;
+						$image->new_height = $height;
 						$image->image_to_resize = $path; // Full Path to the file
 						$image->ratio = true; // Keep Aspect Ratio?
 						// Name of the new image (optional) - If it's not set a new will be added automatically

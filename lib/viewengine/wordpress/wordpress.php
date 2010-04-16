@@ -19,8 +19,9 @@ Debug::Message('Loaded wordpress viewengine');
 			define('CONTROLLERKEY','controller');			
 		define('ACTIONKEY','action');
 	}
-	define('UPLOADS_DIR',get_option('upload_path').'/');
-	define('UPLOADS_URI',get_option( 'upload_url_path' ).'/');
+	$wud=wp_upload_dir();
+	define('UPLOADS_DIR',$wud['basedir'].'/');
+	define('UPLOADS_URI',$wud['baseurl'].'/');
 	function register_aoisora_query_vars($public_query_vars) {
 		$public_query_vars[] = "controller";
 		$public_query_vars[] = "action";

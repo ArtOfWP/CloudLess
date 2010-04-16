@@ -120,26 +120,21 @@ class BaseController{
 		if($this->viewpath){
 			return $this->viewpath.$controller.'/'.$action.'.php';
 		}		
-		$apps=array_values(AoiSoraSettings::getApplications());
-		$found=false;
+		$apps=AoiSoraSettings::getApplications();
 		$total=sizeof($apps);
 		Debug::Message('Nbr of apps: '.$total);
+		$lcontroller=strtolower($controller);
+		$laction=strtolower($action);		
 		foreach($apps as $app){
 			$path=$app['path'];
+			Debug::Value('Path',$path);
 			Debug::Value('Searching',$path.VIEWS.$controller.'/'.$action.'.php');
 			if(file_exists($path.VIEWS.$controller.'/'.$action.'.php'))
-				return $path.VIEWS.$controller.'/'.$action.'.php';			
+				return $path.VIEWS.$controller.'/'.$action.'.php';	
+			if(file_exists($path.VIEWS.$lcontroller.'/'.$laction.'.php'))
+					return $path.VIEWS.$lcontroller.'/'.$laction.'.php';
 		}
-		if(!$found){
-			$controller=strtolower($controller);
-			$action=strtolower($action);
-			foreach($apps as $app){
-				$path=$app['path'];
-				Debug::Value('Searching',$path.VIEWS.$controller.'/'.$action.'.php');
-				if(file_exists($path.VIEWS.$controller.'/'.$action.'.php'))
-					return $path.VIEWS.$controller.'/'.$action.'.php';			
-			}
-		}
+
 		return false;
 	}
 }

@@ -1,7 +1,10 @@
 <?php
-abstract class ApplicationBase{
+abstract class WpApplicationBase{
 	protected $installfrompath;
 	protected $VERSION=false;
+	protected $UPDATE_SITE=false;
+	protected $UPDATE_SITE_EXTRA=false;	
+	protected $SLUG=false;
 	private $models=array();
 	public $pluginname;
 	public $dir;
@@ -9,7 +12,7 @@ abstract class ApplicationBase{
 	public $options;
 	private $useInstall;
 	private $useOptions;
-	function ApplicationBase($appName,$file,$useOptions=false,$useInstall=false,$basename=false){	
+	function WpApplicationBase($appName,$file,$useOptions=false,$useInstall=false,$basename=false){	
 		$this->dir=dirname($file);
 		$this->app=$appName;
 		if($basename)
@@ -21,7 +24,7 @@ abstract class ApplicationBase{
 		register_uninstall_hook($this->pluginname, array(&$this,'delete'));
 		$this->installfrompath=dirname($file).'/app/core/domain/';
 		$this->useInstall=$useInstall;
-		$this->useOptions=$useOptions;
+		$this->useOptions=$useOptions;		
 		if(method_exists($this,'on_register_query_vars'))
 			add_filter('query_vars', array(&$this,'register_query_vars'));
 		if(is_admin()){
@@ -36,7 +39,7 @@ abstract class ApplicationBase{
 			if(method_exists($this,'on_admin_menu'))
 				add_action('admin_menu',array(&$this,'on_admin_menu'));
 			if(method_exists($this,'on_rewrite_rules_array'))
-				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));	
+				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));		
 		}else{
 			if(method_exists($this,'on_wp_print_styles'))
 				add_action('wp_print_styles',array(&$this,'print_styles'));
@@ -53,6 +56,7 @@ abstract class ApplicationBase{
 			if(method_exists($this,'on_render_footer'))
 				add_action('wp_footer',array(&$this,'on_render_footer'));
 		}
+        add_action('update_option__transient_update_plugins', array(&$this, 'check_for_update'));		
 		$this->init();
 		Debug::Value($appName,$this->app);
 	}
@@ -67,7 +71,9 @@ abstract class ApplicationBase{
 	}
 	function register_query_vars($public_query_vars){
 		$vars=$this->on_register_query_vars();
-		return $vars+$public_query_vars;
+		foreach($vars as $var)
+			$public_query_vars[]=$var;
+		return $public_query_vars;
 	}
 	function register_settings(){		
 		WpHelper::registerSettings($this->app,array($this->app));
@@ -85,7 +91,7 @@ abstract class ApplicationBase{
 	function activate(){
 		$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);	
 		AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
-		if($oldVersion<$this->VERSION)
+		if(version_compare($oldVersion<$this->VERSION,'<'))
 			$this->update();
 		else if(!$this->useInstall)
 			AoiSoraSettings::installApplication($this->app);
@@ -159,11 +165,12 @@ abstract class ApplicationBase{
 		if($this->options)
 			$this->options->delete();
 	}	
-	function update(){
+	private function update(){
 		if(method_exists($this,'on_update')){
 			$this->on_update();
-			require_once('apps/updates/'.$this->VERSION.'.php');
 		}
+		if(file_exists(trim('/',$this->dir).'/apps/updates/'.$this->VERSION.'.php'))
+			require_once('apps/updates/'.$this->VERSION.'.php');
 	}
 	private function load($dir){
 		Debug::Value('Loading directory',$dir);
@@ -210,6 +217,52 @@ abstract class ApplicationBase{
 	}
 	function print_scripts(){
 		$this->on_wp_print_scripts();		
+	}
+	function get_version_info(){
+		global $wp_version;
+		$plugin=$this->pluginname .'/'. $this->pluginname .'.php';
+		
+		$body=array('id' => $this->SLUG);
+		if($this->UPDATE_SITE_EXTRA)
+			$body=$body+$this->UPDATE_SITE_EXTRA;
+		
+		$options = array('method' => 'POST', 'timeout' => 3, 'body' => $body);
+		$options['headers']= array(
+            'Content-Type' => 'application/x-www-form-urlencoded; charset=' . get_option('blog_charset'),
+            'Content-Length' => strlen($body),		
+			'user-agent' => 'WordPress/' . $wp_version,
+			'referer'=> get_bloginfo('url')
+		);
+		$raw_response = wp_remote_post($this->UPDATE_SITE, $options);
+		if (!is_wp_error($raw_response) && ($raw_response['response']['code'] == 200))
+			return unserialize($raw_response['body']);
+		return array();
+	}
+	function check_for_update(){
+		if(empty($this->UPDATE_SITE) || !is_admin())
+			return;
+
+		$checked_data = get_transient('update_plugins');		
+		global $wp_version;
+		$plugin=$this->pluginname;
+		
+		$version_info = $this->get_version_info();
+		
+        if(!$version_info["has_access"] || version_compare($this->VERSION, $version_info["version"], '>=')){
+            unset($checked_data->response[$plugin]);
+            return;
+        }else{
+        	$package=$version_info['url'];
+        	foreach($this->UPDATE_SITE_EXTRA as $key => $value)
+	        	$package=str_replace('{'.$key.'}',urlencode($value),$package);
+			$update_data = new stdClass();
+			$update_data->slug = $this->app;
+			$update_data->new_version = $version_info['version'];
+			$update_data->url = $version_info['site'];
+			$update_data->package = $package;
+			$checked_data->response[$plugin] = $update_data;
+		}
+		set_transient('update_plugins', $checked_data);
 	}
 }
 ?>
