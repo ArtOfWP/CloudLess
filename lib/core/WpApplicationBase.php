@@ -27,9 +27,10 @@ abstract class WpApplicationBase{
 		$this->useOptions=$useOptions;		
 		if(method_exists($this,'on_register_query_vars'))
 			add_filter('query_vars', array(&$this,'register_query_vars'));
+
+
 		if(is_admin()){
-			if($useOptions)
-				add_action( 'admin_init', array(&$this,'register_settings' ));			
+			add_action( 'admin_init', array(&$this,'register_settings' ));				
 			if(method_exists($this,'on_plugin_page_link'))
 				add_filter( 'plugin_action_links_'.$this->pluginname, array(&$this,'plugin_page_links'), 10, 2 );
 			if(method_exists($this,'on_plugin_row_message'))
@@ -41,6 +42,8 @@ abstract class WpApplicationBase{
 			if(method_exists($this,'on_rewrite_rules_array'))
 				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));		
 		}else{
+			if(method_exists($this,'on_init'))
+				add_action('init', array(&$this,'on_init'));			
 			if(method_exists($this,'on_wp_print_styles'))
 				add_action('wp_print_styles',array(&$this,'print_styles'));
 			if(method_exists($this,'on_wp_print_scripts'))
@@ -49,8 +52,6 @@ abstract class WpApplicationBase{
 				add_filter('wp_list_pages', array(&$this,'on_add_page_links'));	
 			if(method_exists($this,'render_view_template'))
 				add_filter('render_from_template',array(&$this,'render_view_template'));
-			if(method_exists($this,'on_init'))
-				add_action('init', array(&$this,'on_init'));
 			if(method_exists($this,'on_rewrite_rules_array'))
 				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
 			if(method_exists($this,'on_render_footer'))
@@ -76,7 +77,16 @@ abstract class WpApplicationBase{
 		return $public_query_vars;
 	}
 	function register_settings(){		
-		WpHelper::registerSettings($this->app,array($this->app));
+		if(method_exists($this,'on_register_settings')){
+			$settings = $this->on_register_settings();
+			foreach($settings as $option => $key)
+				if(is_array($key))
+					WpHelper::registerSettings($option,$key);
+				else
+					WpHelper::registerSettings($option,array($key));				
+		}
+		if($this->useOptions)
+			WpHelper::registerSettings($this->app,array($this->app));
 	}
 	function after_plugin_row($plugin_file, $plugin_data){
 		$display = $this->on_plugin_row_message();

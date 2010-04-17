@@ -16,6 +16,7 @@ class WpHelper{
 		<?php if($saveAllTabs):?>
 		<form method="post" action="options.php">
 		<?php settings_fields($optiongroup); ?>		
+		
 		<?php endif;?>
 		<div id="<?php echo $optiongroup.'tabs'?>" class="ui-widget">
 			<?php $tabtitles=array_keys($tabs)?>
@@ -88,7 +89,7 @@ class WpHelper{
 			</div>
 			<?php endforeach;?>		
 		</div>					
-			<?php if(!$saveAllTabs):?>
+			<?php if($saveAllTabs):?>
 			</form>
 			<?php endif;?>			
 		<script type="text/javascript">

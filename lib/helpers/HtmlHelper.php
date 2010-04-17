@@ -39,7 +39,8 @@ class HtmlHelper{
 				$theForm.='<tr valign=\'top\'>';
 				$field=array_key_exists_v('field',$settings);
 				$theForm.='<th scope=\'row\'>';
-				$theForm.=HtmlHelper::label($id,$required,true);
+				if($field!='hidden')
+					$theForm.=HtmlHelper::label($id,$required,true);
 				$theForm.='</th><td>';
 				if(!$field)
 					$field='text';
@@ -74,6 +75,10 @@ class HtmlHelper{
 				}
 				else if($field=='currency'){
 					$theForm.=HtmlHelper::currencydropdown($id,$value,true);
+				}else if($field=='rating'){
+					$selects=array(1=>"Very bad",2=>"Bad",3=>"Average",4=>"Good",5=>"Very good");
+					echo "Rating value: $value<br />";
+					$theForm.=HtmlHelper::select($id,$selects,false,$value,true);
 				}
 				else
 				$theForm.=HtmlHelper::input($id,$field,stripslashes(str_replace('"','',$value)),false,true);
@@ -188,10 +193,9 @@ class HtmlHelper{
 		$select.=' >';
 		$select.=HtmlHelper::option(0,'None',false,true);
 		if(is_array($array))
-			foreach($array as $element){
+			foreach($array as $key=>$element){
 				if(is_string($element) || is_int($element)){
-					$key=key($array);
-					$select.=HtmlHelper::option(str_replace('"','',$key),$element,$selectedValues==$element,true);
+					$select.=HtmlHelper::option(str_replace('"','',$key),$element,$selectedValues==$key,true);
 				}
 				else
 				$select.=HtmlHelper::option($element->getId(),$element,$selectedValues==$element.'',true );
