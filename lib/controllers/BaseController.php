@@ -132,7 +132,7 @@ class BaseController{
 			if(file_exists($path.VIEWS.$controller.'/'.$action.'.php'))
 				return $path.VIEWS.$controller.'/'.$action.'.php';	
 			if(file_exists($path.VIEWS.$lcontroller.'/'.$laction.'.php'))
-					return $path.VIEWS.$lcontroller.'/'.$laction.'.php';
+				return $path.VIEWS.$lcontroller.'/'.$laction.'.php';
 		}
 
 		return false;
