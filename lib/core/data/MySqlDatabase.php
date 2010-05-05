@@ -217,6 +217,7 @@ class MySqlDatabase{
 	    $columns=implode(',',$q->select);
 	    $order='';
 	    $where='';
+		$limit='';	    
 	    $params=array(); 
 	    if($q->hasWhere())
 	    {

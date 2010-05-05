@@ -7,7 +7,7 @@ class BaseController{
 	protected $title;
 	protected $redirect;
 	protected $viewpath;
-	private $render=true;
+	public $render=true;
 	public $bag=array();
 	public $viewcontent;
 	public $values=array();

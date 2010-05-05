@@ -75,11 +75,9 @@ class WpHelper{
 			</div>
 			<?php endforeach;?>		
 		</div>								
-		<script type="text/javascript">
-jQuery(function(){
-	jQuery("#<?php echo $id.'tabs' ?>").tabs();
-});
-</script>
+		<?php 
+		HtmlHelper::registerFooterScript("jQuery(function(){jQuery(\"#$idtabs\").tabs();});");
+		?>
 			<?php 
 	}
 	/**

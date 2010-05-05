@@ -164,7 +164,9 @@ class Query{
 			case 'select':
 			case 'where':
 			case 'order':
-				return $this->statement[$property];
+				if(isset($this->statement[$property]))
+					return $this->statement[$property];
+				return array();
 		}
 	}
 	private function addMark($ct){

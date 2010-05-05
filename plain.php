@@ -1,6 +1,8 @@
 <?php
-define('ROOT','../../../');
-require(ROOT.'wp-load.php');
+define('WP_ADMIN', TRUE);
+require_once (preg_replace("/wp-content.*/","wp-load.php",__FILE__));
+require_once (preg_replace("/wp-content.*/","/wp-admin/admin.php",__FILE__));
+//require(ROOT.'wp-load.php');
 wp_register_style('forms',plugins_url('AoiSora/lib/css/forms.css'));			
 wp_register_style('wordpress',plugins_url('AoiSora/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css'));			
 
@@ -9,7 +11,6 @@ wp_enqueue_style('forms');
 wp_enqueue_style('wpaffshopadmin');
 
 //include('../../../wp-admin/index.php');
-require(ROOT.'wp-admin/admin.php');
 ?>
 <?php
 /**
@@ -17,8 +18,9 @@ require(ROOT.'wp-admin/admin.php');
  */
 
 //@header('Content-Type: ' . get_option('html_type') . '; charset=' . get_option('blog_charset'));
-
-$title = esc_html( strip_tags( $_GET['title'] ) );
+$title='';
+if(isset($_GET['title']))
+	$title = esc_html( strip_tags( $_GET['title'] ) );
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" <?php //do_action('admin_xml_ns'); ?> <?php //language_attributes(); ?>>
@@ -80,13 +82,6 @@ document.body.className = c;
 
 <div id="wpwrap">
 <div id="wpcontent">
-<div id="wphead">
-<h1 id="site-heading"><span id="site-title" style="color:#fff">Add new item</span></h1>
-<div id="wphead-info">
-<div id="user_info">
-</div>
-</div>
-</div>
 <div id="wpbody">
 <div id="wpbody-content" style="margin-left:-150px">
 <?php 
@@ -94,17 +89,10 @@ Route::reroute();
 echo BaseController::ViewContents(); ?>
 <div class="clear"></div>
 </div><!-- wpbody-content -->
-<div class="clear"></div>
 </div><!-- wpbody -->
-<div class="clear"></div>
 </div><!-- wpcontent -->
 </div><!-- wpwrap -->
 
-<div id="footer">
-<p id="footer-left" class="alignleft">
-</p>
-<div class="clear"></div>
-</div>
 <script type="text/javascript">if(typeof wpOnload=='function')wpOnload();</script>
 <?php ?>
 <?php wp_print_scripts() ?>

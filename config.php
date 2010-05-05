@@ -7,7 +7,7 @@ define('VIEWS',LIB.'views/');
 define('CONTROLLERS',LIB.'/controllers/');
 
 if(!defined('DEBUG'))
-	define('DEBUG',true);
+	define('DEBUG',false);
 if(!defined('SQLDEBUG'))
 	define('SQLDEBUG',false);
 if(!defined('NOREDIRECT'))

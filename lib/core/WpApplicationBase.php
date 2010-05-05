@@ -36,11 +36,13 @@ abstract class WpApplicationBase{
 			if(method_exists($this,'on_plugin_row_message'))
 				add_action( 'after_plugin_row_'.$this->pluginname, array(&$this,'after_plugin_row'), 10, 2 );				
 			if(method_exists($this,'on_init_admin'))
-				add_action('init', array(&$this,'on_init_admin'));				
+				add_action('init', array(&$this,'on_init_admin'));	
+			if(method_exists($this,'on_admin_init'))
+				add_action('admin_init', array(&$this,'on_admin_init'));	
 			if(method_exists($this,'on_admin_menu'))
 				add_action('admin_menu',array(&$this,'on_admin_menu'));
 			if(method_exists($this,'on_rewrite_rules_array'))
-				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));		
+				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));			
 		}else{
 			if(method_exists($this,'on_init'))
 				add_action('init', array(&$this,'on_init'));			
@@ -60,7 +62,9 @@ abstract class WpApplicationBase{
         add_action('update_option__transient_update_plugins', array(&$this, 'check_for_update'));		
 		$this->init();
 		Debug::Value($appName,$this->app);
+
 	}
+		
 	private function init(){
 		if(method_exists($this,'on_initialize'))
 			$this->on_initialize();
@@ -68,8 +72,19 @@ abstract class WpApplicationBase{
 			$this->options= Option::create($this->app);
 			if(method_exists($this,'on_load_options'))
 				$this->on_load_options();			
+		}		
+		if(is_admin() && method_exists($this,'on_init_update')){
+			$this->on_init_update();
+			if($this->UPDATE_SITE && isset($_REQUEST['action']) && 'upgrade-plugin'==$_REQUEST['action'] && isset($_REQUEST['plugin']) && urldecode($_REQUEST['plugin'])==$this->pluginname)
+				add_filter('http_request_args',array(&$this,'add_update_url'),10,2);
 		}
 	}
+	
+	function add_update_url($r,$url){
+			$r['headers']['Referer']=get_bloginfo('url');
+			return $r;
+	}
+	
 	function register_query_vars($public_query_vars){
 		$vars=$this->on_register_query_vars();
 		foreach($vars as $var)
@@ -230,7 +245,6 @@ abstract class WpApplicationBase{
 	}
 	function get_version_info(){
 		global $wp_version;
-		$plugin=$this->pluginname .'/'. $this->pluginname .'.php';
 		
 		$body=array('id' => $this->SLUG);
 		if($this->UPDATE_SITE_EXTRA)
@@ -239,7 +253,7 @@ abstract class WpApplicationBase{
 		$options = array('method' => 'POST', 'timeout' => 3, 'body' => $body);
 		$options['headers']= array(
             'Content-Type' => 'application/x-www-form-urlencoded; charset=' . get_option('blog_charset'),
-            'Content-Length' => strlen($body),		
+			'Content-Length' => strlen(implode(',',$body)),		
 			'user-agent' => 'WordPress/' . $wp_version,
 			'referer'=> get_bloginfo('url')
 		);

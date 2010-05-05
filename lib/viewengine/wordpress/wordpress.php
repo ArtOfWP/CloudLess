@@ -3,6 +3,7 @@
 	global $db_prefix;
 	$db_prefix=$table_prefix.'aoisora_';
 Debug::Message('Loaded wordpress viewengine');
+	define('PACKAGEURL',WP_PLUGIN_URL.'/AoiSora/');
 	if(!defined('WP_PLUGIN_DIR'))
 		define('APPPATH',dirname(__FILE__).'/');
 	else
@@ -73,3 +74,12 @@ Debug::Message('Loaded wordpress viewengine');
 			return WpSecurity::instance();
 		}
 	}
+	add_action('admin_footer', 'aoisora_script_footer');
+
+	function aoisora_script_footer() {
+		global $hh_scripts;
+		echo "<script type=\"text/javascript\">";
+		echo implode('',$hh_scripts);
+		echo "</script>";
+	}
+	
