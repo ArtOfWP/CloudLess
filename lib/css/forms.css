@@ -1,0 +1,68 @@
+/**
+Adapated Simple Form Example from
+http://www.assemblesoft.com/examples/form/simpleform.html
+*/
+
+div.form form * {margin:0;padding:0;} /* Standard margin and padding reset, normally done on the body */
+div.form{padding-left:10px}
+div.form legend {
+	color:#000; /* IE styles legends with blue text by default */
+	*margin-left:-7px; /* A hack that only ie reads to position the legend in the same place cross browser */
+}
+div.form fieldset {
+	border:1px solid #dedede; /* Default fieldset borders vary cross browser, so make them the same */
+}
+div.form div {
+	overflow:hidden; /* Contain the floating elements */
+	display:inline-block; /* Give layout in ie to contain float */
+}
+div.form div {display:block; margin-bottom:10px;} /* Reset element back to block leaving layout in ie */
+div.form label {
+	line-height:2em;
+	float:left; /* Take out of flow so the input starts at the same height */
+	width:7em; /* Set a width so the inputs line up */
+}
+div.form .radio {
+	position:relative; /* Position so children are relative to this container */
+	border:0; /* Remove the border */
+}
+div.form .radio span {
+	position:absolute; /* Take the content of the legend out of flow */
+	top:0;left:0; /* and position it to the top left of the fieldset */
+	width:7em; /* Same width as labels */
+}
+div.form .radio ul {
+	margin-left:5em; /* Since the legend is out of flow. set margin, so inputs are inline */
+	list-style:none; /* Dont want bullets */
+}
+div.form .radio li {
+	position:relative; /* Fix a bug in IE zoom functionality */
+	display:inline; /* Display the inputs in a line */
+	white-space:nowrap; /* We dont want a label to wrap between the input and label */
+}
+div.form .radio label, .radio input {
+	width:auto; /* Reset the width on the label from the 5em, set earlier */
+	float:none; /* Reset the float from left on the label, set earlier */
+	vertical-align:middle; /* Align the radio buttons with the inputs */
+}
+div.form div select,div.form div input{
+	width:200px;
+	padding:5px 5px 5px 5px;
+}
+div.form select{
+	font-size:2em;
+	height:2em;
+	
+}
+div.form .submit{
+	margin:0;padding:0;
+	padding-left:7em;
+	padding-bottom:10px;
+}
+div.form .submit input{
+	width:100px;
+	padding:0;
+	padding-left:0;
+	padding-right:0;
+	font-size:12pt;	
+}
