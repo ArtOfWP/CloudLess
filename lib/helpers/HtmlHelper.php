@@ -1,6 +1,7 @@
 <?php
 
 class HtmlHelper{
+	private static $scripts;
 	static function createForm($id,$object,$path=false,$classes=false,$imagepath=''){
 		if(!$path)
 			$path=get_bloginfo('url').'/'.get_class($object).'/create';
@@ -138,10 +139,11 @@ class HtmlHelper{
 					$theForm.=self::input($id.'_input','text','',false,true);
 					$theForm.="<input id=\"".$id."_add\" name=\"".$id."_add\" value=\"Tag it\" class=\"button-secondary\" type=\"button\" onclick=\"tagit('".$id."_input','".$id."','".$id."_list')\">";
 					$theForm.="<ul id=\"$id\">";
-					foreach($values as $value){
-						$itemid=str_replace(' ','-',$value);
-						$theForm.="<li id=\"$itemid\" class=\"ui-corner-all\"><span>$value<a href=\"javascript:detagit('#$id"."_list','#$itemid','$value')\">x</span></a></li>";					
-					}
+					if(is_array($values))
+						foreach($values as $value){
+							$itemid=str_replace(' ','-',$value);
+							$theForm.="<li id=\"$itemid\" class=\"ui-corner-all\"><span>$value<a href=\"javascript:detagit('#$id"."_list','#$itemid','$value')\">x</span></a></li>";					
+						}
 					$theForm.="</ul>";
 					$theForm.=self::input($id.'_list','hidden',$list,false,true);
 				}else if($field=='multiple'){
@@ -390,12 +392,10 @@ class HtmlHelper{
 			echo "<div id=\"$id\" class=\"ui-state-highlight ui-corner-all\">$message</div>";
 	}	
 	static function registerFooterScript($script){
-		global $hh_scripts;
-		$hh_scripts[]=$script;
+		self::$scripts[]=$script;
 	}
 	static function getFooterScripts(){
-		global $hh_scripts;		
-		return $hh_scripts;
+		return self::$scripts;
 	}
 	/*$_GET = array_map(’confHtmlEnt’, $_GET);
 

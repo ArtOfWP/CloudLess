@@ -76,7 +76,7 @@ class WpHelper{
 			<?php endforeach;?>		
 		</div>								
 		<?php 
-		HtmlHelper::registerFooterScript("jQuery(function(){jQuery(\"#$idtabs\").tabs();});");
+		HtmlHelper::registerFooterScript("jQuery(function(){jQuery(\"#$id"."tabs\").tabs();});");
 		?>
 			<?php 
 	}
@@ -171,13 +171,8 @@ class WpHelper{
 		</div>					
 			<?php if($saveAllTabs):?>
 			</form>
-			<?php endif;?>			
-		<script type="text/javascript">
-jQuery(function(){
-	jQuery("#<?php echo $optiongroup.'tabs' ?>").tabs();
-});
-</script>
-			<?php 
+			<?php endif;
+			HtmlHelper::registerFooterScript("jQuery(function(){jQuery(\"#$optiongroup"."tabs\").tabs();});",true);
 	}
 	/**
 	    $optiongroup=name of the optionsgroup you want to generate a form, for. If isarray optiongroup is the name of the option with the array.

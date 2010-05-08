@@ -74,12 +74,14 @@ Debug::Message('Loaded wordpress viewengine');
 			return WpSecurity::instance();
 		}
 	}
-	add_action('admin_footer', 'aoisora_script_footer');
+	if(!is_admin())
+		add_action('wp_footer', 'aoisora_script_footer');	
+	else
+		add_action('admin_footer', 'aoisora_script_footer');
 
 	function aoisora_script_footer() {
-		global $hh_scripts;
 		echo "<script type=\"text/javascript\">";
-		echo implode('',$hh_scripts);
+		echo implode('',HtmlHelper::getFooterScripts());
 		echo "</script>";
 	}
 	

@@ -7,7 +7,7 @@ class SecurityFilter implements IFilter{
 		$this->useraction=$useraction;
 	}
 	function perform($controller,$data){
-		$s = Security::create();	
+		$s = Security::create();
 		if($this->nonce)
 			$s->check_nounce($this->nonce);
 		if($s->current_user_is_logged_in())
