@@ -91,7 +91,7 @@ class ObjectUtility{
 			$temp=explode(',',$comment);
 			foreach($temp as $setting){
 				$x=explode(':',trim($setting));
-				$settings[$x[0]]=$x[1];
+				$settings[$x[0]]=isset($x[1])?$x[1]:true;
 			}
 		}
 		return $settings;

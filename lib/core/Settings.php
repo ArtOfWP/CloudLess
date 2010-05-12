@@ -1,7 +1,7 @@
 <?php
 class AoiSoraSettings{
 	static function addApplication($name,$loadpath,$version){
-		global $aoiSoraApp;
+		$aoiSoraApp = AoiSora::instance();
 		$apps=$aoiSoraApp->options->applications;
 		if(!is_array($apps))
 			$apps=array();
@@ -13,7 +13,7 @@ class AoiSoraSettings{
 //		Debug::Value('Options',$ops->getArray());
 	}
 	static function removeApplication($name){
-		global $aoiSoraApp;
+		$aoiSoraApp = AoiSora::instance();
 		$apps=$aoiSoraApp->options->applications;
 		unset($apps[$name]);
 		$aoiSoraApp->options->applications=$apps;
@@ -22,17 +22,17 @@ class AoiSoraSettings{
 		Debug::Value('Options',$aoiSoraApp->options->getArray());		
 	}
 	static function getApplicationVersion($name){
-		global $aoiSoraApp;
+		$aoiSoraApp = AoiSora::instance();
 		$apps=$aoiSoraApp->options->applications;
 		return $apps[$name]['version'];
 	}
 	static function getApplications(){
-		global $aoiSoraApp;
+		$aoiSoraApp = AoiSora::instance();
 		return $aoiSoraApp->options->applications;
 	}
 	static function installApplication($app){
 		Debug::Message('Install application');
-		global $aoiSoraApp;
+		$aoiSoraApp = AoiSora::instance();
 		$inst=	$aoiSoraApp->options->installed;
 		if(!is_array($inst))
 			$inst=array();
@@ -42,7 +42,7 @@ class AoiSoraSettings{
 	}
 	static function uninstallApplication($app){
 		Debug::Message('Uninstall application');		
-		global $aoiSoraApp;
+		$aoiSoraApp = AoiSora::instance();
 		$apps=$aoiSoraApp->options->installed;
 		$apps = array_diff($apps,array($app));
 		$apps=array_values($apps);
@@ -50,7 +50,7 @@ class AoiSoraSettings{
 		$aoiSoraApp->options->save();		
 	}	
 	static function installed($app){
-		global $aoiSoraApp;
+		$aoiSoraApp = AoiSora::instance();
 		$apps=$aoiSoraApp->options->installed;
 		if($apps)
 			if(in_array($app,$apps))

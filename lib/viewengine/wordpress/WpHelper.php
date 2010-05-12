@@ -47,7 +47,7 @@ class WpHelper{
 							if($type=='textarea'):?>
 								<textarea id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>"><?php echo $values?$values[$key]:get_option($key); ?></textarea>
 					<?php 	elseif($type=='checkbox'):?>
-								<input type="checkbox" id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>" value="1" <?php echo $values?$values[$key]:get_option($key)?'checked="checked"':''; ?> />					
+								<input type="checkbox" id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>" value="1" <?php echo $values?isset($values[$key])&&$values[$key]:get_option($key)?'checked="checked"':''; ?> />
 					<?php	elseif(strpos($type,'dropdown')!==false):?>
 					<?php 		$selected=$values?$values[$key]:get_option($key);	?>
 								<select id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>">
@@ -69,7 +69,7 @@ class WpHelper{
 			<?php endforeach;?>
 			</table>
 								<p class="submit">
-			<input type="submit" class="button-primary" value="<?php $saveAllTabs?_e('Save All Changes'):_e('Save Changes'); ?>" />
+			<input type="submit" class="button-primary" value="<?php _e("Save $tabtitle Changes"); ?>" />
 			</p>	
 			</form>		
 			</div>
@@ -139,7 +139,7 @@ class WpHelper{
 							if($type=='textarea'):?>
 								<textarea id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>"><?php echo $values?$values[$key]:get_option($key); ?></textarea>
 					<?php 	elseif($type=='checkbox'):?>
-								<input type="checkbox" id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>" value="1" <?php echo $values?$values[$key]:get_option($key)?'checked="checked"':''; ?> />					
+								<input type="checkbox" id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>" value="1" <?php echo $values?isset($values[$key])&&$values[$key]:get_option($key)?'checked="checked"':''; ?> />
 					<?php	elseif(strpos($type,'dropdown')!==false):?>
 					<?php 		$selected=$values?$values[$key]:get_option($key);	?>
 								<select id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>">

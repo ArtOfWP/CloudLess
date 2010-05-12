@@ -1,7 +1,7 @@
 <?php
 
 class HtmlHelper{
-	private static $scripts;
+	private static $scripts=array();
 	static function createForm($id,$object,$path=false,$classes=false,$imagepath=''){
 		if(!$path)
 			$path=get_bloginfo('url').'/'.get_class($object).'/create';
@@ -322,12 +322,13 @@ class HtmlHelper{
 			return 	"<img $class src='$src' $alt />";
 		echo "<img $class src='$src' $alt />";
 	}
-	static function imglink($id,$src,$path,$alt=false,$class=false,$dontprint=false){
+	static function imglink($src,$path,$alt=false,$class=false,$dontprint=false,$id=false){
 		$class=$class?' class=\''.$class.'\' ':'';
 		$alt=$alt?" alt='".$alt."'":'';
+		$id=$id?" id=\"$id\" ":'';
 		if($dontprint)
-			return "<a id=\"$id\" href='$path' $class><img src='$src' $alt /></a>";
-		echo "<a id=\"$id\" href='$path' $class><img src='$src' $alt /></a>";
+			return "<a href='$path' $class><img src='$src' $alt /></a>";
+		echo "<a href='$path' $class><img src='$src' $alt /></a>";
 	}
 	static function table($data,$headlines=false){
 		$table='<table class="ui-widget ui-corner-all">';

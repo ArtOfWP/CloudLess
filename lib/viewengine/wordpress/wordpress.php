@@ -80,8 +80,11 @@ Debug::Message('Loaded wordpress viewengine');
 		add_action('admin_footer', 'aoisora_script_footer');
 
 	function aoisora_script_footer() {
+		$scripts=HtmlHelper::getFooterScripts();
+		if($scripts)
+			return;
 		echo "<script type=\"text/javascript\">";
-		echo implode('',HtmlHelper::getFooterScripts());
+		echo implode(' ',$scripts);
 		echo "</script>";
 	}
 	

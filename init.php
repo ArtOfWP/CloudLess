@@ -4,6 +4,4 @@ loadAoiSora();
 
 global $db;
 $db = new MySqlDatabase();
-global $aoisoraloaded;
-$aoisoraloaded=true;
 ?>

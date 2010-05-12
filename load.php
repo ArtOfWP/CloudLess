@@ -33,6 +33,6 @@ function loadAoiSora(){
 	if(VIEWENGINE=='wordpress'){
 		load(PACKAGEPATH.'lib/viewengine/'.VIEWENGINE.'/');//.VIEWENGINE.'.php');
 	}
-	include(PACKAGEPATH.'AoiSoraApp.php');
+	//include(PACKAGEPATH.'AoiSoraApp.php');
 }
 ?>

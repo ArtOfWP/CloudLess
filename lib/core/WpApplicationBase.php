@@ -2,6 +2,7 @@
 abstract class WpApplicationBase{
 	protected $installfrompath;
 	protected $VERSION=false;
+	protected $VERSION_INFO_LINK=false;
 	protected $UPDATE_SITE=false;
 	protected $UPDATE_SITE_EXTRA=false;	
 	protected $SLUG=false;
@@ -42,7 +43,9 @@ abstract class WpApplicationBase{
 			if(method_exists($this,'on_admin_menu'))
 				add_action('admin_menu',array(&$this,'on_admin_menu'));
 			if(method_exists($this,'on_rewrite_rules_array'))
-				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));			
+				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
+			if($_REQUEST[$appName])
+				add_action('install_plugins_pre_plugin-information',array(&$this,'version_information'));			
 		}else{
 			if(method_exists($this,'on_init'))
 				add_action('init', array(&$this,'on_init'));			
@@ -277,8 +280,9 @@ abstract class WpApplicationBase{
             return;
         }else{
         	$package=$version_info['url'];
-        	foreach($this->UPDATE_SITE_EXTRA as $key => $value)
-	        	$package=str_replace('{'.$key.'}',urlencode($value),$package);
+        	if($this->UPDATE_SITE_EXTRA)
+	        	foreach($this->UPDATE_SITE_EXTRA as $key => $value)
+		        	$package=str_replace('{'.$key.'}',urlencode($value),$package);
 			$update_data = new stdClass();
 			$update_data->slug = $this->app;
 			$update_data->new_version = $version_info['version'];
@@ -287,6 +291,22 @@ abstract class WpApplicationBase{
 			$checked_data->response[$plugin] = $update_data;
 		}
 		set_transient('update_plugins', $checked_data);
+	}
+	function version_information(){
+		global $wp_version;
+		if(!$this->VERSION_INFO_LINK)
+			return;
+		$body=array('id' => $this->SLUG);
+		
+		$options = array('method' => 'GET', 'timeout' => 3, 'body' => $body);
+		$options['headers']= array(
+			'Content-Length' => strlen(implode(',',$body)),		
+			'user-agent' => 'WordPress/' . $wp_version,
+			'referer'=> get_bloginfo('url')
+		);			
+		$response=wp_remote_get($this->VERSON_INFO_LINK,$options);
+		echo $response;
+		exit;
 	}
 }
 ?>
