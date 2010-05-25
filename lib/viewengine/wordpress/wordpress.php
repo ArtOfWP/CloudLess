@@ -81,7 +81,7 @@ Debug::Message('Loaded wordpress viewengine');
 
 	function aoisora_script_footer() {
 		$scripts=HtmlHelper::getFooterScripts();
-		if($scripts)
+		if(empty($scripts))
 			return;
 		echo "<script type=\"text/javascript\">";
 		echo implode(' ',$scripts);

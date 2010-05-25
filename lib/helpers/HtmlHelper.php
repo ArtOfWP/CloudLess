@@ -60,7 +60,7 @@ class HtmlHelper{
 							$source=UPLOADS_URI.$imagepath.$value;
 						else
 							$source=$value;
-						$theForm.=self::imglink($id,$source.'?TB_iframe=true',$source,'Full image','thickbox',true);
+						$theForm.=self::imglink($source.'?TB_iframe=true',$source,'Full image','thickbox',true.$id);
 						$theForm.='<br />';
 					}
 					$theForm.=self::input($id,'file',$value,false,true);

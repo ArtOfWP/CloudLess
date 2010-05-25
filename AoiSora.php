@@ -3,7 +3,7 @@
 Plugin Name: PHP MVC For WordPress (AoiSora)
 Plugin URI: http://artofwp.com/wpdk
 Description: AoiSora is a PHP MVC Framework for WordPress.
-Version: 10.5.2
+Version: 10.5.3
 Author: Andreas Nurbo
 Author URI: http://artofwp.com/
 */
@@ -20,7 +20,15 @@ if(is_admin()){
 		array_splice($active, $place, 1);
 		array_unshift($active, $plugin);
 		update_option('active_plugins', $active);
+	}/*
+	if(!class_exists('AoiSora')){
+	add_action('after_plugin_row_'.plugin_basename(__FILE__),'after_aoisora_plugin_row', 10, 2 );					
+	function after_aoisora_plugin_row($plugin_file, $plugin_data){
+		echo '<tr class="error" style=""><td colspan="3" class="" style=""><div class="" style="padding:3px 3px 3px 3px;font-weight:bold;font-size:8pt;border:solid 1px #CC0000;background-color:#FFEBE8">Affiliate Shop requires <a style="color:blue;text-decoration:underline;" href="http://artofwp.com/aoisora">PHP MVC For WordPress (AoiSora)</a></div></td></tr>';
+		deactivate_plugins(plugin_basename(__FILE__));
 	}
+	return;
+}*/	
 }
 // Configures/loads AoiSora
 define('PACKAGEPATH',dirname(__FILE__).'/');
@@ -28,7 +36,7 @@ require('init.php');
 class AoiSora extends WpApplicationBase{
 	public $options;
 	private static $instance;
-	protected $VERSION='10.5.2';
+	protected $VERSION='10.5.3';
 	protected $UPDATE_SITE='http://artofwp.com/?free_update=plugin';
 	protected $SLUG='php-mvc-for-wordpress';	
 	function AoiSora(){
