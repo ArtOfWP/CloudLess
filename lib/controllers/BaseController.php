@@ -18,7 +18,9 @@ class BaseController{
 		$this->values+=Communication::getFormValues();
 		$this->action=$this->values[ACTIONKEY];
 		unset($this->values[CONTROLLERKEY]);
-		unset($this->values[ACTIONKEY]);		
+		unset($this->values[ACTIONKEY]);	
+		if(method_exists($this,'on_controller_init'))	
+			$this->on_controller_init();
 	}
 	function BaseController($automatic=true,$viewpath=false){
 		$this->initiate();
@@ -138,4 +140,3 @@ class BaseController{
 		return false;
 	}
 }
-?>

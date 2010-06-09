@@ -44,8 +44,8 @@ abstract class WpApplicationBase{
 				add_action('admin_menu',array(&$this,'on_admin_menu'));
 			if(method_exists($this,'on_rewrite_rules_array'))
 				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
-			if($_REQUEST[$appName])
-				add_action('install_plugins_pre_plugin-information',array(&$this,'version_information'));			
+			if($_GET['plugin']==$appName)
+				add_action('install_plugins_pre_plugin-information',array(&$this,'version_information'));
 		}else{
 			if(method_exists($this,'on_init'))
 				add_action('init', array(&$this,'on_init'));			
@@ -119,8 +119,11 @@ abstract class WpApplicationBase{
 	function activate(){
 		$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);	
 		AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
-		if(version_compare($oldVersion<$this->VERSION,'<'))
+		if(version_compare($oldVersion<$this->VERSION,'<')){
 			$this->update();
+			if(!$this->useInstall)
+				AoiSoraSettings::installApplication($this->app);			
+		}
 		else if(!$this->useInstall)
 			AoiSoraSettings::installApplication($this->app);
 		if($this->useOptions){			
@@ -276,7 +279,8 @@ abstract class WpApplicationBase{
 		$version_info = $this->get_version_info();
 		
         if(!$version_info["has_access"] || version_compare($this->VERSION, $version_info["version"], '>=')){
-            unset($checked_data->response[$plugin]);
+        	if(isset($checked_data->response[$plugin]))
+	            unset($checked_data->response[$plugin]);
             return;
         }else{
         	$package=$version_info['url'];
@@ -293,19 +297,13 @@ abstract class WpApplicationBase{
 		set_transient('update_plugins', $checked_data);
 	}
 	function version_information(){
-		global $wp_version;
 		if(!$this->VERSION_INFO_LINK)
 			return;
-		$body=array('id' => $this->SLUG);
-		
-		$options = array('method' => 'GET', 'timeout' => 3, 'body' => $body);
-		$options['headers']= array(
-			'Content-Length' => strlen(implode(',',$body)),		
-			'user-agent' => 'WordPress/' . $wp_version,
-			'referer'=> get_bloginfo('url')
-		);			
-		$response=wp_remote_get($this->VERSON_INFO_LINK,$options);
-		echo $response;
+		$opts = array('http'=>array('method'=>"GET",'header'=>"Accept-language: en\r\n"));
+		$context = stream_context_create($opts);
+		// Open the file using the HTTP headers set above
+		$response = file_get_contents($this->VERSION_INFO_LINK.'&id='.$this->SLUG, false, $context);		
+		wp_die($response);
 		exit;
 	}
 }

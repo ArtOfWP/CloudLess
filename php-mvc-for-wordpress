@@ -1,0 +1,9 @@
+10.6.3
+ * Fixed redirect error
+ * Fixed CrudController update
+ * Added search to CrudController
+ * Added Paging to CrudController
+ * Added delete all selected
+ * Added get site url function
+10.6.2
+ * Added support for change details

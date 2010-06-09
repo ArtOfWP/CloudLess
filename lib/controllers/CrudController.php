@@ -5,6 +5,11 @@ abstract class CrudController extends BaseController{
 	protected $uploadSubFolder;
 	protected $width;
 	protected $height;
+	protected $perpage;
+	protected $order=false;
+	protected $order_property;
+	protected $order_way;
+		
 	public $bag=array();
 	function CrudController($automatic=true){
 		parent::BaseController(false);
@@ -39,7 +44,41 @@ abstract class CrudController extends BaseController{
 		$this->Render($this->controller,'createnew');		
 	}
 	function listall(){
-		$this->bag['all']=Repo::findAll(get_class($this->crudItem),true);
+		$this->bag['delete']=array_key_exists_v('delete',$this->values);
+		$this->bag['deletePath']=get_site_url().'/ShopCategory/delete';
+		$perpage=array_key_exists_v('perpage',$this->values);
+		$perpage=$perpage?$perpage:$this->perpage;
+		$order=$this->order;
+		
+		if(!$order){
+			$order_property=array_key_exists_v('property',$this->values);
+			$order_property=$order_property?$order_property:$this->order_property;
+	
+			$order_way=array_key_exists_v('way',$this->values);
+			$order_way=$order_way?$order_way:$this->order_way;
+	
+			if(strtolower($order_way)=='desc')
+				$order=Order::DESC($order_property);
+			else
+				$order=Order::ASC($order_property);
+		}
+		
+		$this->bag['perpage']=$perpage;		
+		$page=array_key_exists_v('current',$this->values);
+		$page=$page?$page:1;
+		$this->bag['currentpage']=$page;
+		$page=$page>0?$page-1:0;
+		$first=$page*$perpage;
+		
+		if(array_key_exists('search',$this->values)){
+			$this->bag['all']=Repo::slicedFindAll($this->crudItem,$first,$perpage,$order,R::LIKE('Name',$this->values['search']));
+			$this->bag['total']=Repo::total('ShopCategory',R::LIKE('Name',$this->values['search']));
+		}
+		else{
+			$this->bag['all']=Repo::slicedFindAll($this->crudItem,$first,$perpage,$order);
+			$this->bag['total']=Repo::total('ShopCategory');			
+		}
+		
 		$this->Render($this->controller,'listall');
 	}
 	function edit(){
@@ -53,7 +92,7 @@ abstract class CrudController extends BaseController{
 		$this->loadFromPost();
 		$this->crudItem->save();
 		if($redirect)
-			$this->redirect('&result=1');
+			$this->redirect('result=1');
 		else
 			return $this->crudItem;
 	}
@@ -69,15 +108,25 @@ abstract class CrudController extends BaseController{
 	}
 	function update($redirect=true){
 		$id=array_key_exists_v('Id',$this->values);		
+		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,true);		
 		$this->loadFromPost();
 		$this->crudItem->save();
 		if($redirect)
-			$this->redirect('&result=1');
+			$this->redirect('result=1');
 	}
 	function delete(){
-		$this->loadFromPost();
-		$this->crudItem->delete();
-		$this->redirect();
+		if(is_array($_POST[strtolower(get_class($this->crudItem))])){
+			$ids=$_POST[strtolower(get_class($this->crudItem))];
+			foreach($ids as $id){
+				$item=Repo::getById(get_class($this->crudItem),$id);
+				if($item)
+					$item->delete();
+			}
+		}else{
+			$this->loadFromPost();
+			$this->crudItem->delete();
+		}		
+		$this->redirect('delete=1');
 	}	
 	private function methodIs($method){
 		if(Communication::getMethod()==$method)
@@ -141,7 +190,7 @@ abstract class CrudController extends BaseController{
 						$image->ratio = true; // Keep Aspect Ratio?
 						// Name of the new image (optional) - If it's not set a new will be added automatically
 						$image->new_image_name = preg_replace('/\.[^.]*$/', '', $name);
-						/* Path where the new image should be saved. If it's not set the script will output the image without saving it */
+						// Path where the new image should be saved. If it's not set the script will output the image without saving it 
 						$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
 						$process = $image->resize();
 					}
@@ -179,4 +228,3 @@ abstract class CrudController extends BaseController{
 	}
 
 }
-?>

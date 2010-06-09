@@ -10,8 +10,12 @@ class R{
 	var $parameters=array();
 	var $columns;
 	var $method;
+	var $placement;
 
-
+	static $LEFT=0;
+	static $BOTH=1;
+	static $RIGHT=2;
+		
 	static function Match($columns,$keywords){
 		$r = new R();
 		$r->method='MATCH';
@@ -118,6 +122,15 @@ class R{
 //		}
 		return $r;	
 	}
+	static function Like($property,$value,$placement=0){
+		$r = new R();
+		$r->column=strtolower($property);
+		$r->method='LIKE';
+		$r->placement=$placement;
+		$r->value=$value;
+		$r->hasvalue=true;
+		return $r;		
+	}
 	static function _And(){
 		$r = new R();
 		$r->method=' AND ';
@@ -132,7 +145,7 @@ class R{
 		return $this->hasvalue;
 	}
 	function setParameter($param,$value){
-		if(strtolower($param)==$this->column)
+		if(strtolower($param)==$this->column) 
 			$this->value=$value;
 	}	
 	function getParameter(){
@@ -143,6 +156,14 @@ class R{
 	}
 	function toSQL(){
 		switch($this->method){
+			case "LIKE":
+				$sql=$this->addMark($this->column).' LIKE '."concat('%',:".$this->column.')';
+				if($this->placement==R::$LEFT)
+					$front="%";
+				else if($this->placement>R::$LEFT)
+					$back="%";
+				$sql=$this->addMark($this->column).' LIKE '."concat('$front',:".$this->column.",'$back')";
+				return $sql;
 			case 'MATCH':
 				$sql=' MATCH(';
 				$func=$this->addMark;
@@ -193,7 +214,6 @@ class R{
 	}
 	private function addMark($ct){
 		return '`'.$ct.'`';
-	$cbnetmbpautoPrefix_array = array( 'dppp', 'mdw', 'mup', 'mpo', 'msa', 'ps', 'mfi', 'spl', 'mba', 'dpc', 'mcn', 'ofa' );
 	}
 	
 }

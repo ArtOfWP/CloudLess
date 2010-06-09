@@ -6,7 +6,7 @@ function load($dir){
 			if(is_dir($dir.$resource))
 				load($dir.$resource.'/');
 			else
-			 	include_once($dir.$resource);
+			 	include($dir.$resource);
 		}
 	}
 	closedir($handle);
@@ -16,8 +16,8 @@ function loadApp($dir){
 		load($dir.'/app/core/');
 	if(is_dir($dir.'/app/controllers/'))
 		load($dir.'/app/controllers/');
-	if(is_dir($dir.'/app/views/widgets'))	
-		load($dir.'/app/views/widgets/');
+//	if(is_dir($dir.'/app/views/widgets'))	
+//		load($dir.'/app/views/widgets/');
 }
 function loadAoiSora(){
 	include(PACKAGEPATH.'config.php');
@@ -35,4 +35,3 @@ function loadAoiSora(){
 	}
 	//include(PACKAGEPATH.'AoiSoraApp.php');
 }
-?>

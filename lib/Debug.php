@@ -14,17 +14,9 @@ class Debug{
 		if(Debug::IsActive())
 			if(is_array($value)){
 				Debug::Message('<p><strong>'.$message.'</strong></p>');
-				echo '<ul>';
-				foreach($value as $key => $val)
-					if(is_array($val)){
-						echo '<li>'.$key.':<ul>';
-							foreach($val as $key2 => $val2)
-		 						echo '<li>'.$key2.' : '.$val2.'</li>';
-						echo '</ul></li>';
-					}
-					else
- 						echo '<li>'.$key.' : '.$val.'</li>';
-				echo '</ul>';
+				echo '<pre>';
+				print_r($value);
+				echo '</pre>';
 			}else
 				echo '<p><strong>'.$message.':</strong>  '.$value.'</p>';
 	}

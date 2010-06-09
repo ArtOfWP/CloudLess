@@ -17,12 +17,13 @@ class Repo{
 			return Query::createFrom($class,$lazy)->where(R::In($property,$value))->execute();		
 		return Query::createFrom($class,$lazy)->where(R::Eq($property,$value))->execute();		
 	}
-	static function slicedFindAll($class,$firstResult,$maxResult,$order,$restrictions){
-		return Query::createFrom($class)
-			->limit($firstResult,$maxResult)
-			->order($order)
-			->where($restrictions)
-			->execute();		
+	static function slicedFindAll($class,$firstResult,$maxResult,$order=false,$restrictions=false){
+		$query=Query::createFrom($class,true)->limit($firstResult,$maxResult);
+		if($order)
+			$query->order($order);
+		if($restrictions)
+			$query->where($restrictions);
+		return $query->execute();		
 	}
 	static function findOne($class,$requirement,$lazy=false){
 		$result=array();
@@ -35,8 +36,11 @@ class Repo{
 		else
 			return false;
 	}
-	static function total($class){
-		return CountQuery::createFrom($class)->execute();
+	static function total($class,$restrictions=false){
+		$q=CountQuery::createFrom($class);
+		if($restrictions)
+			$q->where($restrictions);
+		return $q->execute();
 	}
 }
 ?>

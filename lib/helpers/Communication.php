@@ -60,10 +60,17 @@ class Communication{
 	}
 		
 	static function redirectTo($url,$data=false){
+			$data=ltrim($data,"&");
+		if(is_array($data))
+			$data=http_build_query($data);
+		if(strpos($url,'?')===false)
+			$redirect=$url."?".$data;
+		else
+			$redirect = $url."&".$data;
 		if(function_exists('wp_redirect'))
-			wp_redirect($url.$data);
+			wp_redirect($redirect);
 		else{
-			header( 'Location: '.$url );
+			header( 'Location: '.$redirect );
 			exit;
 		}
 	}
@@ -71,4 +78,3 @@ class Communication{
 		return array_key_exists_v('_redirect',$_POST);
 	}
 }
-?>

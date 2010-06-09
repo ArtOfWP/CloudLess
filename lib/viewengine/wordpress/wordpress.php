@@ -87,4 +87,28 @@ Debug::Message('Loaded wordpress viewengine');
 		echo implode(' ',$scripts);
 		echo "</script>";
 	}
+	function get_site_url(){
+		return get_bloginfo('url');
+	}
+	function get_htaccess_rules_path(){
+		return ABSPATH.'/.htaccess';
+	}
+	function get_htaccess_rules(){
+	$url=strtolower(get_bloginfo( 'url' ));
+	$siteurl=strtolower(get_bloginfo( 'wpurl'));
+	$path=str_replace($url,'',$siteurl);
+	$htaccess_rules=
+'# BEGIN PHPMVC
+	<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteBase /'.$path.'
+	RewriteCond %{REQUEST_METHOD} !GET
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^(.*)/(.*)$ '.$path.'/wp-content/plugins/AoiSora/preroute.php?controller=$1&action=$2 [L]
+</IfModule>
+# END PHPMVC
+';	
+		return $htaccess_rules;
+	}
 	

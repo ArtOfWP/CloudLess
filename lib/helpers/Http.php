@@ -34,11 +34,14 @@ class Http{
 		fwrite($fp, $rawdata);
 		fclose($fp);
 	}
-	static function getPage($url){
-		$ch=curl_init();		
+	static function getPage($url,$referer=false){
+		$ch=curl_init();
+
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);  
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);  		
+		if($referer)		
+			curl_setopt($ch, CURLOPT_REFERER, $referer);		
 		$cache=curl_exec($ch);
 		curl_close ($ch);
 		return $cache;

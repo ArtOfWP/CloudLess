@@ -1,12 +1,17 @@
 <?php
 /*
 Plugin Name: PHP MVC For WordPress (AoiSora)
-Plugin URI: http://artofwp.com/wpdk
+Plugin URI: http://artofwp.com/aoisora
 Description: AoiSora is a PHP MVC Framework for WordPress.
-Version: 10.5.3.1
+Version: 10.6.3
 Author: Andreas Nurbo
 Author URI: http://artofwp.com/
 */
+// Configures/loads AoiSora
+
+define('PACKAGEPATH',dirname(__FILE__).'/');
+require('init.php');
+
 if(is_admin()){
 	add_filter('after_plugin_row','update_aoisora_load_first',10,3);
 	function update_aoisora_load_first($plugin_file,$plugin_data){
@@ -20,19 +25,19 @@ if(is_admin()){
 		array_splice($active, $place, 1);
 		array_unshift($active, $plugin);
 		update_option('active_plugins', $active);
-	}/*
-	if(!class_exists('AoiSora')){
-	add_action('after_plugin_row_'.plugin_basename(__FILE__),'after_aoisora_plugin_row', 10, 2 );					
-	function after_aoisora_plugin_row($plugin_file, $plugin_data){
-		echo '<tr class="error" style=""><td colspan="3" class="" style=""><div class="" style="padding:3px 3px 3px 3px;font-weight:bold;font-size:8pt;border:solid 1px #CC0000;background-color:#FFEBE8">Affiliate Shop requires <a style="color:blue;text-decoration:underline;" href="http://artofwp.com/aoisora">PHP MVC For WordPress (AoiSora)</a></div></td></tr>';
-		deactivate_plugins(plugin_basename(__FILE__));
 	}
-	return;
-}*/	
+		if(!file_exists(ABSPATH.'/.htaccess') && !is_writable(ABSPATH.'/.htaccess')){
+		add_action('after_plugin_row_'.plugin_basename(__FILE__),'after_aoisora_plugin_htaccess_row', 10, 2 );
+	function after_aoisora_plugin_htaccess_row($plugin_file, $plugin_data){
+		echo '
+<tr class="error" style=""><td colspan="3" class="" style=""><div class="" style="padding:3px 3px 3px 3px;font-weight:bold;font-size:8pt;border:solid 1px #CC0000;background-color:#FFEBE8">AoiSora requries .htaccess with the following code before #BEGIN WORDPRESS.
+<pre>'. 
+get_htaccess_rules().'</pre>		
+</div></td></tr>';
+			//deactivate_plugins(plugin_basename(__FILE__));
+		}
+	}	
 }
-// Configures/loads AoiSora
-define('PACKAGEPATH',dirname(__FILE__).'/');
-require('init.php');
 class AoiSora extends WpApplicationBase{
 	public $options;
 	private static $instance;
@@ -44,9 +49,10 @@ class AoiSora extends WpApplicationBase{
 		$this->load_js();
 	}
 	function on_init_update(){
-		$this->VERSION='10.5.3.1';
+		$this->VERSION='10.6.3';
 		$this->UPDATE_SITE='http://artofwp.com/?free_update=plugin';
 		$this->SLUG='php-mvc-for-wordpress';			
+		$this->VERSION_INFO_LINK='http://artofwp.com/?update=plugin_information';		
 	}
 	function on_load_options(){
 		$this->options= Option::create('AoiSora');
@@ -74,5 +80,18 @@ class AoiSora extends WpApplicationBase{
     	self::$instance=new AoiSora();
     	return self::$instance;
     }
+	function on_activate(){
+	$htaccessrules=get_htaccess_rules();
+	$path=get_htaccess_rules_path();
+		if(is_writable($path)){
+			$temp=file_get_contents($path);
+			if(strpos($temp,'PHPMVC')!==FALSE)
+				return;
+			$fh=fopen($path,'w');
+			fwrite($fh,$htaccessrules);
+			fwrite($fh,$temp);	
+			fclose($fh);
+		}
+	}
 }
 AoiSora::instance();
