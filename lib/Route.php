@@ -2,7 +2,7 @@
 class Route{
 	static function reroute(){
 		$controller=array_key_exists_v(CONTROLLERKEY,Communication::getQueryString());
-		$action = array_key_exists_v(ACTIONKEY,Communication::getQueryString());
+		$action = array_key_exists_v(ACTIONKEY,Communication::getQueryString());/**/
 		$success=true;
 		if($action && $controller)
 			$success=Route::rerouteToAction($controller,$action);
@@ -17,7 +17,8 @@ class Route{
 	static function rerouteToController($controller){
 		$controller=$controller.'Controller';
 		if(class_exists($controller)){
-			$ctrl=new $controller;
+			$ctrl=new $controller();
+			$ctrl->init();
 		}else{
 			die('Could not find controller: '.$controller);			
 			return false;
@@ -29,14 +30,13 @@ class Route{
 		Debug::Value('RerouteToAction',$controller.'->'.$action);
 		if(class_exists($controller)){
 			if(method_exists($controller,$action)){
-				$ctrl=new $controller();
-				if($ctrl->render)
-					$ctrl->$action();
+				$ctrl=new $controller(false);
+				$ctrl->init();
+				$ctrl->executeAction($action);
 			}else
-			die('Could not find action: '.$action.' on controller '.$controller);
+				die('Could not find action: '.$action.' on controller '.$controller);
 		}else
 			die('Could not find controller: '.$controller);			
 		return true;
 	}
 }
-?>

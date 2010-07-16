@@ -51,7 +51,15 @@ class HtmlHelper{
 				if(!$field)
 					$field='text';
 				if($field=='textarea'){
-					$theForm.=self::textarea($id,stripslashes($value),false,true);
+					$theForm.=self::textarea($id,stripslashes($value),$id,true);
+				}
+				else if($field=='htmlarea'){
+					$theForm.='<p class="alignright">
+	<a class="button toggleVisual">Visual</a>
+	<a class="button toggleHTML">HTML</a>
+</p>';
+					$htmlarea=$id;			
+					$theForm.=self::textarea($id,stripslashes($value),"$id theEditor",true);
 				}
 				else if($field=='image'){
 					if($value){
@@ -67,12 +75,32 @@ class HtmlHelper{
 				}
 				else if($field=='dropdown'){
 					$dbfield=array_key_exists_v('dbrelation',$settings);
+					$fillmethod=array_key_exists_v('fillmethod',$settings);
 					if($dbfield){
 						$temp = new $dbfield();
-						$selects=$temp->findAll();
+						if($fillmethod)
+							$selects=$temp->$fillmethod();
+						else
+							$selects=$temp->findAll();
+					}else{
+						$values=array_key_exists_v('values',$settings);
+						$values=trim($values,"{}");
+						$values=explode('|',$values);
+						$selects=array();
+						foreach($values as $pair){
+							$split=explode('=',$pair);
+							if(sizeof($split)>1)
+								$selects[$split[0]]=$split[1];
+							else
+								$selects[]=$split[0];
+						}
 					}
-					$values=array_key_exists_v('values',$settings);
-					$theForm.=self::select($id,$selects,false,$value,true);
+					if(strpos($fillmethod,'Sorted')!==false)
+						$theForm.=self::selectDropdownSorted($id,$selects,$value,true);
+					else if($values)
+						$theForm.=self::selectSimple($id,$selects,$value,true);
+					else
+						$theForm.=self::select($id,$selects,false,$value,true);
 					if($dbfield && array_key_exists_v('addnew',$settings)=='true'){
 						$theForm.=self::a('Add new',PACKAGEURL.'plain.php?controller='.strtolower($dbfield).'&action=createnew&TB_iframe=true&height=230&width=340','thickbox button-secondary',true);
 					}
@@ -148,13 +176,25 @@ class HtmlHelper{
 					$theForm.=self::input($id.'_list','hidden',$list,false,true);
 				}else if($field=='multiple'){
 					$dbfield=array_key_exists_v('dbrelation',$settings);
+					$method=$id.'List';
+					$values=$object->$method(); //Repo::findAll($dbfield);
+					if(!$values){
+						$method=$id.'ListLazy';
+						$values=$object->$method();
+					}
+					$temp=array();
+					if($values)
+						foreach($values as $value2)
+							$temp[$value2->getId()]=$value2->getId();
+					else
+						$temp=false;
 					if($dbfield){
 						$value=Repo::findAll($dbfield);
 					}
-					$theForm.=self::select($id.'_list',$value,true,false,true);
-					if($dbfield && array_key_exists_v('addnew',$settings)=='true'){
+					$theForm.=self::select($id.'_list',$value,true,$temp,true);
+					/*if($dbfield && array_key_exists_v('addnew',$settings)=='true'){
 						$theForm.=self::a('Add new',PACKAGEURL.'plain.php?controller='.strtolower($dbfield).'&action=createnew&TB_iframe=true&height=230&width=340','thickbox button-secondary',true);
-					}
+					}*/
 					
 				}
 			}else{
@@ -178,6 +218,22 @@ class HtmlHelper{
 			jQuery(document).ready(function(){jQuery("#'.$formid.'").validate({rules:{'.implode(',',$rules).'}});});
 			';
 			self::registerFooterScript($script);
+		}
+		if(isset($htmlarea)){
+$script="jQuery(document).ready(function() {
+	var id = '$htmlarea';
+	jQuery('a.toggleVisual').click(
+		function() {
+			tinyMCE.execCommand('mceAddControl', false, id);
+		}
+	);
+	jQuery('a.toggleHTML').click(
+		function() {
+			tinyMCE.execCommand('mceRemoveControl', false, id);
+		}
+	);
+});";
+			self::registerFooterScript($script);			
 		}
 		if(isset($stars)){
 			foreach($stars as $id)
@@ -254,6 +310,36 @@ class HtmlHelper{
 			return $select;
 		echo $select;
 	}
+	static function selectDropdownSorted($id,$array,$selectedValues=false,$dontprint=false){
+		$select="<select id=\"$id\" name=\"$id\" >";
+		foreach($array as $key => $pair){
+			if(is_array($pair)){
+				if(is_string($pair['parent']) || is_int($pair['parent']))
+					$select.=self::option(str_replace('"','',$key),$pair['parent'],$selectedValues==$key,true);
+				else
+					$select.=self::option($pair['parent']->getId(),$pair['parent'],$selectedValues==$pair['parent'].'',true );
+				$children=$pair['children'];
+				if(is_array($children)){
+					foreach($children as $key2=>$element){
+						if(is_string($element) || is_int($element)){
+							$select.=self::option(str_replace('"','',$key2),' - '.$element,$selectedValues==$key2,true);
+						}
+						else
+							$select.=self::option($element->getId(),' - '.$element,$selectedValues==$element.'',true );
+					}
+				}
+			}else{
+				if(is_string($pair) || is_int($pair))
+					$select.=self::option(str_replace('"','',$pair),$pair,$selectedValues==$pair,true);
+				else
+					$select.=self::option($pair->getId(),$pair,$selectedValues==$pair.'',true );				
+			}
+		}		
+		$select.='</select>';
+		if($dontprint)
+			return $select;
+		echo $select;		
+	}
 	static function selectSimple($id,$array,$selectedValues=false,$dontprint=false){
 		$select="<select id=\"$id\" name=\"$id\" >";
 		if(is_array($array))
@@ -271,17 +357,29 @@ class HtmlHelper{
 	} 
 	static function select($id,$array,$multiple=false,$selectedValues=false,$dontprint=false){
 		$select="<select id=\"$id\" name=\"$id\"";
-		if($multiple)
-		$select.=" multiple=\"multiple\" style=\"height:70px\" size=\"5\"";
+		if($multiple){
+			$select="<select id=\"$id"."[]\" name=\"$id"."[]\" multiple style=\"height:70px\" size=\"5\"";
+		}
 		$select.=' >';
 		$select.=self::option(0,'None',false,true);
 		if(is_array($array))
 			foreach($array as $key=>$element){
 				if(is_string($element) || is_int($element)){
-					$select.=self::option(str_replace('"','',$key),$element,$selectedValues==$key,true);
+					$selected=false;
+					if(is_array($selectedValues))
+						$selected=array_key_exists($key,$selectedValues);
+					else
+						$selected=$selectedValues==$key;
+					$select.=self::option(str_replace('"','',$key),$element,$selected,true);
 				}
-				else
-				$select.=self::option($element->getId(),$element,$selectedValues==$element.'',true );
+				else{
+					if(is_array($selectedValues)){
+						$selected=array_key_exists($element->getId().'',$selectedValues);
+					}
+					else
+						$selected=$selectedValues==$element->getId();					
+					$select.=self::option($element->getId(),$element,$selected,true );
+				}
 			}
 		$select.='</select>';
 		if($dontprint)
@@ -291,7 +389,7 @@ class HtmlHelper{
 	static function option($value,$display,$selected=false,$dontprint=false){
 		$text="<option value=\"$value\">$display</option>";
 		if($selected)
-		$text="<option selected=\"selected\" value=\"$value\">$display</option>";
+		$text="<option selected=\"yes\" value=\"$value\">$display</option>";
 		if($dontprint)
 		return $text;
 		echo $text;
@@ -362,7 +460,7 @@ class HtmlHelper{
 		echo "</form>";		
 	}
 	static function table($id,$data,$headlines=false){
-		$table='<table id=\"'.$id.'\" class="ui-widget ui-corner-all">';
+		$table='<table id="'.$id.'" class="ui-widget ui-corner-all">';
 		$tbody.='<tbody>';
 		foreach($data as $row){
 			$class=strtolower(get_class($row));
@@ -370,10 +468,23 @@ class HtmlHelper{
 			$tbody.='<td class="first" style=\'width:50px;vertical-align:middle;\'>'.self::viewLink(admin_url("admin.php?page=$class&action=edit"),'Edit',$row->getId(),true).'</td>';
 			if(!$headlines)
 			$headlines=ObjectUtility::getProperties($row);
-			$tbody.='<td class="center" style="width:20px;">'.self::input($class.'[]','checkbox',$row->getId(),false,true).'</td>';
+			$tbody.='<td class="center" style="width:20px;">'.self::input($class.'[]','checkbox',$row->getId(),'all',true).'</td>';
 			foreach($headlines as $column){
-				$method='get'.$column;
-				$tbody.='<td>'.$row->$method().'</td>';
+				if(is_array($column)){
+					$method='get'.$column[0];
+					$value=$row->$method();					
+					if($column[1]=='date'){
+						$format=$column[2];
+						$value=date($format,strtotime($value));
+					}
+					
+				}else{
+					$method='get'.$column;
+					$value=$row->$method();					
+				}
+				$tbody.='<td>';
+				$tbody.=empty($value)?'':$value;
+				$tbody.='</td>';
 			}
 			$tbody.='<td style=\'width:50px;\'>'.self::deleteButton('Delete',$row->getId(),get_bloginfo('url').'/'.$class.'/delete',$class,true).'</td>';
 			$tbody.='</tr>';
@@ -381,12 +492,28 @@ class HtmlHelper{
 		$tbody.='</tbody>';
 		$ths='';
 		foreach($headlines as $column){
+			if(is_array($column))
+					$column=$column[0];			
 			$ths.='<th class="'.strtolower($column).'">'.$column.'</th>';
 		}
 		$table.='<thead><tr><th class="edit"></th><th class="center" style="width:15px;text-align:center">'.self::input('selectAllTop','checkbox','all',false,true).'</th>'.$ths.'<th class="delete"></th></tr></thead>';
 		$table.='<tfoot><tr><th></th><th class="center" style="width:20px;text-align:center">'.self::input('selectAllBottom','checkbox','all',false,true).'</th>'.$ths.'<th class="delete"></th></tr></tfoot>';
 		$table.=$tbody;
 		$table.='</table></div>';
+		
+		$script="
+		jQuery('#selectAllTop').click(function(){
+		val=this.checked;
+		jQuery('.all').each(function(index) {this.checked=val;});
+		jQuery('#selectAllBottom').attr('checked',this.checked);
+		});
+		jQuery('#selectAllBottom').click(function(){
+		val=this.checked;
+		jQuery('.all').each(function(index) {this.checked=val;});
+		jQuery('#selectAllTop').attr('checked',this.checked);
+	});	
+		";
+		self::registerFooterScript($script);		
 		echo $table;
 	}
 	static function ActionPath($class,$type){
@@ -405,7 +532,7 @@ class HtmlHelper{
 		 * Page 2 11-20 11=perpage*currentpage-perpage+1 =10*2-10+1=11 20=perpage*currentpage
 		 * Page 3 21-23 21=10*3-10+1=21 23=$total
 		 */
-		$start=$perpage*$currentpage-$perpage+1;
+		$start=$total?($perpage*$currentpage-$perpage+1):0;
 		$end=($perpage*$currentpage<=$total)?$perpage*$currentpage:$total;
 		$paging.="Displaying $start-$end of ".'<span class="total-type-count">'.intval($total).'</span></span>';
 		if($pages>10 && ($currentpage-1)>1)
@@ -418,6 +545,7 @@ class HtmlHelper{
 					$paging.='<span class="page-numbers current">'.intval($currentpage).'</span>';			
 		if($pages>10 && ($currentpage-1)<$pages)
 			$paging.=' '.self::a('&raquo;',"$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers next',true);
+		$paging.="</div>";
 		if($dontprint)
 			return $paging;
 		echo $paging;		
@@ -435,6 +563,7 @@ class HtmlHelper{
 	static function getFooterScripts(){
 		return self::$scripts;
 	}
+
 	/*$_GET = array_map(’confHtmlEnt’, $_GET);
 
 A nice function is

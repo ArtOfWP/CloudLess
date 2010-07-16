@@ -76,9 +76,7 @@ class Query{
 	}
 	public function where($restriction){
 		if(is_array($restriction)){
-			$restrictions=$restriction;
-			foreach($restrictions as $restriction)
-				$this->statement['where'][]=$restriction;			
+			$this->statement['where']=((array)$this->statement['where'])+$restriction;
 		}else
 			$this->statement['where'][]=$restriction;
 		return $this;
@@ -106,7 +104,7 @@ class Query{
 	}	
 	public function order($order){
 		if(is_array($order))
-			$this->statement['order']+=$order;
+			$this->statement['order']=((array)$this->statement['order'])+$order;
 		else
 			$this->statement['order'][]=$order;
 		return $this;

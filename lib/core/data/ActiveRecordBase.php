@@ -138,7 +138,6 @@ abstract class ActiveRecordBase{
 				if(strpos($method,'List')!==false){
 					$method=str_replace('get','',$method);									
 					$settings=ObjectUtility::getCommentDecoration($this,$method);
-//					$foreign=$settings['dbrelation'];
 //					$stmt=new SelectStatement();
 					$table=strtolower(get_class($this));
 /*					$stmt->From($foreigntable);

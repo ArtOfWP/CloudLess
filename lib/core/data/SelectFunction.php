@@ -9,6 +9,24 @@ class Avg extends SelectFunction{
 		return "AVG($column) ";
 	}
 }
+class Max extends SelectFunction{
+	private $as;
+	function Max($column){
+		$this->setColumn(strtolower($column));
+	}
+	function toSQL($column){
+		return "MAX(".strtolower($column).") ";
+	}	
+}
+class Min extends SelectFunction{
+	private $as;
+	function Min($column){
+		$this->setColumn($column);
+	}
+	function toSQL($column){
+		return "MIN($column) ";
+	}
+}
 
 abstract class SelectFunction{
 	private $column;
@@ -18,4 +36,3 @@ abstract class SelectFunction{
 	
 	abstract function toSQL($column);
 }
-?>

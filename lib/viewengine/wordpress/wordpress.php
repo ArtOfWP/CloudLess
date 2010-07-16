@@ -14,11 +14,16 @@ Debug::Message('Loaded wordpress viewengine');
 		define('CONTROLLERKEY','controller');
 		define('ACTIONKEY','action');
 	}else{
-		if(is_admin() && !array_key_exists('controller',$_GET))
+		if(is_admin() && !array_key_exists('controller',$_GET)){
 			define('CONTROLLERKEY','page');
-		else
+			define('ACTIONKEY','action');
+			define('FRONTEND_ACTIONKEY','anaction');			
+		}
+		else{
 			define('CONTROLLERKEY','controller');			
-		define('ACTIONKEY','action');
+			define('FRONTEND_ACTIONKEY','anaction');
+			define('ACTIONKEY','action');
+		}
 	}
 	$wud=wp_upload_dir();
 	define('UPLOADS_DIR',$wud['basedir'].'/');
@@ -26,6 +31,7 @@ Debug::Message('Loaded wordpress viewengine');
 	function register_aoisora_query_vars($public_query_vars) {
 		$public_query_vars[] = "controller";
 		$public_query_vars[] = "action";
+		$public_query_vars[] = "anaction";		
 		$public_query_vars[] = "result";
 		return $public_query_vars;
 	}
@@ -42,29 +48,18 @@ Debug::Message('Loaded wordpress viewengine');
 		else{
 			die("Controller: <strong>" . $wp_query->query_vars[CONTROLLERKEY] . "</strong> page: <strong>" . $wp_query->query_vars[ACTIONKEY] . "</strong>");
 		}
-//		$args=apply_filters('render_from_template', array(CONTROLLERKEY=> $controller,ACTIONKEY=>$action,'template'=>TEMPLATEPATH));
-//		include(TEMPLATEPATH.$args['template']);
-//		exit;
 	}
-//	if(!defined('PREROUTE') && !is_admin())
-//		add_action('template_redirect','render_views');
 	add_filter('query_vars', 'register_aoisora_query_vars');
-	function aoisora_render_title($title,$sep=" &mdash; ",$placement="left"){
-		global $aoisoratitle;
-		$title= $aoisoratitle." $sep $title";
-		return $title;
-	}
-	add_filter('wp_title','aoisora_render_title',10,3);
+	
 	function viewcomponent($app,$component,$params=false){
-		include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/views/components/$component/$component.php"));
+		if(strpos($app,':'))
+			include_once($app."/".strtolower("app/views/components/$component/$component.php"));		
+		else
+			include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/views/components/$component/$component.php"));
 		if(!$params)
 			$params=array();
 		$c = new $component($params);
 		$c->render();
-	}
-	add_action('plugins_loaded','aoisora_loaded');
-	function aoisora_loaded(){
-		do_action('aoisora_loaded');
 	}
 	class ViewEngine{
 		static function createOption($name){
@@ -87,16 +82,21 @@ Debug::Message('Loaded wordpress viewengine');
 		echo implode(' ',$scripts);
 		echo "</script>";
 	}
-	function get_site_url(){
-		return get_bloginfo('url');
+	if(!function_exists('get_site_url')){
+		function get_site_url(){
+			return get_bloginfo('url');
+		}
+	}
+	function get_akismet_key(){
+		return akismet_get_key();
 	}
 	function get_htaccess_rules_path(){
 		return ABSPATH.'/.htaccess';
 	}
 	function get_htaccess_rules(){
-	$url=strtolower(get_bloginfo( 'url' ));
-	$siteurl=strtolower(get_bloginfo( 'wpurl'));
-	$path=str_replace($url,'',$siteurl);
+		$url=strtolower(get_site_url());
+		$siteurl=strtolower(get_bloginfo( 'wpurl'));
+		$path=str_replace($url,'',$siteurl);
 	$htaccess_rules=
 '# BEGIN PHPMVC
 	<IfModule mod_rewrite.c>
@@ -110,5 +110,12 @@ Debug::Message('Loaded wordpress viewengine');
 # END PHPMVC
 ';	
 		return $htaccess_rules;
+	}
+	function initiate_editor($class){
+		wp_tiny_mce(false,array("editor_selector" => $class));
+	}
+	add_action('plugins_loaded','aoisora_loaded');
+	function aoisora_loaded(){
+		do_action('aoisora_loaded');
 	}
 	

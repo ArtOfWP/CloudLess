@@ -1,0 +1,21 @@
+10.7.1
+ * Fixed action bug with WP 3.0
+ * Fixed HtmlHelper select field multiple
+10.6.3.1
+ * Fixed get_site_url check
+10.6.3
+ * Fixed redirect error
+ * Fixed CrudController update
+ * Added search to CrudController
+ * Added Paging to CrudController
+ * Added delete all selected
+ * Added get site url function
+ * Sorted selects
+ * Overall improved structure
+ * Added init.
+ * Added on_controller_init
+ * Added on_search_init
+ * Added configurability to listall actions: delete,search,listning
+ 
+10.6.2
+ * Added support for change details

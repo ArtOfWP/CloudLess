@@ -4,39 +4,46 @@ class BaseController{
 	protected $controller;
 	protected $action;
 	protected $filter;
-	protected $title;
 	protected $redirect;
 	protected $viewpath;
 	public $render=true;
 	public $bag=array();
 	public $viewcontent;
 	public $values=array();
+	private $automatic;
 	private function initiate(){
 		$item= get_class($this);
 		$this->controller =str_replace('Controller','',$item);
 		$this->values=Communication::getQueryString();
 		$this->values+=Communication::getFormValues();
-		$this->action=$this->values[ACTIONKEY];
+		$this->action=array_key_exists_v(ACTIONKEY,$this->values);
 		unset($this->values[CONTROLLERKEY]);
 		unset($this->values[ACTIONKEY]);	
 		if(method_exists($this,'on_controller_init'))	
 			$this->on_controller_init();
 	}
-	function BaseController($automatic=true,$viewpath=false){
+	function init(){
 		$this->initiate();
+		if($this->filter)
+			if(!$this->filter->perform($this,false))
+				die("Action could not be performed.");
+		if($this->automatic)
+			$this->automaticRender();		
+	}
+	function BaseController($automatic=true,$viewpath=false){
+		$this->automatic=$automatic;		
 		$this->viewpath=$viewpath;
 		Debug::Message('Loaded '.$this->controller.' extends Basecontroller');
-		if($this->filter)
-			$this->filter->perform($this,false);
-		if($automatic)
-			$this->automaticRender();
 	}
 	protected function automaticRender(){
 			Debug::Message('Executing automatic action');
 			$action=array_key_exists_v(ACTIONKEY,Communication::getQueryString());
 			if(!isset($action) || empty($action))
-				$action='index';
-			Debug::Message('PreExecuted action: '.$action);				
+				if($this->action)
+					$action=$this->action;
+				else
+					$action='index';
+			Debug::Message('PreExecuted action: '.$action);
 			$this->$action();
 			Debug::Message('Executed action: '.$action);			
 			if($this->render){
@@ -54,6 +61,11 @@ class BaseController{
 			global $viewcontent;
 			$viewcontent=$this->viewcontent;
 	}
+	function executeAction($action){
+		$this->$action();
+		if($this->render)
+			$this->RenderToAction($action);
+	}
 	function RenderToAction($action){
 		$view=$this->findView($this->controller,$action);		
 		ob_start();
@@ -67,8 +79,6 @@ class BaseController{
 		ob_end_clean();
 		global $viewcontent;
 		$viewcontent=$this->viewcontent;
-		global $aoisoratitle;
-		$aoisoratitle=$this->title;
 		Debug::Value('TITLE',$aoisoratitle);
 	}
 	function Render($controller,$action){
@@ -84,8 +94,6 @@ class BaseController{
 		ob_end_clean();
 		global $viewcontent;
 		$viewcontent=$this->viewcontent;
-		global $aoisoratitle;
-		$aoisoratitle=$this->title;		
 	}
 	function RenderFile($filepath){
 		ob_start();
@@ -103,7 +111,7 @@ class BaseController{
 	function RenderText($text){
 		$this->render=false;
 		global $viewcontent;
-		$viewcontent=$text;
+		$viewcontent=$text;	
 	}
 	function Notfound(){
 		ob_start();
@@ -114,10 +122,21 @@ class BaseController{
 		global $viewcontent;
 		$viewcontent=$this->viewcontent;
 	}
+	function redirect($query=false){
+		if(defined('NOREDIRECT') && NOREDIRECT)
+			return;
+		$redirect=Communication::useRedirect();
+		if($redirect)
+			if(strtolower($redirect)=='referer')
+				Communication::redirectTo(str_replace('&result=1','',Communication::getReferer()),$query);
+			else
+				Communication::redirectTo($redirect,$query);
+	}
 	static function ViewContents(){
 		global $viewcontent;
 		return $viewcontent;
 	}
+	
 	private function findView($controller,$action){
 		if($this->viewpath){
 			return $this->viewpath.$controller.'/'.$action.'.php';
@@ -138,5 +157,8 @@ class BaseController{
 		}
 
 		return false;
+	}
+	protected function setDefaultAction($action){
+		$this->action=$action; 
 	}
 }

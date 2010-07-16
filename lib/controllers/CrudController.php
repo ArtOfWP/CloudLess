@@ -5,19 +5,27 @@ abstract class CrudController extends BaseController{
 	protected $uploadSubFolder;
 	protected $width;
 	protected $height;
-	protected $perpage;
+	protected $perpage=20;
 	protected $order=false;
-	protected $order_property;
-	protected $order_way;
-		
+	protected $order_property=false;
+	protected $order_way='asc';
+	protected $crudClass;
+	protected $search_restrictions=false;
+	protected $search_property=false;
+	protected $thumbnails;
+	private $automatic;
 	public $bag=array();
 	function CrudController($automatic=true){
 		parent::BaseController(false);
-		$this->crudItem=new $this->controller;
+		$this->automatic=$automatic;
 		Debug::Message('Loaded '.$this->controller.' extends Crudcontroller');
-		
-		if($automatic){
-			Debug::Message('CRUD Executing automatic action');
+	}
+	
+	function init(){
+		parent::init();
+		$this->on_crudcontroller_init();
+		if($this->automatic){
+			Debug::Message('CRUD Executing automatic action ');
 			if($this->action){
 				Debug::Message('CRUD Pre Automatic Render');
 				$this->automaticRender();
@@ -37,6 +45,11 @@ abstract class CrudController extends BaseController{
 				$this->delete();
 		}
 	}
+	private function on_crudcontroller_init(){
+		$this->crudItem=new $this->controller;
+		if(array_key_exists('search',$this->values) && method_exists($this,'on_search_init'))
+			$this->on_search_init();
+	}
 	function createnew(){
 		if(!isset($this->bag['new']) || empty($this->bag['new']))
 			$this->bag['new']=$this->crudItem;
@@ -45,7 +58,7 @@ abstract class CrudController extends BaseController{
 	}
 	function listall(){
 		$this->bag['delete']=array_key_exists_v('delete',$this->values);
-		$this->bag['deletePath']=get_site_url().'/ShopCategory/delete';
+		$this->bag['deletePath']=get_site_url().'/'.strtolower($this->controller).'/delete';
 		$perpage=array_key_exists_v('perpage',$this->values);
 		$perpage=$perpage?$perpage:$this->perpage;
 		$order=$this->order;
@@ -57,10 +70,12 @@ abstract class CrudController extends BaseController{
 			$order_way=array_key_exists_v('way',$this->values);
 			$order_way=$order_way?$order_way:$this->order_way;
 	
-			if(strtolower($order_way)=='desc')
-				$order=Order::DESC($order_property);
-			else
-				$order=Order::ASC($order_property);
+			if($order_property){
+				if(strtolower($order_way)=='desc')
+					$order=Order::DESC($order_property);
+				else
+					$order=Order::ASC($order_property);
+			}
 		}
 		
 		$this->bag['perpage']=$perpage;		
@@ -71,14 +86,24 @@ abstract class CrudController extends BaseController{
 		$first=$page*$perpage;
 		
 		if(array_key_exists('search',$this->values)){
-			$this->bag['all']=Repo::slicedFindAll($this->crudItem,$first,$perpage,$order,R::LIKE('Name',$this->values['search']));
-			$this->bag['total']=Repo::total('ShopCategory',R::LIKE('Name',$this->values['search']));
+			$restrictions=$this->search_restrictions;
+			echo "searching";
+			if(!$restrictions){
+				if($this->search_property){
+					$restrictions=	R::LIKE($this->search_property,$this->values['search'],3);										
+					echo $this->search_property;
+				}else if(!empty($this->search_property)){
+					$this->RenderText('You need to configure the search_restrictions property or set a search_property');
+					return;
+				}
+			}
+			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$perpage,$order,$restrictions);
+			$this->bag['searchResultTotal']=Repo::total($this->controller,$restrictions);
 		}
 		else{
-			$this->bag['all']=Repo::slicedFindAll($this->crudItem,$first,$perpage,$order);
-			$this->bag['total']=Repo::total('ShopCategory');			
-		}
-		
+			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$perpage,$order);			
+		}		
+		$this->bag['total']=Repo::total($this->controller);
 		$this->Render($this->controller,'listall');
 	}
 	function edit(){
@@ -96,16 +121,7 @@ abstract class CrudController extends BaseController{
 		else
 			return $this->crudItem;
 	}
-	function redirect($query=false){
-		if(defined('NOREDIRECT') && NOREDIRECT)
-			return;
-		$redirect=Communication::useRedirect();
-		if($redirect)
-			if(strtolower($redirect)=='referer')
-				Communication::redirectTo(str_replace('&result=1','',Communication::getReferer()),$query);
-			else
-				Communication::redirectTo($redirect,$query);
-	}
+
 	function update($redirect=true){
 		$id=array_key_exists_v('Id',$this->values);		
 		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,true);		
@@ -125,7 +141,7 @@ abstract class CrudController extends BaseController{
 		}else{
 			$this->loadFromPost();
 			$this->crudItem->delete();
-		}		
+		}
 		$this->redirect('delete=1');
 	}	
 	private function methodIs($method){
@@ -160,17 +176,24 @@ abstract class CrudController extends BaseController{
 			Debug::Message('CHECKING UPLOADS');
 			if(strlen($upload["name"])>0){
 				Debug::Message('FOUND UPLOAD');
+				if(isset($this->thumbnails[$property]) && $this->thumbnails[$property]=='thumb')
+					$path=UPLOADS_DIR.$folder.'thumbs/'.$upload["name"];
+				else
+					$path=UPLOADS_DIR.$folder.$upload["name"];
+				
 				$path=UPLOADS_DIR.$folder.$upload["name"];
 				move_uploaded_file($upload["tmp_name"],$path);
 				$values[$property]=$upload["name"];
-				$image = new Resize_Image;
-				$image->new_width = $width;
-				$image->new_height = $height;
-				$image->image_to_resize = $path;
-				$image->ratio = true;
-				$image->new_image_name = preg_replace('/\.[^.]*$/', '', $upload["name"]);
-				$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
-				$process = $image->resize();		
+				if(isset($this->thumbnails[$property]) && $this->thumbnails[$property]=='create'){
+					$image = new Resize_Image;
+					$image->new_width = $width;
+					$image->new_height = $height;
+					$image->image_to_resize = $path;
+					$image->ratio = true;
+					$image->new_image_name = preg_replace('/\.[^.]*$/', '', $upload["name"]);
+					$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
+					$process = $image->resize();
+				}
 			}else{
 				if(!isset($this->values[$property.'_hasimage'])){
 					$values[$property]='';					
@@ -179,23 +202,28 @@ abstract class CrudController extends BaseController{
 					if(strpos($this->values[$property.'_hasimage'],'ttp')==1){			
 						$url = $this->values[$property.'_hasimage'];
 						$name=str_replace(' ','-',urldecode(basename($url)));
-						$path=UPLOADS_DIR.$folder.$name;					
+						if(isset($this->thumbnails[$property]) && $this->thumbnails[$property]=='thumb')
+							$path=UPLOADS_DIR.$folder.'thumbs/'.$name;
+						else
+							$path=UPLOADS_DIR.$folder.$name;					
 						$values[$property]=$name;
 						
 						Http::save_image($url,$path);					
-						$image = new Resize_Image;
-						$image->new_width = $width;
-						$image->new_height = $height;
-						$image->image_to_resize = $path; // Full Path to the file
-						$image->ratio = true; // Keep Aspect Ratio?
-						// Name of the new image (optional) - If it's not set a new will be added automatically
-						$image->new_image_name = preg_replace('/\.[^.]*$/', '', $name);
-						// Path where the new image should be saved. If it's not set the script will output the image without saving it 
-						$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
-						$process = $image->resize();
+						if(isset($this->thumbnails[$property]) && $this->thumbnails[$property]=='create'){
+							$image = new Resize_Image;
+							$image->new_width = $width;
+							$image->new_height = $height;
+							$image->image_to_resize = $path; // Full Path to the file
+							$image->ratio = true; // Keep Aspect Ratio?
+							// Name of the new image (optional) - If it's not set a new will be added automatically
+							$image->new_image_name = preg_replace('/\.[^.]*$/', '', $name);
+							// Path where the new image should be saved. If it's not set the script will output the image without saving it 
+							$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
+							$process = $image->resize();
+						}
 					}
 				}
-			}
+			} 
 		}
 		ObjectUtility::setProperties($this->crudItem,$values);
 		foreach($lists as $method => $value){
@@ -219,8 +247,15 @@ abstract class CrudController extends BaseController{
 				}
 			}
 			else if($dbrelation){
-					$object=Repo::getById($dbrelation,$value);
-					$objects[]=$object;					
+					if(is_array($value))
+						foreach($value as $val){
+							$object=Repo::getById($dbrelation,$val);
+							$objects[]=$object;
+						}
+					else{	
+						$object=Repo::getById($dbrelation,$value);
+						$objects[]=$object;
+					}
 				}
 				
 			ObjectUtility::addToArray($this->crudItem,str_ireplace("_list","",$method),$objects);

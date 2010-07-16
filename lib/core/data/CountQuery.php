@@ -30,7 +30,9 @@ class CountQuery{
 		return $this;		
 	}
 	public function where($restriction){
-		if($restriction)
+		if(is_array($restriction)){
+			$this->statement['where']=((array)$this->statement['where'])+$restriction;
+		}else
 			$this->statement['where'][]=$restriction;
 		return $this;
 	}

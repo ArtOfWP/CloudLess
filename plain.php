@@ -47,10 +47,7 @@ $admin_body_class = preg_replace('/[^a-z0-9_-]+/i', '-', $hook_suffix);
 ?>
 <?php 
 
-if ( in_array( $pagenow, array('post.php', 'post-new.php', 'page.php', 'page-new.php') ) ) {
-	add_action( 'admin_print_footer_scripts', 'wp_tiny_mce', 25 );
-	wp_enqueue_script('quicktags');
-}
+wp_enqueue_script('quicktags');
 do_action('admin_enqueue_scripts', $hook_suffix);
 do_action("admin_print_styles-$hook_suffix");
 do_action('admin_print_styles');

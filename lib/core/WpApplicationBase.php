@@ -84,7 +84,7 @@ abstract class WpApplicationBase{
 	}
 	
 	function add_update_url($r,$url){
-			$r['headers']['Referer']=get_bloginfo('url');
+			$r['headers']['Referer']=get_site_url();
 			return $r;
 	}
 	
@@ -200,8 +200,8 @@ abstract class WpApplicationBase{
 		if(method_exists($this,'on_update')){
 			$this->on_update();
 		}
-		if(file_exists(trim('/',$this->dir).'/apps/updates/'.$this->VERSION.'.php'))
-			require_once('apps/updates/'.$this->VERSION.'.php');
+		if(file_exists(trim('/',$this->dir).'/app/updates/'.$this->VERSION.'.php'))
+			require_once('app/updates/'.$this->VERSION.'.php');
 	}
 	private function load($dir){
 		Debug::Value('Loading directory',$dir);

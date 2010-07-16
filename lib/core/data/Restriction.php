@@ -160,8 +160,12 @@ class R{
 				$sql=$this->addMark($this->column).' LIKE '."concat('%',:".$this->column.')';
 				if($this->placement==R::$LEFT)
 					$front="%";
-				else if($this->placement>R::$LEFT)
+				else if($this->placement==R::$RIGHT)
 					$back="%";
+				else{
+					$front="%";					
+					$back="%";
+				}
 				$sql=$this->addMark($this->column).' LIKE '."concat('$front',:".$this->column.",'$back')";
 				return $sql;
 			case 'MATCH':
@@ -217,4 +221,3 @@ class R{
 	}
 	
 }
-?>
