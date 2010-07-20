@@ -57,4 +57,3 @@ $this->printContent();
 		echo $viewcontent;
 	}
 }
-?>

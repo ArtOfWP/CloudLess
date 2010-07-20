@@ -155,4 +155,3 @@ class Resize_Image {
 		return $string;
 	}
 }
-?>

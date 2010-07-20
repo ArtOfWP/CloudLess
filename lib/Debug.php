@@ -49,4 +49,3 @@ class RunningTime{
 		return $this->timerun().'';
 	}
 }
-?>

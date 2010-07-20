@@ -395,10 +395,11 @@ $script="jQuery(document).ready(function() {
 		echo $text;
 
 	}
-	static function deleteButton($text,$value,$path,$nonce,$dontprint=false){
+	static function deleteButton($text,$value,$path,$nonce_base,$dontprint=false){
+		$s = Security::create();
 		$theForm="<form action=\"".urldecode($path)."\" method=\"".POST."\" >";
 		$theForm.=self::input('_redirect','hidden','referer',false,true);
-		$theForm.=self::input('_wpnonce','hidden',wp_create_nonce($nonce),false,true);
+		$theForm.=self::input('_asnonce','hidden',$s->create_nonce($nonce_base),false,true);
 		$theForm.=self::input('_method','hidden','delete',false,true);
 		$theForm.=self::input('Id','hidden',$value,false,true);
 		$theForm.=str_replace('>'," onclick=\"return confirm('Are you sure you want to delete?')\" >",self::input('delete'.$value,'submit',$text,'button-secondary',true));		

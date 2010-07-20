@@ -4,4 +4,3 @@ loadAoiSora();
 
 global $db;
 $db = new MySqlDatabase();
-?>

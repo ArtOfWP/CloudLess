@@ -297,4 +297,3 @@ class WpHelper{
 		$wp_rewrite->flush_rules();	
 	}
 }
-?>

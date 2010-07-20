@@ -15,4 +15,3 @@ interface IApplication{
 	function print_styles();	
 	function print_scripts();
 }
-?>

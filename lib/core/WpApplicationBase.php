@@ -118,33 +118,32 @@ abstract class WpApplicationBase{
 	}
 	function activate(){
 		$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);	
+		$installed=$this->installed();
 		AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
-		if(version_compare($oldVersion<$this->VERSION,'<')){
+		if($installed && version_compare($oldVersion,$this->VERSION,'<')){
 			$this->update();
-			if(!$this->useInstall)
-				AoiSoraSettings::installApplication($this->app);			
-		}
-		else if(!$this->useInstall)
+		}else if(!$this->useInstall)
 			AoiSoraSettings::installApplication($this->app);
-		if($this->useOptions){			
+		if(!$installed && $this->useOptions){
 			$this->options= Option::create($this->app);
 			if(method_exists($this,'on_load_options')){			
 				$this->on_load_options();		
 			}
 		}
 		if(method_exists($this,'on_activate'))
-			$this->on_activate();
+			$this->on_activate();			
 	}
 	function deactivate(){
 		if(method_exists($this,'on_deactivate'))
 			$this->on_deactivate();
-		if(!$this->useInstall)
+		if(!$this->useInstall){
 			AoiSoraSettings::uninstallApplication($this->app);
-		if($this->useOptions){			
-			$this->options= Option::create($this->app);
-			$this->options->delete();
+		
+			if($this->useOptions){			
+				$this->options= Option::create($this->app);
+				$this->options->delete();
+			}
 		}
-		AoiSoraSettings::removeApplication($this->app);
 	}
 	function installed(){
 		return AoiSoraSettings::installed($this->app);
@@ -159,8 +158,8 @@ abstract class WpApplicationBase{
 		$this->create();
 		if($result)
 			AoiSoraSettings::installApplication($this->app);			
-		if(method_exists($this,'on_afterinstall'))
-			$this->on_afterinstall();			
+		if(method_exists($this,'on_after_install'))
+			$this->on_after_install();
 		return $result;
 	}
 	private function create(){
@@ -181,8 +180,13 @@ abstract class WpApplicationBase{
 		$this->drop();
 		if($result)
 			AoiSoraSettings::uninstallApplication($this->app);
-		if(method_exists($this,'on_afteruninstall'))
-			$this->on_afteruninstall();	
+		if($this->useOptions){			
+				$this->options= Option::create($this->app);
+				$this->options->delete();
+		}
+		AoiSoraSettings::removeApplication($this->app);		
+		if(method_exists($this,'on_after_uninstall'))
+			$this->on_after_uninstall();			
 	}
 	private function drop(){
 		global $db;		
@@ -200,8 +204,8 @@ abstract class WpApplicationBase{
 		if(method_exists($this,'on_update')){
 			$this->on_update();
 		}
-		if(file_exists(trim('/',$this->dir).'/app/updates/'.$this->VERSION.'.php'))
-			require_once('app/updates/'.$this->VERSION.'.php');
+		if(file_exists(trim($this->dir,'/').'/app/updates/'.$this->VERSION.'.php'))
+			include(trim($this->dir,'/').'/app/updates/'.$this->VERSION.'.php');/**/
 	}
 	private function load($dir){
 		Debug::Value('Loading directory',$dir);
@@ -307,4 +311,3 @@ abstract class WpApplicationBase{
 		exit;
 	}
 }
-?>

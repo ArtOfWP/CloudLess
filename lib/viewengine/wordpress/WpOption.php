@@ -39,4 +39,3 @@ class WpOption implements IOption{
 		return "Options for $this->name";
 	}
 }
-?>
