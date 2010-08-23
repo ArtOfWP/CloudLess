@@ -19,8 +19,9 @@ class HtmlHelper{
 		$upload=$method==POST?'enctype="multipart/form-data"':'';
 		$theForm="<form id='$formid' action='$action' method='$method' $upload ><table class='form-table'>";
 		$theForm.=self::input('_redirect','hidden','referer',false,true);
-		if($nonce)
-		$theForm.=self::input('_wpnonce','hidden',wp_create_nonce($nonce),false,true);
+		if($nonce){
+			$theForm.=self::input('_asnonce','hidden',Security::create()->create_nonce($nonce),false,true);
+		}
 		$validation=array();
 		foreach($elements as $id => $value){
 			if($id=='Id'){
@@ -289,8 +290,8 @@ $script="jQuery(document).ready(function() {
 	static function input($id,$type,$value,$class=false,$dontprint=false){
 		$class=$class?"class=\"$class\" ":'';
 		if($dontprint)
-		return "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class >";
-		echo  "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class >";
+		return "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
+		echo  "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
 	}
 	static function textarea($id,$value,$class=false,$dontprint=false){
 		$class=$class?"class='$class' ":'';
@@ -377,7 +378,7 @@ $script="jQuery(document).ready(function() {
 						$selected=array_key_exists($element->getId().'',$selectedValues);
 					}
 					else
-						$selected=$selectedValues==$element->getId();					
+						$selected=$selectedValues->getId()==$element->getId();					
 					$select.=self::option($element->getId(),$element,$selected,true );
 				}
 			}
@@ -389,24 +390,40 @@ $script="jQuery(document).ready(function() {
 	static function option($value,$display,$selected=false,$dontprint=false){
 		$text="<option value=\"$value\">$display</option>";
 		if($selected)
-		$text="<option selected=\"yes\" value=\"$value\">$display</option>";
+		$text="<option selected=\"selected\" value=\"$value\">$display</option>";
 		if($dontprint)
 		return $text;
 		echo $text;
 
 	}
+	/*
+	static function deleteLink($text,$value,$path,$nonce_base,$dontprint=false){
+		$s = Security::create();		
+		$link='"'.urldecode($path).'?_redirect=referer&_method=delete&_asnonce='.$s->create_nonce($nonce_base).'&Id='.$value."\"";
+		$click=" onclick=\"return confirm('Are you sure you want to delete?')\"";
+		$a="<a href=$link $onclick>$text</a>";
+		if($dontprint)
+			return $a;
+		echo $a;
+	}*/
 	static function deleteButton($text,$value,$path,$nonce_base,$dontprint=false){
 		$s = Security::create();
 		$theForm="<form action=\"".urldecode($path)."\" method=\"".POST."\" >";
 		$theForm.=self::input('_redirect','hidden','referer',false,true);
 		$theForm.=self::input('_asnonce','hidden',$s->create_nonce($nonce_base),false,true);
-		$theForm.=self::input('_method','hidden','delete',false,true);
+		$theForm.=self::input('_method','hidden',DELETE,false,true);
 		$theForm.=self::input('Id','hidden',$value,false,true);
-		$theForm.=str_replace('>'," onclick=\"return confirm('Are you sure you want to delete?')\" >",self::input('delete'.$value,'submit',$text,'button-secondary',true));		
+		$theForm.=str_replace('/>'," onclick=\"return confirm('Are you sure you want to delete?')\" />",self::input('delete'.$value,'submit',$text,'button-secondary',true));		
 		$theForm.='</form>';
 		if($dontprint)
 			return $theForm;
 		echo $theForm;
+	}
+	static function editLink($uri,$text,$id,$nonce,$dontprint=false){
+		$nonce=Security::create()->create_nonce($nonce);
+		if($dontprint)
+			return "<a href=\"$uri&Id=$id&_asnonce=$nonce\" class=\"button-secondary\" >$text</a>";
+		echo "<a href=\"$uri&Id=$id&_asnonce=$nonce\" class=\"button-secondary\" >$text</a>";
 	}
 	static function viewLink($uri,$text,$id,$dontprint=false){
 		if($dontprint)
@@ -444,10 +461,10 @@ $script="jQuery(document).ready(function() {
 			return "<a href='$path' $class><img src='$src' $alt /></a>";
 		echo "<a href='$path' $class><img src='$src' $alt /></a>";
 	}
-	static function deleteAllButton($text,$id,$path,$dontprint=false){
+	static function deleteAllButton($text,$id,$path,$nonce,$dontprint=false){
 		$theForm="<form action=\"".urldecode($path)."\" method=\"".POST."\" >";
 		$theForm.=self::input('_redirect','hidden','referer',false,true);
-		$theForm.=self::input('_wpnonce','hidden',wp_create_nonce($nonce),false,true);
+		$theForm.=self::input('_asnonce','hidden',Security::create()->create_nonce($nonce),false,true);
 		$theForm.=self::input('_method','hidden','delete',false,true);
 		$theForm.=str_replace('>'," onclick=\"return confirm('Are you sure you want to delete selected?')\" >",self::input('delete'.$value,'submit',$text,'button-secondary',true));		
 //		$theForm.='</form>';
@@ -460,16 +477,16 @@ $script="jQuery(document).ready(function() {
 			return "</form>";
 		echo "</form>";		
 	}
-	static function table($id,$data,$headlines=false){
-		$table='<table id="'.$id.'" class="ui-widget ui-corner-all">';
-		$tbody.='<tbody>';
+	static function table($id,$data,$headlines=false,$nonce=false,$useLinks=false){
+		$table="<table id=\"$id\" class=\"ui-widget ui-corner-all\">\n";
+		$tbody.="<tbody>\n";
 		foreach($data as $row){
 			$class=strtolower(get_class($row));
-			$tbody.='<tr>';
-			$tbody.='<td class="first" style=\'width:50px;vertical-align:middle;\'>'.self::viewLink(admin_url("admin.php?page=$class&action=edit"),'Edit',$row->getId(),true).'</td>';
+			$tbody.="<tr>\n";
+			$tbody.="<td class=\"first\" style=\"vertical-align:middle;\">".self::editLink(admin_url("admin.php?page=$class&action=edit"),'Edit',$row->getId(),$nonce,true)."</td>\n";
 			if(!$headlines)
 			$headlines=ObjectUtility::getProperties($row);
-			$tbody.='<td class="center" style="width:20px;">'.self::input($class.'[]','checkbox',$row->getId(),'all',true).'</td>';
+			$tbody.="<td class=\"center\" style=\"width:20px;text-align:center\">".self::input($class.'[]','checkbox',$row->getId(),'all',true)."</td>\n";
 			foreach($headlines as $column){
 				if(is_array($column)){
 					$method='get'.$column[0];
@@ -483,24 +500,24 @@ $script="jQuery(document).ready(function() {
 					$method='get'.$column;
 					$value=$row->$method();					
 				}
-				$tbody.='<td>';
+				$tbody.="<td>";
 				$tbody.=empty($value)?'':$value;
-				$tbody.='</td>';
+				$tbody.="</td>\n";
 			}
-			$tbody.='<td style=\'width:50px;\'>'.self::deleteButton('Delete',$row->getId(),get_bloginfo('url').'/'.$class.'/delete',$class,true).'</td>';
-			$tbody.='</tr>';
+//			$tbody.='<td style=\'width:50px;\'>'.self::deleteButton('Delete',$row->getId(),get_site_url().'/'.$class.'/delete',$nonce,true).'</td>';
+			$tbody.="</tr>";
 		}
-		$tbody.='</tbody>';
+		$tbody.="</tbody>\n";
 		$ths='';
 		foreach($headlines as $column){
 			if(is_array($column))
 					$column=$column[0];			
-			$ths.='<th class="'.strtolower($column).'">'.$column.'</th>';
+			$ths.="<th class=\"".strtolower($column)."\">$column</th>\n";
 		}
-		$table.='<thead><tr><th class="edit"></th><th class="center" style="width:15px;text-align:center">'.self::input('selectAllTop','checkbox','all',false,true).'</th>'.$ths.'<th class="delete"></th></tr></thead>';
-		$table.='<tfoot><tr><th></th><th class="center" style="width:20px;text-align:center">'.self::input('selectAllBottom','checkbox','all',false,true).'</th>'.$ths.'<th class="delete"></th></tr></tfoot>';
+		$table.="<thead>\n<tr>\n<th class=\"edit\"></th><th class=\"center\" style=\"width:20px;text-align:center\">".self::input('selectAllTop','checkbox','all',false,true)."</th>$ths\n<th class=\"delete\"></th></tr></thead>";
+		$table.="<tfoot>\n<tr>\n<th></th>\n<th class=\"center\" style=\"width:20px;text-align:center\">".self::input('selectAllBottom','checkbox','all',false,true)."</th>$ths\n<th class=\"delete\"></th></tr></tfoot>";
 		$table.=$tbody;
-		$table.='</table></div>';
+		$table.="</table>\n</div>";
 		
 		$script="
 		jQuery('#selectAllTop').click(function(){

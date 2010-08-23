@@ -22,6 +22,7 @@ abstract class CrudController extends BaseController{
 	}
 	
 	function init(){
+		$this->defaultAction='listall';
 		parent::init();
 		$this->on_crudcontroller_init();
 		if($this->automatic){
@@ -33,7 +34,9 @@ abstract class CrudController extends BaseController{
 			else if($this->methodIs(GET)){
 				$id=array_key_exists_v('Id',$this->values);
 				if($id)
-					$this->edit($id);
+					$this->edit($id);					
+				else if(array_key_exists_v('_method',$this->values))
+					$this->delete();
 				else
 					$this->listall();
 			}
@@ -51,6 +54,7 @@ abstract class CrudController extends BaseController{
 			$this->on_search_init();
 	}
 	function createnew(){
+		$this->bag['result']=array_key_exists_v('result',$this->values);		
 		if(!isset($this->bag['new']) || empty($this->bag['new']))
 			$this->bag['new']=$this->crudItem;
 		$this->bag['result']=array_key_exists_v('result',$this->values);
@@ -87,7 +91,6 @@ abstract class CrudController extends BaseController{
 		
 		if(array_key_exists('search',$this->values)){
 			$restrictions=$this->search_restrictions;
-			echo "searching";
 			if(!$restrictions){
 				if($this->search_property){
 					$restrictions=	R::LIKE($this->search_property,$this->values['search'],3);										
@@ -97,17 +100,20 @@ abstract class CrudController extends BaseController{
 					return;
 				}
 			}
+			Debug::Message('Search: Sliced find all');			
 			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$perpage,$order,$restrictions);
 			$this->bag['searchResultTotal']=Repo::total($this->controller,$restrictions);
 		}
 		else{
-			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$perpage,$order);			
-		}		
+			Debug::Message('No search: Sliced find all');
+			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$perpage,$order);
+		}
 		$this->bag['total']=Repo::total($this->controller);
 		$this->Render($this->controller,'listall');
 	}
 	function edit(){
 		$id=array_key_exists_v('Id',$this->values);		
+		$this->bag['result']=array_key_exists_v('result',$this->values);
 		Debug::Value('Action','Edit');
 		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,true);
 		$this->bag['edit']=$this->crudItem;
@@ -184,7 +190,7 @@ abstract class CrudController extends BaseController{
 				$path=UPLOADS_DIR.$folder.$upload["name"];
 				move_uploaded_file($upload["tmp_name"],$path);
 				$values[$property]=$upload["name"];
-				if(isset($this->thumbnails[$property]) && $this->thumbnails[$property]=='create'){
+				if(isset($this->thumbnails[$property]) && $this->thumbnails[$property][0]=='create'){
 					$image = new Resize_Image;
 					$image->new_width = $width;
 					$image->new_height = $height;
@@ -192,24 +198,45 @@ abstract class CrudController extends BaseController{
 					$image->ratio = true;
 					$image->new_image_name = preg_replace('/\.[^.]*$/', '', $upload["name"]);
 					$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
+					$values[$this->thumbnails[$property][1]]='thumbs/'.$upload["name"];
 					$process = $image->resize();
 				}
 			}else{
-				if(!isset($this->values[$property.'_hasimage'])){
-					$values[$property]='';					
+				if(!isset($this->values[$property.'_hasimage']) && empty($values[$property])){
+					$values[$property]='';
 				}
 				else{
-					if(strpos($this->values[$property.'_hasimage'],'ttp')==1){			
+					if(strpos($this->values[$property.'_hasimage'],'ttp')==1){
+						Debug::Message('HAS IMAGE LINK '.$property);
 						$url = $this->values[$property.'_hasimage'];
 						$name=str_replace(' ','-',urldecode(basename($url)));
 						if(isset($this->thumbnails[$property]) && $this->thumbnails[$property]=='thumb')
 							$path=UPLOADS_DIR.$folder.'thumbs/'.$name;
 						else
-							$path=UPLOADS_DIR.$folder.$name;					
+							$path=UPLOADS_DIR.$folder.$name;
 						$values[$property]=$name;
 						
-						Http::save_image($url,$path);					
-						if(isset($this->thumbnails[$property]) && $this->thumbnails[$property]=='create'){
+						Http::save_image($url,$path);
+						if(isset($this->thumbnails[$property]) && $this->thumbnails[$property][0]=='create'){
+							Debug::Message('CREATE THUMBNAIL');
+							$image = new Resize_Image;
+							$image->new_width = $width;
+							$image->new_height = $height;
+							$image->image_to_resize = $path; // Full Path to the file
+							$image->ratio = true; // Keep Aspect Ratio?
+							$image->new_image_name = preg_replace('/\.[^.]*$/', '', $name);
+							$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
+							$values[$this->thumbnails[$property][1]]='thumbs/'.$name;
+							$process = $image->resize();
+						}
+					}else{
+						Debug::Message('HAS IMAGE '.$property);
+						Debug::Value('Thumbnails',$this->thumbnails);
+						if(isset($this->thumbnails[$property]) && $this->thumbnails[$property][0]=='create'){
+							Debug::Message('CREATE THUMBNAIL');
+							$url = $this->values[$property.'_hasimage'];
+							$name=str_replace(' ','-',urldecode(basename($url)));							
+							$path=UPLOADS_DIR.$folder.$name;
 							$image = new Resize_Image;
 							$image->new_width = $width;
 							$image->new_height = $height;
@@ -219,8 +246,9 @@ abstract class CrudController extends BaseController{
 							$image->new_image_name = preg_replace('/\.[^.]*$/', '', $name);
 							// Path where the new image should be saved. If it's not set the script will output the image without saving it 
 							$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
+							$values[$this->thumbnails[$property][1]]='thumbs/'.$name;
 							$process = $image->resize();
-						}
+						}						
 					}
 				}
 			} 

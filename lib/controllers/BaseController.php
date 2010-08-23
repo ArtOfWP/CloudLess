@@ -3,6 +3,7 @@ global $viewcontent;
 class BaseController{
 	protected $controller;
 	protected $action;
+	protected $defaultAction;
 	protected $filter;
 	protected $redirect;
 	protected $viewpath;
@@ -12,13 +13,17 @@ class BaseController{
 	public $values=array();
 	private $automatic;
 	private function initiate(){
+		if(method_exists($this,'on_controller_preinit'))	
+			$this->on_controller_preinit();
 		$item= get_class($this);
 		$this->controller =str_replace('Controller','',$item);
 		$this->values=Communication::getQueryString();
 		$this->values+=Communication::getFormValues();
 		$this->action=array_key_exists_v(ACTIONKEY,$this->values);
+		if(!$this->action)
+			$this->action=$this->defaultAction;
 		unset($this->values[CONTROLLERKEY]);
-		unset($this->values[ACTIONKEY]);	
+		unset($this->values[ACTIONKEY]);
 		if(method_exists($this,'on_controller_init'))	
 			$this->on_controller_init();
 	}
@@ -28,7 +33,7 @@ class BaseController{
 			if(!$this->filter->perform($this,false))
 				die("Action could not be performed.");
 		if($this->automatic)
-			$this->automaticRender();		
+			$this->automaticRender();
 	}
 	function BaseController($automatic=true,$viewpath=false){
 		$this->automatic=$automatic;		
