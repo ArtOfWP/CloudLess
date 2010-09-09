@@ -1,3 +1,5 @@
+10.9.1
+ * Moved an WordPress event init to always be executed.
 10.7.2
  * Removed a bunch of ?>
  * Added license text. MIT-license

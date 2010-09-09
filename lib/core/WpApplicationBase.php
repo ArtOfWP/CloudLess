@@ -29,7 +29,8 @@ abstract class WpApplicationBase{
 		if(method_exists($this,'on_register_query_vars'))
 			add_filter('query_vars', array(&$this,'register_query_vars'));
 
-
+		if(method_exists($this,'on_init'))
+			add_action('init', array(&$this,'on_init'));
 		if(is_admin()){
 			add_action( 'admin_init', array(&$this,'register_settings' ));				
 			if(method_exists($this,'on_plugin_page_link'))
@@ -46,9 +47,7 @@ abstract class WpApplicationBase{
 				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
 			if($_GET['plugin']==$appName)
 				add_action('install_plugins_pre_plugin-information',array(&$this,'version_information'));
-		}else{
-			if(method_exists($this,'on_init'))
-				add_action('init', array(&$this,'on_init'));			
+		}else{			
 			if(method_exists($this,'on_wp_print_styles'))
 				add_action('wp_print_styles',array(&$this,'print_styles'));
 			if(method_exists($this,'on_wp_print_scripts'))
