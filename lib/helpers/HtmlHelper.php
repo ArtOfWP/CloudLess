@@ -346,7 +346,7 @@ $script="jQuery(document).ready(function() {
 		if(is_array($array))
 			foreach($array as $key=>$element){
 				if(is_string($element) || is_int($element)){
-					$select.=self::option(str_replace('"','',$key),$element,$selectedValues==$key,true);
+					$select.=self::option(str_replace('"','',$key),$element,$selectedValues==$key||$selectedValues==$element,true);
 				}
 				else
 				$select.=self::option($element->getId(),$element,$selectedValues==$element.'',true );
@@ -542,6 +542,7 @@ $script="jQuery(document).ready(function() {
 		$paging.='<span class="displaying-num">';
 		
 		$pages=ceil($total/$perpage);
+		$pages=$pages>15?15:$pages;
 		/*
 		 * Current page 2
 		 * Perpage 10
@@ -556,11 +557,17 @@ $script="jQuery(document).ready(function() {
 		if($pages>10 && ($currentpage-1)>1)
 			$paging.=self::a('&laquo;',"$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers prev',true).' ';
 		if($pages>1)
-			for($page=1;$page<=$pages;$page++)
-				if($page!=$currentpage)
+			for($page=1;$page<=$pages;$page++){
+				if(fmod($page,10)==0){
+					$paging.=self::a("[$page]","$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers',true);
+					if($page+10<=$pages)
+						$page+=9;
+				}
+				else if($page!=$currentpage)
 					$paging.=self::a($page,"$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers',true);
 				else
-					$paging.='<span class="page-numbers current">'.intval($currentpage).'</span>';			
+					$paging.='<span class="page-numbers current">'.intval($currentpage).'</span>';
+			}
 		if($pages>10 && ($currentpage-1)<$pages)
 			$paging.=' '.self::a('&raquo;',"$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers next',true);
 		$paging.="</div>";

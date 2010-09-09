@@ -1,5 +1,7 @@
 <?php
 global $viewcontent;
+if(class_exists('BaseController'))
+	return;
 class BaseController{
 	protected $controller;
 	protected $action;

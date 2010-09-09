@@ -42,12 +42,13 @@ class AdminPages{
 		else{
 			if(strtolower($method)=='options')
 				include($this->dir. '/app/views/options.php');
-			else if(!$this->app->installed()){
-				$controller=array_key_exists_v(CONTROLLERKEY,$_GET);
-				Route::rerouteToAction($controller,'install');
-$this->printContent();				
-			}else{
-				Route::reroute();
+			else{
+				$controller=array_key_exists_v(CONTROLLERKEY,Communication::getQueryString());
+				$action=array_key_exists_v(ACTIONKEY,Communication::getQueryString());
+				if(!$this->app->installed() && !$action)
+					Route::rerouteToAction($controller,'install');			
+				else
+					Route::reroute();
 				$this->printContent();
 			}
 		}
