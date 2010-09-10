@@ -28,9 +28,8 @@ abstract class WpApplicationBase{
 		$this->useOptions=$useOptions;		
 		if(method_exists($this,'on_register_query_vars'))
 			add_filter('query_vars', array(&$this,'register_query_vars'));
-
-		if(method_exists($this,'on_init'))
-			add_action('init', array(&$this,'on_init'));
+			if(method_exists($this,'on_init'))
+				add_action('init', array(&$this,'on_init'));
 		if(is_admin()){
 			add_action( 'admin_init', array(&$this,'register_settings' ));				
 			if(method_exists($this,'on_plugin_page_link'))
@@ -61,7 +60,8 @@ abstract class WpApplicationBase{
 			if(method_exists($this,'on_render_footer'))
 				add_action('wp_footer',array(&$this,'on_render_footer'));
 		}
-        add_action('update_option__transient_update_plugins', array(&$this, 'check_for_update'));		
+		add_filter('pre_set_site_transient_update_plugins', array(&$this, 'site_transient_update_plugins'));
+        add_action('update_option__transient_update_plugins', array(&$this, 'transient_update_plugins'));		
 		$this->init();
 		Debug::Value($appName,$this->app);
 
@@ -254,7 +254,9 @@ abstract class WpApplicationBase{
 	}
 	function get_version_info(){
 		global $wp_version;
-		
+		$version_info=get_transient('aoisora-update-'.$this->slug);
+		if($version_info)
+			return $version_info;
 		$body=array('id' => $this->SLUG);
 		if($this->UPDATE_SITE_EXTRA)
 			$body=$body+$this->UPDATE_SITE_EXTRA;
@@ -267,24 +269,33 @@ abstract class WpApplicationBase{
 			'referer'=> get_bloginfo('url')
 		);
 		$raw_response = wp_remote_post($this->UPDATE_SITE, $options);
-		if (!is_wp_error($raw_response) && ($raw_response['response']['code'] == 200))
-			return unserialize($raw_response['body']);
+		if (!is_wp_error($raw_response) && ($raw_response['response']['code'] == 200)){
+			$data=unserialize($raw_response['body']);
+			set_transient('aoisora-update-'.$this->slug,$data,60);
+			return $data;
+		}
 		return array();
 	}
-	function check_for_update(){
+	static $count=0;
+	function transient_update_plugins(){
+		if(empty($this->UPDATE_SITE) || !is_admin())
+			return;	
+		$plugins = get_transient("update_plugins");
+		$plugins = $this->site_transient_update_plugins($plugins);
+		set_transient("update_plugins", $plugins);
+		if(function_exists("set_site_transient"))
+			set_site_transient("update_plugins", $plugins);			
+	}
+	function site_transient_update_plugins($plugins=false){
 		if(empty($this->UPDATE_SITE) || !is_admin())
 			return;
-
-		$checked_data = get_transient('update_plugins');		
 		global $wp_version;
 		$plugin=$this->pluginname;
-		
 		$version_info = $this->get_version_info();
-		
+
         if(!$version_info["has_access"] || version_compare($this->VERSION, $version_info["version"], '>=')){
-        	if(isset($checked_data->response[$plugin]))
-	            unset($checked_data->response[$plugin]);
-            return;
+        	if(isset($plugins->response[$plugin]))
+	            unset($plugins->response[$plugin]);
         }else{
         	$package=$version_info['url'];
         	if($this->UPDATE_SITE_EXTRA)
@@ -295,18 +306,17 @@ abstract class WpApplicationBase{
 			$update_data->new_version = $version_info['version'];
 			$update_data->url = $version_info['site'];
 			$update_data->package = $package;
-			$checked_data->response[$plugin] = $update_data;
-		}
-		set_transient('update_plugins', $checked_data);
+			$plugins->response[$plugin] = $update_data;
+		}			
+		return $plugins;
 	}
 	function version_information(){
 		if(!$this->VERSION_INFO_LINK)
 			return;
 		$opts = array('http'=>array('method'=>"GET",'header'=>"Accept-language: en\r\n"));
 		$context = stream_context_create($opts);
-		// Open the file using the HTTP headers set above
 		$response = file_get_contents($this->VERSION_INFO_LINK.'&id='.$this->SLUG, false, $context);		
-		wp_die($response);
+		wp_die(nl2br($response));
 		exit;
 	}
 }

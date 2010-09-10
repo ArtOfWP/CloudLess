@@ -1,3 +1,5 @@
+10.9.2
+ * Fixed update so it works with WP 3.0
 10.9.1
  * Moved an WordPress event init to always be executed.
 10.7.2
