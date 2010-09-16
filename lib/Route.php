@@ -20,7 +20,6 @@ class Route{
 			$ctrl=new $controller();
 			$ctrl->init();
 		}else{
-			die('Could not find controller: '.$controller);			
 			return false;
 		}
 		return true;
@@ -34,9 +33,9 @@ class Route{
 				$ctrl->init();
 				$ctrl->executeAction($action);
 			}else
-				die('Could not find action: '.$action.' on controller '.$controller);
+				return false;
 		}else
-			die('Could not find controller: '.$controller);			
+			return false;
 		return true;
 	}
 }

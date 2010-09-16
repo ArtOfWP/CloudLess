@@ -271,7 +271,7 @@ abstract class WpApplicationBase{
 		$raw_response = wp_remote_post($this->UPDATE_SITE, $options);
 		if (!is_wp_error($raw_response) && ($raw_response['response']['code'] == 200)){
 			$data=unserialize($raw_response['body']);
-			set_transient('aoisora-update-'.$this->slug,$data,60);
+			set_transient('aoisora-update-'.$this->slug,$data,60*60*2 );
 			return $data;
 		}
 		return array();
@@ -313,9 +313,7 @@ abstract class WpApplicationBase{
 	function version_information(){
 		if(!$this->VERSION_INFO_LINK)
 			return;
-		$opts = array('http'=>array('method'=>"GET",'header'=>"Accept-language: en\r\n"));
-		$context = stream_context_create($opts);
-		$response = file_get_contents($this->VERSION_INFO_LINK.'&id='.$this->SLUG, false, $context);		
+		$response=Http::getPage($this->VERSION_INFO_LINK.'&id='.$this->SLUG);
 		wp_die(nl2br($response));
 		exit;
 	}
