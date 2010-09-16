@@ -1,3 +1,6 @@
+10.9.3
+ * Fixed a bug with view plugin version information on updates
+ * Removed die from preroute.php
 10.9.2
  * Fixed update so it works with WP 3.0
 10.9.1
