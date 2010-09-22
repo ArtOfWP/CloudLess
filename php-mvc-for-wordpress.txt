@@ -1,3 +1,5 @@
+10,9.4
+ * Fixed another update issue
 10.9.3
  * Fixed a bug with view plugin version information on updates
  * Removed die from preroute.php
