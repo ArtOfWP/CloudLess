@@ -378,7 +378,8 @@ $script="jQuery(document).ready(function() {
 						$selected=array_key_exists($element->getId().'',$selectedValues);
 					}
 					else
-						$selected=$selectedValues->getId()==$element->getId();					
+						if($selectedValues)
+							$selected=$selectedValues->getId()==$element->getId();					
 					$select.=self::option($element->getId(),$element,$selected,true );
 				}
 			}
