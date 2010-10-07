@@ -1,3 +1,5 @@
+10.10.1
+ * Fixed an problem with HtmlHelper and select
 10,9.4
  * Fixed another update issue
 10.9.3

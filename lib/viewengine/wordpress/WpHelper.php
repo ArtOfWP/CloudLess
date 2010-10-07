@@ -272,28 +272,17 @@ class WpHelper{
 		$page= array();
 		global $user_ID;
       	get_currentuserinfo();
-      	$user=$author?$author:$user_ID;
-		$query = "INSERT $wpdb->posts SET post_title='$title',
-											post_name='$slug',
-											post_content='$content',
-											post_parent='0',
-											post_author='$user',
-											post_status='$status',
-											post_type='page',
-											post_date=now(),
-											post_date_gmt=utc_timestamp(),
-											post_modified=now(),
-											post_modified_gmt=utc_timestamp(),
-											comment_status='closed',
-											ping_status='closed',
-											post_excerpt='',
-											to_ping='',     
-											pinged='',      
-											post_content_filtered='',
-											menu_order=0";
-
-										
-		$wpdb->query($query);	
-		$wp_rewrite->flush_rules();	
+      	$user=$author?$author:$user_ID;      	
+      	$defaults = array(
+      		'post_title' => $title,
+			'post_name'=>$slug,
+			'post_content' => $content,      	
+			'post_status' => $status,
+			'post_type' => 'page',
+			'post_author' => $user,
+			'ping_status' => get_option('default_ping_status'), 
+			'import_id' => 0);
+      	
+      	wp_insert_post($default);
 	}
 }
