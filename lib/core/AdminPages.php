@@ -20,7 +20,7 @@ class AdminPages{
 		if($this->icon_url)
 			$this->addScriptStyleAction(add_menu_page($this->pagetitle,$this->menutitle,$this->accesslevel,$this->name,array(&$this,'none'),$this->icon_url));		
 		else
-			$this->addScriptStyleAction(	add_menu_page($this->pagetitle,$this->menutitle,$this->accesslevel,$this->name,array(&$this,'none')));
+			$this->addScriptStyleAction(add_menu_page($this->pagetitle,$this->menutitle,$this->accesslevel,$this->name,array(&$this,'none')));
 	}
 	function addSubmenu($pagetitle,$menutitle,$accesslevel,$controller,$action){
 		$this->addScriptStyleAction(add_submenu_page($this->name,$pagetitle,$menutitle,$accesslevel,$controller,array(&$this,$action)));

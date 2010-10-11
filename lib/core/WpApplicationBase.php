@@ -22,7 +22,7 @@ abstract class WpApplicationBase{
 			$this->pluginname=plugin_basename($file);//"$appName/$appName.php";		
 		register_activation_hook($this->pluginname, array(&$this,'activate'));
 		register_deactivation_hook($this->pluginname, array(&$this,'deactivate'));
-		register_uninstall_hook($this->pluginname, array(&$this,'delete'));
+//		register_uninstall_hook($this->pluginname, array(&$this,'delete'));
 		$this->installfrompath=dirname($file).'/app/core/domain/';
 		$this->useInstall=$useInstall;
 		$this->useOptions=$useOptions;		
@@ -47,9 +47,9 @@ abstract class WpApplicationBase{
 			if($_GET['plugin']==$appName)
 				add_action('install_plugins_pre_plugin-information',array(&$this,'version_information'));
 		}else{			
-			if(method_exists($this,'on_wp_print_styles'))
+			if(method_exists($this,'on_print_styles'))
 				add_action('wp_print_styles',array(&$this,'print_styles'));
-			if(method_exists($this,'on_wp_print_scripts'))
+			if(method_exists($this,'on_print_scripts'))
 				add_action('wp_print_scripts',array(&$this,'print_scripts'));
 			if(method_exists($this,'on_add_page_links'))
 				add_filter('wp_list_pages', array(&$this,'on_add_page_links'));	
@@ -221,37 +221,49 @@ abstract class WpApplicationBase{
 		}
 		closedir($handle);
 	}
-	function print_styles(){
-		$this->loadstyles($this->on_wp_print_styles());
-		
-	}
 	private function loadstyles($styles){
-		if(isset($styles) && !empty($styles) && is_array($styles))
+		if(isset($styles) && !empty($styles) && is_array($styles)){
 			foreach($styles as $name => $file){
-	        $myStyleUrl = WP_PLUGIN_URL .'/'.$this->app.$file;
-	        $myStyleFile = WP_PLUGIN_DIR .'/'.$this->app.$file;
-	        if ( file_exists($myStyleFile) ) {
-	            wp_register_style($name, $myStyleUrl);
-	            wp_enqueue_style( $name);
-	        }
-		}		
-	}
-	function print_admin_styles(){
-		$this->loadstyles($this->on_admin_print_styles());
-		
-	}
-	function print_admin_scripts(){
-		$scripts = $this->on_admin_print_scripts();
-		if(is_array($scripts))
-		foreach($scripts as $name => $file){
-			//wp_register_script($name,$file);
-			//add_action('admin_print_scripts',$name);
-				wp_enqueue_script($name,$file);
+				if(is_string($name)){
+					$myStyleUrl = WP_PLUGIN_URL .'/'.$this->app.$file;
+					$myStyleFile = WP_PLUGIN_DIR .'/'.$this->app.$file;
+					if ( file_exists($myStyleFile) ) {
+						wp_register_style($name, $myStyleUrl);
+						wp_enqueue_style( $name);
+					}
+				}else
+					wp_enqueue_style( $file);
+			}		
 		}
 	}
-	function print_scripts(){
-		$this->on_wp_print_scripts();		
+	private function loadscripts($scripts){
+		if(isset($scripts) && !empty($scripts) && is_array($scripts)){
+			foreach($scripts as $name => $file){
+				if(is_string($name)){
+					$myScriptUrl = WP_PLUGIN_URL .'/'.$this->app.$file;
+					$myScriptFile = WP_PLUGIN_DIR .'/'.$this->app.$file;
+					if ( file_exists($myScriptFile) ) {
+						wp_register_script($name, $myScriptUrl);
+						wp_enqueue_script( $name);
+					}
+				}else
+					wp_enqueue_script( $file);
+			}		
+		}
+	}	
+	function print_admin_styles(){
+		$this->loadstyles($this->on_admin_print_styles());
 	}
+	function print_admin_scripts(){
+		$this->loadscripts($this->on_admin_print_scripts());
+	}
+	function print_scripts(){
+		$this->loadscripts($this->on_print_scripts());
+	}
+	function print_styles(){
+		$this->loadstyles($this->on_print_styles());
+		
+	}	
 	function get_version_info(){
 		global $wp_version;
 		$version_info=get_transient('aoisora-update-'.$this->slug);

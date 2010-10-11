@@ -280,9 +280,8 @@ class WpHelper{
 			'post_status' => $status,
 			'post_type' => 'page',
 			'post_author' => $user,
-			'ping_status' => get_option('default_ping_status'), 
 			'import_id' => 0);
       	
-      	wp_insert_post($default);
+      	wp_insert_page($default);
 	}
 }
