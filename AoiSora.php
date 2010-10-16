@@ -9,6 +9,7 @@ Author URI: http://artofwp.com/
 */
 // Configures/loads AoiSora
 
+if(!class_exists("AoiSora")){
 define('PACKAGEPATH',dirname(__FILE__).'/');
 require('init.php');
 
@@ -92,3 +93,4 @@ class AoiSora extends WpApplicationBase{
 	}
 }
 AoiSora::instance();
+}

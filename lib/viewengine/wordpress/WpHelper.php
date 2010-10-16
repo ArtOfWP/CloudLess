@@ -280,6 +280,7 @@ class WpHelper{
 			'post_status' => $status,
 			'post_type' => 'page',
 			'post_author' => $user,
+      		'comment_status'=>'closed',
 			'import_id' => 0);
       	
       	wp_insert_page($default);

@@ -52,7 +52,7 @@ Debug::Message('Loaded wordpress viewengine');
 	add_filter('query_vars', 'register_aoisora_query_vars');
 	
 	function viewcomponent($app,$component,$params=false){
-		if(strpos($app,':'))
+		if(strpos($app,WP_PLUGIN_DIR)!==false || strpos($app,':'))
 			include_once($app."/".strtolower("app/views/components/$component/$component.php"));		
 		else
 			include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/views/components/$component/$component.php"));

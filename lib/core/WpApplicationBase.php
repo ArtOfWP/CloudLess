@@ -44,7 +44,7 @@ abstract class WpApplicationBase{
 				add_action('admin_menu',array(&$this,'on_admin_menu'));
 			if(method_exists($this,'on_rewrite_rules_array'))
 				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
-			if($_GET['plugin']==$appName)
+			if(isset($_GET['plugin']) && $_GET['plugin']==$appName)
 				add_action('install_plugins_pre_plugin-information',array(&$this,'version_information'));
 		}else{			
 			if(method_exists($this,'on_print_styles'))
