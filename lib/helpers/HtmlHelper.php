@@ -378,7 +378,8 @@ $script="jQuery(document).ready(function() {
 						$selected=array_key_exists($element->getId().'',$selectedValues);
 					}
 					else
-						$selected=$selectedValues->getId()==$element->getId();					
+						if($selectedValues)
+							$selected=$selectedValues->getId()==$element->getId();
 					$select.=self::option($element->getId(),$element,$selected,true );
 				}
 			}
@@ -543,14 +544,6 @@ $script="jQuery(document).ready(function() {
 		
 		$pages=ceil($total/$perpage);
 		$pages=$pages>15?15:$pages;
-		/*
-		 * Current page 2
-		 * Perpage 10
-		 * Total 23
-		 * Page 1 1-10  1=perpage*currentpage-perpage+1 10=perpage*currentpage
-		 * Page 2 11-20 11=perpage*currentpage-perpage+1 =10*2-10+1=11 20=perpage*currentpage
-		 * Page 3 21-23 21=10*3-10+1=21 23=$total
-		 */
 		$start=$total?($perpage*$currentpage-$perpage+1):0;
 		$end=($perpage*$currentpage<=$total)?$perpage*$currentpage:$total;
 		$paging.="Displaying $start-$end of ".'<span class="total-type-count">'.intval($total).'</span></span>';
@@ -588,17 +581,4 @@ $script="jQuery(document).ready(function() {
 	static function getFooterScripts(){
 		return self::$scripts;
 	}
-
-	/*$_GET = array_map(’confHtmlEnt’, $_GET);
-
-A nice function is
-
-
-function cleanData($data) {
-$data = trim($data);
-$data = htmlentities($data);
-$data = mysql_real_escape_string($data);
-}
-
-$_POST = array_map('cleanData', $_POST);*/
 }

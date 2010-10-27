@@ -1,14 +1,1 @@
-If you have wordpress in a subdirectory you need to replace {wordpressdir} with it.
-Otherwise remove /{wordpressdir}
-Then add this to the beginning of you .htaccess file
-
-# BEGIN AoiSora
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteBase /{WORDPRESSDIR}/
-RewriteCond %{REQUEST_METHOD} !GET
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)/(.+)$ /{WORDPRESSDIR}/wp-content/plugins/aoisora/preroute.php?controller=$1&action=$2 [L]
-</IfModule>
-# END AoiSora
+Currently empty.

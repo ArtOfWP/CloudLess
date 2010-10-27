@@ -22,14 +22,14 @@ abstract class WpApplicationBase{
 			$this->pluginname=plugin_basename($file);//"$appName/$appName.php";		
 		register_activation_hook($this->pluginname, array(&$this,'activate'));
 		register_deactivation_hook($this->pluginname, array(&$this,'deactivate'));
-		register_uninstall_hook($this->pluginname, array(&$this,'delete'));
+//		register_uninstall_hook($this->pluginname, array(&$this,'delete'));
 		$this->installfrompath=dirname($file).'/app/core/domain/';
 		$this->useInstall=$useInstall;
 		$this->useOptions=$useOptions;		
 		if(method_exists($this,'on_register_query_vars'))
 			add_filter('query_vars', array(&$this,'register_query_vars'));
-
-
+			if(method_exists($this,'on_init'))
+				add_action('init', array(&$this,'on_init'));
 		if(is_admin()){
 			add_action( 'admin_init', array(&$this,'register_settings' ));				
 			if(method_exists($this,'on_plugin_page_link'))
@@ -44,14 +44,12 @@ abstract class WpApplicationBase{
 				add_action('admin_menu',array(&$this,'on_admin_menu'));
 			if(method_exists($this,'on_rewrite_rules_array'))
 				add_filter('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
-			if($_GET['plugin']==$appName)
+			if(isset($_GET['plugin']) && $_GET['plugin']==$appName)
 				add_action('install_plugins_pre_plugin-information',array(&$this,'version_information'));
-		}else{
-			if(method_exists($this,'on_init'))
-				add_action('init', array(&$this,'on_init'));			
-			if(method_exists($this,'on_wp_print_styles'))
+		}else{			
+			if(method_exists($this,'on_print_styles'))
 				add_action('wp_print_styles',array(&$this,'print_styles'));
-			if(method_exists($this,'on_wp_print_scripts'))
+			if(method_exists($this,'on_print_scripts'))
 				add_action('wp_print_scripts',array(&$this,'print_scripts'));
 			if(method_exists($this,'on_add_page_links'))
 				add_filter('wp_list_pages', array(&$this,'on_add_page_links'));	
@@ -62,8 +60,9 @@ abstract class WpApplicationBase{
 			if(method_exists($this,'on_render_footer'))
 				add_action('wp_footer',array(&$this,'on_render_footer'));
 		}
-        add_action('update_option__transient_update_plugins', array(&$this, 'check_for_update'));		
-		$this->init();
+		add_filter('pre_set_site_transient_update_plugins', array(&$this, 'site_transient_update_plugins'));
+        add_action('update_option__transient_update_plugins', array(&$this, 'transient_update_plugins'));		
+		$this->init();  
 		Debug::Value($appName,$this->app);
 
 	}
@@ -222,40 +221,54 @@ abstract class WpApplicationBase{
 		}
 		closedir($handle);
 	}
-	function print_styles(){
-		$this->loadstyles($this->on_wp_print_styles());
-		
-	}
 	private function loadstyles($styles){
-		if(isset($styles) && !empty($styles) && is_array($styles))
+		if(isset($styles) && !empty($styles) && is_array($styles)){
 			foreach($styles as $name => $file){
-	        $myStyleUrl = WP_PLUGIN_URL .'/'.$this->app.$file;
-	        $myStyleFile = WP_PLUGIN_DIR .'/'.$this->app.$file;
-	        if ( file_exists($myStyleFile) ) {
-	            wp_register_style($name, $myStyleUrl);
-	            wp_enqueue_style( $name);
-	        }
-		}		
-	}
-	function print_admin_styles(){
-		$this->loadstyles($this->on_admin_print_styles());
-		
-	}
-	function print_admin_scripts(){
-		$scripts = $this->on_admin_print_scripts();
-		if(is_array($scripts))
-		foreach($scripts as $name => $file){
-			//wp_register_script($name,$file);
-			//add_action('admin_print_scripts',$name);
-				wp_enqueue_script($name,$file);
+				if(is_string($name)){
+					$myStyleUrl = WP_PLUGIN_URL .'/'.$this->app.$file;
+					$myStyleFile = WP_PLUGIN_DIR .'/'.$this->app.$file;
+					if ( file_exists($myStyleFile) ) {
+						wp_register_style($name, $myStyleUrl);
+						wp_enqueue_style( $name);
+					}
+				}else
+					wp_enqueue_style( $file);
+			}		
 		}
 	}
-	function print_scripts(){
-		$this->on_wp_print_scripts();		
+	private function loadscripts($scripts){
+		if(isset($scripts) && !empty($scripts) && is_array($scripts)){
+			foreach($scripts as $name => $file){
+				if(is_string($name)){
+					$myScriptUrl = WP_PLUGIN_URL .'/'.$this->app.$file;
+					$myScriptFile = WP_PLUGIN_DIR .'/'.$this->app.$file;
+					if ( file_exists($myScriptFile) ) {
+						wp_register_script($name, $myScriptUrl);
+						wp_enqueue_script( $name);
+					}
+				}else
+					wp_enqueue_script( $file);
+			}		
+		}
+	}	
+	function print_admin_styles(){
+		$this->loadstyles($this->on_admin_print_styles());
 	}
+	function print_admin_scripts(){
+		$this->loadscripts($this->on_admin_print_scripts());
+	}
+	function print_scripts(){
+		$this->loadscripts($this->on_print_scripts());
+	}
+	function print_styles(){
+		$this->loadstyles($this->on_print_styles());
+		
+	}	
 	function get_version_info(){
 		global $wp_version;
-		
+		$version_info=get_transient('aoisora-update-'.$this->slug);
+		if($version_info)
+			return $version_info;
 		$body=array('id' => $this->SLUG);
 		if($this->UPDATE_SITE_EXTRA)
 			$body=$body+$this->UPDATE_SITE_EXTRA;
@@ -268,24 +281,33 @@ abstract class WpApplicationBase{
 			'referer'=> get_bloginfo('url')
 		);
 		$raw_response = wp_remote_post($this->UPDATE_SITE, $options);
-		if (!is_wp_error($raw_response) && ($raw_response['response']['code'] == 200))
-			return unserialize($raw_response['body']);
+		if (!is_wp_error($raw_response) && ($raw_response['response']['code'] == 200)){
+			$data=unserialize($raw_response['body']);
+			set_transient('aoisora-update-'.$this->SLUG,$data,60*60*2 );
+			return $data;
+		}
 		return array();
 	}
-	function check_for_update(){
+	static $count=0;
+	function transient_update_plugins(){
+		if(empty($this->UPDATE_SITE) || !is_admin())
+			return;	
+		$plugins = get_transient("update_plugins");
+		$plugins = $this->site_transient_update_plugins($plugins);
+		set_transient("update_plugins", $plugins);
+		if(function_exists("set_site_transient"))
+			set_site_transient("update_plugins", $plugins);			
+	}
+	function site_transient_update_plugins($plugins=false){
 		if(empty($this->UPDATE_SITE) || !is_admin())
 			return;
-
-		$checked_data = get_transient('update_plugins');		
 		global $wp_version;
 		$plugin=$this->pluginname;
-		
 		$version_info = $this->get_version_info();
-		
+
         if(!$version_info["has_access"] || version_compare($this->VERSION, $version_info["version"], '>=')){
-        	if(isset($checked_data->response[$plugin]))
-	            unset($checked_data->response[$plugin]);
-            return;
+        	if(isset($plugins->response[$plugin]))
+	            unset($plugins->response[$plugin]);
         }else{
         	$package=$version_info['url'];
         	if($this->UPDATE_SITE_EXTRA)
@@ -296,18 +318,15 @@ abstract class WpApplicationBase{
 			$update_data->new_version = $version_info['version'];
 			$update_data->url = $version_info['site'];
 			$update_data->package = $package;
-			$checked_data->response[$plugin] = $update_data;
+			$plugins->response[$plugin] = $update_data;
 		}
-		set_transient('update_plugins', $checked_data);
+		return $plugins;
 	}
 	function version_information(){
 		if(!$this->VERSION_INFO_LINK)
 			return;
-		$opts = array('http'=>array('method'=>"GET",'header'=>"Accept-language: en\r\n"));
-		$context = stream_context_create($opts);
-		// Open the file using the HTTP headers set above
-		$response = file_get_contents($this->VERSION_INFO_LINK.'&id='.$this->SLUG, false, $context);		
-		wp_die($response);
+		$response=Http::getPage($this->VERSION_INFO_LINK.'&id='.$this->SLUG);
+		wp_die(nl2br($response));
 		exit;
 	}
 }

@@ -52,7 +52,7 @@ Debug::Message('Loaded wordpress viewengine');
 	add_filter('query_vars', 'register_aoisora_query_vars');
 	
 	function viewcomponent($app,$component,$params=false){
-		if(strpos($app,':'))
+		if(strpos($app,WP_PLUGIN_DIR)!==false || strpos($app,':'))
 			include_once($app."/".strtolower("app/views/components/$component/$component.php"));		
 		else
 			include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/views/components/$component/$component.php"));
@@ -105,10 +105,11 @@ Debug::Message('Loaded wordpress viewengine');
 	RewriteCond %{REQUEST_METHOD} !GET
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_URI} ^/(create|delete|update)$ [NC]	
 	RewriteRule ^(.*)/(.*)$ '.$path.'/wp-content/plugins/AoiSora/preroute.php?controller=$1&action=$2 [L]
 </IfModule>
 # END PHPMVC
-';	
+';
 		return $htaccess_rules;
 	}
 	function initiate_editor($class){

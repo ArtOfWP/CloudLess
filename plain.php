@@ -2,14 +2,6 @@
 define('WP_ADMIN', TRUE);
 require_once (preg_replace("/wp-content.*/","wp-load.php",__FILE__));
 require_once (preg_replace("/wp-content.*/","/wp-admin/admin.php",__FILE__));
-//require(ROOT.'wp-load.php');
-wp_register_style('forms',plugins_url('AoiSora/lib/css/forms.css'));			
-wp_register_style('wordpress',plugins_url('AoiSora/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css'));			
-
-wp_enqueue_style('wordpress');
-wp_enqueue_style('forms');
-wp_enqueue_style('wpaffshopadmin');
-
 //include('../../../wp-admin/index.php');
 ?>
 <?php
@@ -59,7 +51,6 @@ do_action('admin_head');
 if ( get_user_setting('mfold') == 'f' ) {
 	$admin_body_class .= ' folded';
 }
-
 if ( $is_iphone ) { ?>
 <style type="text/css">.row-actions{visibility:visible;}</style>
 <?php } ?>
@@ -92,7 +83,11 @@ echo BaseController::ViewContents(); ?>
 
 <script type="text/javascript">if(typeof wpOnload=='function')wpOnload();</script>
 <?php ?>
-<?php wp_print_scripts() ?>
+<?php wp_print_scripts();
+do_action('admin_footer', '');
+do_action('admin_print_footer_scripts');
+do_action("admin_footer-" . $GLOBALS['hook_suffix']);
+?>
 <script type="text/javascript">
 //<![CDATA[
 addLoadEvent = function(func){if(typeof jQuery!="undefined")jQuery(document).ready(func);else if(typeof wpOnload!='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};

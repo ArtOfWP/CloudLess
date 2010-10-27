@@ -32,7 +32,7 @@ class BaseController{
 	function init(){
 		$this->initiate();
 		if($this->filter)
-			if(!$this->filter->perform($this,false))
+			if(!$this->filter->perform($this,$this->values))
 				die("Action could not be performed.");
 		if($this->automatic)
 			$this->automaticRender();
