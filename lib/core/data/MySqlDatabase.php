@@ -246,7 +246,7 @@ class MySqlDatabase{
 	    	$limit = ' LIMIT '.$q->offset.','.$q->limit.' ';
 
 	    $prepared='SELECT '.$columns.' FROM '.$from.$where.$groupby.$order.$limit;
-	    echo $prepared,"<br />";
+
 	    if(defined('SQLDEBUG') && SQLDEBUG){
 		    Debug::Value('SQL',$prepared);
 		    Debug::Value('SQL Params',$params);
