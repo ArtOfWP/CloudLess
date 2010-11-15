@@ -134,7 +134,7 @@ abstract class CrudController extends BaseController{
 		$this->loadFromPost();
 		$this->crudItem->save();
 		if($redirect)
-			$this->redirect('result=1');
+			$this->redirect('result=2');
 	}
 	function delete(){
 		if(is_array($_POST[strtolower(get_class($this->crudItem))])){

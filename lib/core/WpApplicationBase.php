@@ -296,7 +296,7 @@ abstract class WpApplicationBase{
 		$plugins = $this->site_transient_update_plugins($plugins);
 		set_transient("update_plugins", $plugins);
 		if(function_exists("set_site_transient"))
-			set_site_transient("update_plugins", $plugins);			
+			set_site_transient("update_plugins", $plugins);
 	}
 	function site_transient_update_plugins($plugins=false){
 		if(empty($this->UPDATE_SITE) || !is_admin())

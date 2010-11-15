@@ -69,6 +69,31 @@ class R{
 		}
 		return $r;		
 	}
+	static function NotEq($property,$value,$isProperty=false){
+		global $db_prefix;
+		$r = new R();
+		if($property instanceof ActiveRecordBase){
+			$r->table=$db_prefix.strtolower(get_class($property));
+			$r->column='id';
+		}else
+			$r->column=strtolower($property);
+		$r->method='<>';
+		if($isProperty){
+			$p=explode('.',$value);
+			if(sizeof($p)>1){
+				$r->foreigntable=$db_prefix.strtolower($p[0]);
+				$r->foreigncolumn=strtolower($p[1]);
+			}else
+				$r->column=$p[0];
+		}else{
+			if($value instanceof ActiveRecordBase)
+				$r->value=$value->getId();			
+			else
+				$r->value=$value;
+			$r->hasvalue=true;
+		}
+		return $r;		
+	}	
 	static function EqP($class,$property,$value,$isProperty=false){
 		global $db_prefix;
 		$r = new R();
@@ -170,12 +195,12 @@ class R{
 				return $sql;
 			case 'MATCH':
 				$sql=' MATCH(';
-				$func=$this->addMark;
 				$count=count($this->columns);
+				$columns=$this->columns;
 				for($i=0;$i<$count;$i++){
-					$this->columns[$i]=$this->addMark($this->columns[$i]);
+					$columns[$i]=$this->addMark($columns[$i]);
 				}				
-					$sql.=implode(',',$this->columns);
+					$sql.=implode(',',$columns);
 				$sql.=') AGAINST(';
 				foreach($this->values as $value){
 					$this->parameters[':'.$value]=$value;

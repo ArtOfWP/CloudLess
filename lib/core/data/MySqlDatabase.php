@@ -217,12 +217,15 @@ class MySqlDatabase{
 	    $columns=implode(',',$q->select);
 	    $order='';
 	    $where='';
-		$limit='';	    
+		$limit='';
+		$groupby='';
 	    $params=array(); 
 	    if($q->hasWhere())
 	    {
+			$where =' WHERE ';
 			foreach($q->where as $clause){
-				
+				if(empty($clause) || $clause==null)
+					continue;
 				$where.=$clause->toSQL();
 				if($clause->method==' IN ' || $clause->method=='MATCH')
 					$params=array_merge($params,$clause->getParameters());				
@@ -233,15 +236,17 @@ class MySqlDatabase{
 				}
 			}
 	    }
-	    if(sizeof($q->order)>0){
+	    if(sizeof($q->groupby)>0)
+	    	$groupby=' GROUP BY '.implode(',',$q->groupby);	    
+	    
+	    if(sizeof($q->order)>0)
 		    $order=' ORDER BY '.implode(',',$q->order);	    	
-	    }
-	    if($q->hasLimit()){
+	    
+	    if($q->hasLimit())
 	    	$limit = ' LIMIT '.$q->offset.','.$q->limit.' ';
-	    }
-		if($where)
-			$where =' WHERE '.$where;
-	    $prepared='SELECT '.$columns.' FROM '.$from.$where.$order.$limit;
+
+	    $prepared='SELECT '.$columns.' FROM '.$from.$where.$groupby.$order.$limit;
+	    echo $prepared,"<br />";
 	    if(defined('SQLDEBUG') && SQLDEBUG){
 		    Debug::Value('SQL',$prepared);
 		    Debug::Value('SQL Params',$params);

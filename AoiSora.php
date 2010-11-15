@@ -3,7 +3,7 @@
 Plugin Name: PHP MVC For WordPress (AoiSora)
 Plugin URI: http://artofwp.com/aoisora
 Description: AoiSora is a PHP MVC Framework for WordPress.
-Version: 10.10.2
+Version: 10.11.1
 Author: Andreas Nurbo
 Author URI: http://artofwp.com/
 */
