@@ -1,4 +1,13 @@
 <?php
+	function array_key_has_value($key,$value,$haystack){
+		foreach($haystack as $k => $val)
+			if($key==$k)
+				if(is_array($value))
+					return in_array($val,$value);
+				else
+					return $val==$value;
+		return false;
+	}
 	function array_key_exists_v($needle,$haystack){
 		foreach($haystack as $key => $value)
 			if($needle==$key)

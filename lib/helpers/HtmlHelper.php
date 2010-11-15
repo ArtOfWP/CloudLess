@@ -171,7 +171,7 @@ class HtmlHelper{
 					if(is_array($values))
 						foreach($values as $value){
 							$itemid=str_replace(' ','-',$value);
-							$theForm.="<li id=\"$itemid\" class=\"ui-corner-all\"><span>$value<a href=\"javascript:detagit('#$id"."_list','#$itemid','$value')\">x</span></a></li>";					
+							$theForm.="<li id=\"tag_$itemid\" class=\"ui-corner-all\"><span>$value<a href=\"javascript:detagit('#$id"."_list','#tag_$itemid','$value')\">x</span></a></li>";
 						}
 					$theForm.="</ul>";
 					$theForm.=self::input($id.'_list','hidden',$list,false,true);
@@ -349,7 +349,7 @@ $script="jQuery(document).ready(function() {
 					$select.=self::option(str_replace('"','',$key),$element,$selectedValues==$key||$selectedValues==$element,true);
 				}
 				else
-				$select.=self::option($element->getId(),$element,$selectedValues==$element.'',true );
+					$select.=self::option($element->getId(),$element,$selectedValues==$element.'',true );
 			}
 		$select.='</select>';
 		if($dontprint)
@@ -539,36 +539,34 @@ $script="jQuery(document).ready(function() {
 		echo get_bloginfo('url').'/'.strtolower($class).'/'.strtolower($type);
 	}
 	static function paging($href,$total,$currentpage,$perpage,$dontprint=false){
-		$paging='<div class="tablenav-pages">';
+		$paging='<div class="tablenav"><div class="tablenav-pages">';
 		$paging.='<span class="displaying-num">';
 		
 		$pages=ceil($total/$perpage);
-		$pages=$pages>15?15:$pages;
+
+		$mod=fmod($currentpage,$perpage);
+		$startPage=$mod?$currentpage-$mod:$currentpage-$perpage;
+
+		$listPages=($pages)>($startPage+$perpage)?$startPage+$perpage:$pages;
+
 		$start=$total?($perpage*$currentpage-$perpage+1):0;
 		$end=($perpage*$currentpage<=$total)?$perpage*$currentpage:$total;
-		$paging.="Displaying $start-$end of ".'<span class="total-type-count">'.intval($total).'</span></span>';
-		if($pages>10 && ($currentpage-1)>1)
-			$paging.=self::a('&laquo;',"$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers prev',true).' ';
+		$paging.="Displaying $start - $end of ".'<span class="total-type-count">'.intval($total).'</span></span>';
+		if($pages>$perpage && ($currentpage)>$perpage)
+			$paging.=self::a('&laquo;',"$href&current=".intval($startPage).'&perpage='.intval($perpage),'prev page-numbers',true).' ';
 		if($pages>1)
-			for($page=1;$page<=$pages;$page++){
-				if(fmod($page,10)==0){
-					$paging.=self::a("[$page]","$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers',true);
-					if($page+10<=$pages)
-						$page+=9;
-				}
-				else if($page!=$currentpage)
+			for($page=$startPage+1;$page<=$listPages;$page++){
+				if($page!=$currentpage)
 					$paging.=self::a($page,"$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers',true);
 				else
 					$paging.='<span class="page-numbers current">'.intval($currentpage).'</span>';
 			}
-		if($pages>10 && ($currentpage-1)<$pages)
-			$paging.=' '.self::a('&raquo;',"$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers next',true);
-		$paging.="</div>";
+		if($pages>$listPages && ($currentpage-1)<$pages)
+			$paging.=' '.self::a('&raquo;',"$href&current=".intval($page).'&perpage='.intval($perpage),'next page-numbers',true);
+		$paging.="</div></div>";
 		if($dontprint)
 			return $paging;
-		echo $paging;		
-			
-	}
+		echo $paging;	}
 	static function notification($id,$message,$error=false){
 		if($error)
 			echo "<div id=\"$id\" class=\"ui-state-error ui-corner-all\">$message</div>";		

@@ -28,17 +28,23 @@ class Communication{
 		else if(strcasecmp($tempMethod,DELETE)==0)
 			return DELETE;
 	}
-	static function getQueryString(){
+	static function QueryStringEquals($key,$value){
+		return array_key_has_value($key,$value,self::getQueryString());
+	}
+	static function getQueryString($key=false){
 		if(defined('TESTING')){
 			global $testquery;
-			return $testquery;	
+			$qs=$testquery;	
 		}else{
 			global $wp_query;
 			if(isset($wp_query) && !empty($wp_query->query_vars))
-				return $wp_query->query_vars;
+				$qs= $wp_query->query_vars;
 			else
-				return $_GET;
+				$qs= $_GET;
 		}
+		if($key!==false)
+			$qs=array_key_exists_v($key,$qs);
+		return $qs;
 	}
 	static function getFormValues($keys=false){
 		if($keys){

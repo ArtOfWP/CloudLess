@@ -21,13 +21,19 @@ class CountQuery{
 	public function from($table){
 		global $db_prefix;
 		$this->statement['from'][]=$this->addMark($db_prefix.$table);
-		return $this;		
+		return $this;
+	}
+	public function selectDistinct($property,$table=false){
+		global $db_prefix;
+		$property=$this->addMark(strtolower($property));
+		$this->statement['select'][]=$table?'COUNT( DISTINCT '.$this->addMark($db_prefix.$table).'.'.$property.')':'COUNT( DISTINCT '.$property.')';
+		return $this;
 	}
 	public function select($property,$table=false){
 		global $db_prefix;
 		$property=$this->addMark(strtolower($property));
-		$this->statement['select'][]=$db_prefix.$table?'COUNT('.$this->addMark($db_prefix.$table).'.'.$property.')':'COUNT('.$property.')';
-		return $this;		
+		$this->statement['select'][]=$table?'COUNT('.$this->addMark($db_prefix.$table).'.'.$property.')':'COUNT('.$property.')';
+		return $this;
 	}
 	public function where($restriction){
 		if(is_array($restriction)){
@@ -50,6 +56,10 @@ class CountQuery{
 	public function getStatement(){
 		return $this->statement;
 	}
+	public function groupBy($property){
+		$this->statement['groupby'][]=$this->addMark(strtolower($property));
+		return $this;
+	}	
 	public function setParameter($param,$value){
 		foreach($this->statement['where'] as $restriction){
 			$restriction->setParameter($param,$value);
@@ -62,7 +72,7 @@ class CountQuery{
 		$rows=$db->query($this);
 		$count=0;
 		if(sizeof($rows)>0)
-			$count=(int)$rows[0]['total'];
+			$count=(int)array_pop($rows[0]);//['total'];
 		return $count;
 	}
 	
@@ -74,6 +84,7 @@ class CountQuery{
 				return $this->statement['select'];
 			case 'from':	
 			case 'where':
+			case 'groupby':
 				return $this->statement[$property];
 		}
 	}
@@ -82,4 +93,3 @@ class CountQuery{
 		return '`'.$ct.'`';
 	}
 }
-?>

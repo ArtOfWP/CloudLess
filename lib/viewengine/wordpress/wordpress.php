@@ -119,4 +119,10 @@ Debug::Message('Loaded wordpress viewengine');
 	function aoisora_loaded(){
 		do_action('aoisora_loaded');
 	}
-	
+	ViewHelper::registerViewSectionHandler('admin_head','wp_admin_section_handler');
+	ViewHelper::registerViewSectionHandler('admin_footer','wp_admin_section_handler');
+	ViewHelper::registerViewSectionHandler('admin_print_scripts','wp_admin_section_handler');
+	ViewHelper::registerViewSectionHandler('admin_print_styles','wp_admin_section_handler');
+	function wp_admin_section_handler($section,$callback){
+		add_action($section,$callback);
+	}

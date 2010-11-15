@@ -12,9 +12,15 @@ class Repo{
 				  ->execute();
 		return sizeof($objects)==1?$objects[0]:false;
 	}
-	static function find($class,$lazy=false,$restrictions=false){
-		if($restrictions)
-			return Query::createFrom($class,$lazy)->where($restrictions)->execute();
+	static function find($class,$lazy=false,$restrictions=false,$groupby=false){
+		if($groupby || $restrictions){
+			$q=Query::createFrom($class,$lazy);
+			if($groupby)
+				$q->groupBy($groupby);
+			if($restrictions)
+				$q->where($restrictions);
+			return $q->execute();
+		}
 		else
 			return self::findAll($class,$lazy);
 	}
@@ -23,13 +29,19 @@ class Repo{
 			return Query::createFrom($class,$lazy)->where(R::In($property,$value))->execute();		
 		return Query::createFrom($class,$lazy)->where(R::Eq($property,$value))->execute();
 	}
-	static function slicedFindAll($class,$firstResult,$maxResult,$order=false,$restrictions=false){
+	static function slicedFindAll($class,$firstResult,$maxResult,$order=false,$restrictions=false,$groupby=false){
 		$query=Query::createFrom($class,true)->limit($firstResult,$maxResult);
 		if($order)
 			$query->order($order);
 		if($restrictions)
 			$query->where($restrictions);
-		return $query->execute();		
+		if($groupby)
+			if(is_array($groupby))
+				foreach($groupby as $param)
+					$query->groupby($param);
+			else
+				$query->groupby($groupby);
+		return $query->execute();
 	}
 	static function findOne($class,$requirement,$lazy=false){
 		$result=array();
@@ -42,11 +54,12 @@ class Repo{
 		else
 			return false;
 	}
-	static function total($class,$restrictions=false){
+	static function total($class,$restrictions=false,$groupby=false){
 		$q=CountQuery::createFrom($class);
 		if($restrictions)
 			$q->where($restrictions);
+		if($groupby)
+			$q->groupBy($groupby);
 		return $q->execute();
 	}
 }
-?>
