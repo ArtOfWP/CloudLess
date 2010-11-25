@@ -213,6 +213,7 @@ class MySqlDatabase{
 //		return (int)$this->db->lastInsertId();
 	}
 	function query($q){
+		$paramCount=0;
 		$from=implode(',',$q->from);
 	    $columns=implode(',',$q->select);
 	    $order='';
@@ -226,14 +227,23 @@ class MySqlDatabase{
 			foreach($q->where as $clause){
 				if(empty($clause) || $clause==null)
 					continue;
-				$where.=$clause->toSQL();
-				if($clause->method==' IN ' || $clause->method=='MATCH')
-					$params=array_merge($params,$clause->getParameters());				
+				if($clause->method==' IN ' || $clause->method=='MATCH'){
+					$params=array_merge($params,$clause->getParameters());
+				}
 				else if($clause->hasValue()){
 					$param=$clause->getParameter();
+					$paramKey=array_pop(array_keys($param));
+					if(array_key_exists($paramKey,$params)){
+						$paramCount++;
+						$paramKey=trim($paramKey,':');
+						$clause->setParameter($paramKey.$paramCount,$clause->getValue());
+						$param=$clause->getParameter();
+					}
+
 					Debug::Value('Param',$param);
 					$params=array_merge($params,$param);
 				}
+				$where.=$clause->toSQL();
 			}
 	    }
 	    if(sizeof($q->groupby)>0)
@@ -251,14 +261,12 @@ class MySqlDatabase{
 		    Debug::Value('SQL',$prepared);
 		    Debug::Value('SQL Params',$params);
 	    }
-
 	    $stmt=$this->db->prepare($prepared);
 			if (!$stmt) {
 				Debug::Value('Error occured when preparing sql statement',$prepared);				
 	    		Debug::Value('SQL Params',$params);				
 			    Debug::Value('PDO::errorInfo()',$this->db->errorInfo());
 			}
-						
 			if (!$stmt->execute($params)) {
 				Debug::Value('Error with sql statement',$prepared);				
 			    Debug::Value('SQL Params',$params);
@@ -354,4 +362,3 @@ class MySqlDatabase{
 		}		
 	}
 }
-?>

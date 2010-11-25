@@ -53,8 +53,8 @@ class Query{
 		}*/		
 		return $q;
 	}
-	static function create(){
-		return new Query();
+	static function create($table=false){
+		return new Query($table);
 	}
 	private $statement=array();
 	var $depends=array();

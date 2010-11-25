@@ -11,6 +11,7 @@ class R{
 	var $columns;
 	var $method;
 	var $placement;
+	var $param;
 
 	static $LEFT=0;
 	static $BOTH=1;
@@ -21,28 +22,30 @@ class R{
 		$r->method='MATCH';
 		$r->columns=$columns;
 		$r->values=explode(' ',$keywords);
+		foreach($r->values as $value)
+			$r->parameters[':'.$value]=$value;		
 		return $r;
 	}
 	static function Ge($property,$value,$isProperty=false){
 		$r=R::Eq($property,$value,$isProperty);
 		$r->method='>=';
-		return $r;		
+		return $r;
 	}
 	static function Le($property,$value,$isProperty=false){
-		$r=R::Eq($property,$value,$isProperty);
+		$r=R::Ge($property,$value,$isProperty);
 		$r->method='<=';
-		return $r;		
+		return $r;
 	}
 	
 	static function Lt($property,$value,$isProperty=false){
 		$r=R::Eq($property,$value,$isProperty);
 		$r->method='<';
-		return $r;		
+		return $r;
 	}
 	static function Gt($property,$value,$isProperty=false){
 		$r=R::Eq($property,$value,$isProperty);
 		$r->method='>';
-		return $r;		
+		return $r;
 	}
 	static function Eq($property,$value,$isProperty=false){
 		global $db_prefix;
@@ -169,20 +172,32 @@ class R{
 	function hasValue(){
 		return $this->hasvalue;
 	}
+	function getValue(){
+		return $this->value;
+	}
 	function setParameter($param,$value){
 		if(strtolower($param)==$this->column) 
 			$this->value=$value;
-	}	
-	function getParameter(){
-		return array(':'.$this->column=>$this->value);
+		else{
+			$this->param=$param;
+			$this->value=$value;
+		}
 	}
-	function getParameters(){
+	function getParameter(){
+		if($this->param)
+			return array(':'.$this->param=>$this->value);		
+		else
+			return array(':'.$this->column=>$this->value);
+	}
+	function getParameters(){		
 		return $this->parameters;
 	}
 	function toSQL(){
 		switch($this->method){
 			case "LIKE":
-				$sql=$this->addMark($this->column).' LIKE '."concat('%',:".$this->column.')';
+				if(!isset($this->param))
+					$this->param=$this->column;				
+				$sql=$this->addMark($this->column).' LIKE '."concat('%',:".$this->param.')';
 				if($this->placement==R::$LEFT)
 					$front="%";
 				else if($this->placement==R::$RIGHT)
@@ -191,21 +206,18 @@ class R{
 					$front="%";					
 					$back="%";
 				}
-				$sql=$this->addMark($this->column).' LIKE '."concat('$front',:".$this->column.",'$back')";
+				$sql=$this->addMark($this->column).' LIKE '."concat('$front',:".$this->param.",'$back')";
 				return $sql;
 			case 'MATCH':
 				$sql=' MATCH(';
 				$count=count($this->columns);
 				$columns=$this->columns;
-				for($i=0;$i<$count;$i++){
+				for($i=0;$i<$count;$i++)
 					$columns[$i]=$this->addMark($columns[$i]);
-				}				
+				
 					$sql.=implode(',',$columns);
 				$sql.=') AGAINST(';
-				foreach($this->values as $value){
-					$this->parameters[':'.$value]=$value;
-				}
-				$sql.=implode(',',array_keys($this->parameters));				
+				$sql.=implode(',',array_keys($this->parameters));
 				$sql.=' IN BOOLEAN MODE)';
 				return $sql;
 			case ' IN ':
@@ -224,15 +236,20 @@ class R{
 				else
 					$sql.=$this->addMark($this->foreigntable).'.'.$this->addMark($this->foreigncolumn);*/
 				return $sql;
-								
+			case '>=':
+			case '>':
+			case '<=':
+			case '<':
 			case '<>':
 			case '=':
 				$sql='';	
+				if(!isset($this->param))
+					$this->param=$this->column;
 				if($this->table)
 					$sql.=$this->addMark($this->table).'.';
 				$sql.=$this->addMark($this->column).$this->method;
 				if($this->hasValue())
-					$sql.=':'.$this->column;
+					$sql.=':'.$this->param;
 				else
 					$sql.=$this->addMark($this->foreigntable).'.'.$this->addMark($this->foreigncolumn);
 				return $sql;

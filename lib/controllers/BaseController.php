@@ -29,7 +29,7 @@ class BaseController{
 		if(method_exists($this,'on_controller_init'))	
 			$this->on_controller_init();
 	}
-	function init(){
+	public function init(){
 		$this->initiate();
 		if($this->filter)
 			if(!$this->filter->perform($this,$this->values))
@@ -37,7 +37,7 @@ class BaseController{
 		if($this->automatic)
 			$this->automaticRender();
 	}
-	function BaseController($automatic=true,$viewpath=false){
+	public function BaseController($automatic=true,$viewpath=false){
 		$this->automatic=$automatic;		
 		$this->viewpath=$viewpath;
 		Debug::Message('Loaded '.$this->controller.' extends Basecontroller');
@@ -51,7 +51,12 @@ class BaseController{
 				else
 					$action='index';
 			Debug::Message('PreExecuted action: '.$action);
-			$this->$action();
+			try{
+				$this->executeAction($action);
+			}catch(RuntimeException $ex){
+				$this->viewcontent='Could not find action: '.$action;
+				$this->render=false;
+			}
 			Debug::Message('Executed action: '.$action);			
 			if($this->render){
 				$view=$this->findView($this->controller,$action);
@@ -68,12 +73,18 @@ class BaseController{
 			global $viewcontent;
 			$viewcontent=$this->viewcontent;
 	}
-	function executeAction($action){
-		$this->$action();
-		if($this->render)
-			$this->RenderToAction($action);
+	public function executeAction($action){
+		if(method_exists($this,$action)){
+			$reflection = new ReflectionMethod($this, $action);
+			if (!$reflection->isPublic())
+				throw new RuntimeException("The action you tried to execute is not public.");
+			$this->$action();
+			if($this->render)
+				$this->RenderToAction($action);
+		}else
+			throw new RuntimeException("The action you tried to execute does not exist.");
 	}
-	function RenderToAction($action){
+	protected function RenderToAction($action){
 		$view=$this->findView($this->controller,$action);		
 		ob_start();
 		if($view){
@@ -88,7 +99,7 @@ class BaseController{
 		$viewcontent=$this->viewcontent;
 		Debug::Value('TITLE',$aoisoratitle);
 	}
-	function Render($controller,$action){
+	protected function Render($controller,$action){
 		$view=$this->findView($controller,$action);		
 		ob_start();
 		if($view){
@@ -102,7 +113,7 @@ class BaseController{
 		global $viewcontent;
 		$viewcontent=$this->viewcontent;
 	}
-	function RenderFile($filepath){
+	protected function RenderFile($filepath){
 		ob_start();
 		if(file_exists($filepath)){
 			extract($this->bag, EXTR_REFS);		
@@ -115,12 +126,12 @@ class BaseController{
 		global $viewcontent;
 		$viewcontent=$this->viewcontent;		
 	}
-	function RenderText($text){
+	protected function RenderText($text){
 		$this->render=false;
 		global $viewcontent;
 		$viewcontent=$text;	
 	}
-	function Notfound(){
+	public function Notfound(){
 		ob_start();
 		include(VIEWS.$controller.'/'.$action.'.php');
 		$this->render=false;
@@ -129,7 +140,7 @@ class BaseController{
 		global $viewcontent;
 		$viewcontent=$this->viewcontent;
 	}
-	function redirect($query=false){
+	protected function redirect($query=false){
 		if(defined('NOREDIRECT') && NOREDIRECT)
 			return;
 		$redirect=Communication::useRedirect();
@@ -139,7 +150,7 @@ class BaseController{
 			else
 				Communication::redirectTo($redirect,$query);
 	}
-	static function ViewContents(){
+	public static function ViewContents(){
 		global $viewcontent;
 		return $viewcontent;
 	}

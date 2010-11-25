@@ -126,6 +126,33 @@ abstract class ActiveRecordBase{
 		$item = new $class();
 		return $item;
 	}
+	public function __get($property){
+		$call="get".$property;
+		if(property_exists($this,strtolower($property))){
+			return $this->$call();
+		}
+		else if(strpos($property,'Lazy')!==false)
+			return $this->$call();
+		$trace = debug_backtrace();
+        trigger_error('Undefined property via __get(): ' . $property .' in ' . $trace[0]['file'] .' on line ' . $trace[0]['line'],E_USER_NOTICE);		
+	}
+	public function __set($property,$value){
+		$call="set".$property;
+		if(property_exists($this,strtolower($property))){
+			return $this->$call($value);
+		}
+		$trace = debug_backtrace();
+        trigger_error('Undefined property via __set(): ' . $property .' in ' . $trace[0]['file'] .' on line ' . $trace[0]['line'],E_USER_NOTICE);        
+	}
+	
+    public function __isset($property) {
+        return isset(strtolower($property)) && !empty(strtolower($property));
+    }
+    public function __unset($property) {
+    	$property=strtolower($property);
+        unset($this->$property);
+    }
+	
 	
 	public function __call($method,$arguments){
 		if($this->getId()){
