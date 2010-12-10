@@ -21,9 +21,8 @@ class R{
 		$r = new R();
 		$r->method='MATCH';
 		$r->columns=$columns;
-		$r->values=explode(' ',$keywords);
-		foreach($r->values as $value)
-			$r->parameters[':'.$value]=$value;		
+		$r->value=trim($keywords);
+		$r->param=str_replace(array(' ','-','+'),'',trim($r->value));
 		return $r;
 	}
 	static function Ge($property,$value,$isProperty=false){
@@ -183,7 +182,9 @@ class R{
 			$this->value=$value;
 		}
 	}
-	function getParameter(){
+	function getParameter($key=false){
+		if($key)
+			return ':'.$this->param;
 		if($this->param)
 			return array(':'.$this->param=>$this->value);		
 		else
@@ -217,7 +218,7 @@ class R{
 				
 					$sql.=implode(',',$columns);
 				$sql.=') AGAINST(';
-				$sql.=implode(',',array_keys($this->parameters));
+				$sql.=$this->getParameter(true);
 				$sql.=' IN BOOLEAN MODE)';
 				return $sql;
 			case ' IN ':

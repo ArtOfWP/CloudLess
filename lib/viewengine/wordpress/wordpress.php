@@ -126,3 +126,9 @@ Debug::Message('Loaded wordpress viewengine');
 	function wp_admin_section_handler($section,$callback){
 		add_action($section,$callback);
 	}
+	function adminURL($controller,$action,$query=false){
+		$url="admin.php?page=$controller&action=$action";
+		if($query)
+			$url.="&".$query;
+		admin_url($url);
+	}

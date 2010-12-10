@@ -120,6 +120,8 @@ abstract class CrudController extends BaseController{
 		$this->Render($this->controller,'edit');
 	}
 	public function create($redirect=true){
+		Debug::message('Creating ... ');
+		$this->render=false;
 		$this->loadFromPost();
 		$this->crudItem->save();
 		if($redirect)
@@ -129,6 +131,7 @@ abstract class CrudController extends BaseController{
 	}
 
 	public function update($redirect=true){
+		$this->render=false;		
 		$id=array_key_exists_v('Id',$this->values);		
 		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,true);		
 		$this->loadFromPost();
@@ -137,6 +140,7 @@ abstract class CrudController extends BaseController{
 			$this->redirect('result=2');
 	}
 	public function delete(){
+		$this->render=false;		
 		if(is_array($_POST[strtolower(get_class($this->crudItem))])){
 			$ids=$_POST[strtolower(get_class($this->crudItem))];
 			foreach($ids as $id){

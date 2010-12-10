@@ -9,7 +9,9 @@ class MySqlDatabase{
 		global $db;
 		return $db;
 	}
-	function MySqlDatabase(){
+	function MySqlDatabase($autoConnect=true){
+		if(!$autoConnect)
+			return;
 		if(defined('HOST'))
 			$this->connect(HOST,DATABASE,USERNAME,PASSWORD);
 		else
@@ -228,7 +230,7 @@ class MySqlDatabase{
 				if(empty($clause) || $clause==null)
 					continue;
 				if($clause->method==' IN ' || $clause->method=='MATCH'){
-					$params=array_merge($params,$clause->getParameters());
+					$params=array_merge($params,$clause->getParameter());
 				}
 				else if($clause->hasValue()){
 					$param=$clause->getParameter();

@@ -289,18 +289,20 @@ $script="jQuery(document).ready(function() {
 	}
 	static function input($id,$type,$value,$class=false,$dontprint=false){
 		$class=$class?"class=\"$class\" ":'';
+		$value=htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		if($dontprint)
 		return "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
 		echo  "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
 	}
 	static function textarea($id,$value,$class=false,$dontprint=false){
 		$class=$class?"class='$class' ":'';
+		$value=htmlspecialchars($value, ENT_QUOTES);		
 		if($dontprint)
 		return "<textarea id=\"$id\" name=\"$id\" rows=\"14\" cols=\"40\" $class>$value</textarea>";
 		echo "<textarea id=\"$id\" name=\"$id\" rows=\"14\" cols=\"40\" $class>$value</textarea>";
 			
 	}
-	static function currencydropdown($id,$selectedCurrency,$dontprint=false){
+	static function currencydropdown($id,$selectedCurrency, $dontprint=false,$class=false){
 		$currency=array("USD"=>"United States Dollars","CAD"=>"Canada Dollars","EUR"=>"Euro","GBP"=>"United Kingdom Pounds");
 		$select="<select id=\"$id\" name=\"$id\" >";
 		foreach($currency as $key => $element){
@@ -311,7 +313,7 @@ $script="jQuery(document).ready(function() {
 			return $select;
 		echo $select;
 	}
-	static function selectDropdownSorted($id,$array,$selectedValues=false,$dontprint=false){
+	static function selectDropdownSorted($id,$array,$selectedValues=false,$dontprint=false,$class=false){
 		$select="<select id=\"$id\" name=\"$id\" >";
 		foreach($array as $key => $pair){
 			if(is_array($pair)){
@@ -341,8 +343,9 @@ $script="jQuery(document).ready(function() {
 			return $select;
 		echo $select;		
 	}
-	static function selectSimple($id,$array,$selectedValues=false,$dontprint=false){
-		$select="<select id=\"$id\" name=\"$id\" >";
+	static function selectSimple($id,$array,$selectedValues=false,$dontprint=false,$class=false){
+		$class=$class?" class=\"$class\" ":'';		
+		$select="<select id=\"$id\" name=\"$id\" $class>";
 		if(is_array($array))
 			foreach($array as $key=>$element){
 				if(is_string($element) || is_int($element)){
@@ -356,10 +359,11 @@ $script="jQuery(document).ready(function() {
 			return $select;
 		echo $select;		
 	} 
-	static function select($id,$array,$multiple=false,$selectedValues=false,$dontprint=false){
-		$select="<select id=\"$id\" name=\"$id\"";
+	static function select($id,$array,$multiple=false,$selectedValues=false,$dontprint=false,$class=''){
+		$class=$class?"class=\"$class\" ":'';				
+		$select="<select id=\"$id\" name=\"$id\" $class";
 		if($multiple){
-			$select="<select id=\"$id"."[]\" name=\"$id"."[]\" multiple style=\"height:70px\" size=\"5\"";
+			$select="<select id=\"$id"."[]\" name=\"$id"."[]\" multiple style=\"height:70px\" size=\"5\" $class";
 		}
 		$select.=' >';
 		$select.=self::option(0,'None',false,true);
@@ -390,6 +394,7 @@ $script="jQuery(document).ready(function() {
 	}
 	static function option($value,$display,$selected=false,$dontprint=false){
 		$text="<option value=\"$value\">$display</option>";
+		$value=htmlspecialchars($value, ENT_QUOTES);
 		if($selected)
 		$text="<option selected=\"selected\" value=\"$value\">$display</option>";
 		if($dontprint)
@@ -436,6 +441,7 @@ $script="jQuery(document).ready(function() {
 		$target=$target?" target=\"$target\" ":'';
 		$onclick=$onclick?" onclick=\"$onclick\" ":'';
 		$text=stripslashes($text);
+		$text=htmlspecialchars($text, ENT_QUOTES);
 		if($dontprint)
 		return "<a href=\"$path\" $class>$text</a>";
 		echo "<a href=\"$path\" $class>$text</a>";
@@ -443,26 +449,27 @@ $script="jQuery(document).ready(function() {
 	static function a($text,$path,$class=false,$dontprint=false){
 		$class=$class?" class=\"$class\" ":'';
 		$text=stripslashes($text);
+		$text=htmlspecialchars($text, ENT_QUOTES);		
 		if($dontprint)
 		return "<a href=\"$path\" $class>$text</a>";
 		echo "<a href=\"$path\" $class>$text</a>";
 	}
 	static function img($src,$alt=false,$class=false,$dontprint=false){
 		$class=$class?" class='$class'":'';
-		$alt=$alt?" alt='".$alt."'":'';
+		$alt=$alt?" alt='".htmlspecialchars(strip_tags($alt), ENT_QUOTES)."'":'';
 		if($dontprint)
 			return 	"<img $class src='$src' $alt />";
 		echo "<img $class src='$src' $alt />";
 	}
 	static function imglink($src,$path,$alt=false,$class=false,$dontprint=false,$id=false){
 		$class=$class?' class=\''.$class.'\' ':'';
-		$alt=$alt?" alt='".$alt."'":'';
+		$alt=$alt?" alt='".htmlspecialchars($alt, ENT_QUOTES)."'":'';
 		$id=$id?" id=\"$id\" ":'';
 		if($dontprint)
 			return "<a href='$path' $class><img src='$src' $alt /></a>";
 		echo "<a href='$path' $class><img src='$src' $alt /></a>";
 	}
-	static function deleteAllButton($text,$id,$path,$nonce,$dontprint=false){
+	static function deleteAllButton($text,$id,$path,$nonce, $dontprint=false){
 		$theForm="<form action=\"".urldecode($path)."\" method=\"".POST."\" >";
 		$theForm.=self::input('_redirect','hidden','referer',false,true);
 		$theForm.=self::input('_asnonce','hidden',Security::create()->create_nonce($nonce),false,true);
@@ -472,13 +479,13 @@ $script="jQuery(document).ready(function() {
 		if($dontprint)
 			return $theForm;
 		echo $theForm;		
-	}	
+	}
 	static function endForm($dontprint=false){
 		if($dontprint)
 			return "</form>";
 		echo "</form>";		
 	}
-	static function table($id,$data,$headlines=false,$nonce=false,$useLinks=false){
+	static function table($id,$data,$headlines=false,$nonce=false,$useLinks=false,$class=false){
 		$table="<table id=\"$id\" class=\"ui-widget ui-corner-all\">\n";
 		$tbody.="<tbody>\n";
 		foreach($data as $row){
