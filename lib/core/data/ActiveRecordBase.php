@@ -122,13 +122,16 @@ abstract class ActiveRecordBase{
 		$this->runEventMethod(__FUNCTION__,'Post');		
 	}
 	function save(){
+		if(method_exists($this,'on_pre_save'))
+			if(!$this->on_pre_save())
+				return;
 		if(!$this->runEventMethod(__FUNCTION__,'Pre'))
 			return;
 		if($this->getId()>0)
 			$this->update();
 		else
 			$this->create();
-		$this->runEventMethod(__FUNCTION__,'Post');			
+		$this->runEventMethod(__FUNCTION__,'Post');
 	}
 	static function _($class){
 		$item = new $class();

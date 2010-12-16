@@ -266,7 +266,7 @@ abstract class CrudController extends BaseController{
 			$field=array_key_exists_v('field',$settings);
 			$objects=array();	
 			if($field=='text'){
-				$values=explode(',',$value);
+				$values=explode(',',trim($value," ,."));
 				if(sizeof($values)==0)
 					continue;
 				foreach($values as $value){
