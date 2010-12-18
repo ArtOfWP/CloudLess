@@ -47,7 +47,7 @@ class AoiSora extends WpApplicationBase{
 		$this->load_js();
 	}
 	function on_init_update(){
-		$this->VERSION='10.10.2';
+		$this->VERSION='10.12.1';
 		$this->UPDATE_SITE='http://api.artofwp.com/?free_update=plugin';
 		$this->SLUG='php-mvc-for-wordpress';
 		$this->VERSION_INFO_LINK='http://api.artofwp.com/?update=plugin_information';		
