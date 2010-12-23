@@ -15,13 +15,13 @@ abstract class CrudController extends BaseController{
 	protected $thumbnails;
 	private $automatic;
 	public $bag=array();
-	function CrudController($automatic=true){
+	public function CrudController($automatic=true){
 		parent::BaseController(false);
 		$this->automatic=$automatic;
 		Debug::Message('Loaded '.$this->controller.' extends Crudcontroller');
 	}
 	
-	function init(){
+	public function init(){
 		$this->defaultAction='listall';
 		parent::init();
 		$this->on_crudcontroller_init();
@@ -53,14 +53,14 @@ abstract class CrudController extends BaseController{
 		if(array_key_exists('search',$this->values) && method_exists($this,'on_search_init'))
 			$this->on_search_init();
 	}
-	function createnew(){
+	public function createnew(){
 		$this->bag['result']=array_key_exists_v('result',$this->values);		
 		if(!isset($this->bag['new']) || empty($this->bag['new']))
 			$this->bag['new']=$this->crudItem;
 		$this->bag['result']=array_key_exists_v('result',$this->values);
 		$this->Render($this->controller,'createnew');		
 	}
-	function listall(){
+	public function listall(){
 		$this->bag['delete']=array_key_exists_v('delete',$this->values);
 		$this->bag['deletePath']=get_site_url().'/'.strtolower($this->controller).'/delete';
 		$perpage=array_key_exists_v('perpage',$this->values);
@@ -111,7 +111,7 @@ abstract class CrudController extends BaseController{
 		$this->bag['total']=Repo::total($this->controller);
 		$this->Render($this->controller,'listall');
 	}
-	function edit(){
+	public function edit(){
 		$id=array_key_exists_v('Id',$this->values);		
 		$this->bag['result']=array_key_exists_v('result',$this->values);
 		Debug::Value('Action','Edit');
@@ -119,7 +119,9 @@ abstract class CrudController extends BaseController{
 		$this->bag['edit']=$this->crudItem;
 		$this->Render($this->controller,'edit');
 	}
-	function create($redirect=true){
+	public function create($redirect=true){
+		Debug::message('Creating ... ');
+		$this->render=false;
 		$this->loadFromPost();
 		$this->crudItem->save();
 		if($redirect)
@@ -128,15 +130,17 @@ abstract class CrudController extends BaseController{
 			return $this->crudItem;
 	}
 
-	function update($redirect=true){
+	public function update($redirect=true){
+		$this->render=false;		
 		$id=array_key_exists_v('Id',$this->values);		
 		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,true);		
 		$this->loadFromPost();
 		$this->crudItem->save();
 		if($redirect)
-			$this->redirect('result=1');
+			$this->redirect('result=2');
 	}
-	function delete(){
+	public function delete(){
+		$this->render=false;		
 		if(is_array($_POST[strtolower(get_class($this->crudItem))])){
 			$ids=$_POST[strtolower(get_class($this->crudItem))];
 			foreach($ids as $id){
@@ -262,7 +266,7 @@ abstract class CrudController extends BaseController{
 			$field=array_key_exists_v('field',$settings);
 			$objects=array();	
 			if($field=='text'){
-				$values=explode(',',$value);
+				$values=explode(',',trim($value," ,."));
 				if(sizeof($values)==0)
 					continue;
 				foreach($values as $value){

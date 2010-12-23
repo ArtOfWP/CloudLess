@@ -28,12 +28,13 @@ class Route{
 		$controller=$controller.'Controller';
 		Debug::Value('RerouteToAction',$controller.'->'.$action);
 		if(class_exists($controller)){
-			if(method_exists($controller,$action)){
-				$ctrl=new $controller(false);
-				$ctrl->init();
+			$ctrl=new $controller(false);
+			$ctrl->init();
+			try{
 				$ctrl->executeAction($action);
-			}else
+			}catch(RuntimeException $ex){
 				return false;
+			}
 		}else
 			return false;
 		return true;

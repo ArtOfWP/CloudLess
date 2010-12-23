@@ -29,4 +29,3 @@ class TestController extends BaseController{
 		$this->bag['test']='test';
 	}
 }
-?>

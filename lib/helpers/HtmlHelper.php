@@ -171,7 +171,7 @@ class HtmlHelper{
 					if(is_array($values))
 						foreach($values as $value){
 							$itemid=str_replace(' ','-',$value);
-							$theForm.="<li id=\"$itemid\" class=\"ui-corner-all\"><span>$value<a href=\"javascript:detagit('#$id"."_list','#$itemid','$value')\">x</span></a></li>";					
+							$theForm.="<li id=\"tag_$itemid\" class=\"ui-corner-all\"><span>$value<a href=\"javascript:detagit('#$id"."_list','#tag_$itemid','$value')\">x</span></a></li>";
 						}
 					$theForm.="</ul>";
 					$theForm.=self::input($id.'_list','hidden',$list,false,true);
@@ -289,18 +289,20 @@ $script="jQuery(document).ready(function() {
 	}
 	static function input($id,$type,$value,$class=false,$dontprint=false){
 		$class=$class?"class=\"$class\" ":'';
+		$value=htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		if($dontprint)
 		return "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
 		echo  "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
 	}
 	static function textarea($id,$value,$class=false,$dontprint=false){
 		$class=$class?"class='$class' ":'';
+		$value=htmlspecialchars($value, ENT_QUOTES);		
 		if($dontprint)
 		return "<textarea id=\"$id\" name=\"$id\" rows=\"14\" cols=\"40\" $class>$value</textarea>";
 		echo "<textarea id=\"$id\" name=\"$id\" rows=\"14\" cols=\"40\" $class>$value</textarea>";
 			
 	}
-	static function currencydropdown($id,$selectedCurrency,$dontprint=false){
+	static function currencydropdown($id,$selectedCurrency, $dontprint=false,$class=false){
 		$currency=array("USD"=>"United States Dollars","CAD"=>"Canada Dollars","EUR"=>"Euro","GBP"=>"United Kingdom Pounds");
 		$select="<select id=\"$id\" name=\"$id\" >";
 		foreach($currency as $key => $element){
@@ -311,7 +313,7 @@ $script="jQuery(document).ready(function() {
 			return $select;
 		echo $select;
 	}
-	static function selectDropdownSorted($id,$array,$selectedValues=false,$dontprint=false){
+	static function selectDropdownSorted($id,$array,$selectedValues=false,$dontprint=false,$class=false){
 		$select="<select id=\"$id\" name=\"$id\" >";
 		foreach($array as $key => $pair){
 			if(is_array($pair)){
@@ -341,25 +343,27 @@ $script="jQuery(document).ready(function() {
 			return $select;
 		echo $select;		
 	}
-	static function selectSimple($id,$array,$selectedValues=false,$dontprint=false){
-		$select="<select id=\"$id\" name=\"$id\" >";
+	static function selectSimple($id,$array,$selectedValues=false,$dontprint=false,$class=false){
+		$class=$class?" class=\"$class\" ":'';		
+		$select="<select id=\"$id\" name=\"$id\" $class>";
 		if(is_array($array))
 			foreach($array as $key=>$element){
 				if(is_string($element) || is_int($element)){
 					$select.=self::option(str_replace('"','',$key),$element,$selectedValues==$key||$selectedValues==$element,true);
 				}
 				else
-				$select.=self::option($element->getId(),$element,$selectedValues==$element.'',true );
+					$select.=self::option($element->getId(),$element,$selectedValues==$element.'',true );
 			}
 		$select.='</select>';
 		if($dontprint)
 			return $select;
 		echo $select;		
 	} 
-	static function select($id,$array,$multiple=false,$selectedValues=false,$dontprint=false){
-		$select="<select id=\"$id\" name=\"$id\"";
+	static function select($id,$array,$multiple=false,$selectedValues=false,$dontprint=false,$class=''){
+		$class=$class?"class=\"$class\" ":'';				
+		$select="<select id=\"$id\" name=\"$id\" $class";
 		if($multiple){
-			$select="<select id=\"$id"."[]\" name=\"$id"."[]\" multiple style=\"height:70px\" size=\"5\"";
+			$select="<select id=\"$id"."[]\" name=\"$id"."[]\" multiple style=\"height:70px\" size=\"5\" $class";
 		}
 		$select.=' >';
 		$select.=self::option(0,'None',false,true);
@@ -390,6 +394,7 @@ $script="jQuery(document).ready(function() {
 	}
 	static function option($value,$display,$selected=false,$dontprint=false){
 		$text="<option value=\"$value\">$display</option>";
+		$value=htmlspecialchars($value, ENT_QUOTES);
 		if($selected)
 		$text="<option selected=\"selected\" value=\"$value\">$display</option>";
 		if($dontprint)
@@ -436,6 +441,7 @@ $script="jQuery(document).ready(function() {
 		$target=$target?" target=\"$target\" ":'';
 		$onclick=$onclick?" onclick=\"$onclick\" ":'';
 		$text=stripslashes($text);
+		$text=htmlspecialchars($text, ENT_QUOTES);
 		if($dontprint)
 		return "<a href=\"$path\" $class>$text</a>";
 		echo "<a href=\"$path\" $class>$text</a>";
@@ -443,26 +449,27 @@ $script="jQuery(document).ready(function() {
 	static function a($text,$path,$class=false,$dontprint=false){
 		$class=$class?" class=\"$class\" ":'';
 		$text=stripslashes($text);
+		$text=htmlspecialchars($text, ENT_QUOTES);		
 		if($dontprint)
 		return "<a href=\"$path\" $class>$text</a>";
 		echo "<a href=\"$path\" $class>$text</a>";
 	}
 	static function img($src,$alt=false,$class=false,$dontprint=false){
 		$class=$class?" class='$class'":'';
-		$alt=$alt?" alt='".$alt."'":'';
+		$alt=$alt?" alt='".htmlspecialchars(strip_tags($alt), ENT_QUOTES)."'":'';
 		if($dontprint)
 			return 	"<img $class src='$src' $alt />";
 		echo "<img $class src='$src' $alt />";
 	}
 	static function imglink($src,$path,$alt=false,$class=false,$dontprint=false,$id=false){
 		$class=$class?' class=\''.$class.'\' ':'';
-		$alt=$alt?" alt='".$alt."'":'';
+		$alt=$alt?" alt='".htmlspecialchars($alt, ENT_QUOTES)."'":'';
 		$id=$id?" id=\"$id\" ":'';
 		if($dontprint)
 			return "<a href='$path' $class><img src='$src' $alt /></a>";
 		echo "<a href='$path' $class><img src='$src' $alt /></a>";
 	}
-	static function deleteAllButton($text,$id,$path,$nonce,$dontprint=false){
+	static function deleteAllButton($text,$id,$path,$nonce, $dontprint=false){
 		$theForm="<form action=\"".urldecode($path)."\" method=\"".POST."\" >";
 		$theForm.=self::input('_redirect','hidden','referer',false,true);
 		$theForm.=self::input('_asnonce','hidden',Security::create()->create_nonce($nonce),false,true);
@@ -472,13 +479,13 @@ $script="jQuery(document).ready(function() {
 		if($dontprint)
 			return $theForm;
 		echo $theForm;		
-	}	
+	}
 	static function endForm($dontprint=false){
 		if($dontprint)
 			return "</form>";
 		echo "</form>";		
 	}
-	static function table($id,$data,$headlines=false,$nonce=false,$useLinks=false){
+	static function table($id,$data,$headlines=false,$nonce=false,$useLinks=false,$class=false){
 		$table="<table id=\"$id\" class=\"ui-widget ui-corner-all\">\n";
 		$tbody.="<tbody>\n";
 		foreach($data as $row){
@@ -539,36 +546,34 @@ $script="jQuery(document).ready(function() {
 		echo get_bloginfo('url').'/'.strtolower($class).'/'.strtolower($type);
 	}
 	static function paging($href,$total,$currentpage,$perpage,$dontprint=false){
-		$paging='<div class="tablenav-pages">';
+		$paging='<div class="tablenav"><div class="tablenav-pages">';
 		$paging.='<span class="displaying-num">';
 		
 		$pages=ceil($total/$perpage);
-		$pages=$pages>15?15:$pages;
+
+		$mod=fmod($currentpage,$perpage);
+		$startPage=$mod?$currentpage-$mod:$currentpage-$perpage;
+
+		$listPages=($pages)>($startPage+$perpage)?$startPage+$perpage:$pages;
+
 		$start=$total?($perpage*$currentpage-$perpage+1):0;
 		$end=($perpage*$currentpage<=$total)?$perpage*$currentpage:$total;
-		$paging.="Displaying $start-$end of ".'<span class="total-type-count">'.intval($total).'</span></span>';
-		if($pages>10 && ($currentpage-1)>1)
-			$paging.=self::a('&laquo;',"$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers prev',true).' ';
+		$paging.="Displaying $start - $end of ".'<span class="total-type-count">'.intval($total).'</span></span>';
+		if($pages>$perpage && ($currentpage)>$perpage)
+			$paging.=self::a('&laquo;',"$href&current=".intval($startPage).'&perpage='.intval($perpage),'prev page-numbers',true).' ';
 		if($pages>1)
-			for($page=1;$page<=$pages;$page++){
-				if(fmod($page,10)==0){
-					$paging.=self::a("[$page]","$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers',true);
-					if($page+10<=$pages)
-						$page+=9;
-				}
-				else if($page!=$currentpage)
+			for($page=$startPage+1;$page<=$listPages;$page++){
+				if($page!=$currentpage)
 					$paging.=self::a($page,"$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers',true);
 				else
 					$paging.='<span class="page-numbers current">'.intval($currentpage).'</span>';
 			}
-		if($pages>10 && ($currentpage-1)<$pages)
-			$paging.=' '.self::a('&raquo;',"$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers next',true);
-		$paging.="</div>";
+		if($pages>$listPages && ($currentpage-1)<$pages)
+			$paging.=' '.self::a('&raquo;',"$href&current=".intval($page).'&perpage='.intval($perpage),'next page-numbers',true);
+		$paging.="</div></div>";
 		if($dontprint)
 			return $paging;
-		echo $paging;		
-			
-	}
+		echo $paging;	}
 	static function notification($id,$message,$error=false){
 		if($error)
 			echo "<div id=\"$id\" class=\"ui-state-error ui-corner-all\">$message</div>";		

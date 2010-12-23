@@ -7,11 +7,11 @@ class ObjectUtility{
 		$methods= $class->getMethods(ReflectionMethod::IS_PUBLIC);
 		$properties=array();
 		Debug::Value('Class',get_class($object));
-		foreach($methods as $method)
-			if(strpos($method->getName() ,'get')!==false && !$method->isStatic()){
-				$property=substr($method->getName(),3);
-				$properties[]=$property;	
-			}
+		foreach($methods as $method){
+			$name=$method->getName();
+			if(strpos($name ,'__')===false && strpos($name ,'get')!==false && !$method->isStatic() )
+				$properties[]=substr($name,3);	
+		}
 		return $properties;
 	}
 	
@@ -32,9 +32,8 @@ class ObjectUtility{
 		$methods= $class->getMethods(ReflectionMethod::IS_PUBLIC);
 		$properties=array();
 		foreach($methods as $method)
-			if(strpos($method->getName(),'List')!==false){
+			if(strpos($method->getName(),'List')!==false)
 				$properties[str_replace('List','',$method->getName())]=$method->invoke($object);	
-			}
 		return $properties;
 	}
 	static function addToArray($object,$method,$values){
@@ -52,9 +51,9 @@ class ObjectUtility{
 		$methods= $class->getMethods(ReflectionMethod::IS_PUBLIC);
 		$properties=array();
 		foreach($methods as $method){
-			if(strpos($method->getName(),'get')!==false && !$method->isStatic()){
-				$properties[substr($method->getName(),3)]=$method->invoke($object);
-			}
+			$name=$method->getName();
+			if(strpos($name ,'__')===false && strpos($name ,'get')!==false && !$method->isStatic() )
+				$properties[substr($name,3)]=$method->invoke($object);
 		}
 		return $properties;
 	}

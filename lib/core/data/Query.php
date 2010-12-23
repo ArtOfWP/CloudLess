@@ -53,8 +53,8 @@ class Query{
 		}*/		
 		return $q;
 	}
-	static function create(){
-		return new Query();
+	static function create($table=false){
+		return new Query($table);
 	}
 	private $statement=array();
 	var $depends=array();
@@ -64,6 +64,18 @@ class Query{
 		$this->statement['from'][]=$this->addMark($db_prefix.$table);
 		return $this;		
 	}
+	public function selectDistinct($property,$table=false){
+		global $db_prefix;
+		if($property instanceof SelectFunction){
+			$this->statement['select'][]='DISTINCT '.$property->toSQL($this->addMark($property->getColumn()));
+		}else{
+			$property=$this->addMark(strtolower($property));
+			$this->statement['select'][]=$table?'DISTINCT '.$this->addMark($db_prefix.$table).'.'.$property:'DISTTINCT '.$property;
+		}
+		return $this;		
+		
+	}
+	
 	public function select($property,$table=false){
 		global $db_prefix;
 		if($property instanceof SelectFunction){
@@ -91,7 +103,11 @@ class Query{
 		$this->where($restriction);
 		return $this;
 	}
-	
+	public function Or_($restriction){
+		$this->statement['where'][]=R::_Or();
+		$this->where($restriction);
+		return $this;
+	}	
 	public function whereAnd($restriction){
 		$this->where($restriction);
 		$this->statement['where'][]=R::_And();
@@ -110,7 +126,7 @@ class Query{
 		return $this;
 	}
 	public function hasWhere(){
-		return !empty($this->statement['where']);
+		return isset($this->statement['where']) && !empty($this->statement['where']) && sizeof($this->statement['where']) && $this->statement['where'][0]!=null;
 	}
 	public function hasLimit(){
 		return !empty($this->limit);
@@ -118,8 +134,9 @@ class Query{
 	public function getStatement(){
 		return $this->statement;
 	}
-	public function getValues(){
-		
+	public function groupBy($property){
+		$this->statement['groupby'][]=$this->addMark(strtolower($property));
+		return $this;
 	}
 	public function setParameter($param,$value){
 		foreach($this->statement['where'] as $restriction){
@@ -162,6 +179,7 @@ class Query{
 			case 'select':
 			case 'where':
 			case 'order':
+			case 'groupby':
 				if(isset($this->statement[$property]))
 					return $this->statement[$property];
 				return array();
@@ -172,4 +190,3 @@ class Query{
 		return '`'.$ct.'`';
 	}
 }
-?>

@@ -41,7 +41,7 @@ class Http{
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);  
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);  		
 		if($referer)		
-			curl_setopt($ch, CURLOPT_REFERER, $referer);		
+			curl_setopt($ch, CURLOPT_REFERER, $referer);
 		$cache=curl_exec($ch);
 		curl_close ($ch);
 		return $cache;

@@ -1,6 +1,9 @@
 <?php
 abstract class ActiveRecordBase{
+	private $tempProperties=array();
 	function create(){
+		if(!$this->runEventMethod(__FUNCTION__,'Pre'))
+			return;
 		$properties =ObjectUtility::getPropertiesAndValues($this);
 		$vo=array();
 		$vo['table']=strtolower(get_class($this));
@@ -41,8 +44,11 @@ abstract class ActiveRecordBase{
 					}	
 				}
 		}
+		$this->runEventMethod(__FUNCTION__,'Post');		
 	}
 	function delete(){
+		if(!$this->runEventMethod(__FUNCTION__,'Pre'))
+			return;
 		$lists=ObjectUtility::getArrayPropertiesAndValues($this);
 		$column=strtolower(get_class($this)).'_id';
 		foreach($lists as $list =>$values){
@@ -54,8 +60,11 @@ abstract class ActiveRecordBase{
 		Delete::createFrom($this)
 		->where(R::Eq($this,$this->getId()))
 		->execute();
+		$this->runEventMethod(__FUNCTION__,'Post');		
 	}
-	function update(){	
+	function update(){
+		if(!$this->runEventMethod(__FUNCTION__,'Pre'))
+			return;
 		Debug::Value('Update',get_class($this));	
 		$properties =ObjectUtility::getPropertiesAndValues($this);
 		Debug::Value('Properties',$properties);
@@ -110,22 +119,51 @@ abstract class ActiveRecordBase{
 				Delete::createFrom($table)->where(R::Eq($vo['table'].'_id',$this))->execute();
 			}
 		}
+		$this->runEventMethod(__FUNCTION__,'Post');		
 	}
 	function save(){
-		$doit=true;
 		if(method_exists($this,'on_pre_save'))
-			$doit=$this->on_pre_save();		
-		Debug::Message('Save Doit',$doit);
-		if($doit)
-			if($this->getId()>0)
-				$this->update();
-			else
-				$this->create();
+			if(!$this->on_pre_save())
+				return;
+		if(!$this->runEventMethod(__FUNCTION__,'Pre'))
+			return;
+		if($this->getId()>0)
+			$this->update();
+		else
+			$this->create();
+		$this->runEventMethod(__FUNCTION__,'Post');
 	}
 	static function _($class){
 		$item = new $class();
 		return $item;
 	}
+	public function __get($property){
+		$call="get".$property;
+		if(method_exists($this,$call))
+			return $this->$call();
+		else if(strpos($property,'Lazy')!==false)
+			return $this->$call();
+		return $this->tempProperties[$property];
+//		$trace = debug_backtrace();
+//		trigger_error('Undefined property via __get(): ' . $property .' in ' . $trace[0]['file'] .' on line ' . $trace[0]['line'],E_USER_NOTICE);
+	}
+	public function __set($property,$value){
+		$call="set".$property;
+		if(property_exists($this,strtolower($property)))
+			return $this->$call($value);
+		$this->tempProperties[$property]=$value;
+//		$trace = debug_backtrace();
+//		trigger_error('Undefined property via __set(): ' . $property .' in ' . $trace[0]['file'] .' on line ' . $trace[0]['line'],E_USER_NOTICE);        
+	}
+	
+    public function __isset($property) {
+        return !empty($this->$property);
+    }
+    public function __unset($property) {
+    	$property=strtolower($property);
+        unset($this->$property);
+    }/**/
+	
 	
 	public function __call($method,$arguments){
 		if($this->getId()){
@@ -172,5 +210,12 @@ abstract class ActiveRecordBase{
 				}
 			}
 		}
+	}
+	private function runEventMethod($event,$when){
+		$method='on'.$when.ucfirst($event);
+		if(method_exists($this,$method))
+			return $this->$method();
+		else
+			return true;
 	}
 }

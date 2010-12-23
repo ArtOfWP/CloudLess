@@ -1,5 +1,22 @@
-10.10.3
- * 
+10.12.1
+Improvements
+ * Added ViewSection support (similar to WordPress actions)
+ * Added Filter support. Similar to WordPress filters
+ * Added Group By support to Query. Small changes in MySqlDatabase->query().
+ * Added Group By support to CountQuery.
+ * Added Group By support to Repo helper class.
+ * Added Less than or equal support to Requirements
+ * Added Distinct to Query and CountQuery
+ * Added ViewSection support. Similar to WordPress actions.
+ * Added magic properties to ActiveRecordBase
+ * Added events to ActiveRecordBase
+Bug fixes
+ * Fixed Query Bug. Empty wheres.
+ * Fixed table column wrap bug with Match Restriction.
+ * Fixed Pagin display.
+ * Fixed Pagin links
+ * Fixed non critical action security issue with BaseController
+
 10.10.2
  * Added hooks to plain.php, Removed wp specific functions names in WpApplicationBase
 10.10.1
