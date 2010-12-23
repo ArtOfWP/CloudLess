@@ -23,6 +23,8 @@ class FilterHelper{
 				$value=call_user_func_array($function,$params);
 				$params[0]=$value;
 			}
+		}else{
+			$value=$params[0];
 		}
 		return $value;
 	}
