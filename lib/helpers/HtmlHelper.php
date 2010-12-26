@@ -305,9 +305,8 @@ $script="jQuery(document).ready(function() {
 	static function currencydropdown($id,$selectedCurrency, $dontprint=false,$class=false){
 		$currency=array("USD"=>"United States Dollars","CAD"=>"Canada Dollars","EUR"=>"Euro","GBP"=>"United Kingdom Pounds");
 		$select="<select id=\"$id\" name=\"$id\" >";
-		foreach($currency as $key => $element){
-			$select.=self::option(str_replace('"','',$key),$element,$selectedCurrency==$element,true);
-		}
+		foreach($currency as $key => $element)
+			$select.=self::option(str_replace('"','',$key),$element,$selectedCurrency==$key,true);
 		$select.='</select>';
 		if($dontprint)
 			return $select;

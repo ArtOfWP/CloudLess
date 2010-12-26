@@ -72,8 +72,7 @@ class Query{
 			$property=$this->addMark(strtolower($property));
 			$this->statement['select'][]=$table?'DISTINCT '.$this->addMark($db_prefix.$table).'.'.$property:'DISTTINCT '.$property;
 		}
-		return $this;		
-		
+		return $this;
 	}
 	
 	public function select($property,$table=false){

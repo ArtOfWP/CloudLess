@@ -11,7 +11,6 @@ class R{
 	var $columns;
 	var $method;
 	var $placement;
-	var $param;
 
 	static $LEFT=0;
 	static $BOTH=1;
@@ -21,8 +20,9 @@ class R{
 		$r = new R();
 		$r->method='MATCH';
 		$r->columns=$columns;
-		$r->value=trim($keywords);
-		$r->param=str_replace(array(' ','-','+'),'',trim($r->value));
+//		$r->value=trim($keywords);
+		$r->setParameter('matchParams'.sizeof($columns),trim($keywords));
+//		$r->param=str_replace(array(' ','-','+'),'',trim($r->value));
 		return $r;
 	}
 	static function Ge($property,$value,$isProperty=false){
@@ -68,7 +68,8 @@ class R{
 			else
 				$r->value=$value;
 			$r->hasvalue=true;
-		}
+			$r->setParameter($r->column,$r->value);
+		}		
 		return $r;		
 	}
 	static function NotEq($property,$value,$isProperty=false){
@@ -93,6 +94,7 @@ class R{
 			else
 				$r->value=$value;
 			$r->hasvalue=true;
+			$r->setParameter($r->column,$r->value);			
 		}
 		return $r;		
 	}	
@@ -120,6 +122,7 @@ class R{
 			else
 				$r->value=$value;
 			$r->hasvalue=true;
+			$r->setParameter($r->column,$r->value);
 		}
 		return $r;		
 	}	
@@ -140,11 +143,15 @@ class R{
 			}else
 				$r->column=$p[0];
 		}else{*/
+		$count=0;
 		foreach($values as $value){
 			if($value instanceof ActiveRecordBase)
-				$r->values[]=$value->getId();			
+				$tempValue=$value->getId();
 			else
-				$r->values[]=$value;
+				$tempValue=$value;
+			$r->values[]=$tempValue;
+			$param=$r->column.($count++);
+			$r->setParameter($param,$tempValue);
 		}
 //		}
 		return $r;	
@@ -155,8 +162,9 @@ class R{
 		$r->method='LIKE';
 		$r->placement=$placement;
 		$r->value=$value;
+		$r->setParameter($r->column,$value);
 		$r->hasvalue=true;
-		return $r;		
+		return $r;
 	}
 	static function _And(){
 		$r = new R();
@@ -175,20 +183,12 @@ class R{
 		return $this->value;
 	}
 	function setParameter($param,$value){
-		if(strtolower($param)==$this->column) 
-			$this->value=$value;
-		else{
-			$this->param=$param;
-			$this->value=$value;
-		}
+		$this->parameters[":$param"]=$value;
 	}
 	function getParameter($key=false){
 		if($key)
-			return ':'.$this->param;
-		if($this->param)
-			return array(':'.$this->param=>$this->value);		
-		else
-			return array(':'.$this->column=>$this->value);
+			return $this->parameters[":$key"];
+		return $this->parameters;
 	}
 	function getParameters(){		
 		return $this->parameters;
@@ -196,9 +196,6 @@ class R{
 	function toSQL(){
 		switch($this->method){
 			case "LIKE":
-				if(!isset($this->param))
-					$this->param=$this->column;				
-				$sql=$this->addMark($this->column).' LIKE '."concat('%',:".$this->param.')';
 				if($this->placement==R::$LEFT)
 					$front="%";
 				else if($this->placement==R::$RIGHT)
@@ -207,7 +204,8 @@ class R{
 					$front="%";					
 					$back="%";
 				}
-				$sql=$this->addMark($this->column).' LIKE '."concat('$front',:".$this->param.",'$back')";
+				$param=array_pop(array_keys($this->getParameters()));
+				$sql=$this->addMark($this->column).' LIKE '."concat('$front',".$param.",'$back')";
 				return $sql;
 			case 'MATCH':
 				$sql=' MATCH(';
@@ -218,7 +216,8 @@ class R{
 				
 					$sql.=implode(',',$columns);
 				$sql.=') AGAINST(';
-				$sql.=$this->getParameter(true);
+				$param=array_pop(array_keys($this->getParameters()));				
+				$sql.=$param;
 				$sql.=' IN BOOLEAN MODE)';
 				return $sql;
 			case ' IN ':
@@ -227,10 +226,7 @@ class R{
 					$sql.=$this->addMark($this->table).'.';
 				$sql.=$this->addMark($this->column).$this->method;
 				$sql.='(';
-				foreach($this->values as $value){
-					$this->parameters[':'.$value]=$value;
-				}
-				$sql.=implode(',',array_keys($this->parameters));
+				$sql.=implode(',',array_keys($this->getParameters()));
 				$sql.=')';
 /*				if($this->hasValue())
 					$sql.=':'.$this->column;
@@ -244,13 +240,11 @@ class R{
 			case '<>':
 			case '=':
 				$sql='';	
-				if(!isset($this->param))
-					$this->param=$this->column;
 				if($this->table)
 					$sql.=$this->addMark($this->table).'.';
 				$sql.=$this->addMark($this->column).$this->method;
 				if($this->hasValue())
-					$sql.=':'.$this->param;
+					$sql.=array_pop(array_keys($this->getParameters()));
 				else
 					$sql.=$this->addMark($this->foreigntable).'.'.$this->addMark($this->foreigncolumn);
 				return $sql;
