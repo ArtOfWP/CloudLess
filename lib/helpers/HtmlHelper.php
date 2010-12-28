@@ -291,7 +291,7 @@ $script="jQuery(document).ready(function() {
 		$class=$class?"class=\"$class\" ":'';
 		$value=htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		if($dontprint)
-		return "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
+			return "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
 		echo  "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
 	}
 	static function textarea($id,$value,$class=false,$dontprint=false){
