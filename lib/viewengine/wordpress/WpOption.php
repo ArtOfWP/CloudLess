@@ -32,6 +32,9 @@ class WpOption implements IOption{
 	public function __set($option,$value){
 		$this->options[$option]=$value;
 	}
+	public function __isset($option){
+		return isset($this->options[$option]);
+	}
 	public function getArray(){
 		return $this->options;
 	}

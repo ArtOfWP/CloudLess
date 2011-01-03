@@ -61,22 +61,24 @@ abstract class WpApplicationBase{
 				add_action('wp_footer',array(&$this,'on_render_footer'));
 		}
 		add_filter('pre_set_site_transient_update_plugins', array(&$this, 'site_transient_update_plugins'));
-        add_action('update_option__transient_update_plugins', array(&$this, 'transient_update_plugins'));		
-		$this->init();  
-		Debug::Value($appName,$this->app);
-
-	}
-		
-	private function init(){
-		if(method_exists($this,'on_initialize'))
-			$this->on_initialize();
+        add_action('update_option__transient_update_plugins', array(&$this, 'transient_update_plugins'));
 		if($this->useOptions){			
 			$this->options= Option::create($this->app);
 			if(method_exists($this,'on_load_options'))
-				$this->on_load_options();			
-		}		
+				$this->on_load_options();
+		}
+		Debug::Value($appName,$this->app);
+	}
+	public function init(){
+		if(method_exists($this,'on_initialize'))
+			$this->on_initialize();
 		if(is_admin() && method_exists($this,'on_init_update')){
 			$this->on_init_update();
+			$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);	
+			if($this->installed() && version_compare($oldVersion,$this->VERSION,'<')){
+				AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
+				$this->update();
+			}
 			if($this->UPDATE_SITE && isset($_REQUEST['action']) && 'upgrade-plugin'==$_REQUEST['action'] && isset($_REQUEST['plugin']) && urldecode($_REQUEST['plugin'])==$this->pluginname)
 				add_filter('http_request_args',array(&$this,'add_update_url'),10,2);
 		}
@@ -116,6 +118,8 @@ abstract class WpApplicationBase{
 		return $links;
 	}
 	function activate(){
+		if(method_exists($this,'on_init_update'))
+			$this->on_init_update();
 		$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);	
 		$installed=$this->installed();
 		AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
@@ -137,11 +141,6 @@ abstract class WpApplicationBase{
 			$this->on_deactivate();
 		if(!$this->useInstall){
 			AoiSoraSettings::uninstallApplication($this->app);
-		
-			if($this->useOptions){			
-				$this->options= Option::create($this->app);
-				$this->options->delete();
-			}
 		}
 	}
 	function installed(){

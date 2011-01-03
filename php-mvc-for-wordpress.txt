@@ -1,4 +1,8 @@
-10.12.1
+10.12.31
+ * Made compliant with WordPress 3.1
+ * Fixed some HtmlHelper bugs
+ * Fixed htaccess bug
+10.12.2
  * Fixed a bug with Query Restriction IN
  * Fixed a bug with QUery Restriction Equals
 10.12.1
@@ -16,8 +20,8 @@ Improvements
 Bug fixes
  * Fixed Query Bug. Empty wheres.
  * Fixed table column wrap bug with Match Restriction.
- * Fixed Pagin display.
- * Fixed Pagin links.
+ * Fixed Paging display.
+ * Fixed Paging links.
  * Fixed non critical action security issue with BaseController.
 
 10.10.2

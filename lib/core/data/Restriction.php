@@ -64,7 +64,7 @@ class R{
 				$r->column=$p[0];
 		}else{
 			if($value instanceof ActiveRecordBase)
-				$r->value=$value->getId();			
+				$r->value=$value->getId();
 			else
 				$r->value=$value;
 			$r->hasvalue=true;

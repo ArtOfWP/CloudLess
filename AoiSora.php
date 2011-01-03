@@ -3,7 +3,7 @@
 Plugin Name: PHP MVC For WordPress (AoiSora)
 Plugin URI: http://artofwp.com/products/php-mvc-for-wordpress/
 Description: AoiSora is a PHP MVC Framework for WordPress.
-Version: 10.12.2
+Version: 10.12.31
 Author: Andreas Nurbo
 Author URI: http://artofwp.com/
 */
@@ -47,7 +47,7 @@ class AoiSora extends WpApplicationBase{
 		$this->load_js();
 	}
 	function on_init_update(){
-		$this->VERSION='10.12.2';
+		$this->VERSION='10.12.31';
 		$this->UPDATE_SITE='http://api.artofwp.com/?free_update=plugin';
 		$this->SLUG='php-mvc-for-wordpress';
 		$this->VERSION_INFO_LINK='http://api.artofwp.com/?update=plugin_information';		
@@ -62,31 +62,49 @@ class AoiSora extends WpApplicationBase{
 	}
 	function load_js(){
 		wp_register_script('jquery-validate',"http://ajax.microsoft.com/ajax/jquery.validate/1.5.5/jquery.validate.min.js",array('jquery'));
-		wp_register_script('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core'));	
+		wp_register_script('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core','jquery-ui-widget'));
 		wp_register_style('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.css'));
 		wp_register_script('jquery-dialog',includes_url('/js/jquery/ui.dialog.js'));
-		wp_register_script('jquery-ui',"http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js");
+		global $wp_version;
+		if(version_compare($wp_version,'3.1','<'))
+			wp_register_script('jquery-ui-widget',plugins_url('AoiSora/lib/js/ui.widget.js'),array('jquery','jquery-ui-core'));
 		if(is_admin()){
 			wp_register_script('jquery-ui-tag-it',plugins_url('AoiSora/lib/js/jquery.ui.tag-it/ui.tag-it.js'),array('jquery','jquery-ui-core'));			
 			wp_register_style('forms',plugins_url('AoiSora/lib/css/forms.css'));			
-			wp_register_style('wordpress',plugins_url('AoiSora/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css'));			
+			wp_register_style('wordpress',plugins_url('AoiSora/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css'));
 		}
 	}	
-    static function instance(){	    	
+    static function instance(){
     	if(self::$instance)
     		return self::$instance;
     	self::$instance=new AoiSora();
+    	self::$instance->init();
     	return self::$instance;
+    }
+    function on_update(){
+	    $htaccessrules=get_htaccess_rules();
+		$path=get_htaccess_rules_path();
+		if(is_writable($path)){
+			$temp=file_get_contents($path);
+			
+			if(strpos($temp,'PHPMVC')!==FALSE)
+				$temp=preg_replace("/\# BEGIN PHPMVC.*\# END PHPMVC/s",$htaccessrules,$text);
+			$fh=fopen($path,'w');
+			fwrite($fh,$htaccessrules);
+			fwrite($fh,$temp);	
+			fclose($fh);
+		}
     }
 	function on_activate(){
 	$htaccessrules=get_htaccess_rules();
 	$path=get_htaccess_rules_path();
 		if(is_writable($path)){
 			$temp=file_get_contents($path);
-			if(strpos($temp,'PHPMVC')!==FALSE)
-				return;
 			$fh=fopen($path,'w');
-			fwrite($fh,$htaccessrules);
+			if(strpos($temp,'PHPMVC')!==FALSE){
+				$temp=preg_replace("/\# BEGIN PHPMVC.*\# END PHPMVC/s",$htaccessrules,$temp);
+			}else
+				fwrite($fh,$htaccessrules);
 			fwrite($fh,$temp);	
 			fclose($fh);
 		}
