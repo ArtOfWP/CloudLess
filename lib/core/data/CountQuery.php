@@ -1,6 +1,11 @@
 <?php
 class CountQuery{
 	function CountQuery($table=false){
+		$this->statement['from']=array();
+		$this->statement['order']=array();
+		$this->statement['groupby']=array();
+		$this->statement['select']=array();			
+		$this->statement['where']=array();			
 		if($table){
 			$this->from($table);	
 		}

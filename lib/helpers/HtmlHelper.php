@@ -484,7 +484,7 @@ $script="jQuery(document).ready(function() {
 		$theForm.=self::input('_redirect','hidden','referer',false,true);
 		$theForm.=self::input('_asnonce','hidden',Security::create()->create_nonce($nonce),false,true);
 		$theForm.=self::input('_method','hidden','delete',false,true);
-		$theForm.=str_replace('>'," onclick=\"return confirm('Are you sure you want to delete selected?')\" >",self::input('delete'.$value,'submit',$text,'button-secondary',true));		
+		$theForm.=str_replace('>'," onclick=\"return confirm('Are you sure you want to delete selected?')\" >",self::input('delete'.$id,'submit',$text,'button-secondary',true));		
 //		$theForm.='</form>';
 		if($dontprint)
 			return $theForm;
@@ -497,7 +497,7 @@ $script="jQuery(document).ready(function() {
 	}
 	static function table($id,$data,$headlines=false,$nonce=false,$useLinks=false,$class=false){
 		$table="<table id=\"$id\" class=\"ui-widget ui-corner-all\">\n";
-		$tbody.="<tbody>\n";
+		$tbody="<tbody>\n";
 		foreach($data as $row){
 			$class=strtolower(get_class($row));
 			$tbody.="<tr>\n";

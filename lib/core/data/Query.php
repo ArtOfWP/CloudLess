@@ -4,6 +4,11 @@ class Query{
 	public $limit;
 	public $offset;
 	function Query($table=false){
+		$this->statement['from']=array();
+		$this->statement['order']=array();
+		$this->statement['groupby']=array();
+		$this->statement['select']=array();			
+		$this->statement['where']=array();					
 		if($table){
 			$this->from($table);
 		}
@@ -62,7 +67,7 @@ class Query{
 	public function from($table){
 		global $db_prefix;
 		$this->statement['from'][]=$this->addMark($db_prefix.$table);
-		return $this;		
+		return $this;
 	}
 	public function selectDistinct($property,$table=false){
 		global $db_prefix;

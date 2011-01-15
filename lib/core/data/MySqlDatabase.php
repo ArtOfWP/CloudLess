@@ -1,6 +1,6 @@
 <?php
 class MySqlDatabase{
-	private $db;
+	public $db;
 	private $stmt;
 	private $relations=array();
 	private $indexes=array();

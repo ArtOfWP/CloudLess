@@ -1,3 +1,7 @@
+11.1.1
+ * IMPORTANT: Fixed update issue with some linux path configurations
+ * Fixed issue with conflicting jQuery files for 3.1
+
 10.12.31
  * Made compliant with WordPress 3.1
  * Fixed some HtmlHelper bugs

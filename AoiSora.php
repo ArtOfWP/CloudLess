@@ -3,7 +3,7 @@
 Plugin Name: PHP MVC For WordPress (AoiSora)
 Plugin URI: http://artofwp.com/products/php-mvc-for-wordpress/
 Description: AoiSora is a PHP MVC Framework for WordPress.
-Version: 10.12.31
+Version: 11.1.1
 Author: Andreas Nurbo
 Author URI: http://artofwp.com/
 */
@@ -44,10 +44,9 @@ class AoiSora extends WpApplicationBase{
 	private static $instance;
 	function AoiSora(){
 		parent::WpApplicationBase('AoiSora',__FILE__,true,false);
-		$this->load_js();
 	}
 	function on_init_update(){
-		$this->VERSION='10.12.31';
+		$this->VERSION='11.1.1';
 		$this->UPDATE_SITE='http://api.artofwp.com/?free_update=plugin';
 		$this->SLUG='php-mvc-for-wordpress';
 		$this->VERSION_INFO_LINK='http://api.artofwp.com/?update=plugin_information';		
@@ -60,14 +59,13 @@ class AoiSora extends WpApplicationBase{
 			$this->options->save();
 		}
 	}
-	function load_js(){
+	function on_init(){
 		wp_register_script('jquery-validate',"http://ajax.microsoft.com/ajax/jquery.validate/1.5.5/jquery.validate.min.js",array('jquery'));
 		wp_register_script('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core','jquery-ui-widget'));
 		wp_register_style('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.css'));
-		wp_register_script('jquery-dialog',includes_url('/js/jquery/ui.dialog.js'));
 		global $wp_version;
 		if(version_compare($wp_version,'3.1','<'))
-			wp_register_script('jquery-ui-widget',plugins_url('AoiSora/lib/js/ui.widget.js'),array('jquery','jquery-ui-core'));
+			wp_register_script('jquery-ui-widget',plugins_url('AoiSora/lib/js/ui.widget.js'),'jquery');
 		if(is_admin()){
 			wp_register_script('jquery-ui-tag-it',plugins_url('AoiSora/lib/js/jquery.ui.tag-it/ui.tag-it.js'),array('jquery','jquery-ui-core'));			
 			wp_register_style('forms',plugins_url('AoiSora/lib/css/forms.css'));			
@@ -86,22 +84,26 @@ class AoiSora extends WpApplicationBase{
 		$path=get_htaccess_rules_path();
 		if(is_writable($path)){
 			$temp=file_get_contents($path);
-			
-			if(strpos($temp,'PHPMVC')!==FALSE)
-				$temp=preg_replace("/\# BEGIN PHPMVC.*\# END PHPMVC/s",$htaccessrules,$text);
 			$fh=fopen($path,'w');
-			fwrite($fh,$htaccessrules);
-			fwrite($fh,$temp);	
+			if(strpos($temp,'PHPMVC')!==FALSE){
+				$htaccessrules=str_replace('$1','\$1',$htaccessrules);
+				$htaccessrules=str_replace('$2','\$2',$htaccessrules);				
+				$temp=preg_replace("/\# BEGIN PHPMVC.*\# END PHPMVC/s",$htaccessrules,$temp);
+			}else
+				fwrite($fh,$htaccessrules);
+			fwrite($fh,$temp);
 			fclose($fh);
 		}
     }
 	function on_activate(){
-	$htaccessrules=get_htaccess_rules();
-	$path=get_htaccess_rules_path();
+		$htaccessrules=get_htaccess_rules();
+		$path=get_htaccess_rules_path();
 		if(is_writable($path)){
 			$temp=file_get_contents($path);
 			$fh=fopen($path,'w');
 			if(strpos($temp,'PHPMVC')!==FALSE){
+				$htaccessrules=str_replace('$1','\$1',$htaccessrules);
+				$htaccessrules=str_replace('$2','\$2',$htaccessrules);				
 				$temp=preg_replace("/\# BEGIN PHPMVC.*\# END PHPMVC/s",$htaccessrules,$temp);
 			}else
 				fwrite($fh,$htaccessrules);

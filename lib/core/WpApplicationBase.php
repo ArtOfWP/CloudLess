@@ -28,10 +28,14 @@ abstract class WpApplicationBase{
 		$this->useOptions=$useOptions;		
 		if(method_exists($this,'on_register_query_vars'))
 			add_filter('query_vars', array(&$this,'register_query_vars'));
-			if(method_exists($this,'on_init'))
-				add_action('init', array(&$this,'on_init'));
+		if(method_exists($this,'on_init'))
+			add_action('init', array(&$this,'on_init'));
 		if(is_admin()){
-			add_action( 'admin_init', array(&$this,'register_settings' ));				
+			if(method_exists($this,'on_print_admin_scripts'))
+				add_action('init', array(&$this,'print_admin_scripts'));
+			if(method_exists($this,'on_print_admin_styles'))
+				add_action('init', array(&$this,'print_admin_styles'));
+			add_action( 'admin_init', array(&$this,'register_settings' ));
 			if(method_exists($this,'on_plugin_page_link'))
 				add_filter( 'plugin_action_links_'.$this->pluginname, array(&$this,'plugin_page_links'), 10, 2 );
 			if(method_exists($this,'on_plugin_row_message'))
@@ -202,8 +206,11 @@ abstract class WpApplicationBase{
 		if(method_exists($this,'on_update')){
 			$this->on_update();
 		}
-		if(file_exists(trim($this->dir,'/').'/app/updates/'.$this->VERSION.'.php'))
-			include(trim($this->dir,'/').'/app/updates/'.$this->VERSION.'.php');/**/
+		$updatepath=trim($this->dir,'/').'/app/updates/'.$this->VERSION.'.php';
+		if(file_exists('/'.$updatepath))
+			include('/'.$updatepath);
+		else if(file_exists($updatepath))
+			include($updatepath);
 	}
 	private function load($dir){
 		Debug::Value('Loading directory',$dir);
@@ -265,7 +272,7 @@ abstract class WpApplicationBase{
 	}	
 	function get_version_info(){
 		global $wp_version;
-		$version_info=get_transient('aoisora-update-'.$this->slug);
+		$version_info=get_transient('aoisora-update-'.$this->SLUG);
 		if($version_info)
 			return $version_info;
 		$body=array('id' => $this->SLUG);

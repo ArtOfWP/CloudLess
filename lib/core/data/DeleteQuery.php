@@ -1,6 +1,8 @@
 <?php
 class Delete{
 	function Delete($table=false){
+		$this->statement['from']=array();	
+		$this->statement['where']=array();			
 		if($table){
 			$this->from($table);
 		}
@@ -59,4 +61,3 @@ class Delete{
 		return '`'.$ct.'`';
 	}
 }
-?>
