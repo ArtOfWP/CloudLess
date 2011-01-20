@@ -59,7 +59,7 @@ class HtmlHelper{
 	<a class="button toggleVisual">Visual</a>
 	<a class="button toggleHTML">HTML</a>
 </p>';
-					$htmlarea=$id;			
+					$htmlarea=$id;
 					$theForm.=self::textarea($id,stripslashes($value),"$id theEditor",true);
 				}
 				else if($field=='image'){
@@ -109,6 +109,9 @@ class HtmlHelper{
 				else if($field=='url'){
 					$theForm.=self::input($id,'text',str_replace('"','',$value),'regular-text',true);
 					$theForm.='<br />'.self::ax('Test link',$value,false,false,'_blank',true);
+				}
+				else if($field=='checkbox'){					
+					$theForm.=self::checkbox($id,1,$value,'checkbox',true);
 				}
 				else if($field=='currency'){
 					$theForm.=self::currencydropdown($id,$value,true);
@@ -287,11 +290,19 @@ $script="jQuery(document).ready(function() {
 			return "<label for='$id' $class >$id:</label>";
 		echo "<label for='$id' $class >$id:</label>";
 	}
+	static function checkbox($id,$value,$checked=false,$class=false,$dontprint=false){
+		$class=$class?"class=\"$class\" ":'';
+		$value=htmlspecialchars(strip_tags($value), ENT_QUOTES);
+		$checked=$checked?" checked='checked'":'';
+		if($dontprint)
+			return "<input id=\"$id\" name=\"$id\" type=\"checkbox\" value=\"$value\" $checked $class />";
+		echo  "<input id=\"$id\" name=\"$id\" type=\"checkbox\" value=\"$value\" $checked $class />";
+	}
 	static function input($id,$type,$value,$class=false,$dontprint=false){
 		$class=$class?"class=\"$class\" ":'';
 		$value=htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		if($dontprint)
-		return "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
+			return "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
 		echo  "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
 	}
 	static function textarea($id,$value,$class=false,$dontprint=false){
@@ -303,11 +314,10 @@ $script="jQuery(document).ready(function() {
 			
 	}
 	static function currencydropdown($id,$selectedCurrency, $dontprint=false,$class=false){
-		$currency=array("USD"=>"United States Dollars","CAD"=>"Canada Dollars","EUR"=>"Euro","GBP"=>"United Kingdom Pounds");
+		$currency=array("USD"=>"United States Dollars","CAD$"=>"Canada Dollars","EUR"=>"Euro","GBP"=>"United Kingdom Pounds");
 		$select="<select id=\"$id\" name=\"$id\" >";
-		foreach($currency as $key => $element){
-			$select.=self::option(str_replace('"','',$key),$element,$selectedCurrency==$element,true);
-		}
+		foreach($currency as $key => $element)
+			$select.=self::option(str_replace('"','',$key),$element,strtolower($selectedCurrency)==strtolower($key),true);
 		$select.='</select>';
 		if($dontprint)
 			return $select;
@@ -449,7 +459,7 @@ $script="jQuery(document).ready(function() {
 	static function a($text,$path,$class=false,$dontprint=false){
 		$class=$class?" class=\"$class\" ":'';
 		$text=stripslashes($text);
-		$text=htmlspecialchars($text, ENT_QUOTES);		
+		$text=htmlspecialchars($text, ENT_QUOTES);
 		if($dontprint)
 		return "<a href=\"$path\" $class>$text</a>";
 		echo "<a href=\"$path\" $class>$text</a>";
@@ -474,7 +484,7 @@ $script="jQuery(document).ready(function() {
 		$theForm.=self::input('_redirect','hidden','referer',false,true);
 		$theForm.=self::input('_asnonce','hidden',Security::create()->create_nonce($nonce),false,true);
 		$theForm.=self::input('_method','hidden','delete',false,true);
-		$theForm.=str_replace('>'," onclick=\"return confirm('Are you sure you want to delete selected?')\" >",self::input('delete'.$value,'submit',$text,'button-secondary',true));		
+		$theForm.=str_replace('>'," onclick=\"return confirm('Are you sure you want to delete selected?')\" >",self::input('delete'.$id,'submit',$text,'button-secondary',true));		
 //		$theForm.='</form>';
 		if($dontprint)
 			return $theForm;
@@ -487,7 +497,7 @@ $script="jQuery(document).ready(function() {
 	}
 	static function table($id,$data,$headlines=false,$nonce=false,$useLinks=false,$class=false){
 		$table="<table id=\"$id\" class=\"ui-widget ui-corner-all\">\n";
-		$tbody.="<tbody>\n";
+		$tbody="<tbody>\n";
 		foreach($data as $row){
 			$class=strtolower(get_class($row));
 			$tbody.="<tr>\n";
@@ -545,10 +555,13 @@ $script="jQuery(document).ready(function() {
 	static function ActionPath($class,$type){
 		echo get_bloginfo('url').'/'.strtolower($class).'/'.strtolower($type);
 	}
-	static function paging($href,$total,$currentpage,$perpage,$dontprint=false){
+	static function paging($href,$total,$currentpage,$perpage,$dontprint=false,$next="&raquo;",$prev="&laquo;"){
 		$paging='<div class="tablenav"><div class="tablenav-pages">';
 		$paging.='<span class="displaying-num">';
-		
+		if(strpos($href,'?')!==false)
+			$current="&current=";
+		else 
+			$current="?current=";
 		$pages=ceil($total/$perpage);
 
 		$mod=fmod($currentpage,$perpage);
@@ -560,20 +573,21 @@ $script="jQuery(document).ready(function() {
 		$end=($perpage*$currentpage<=$total)?$perpage*$currentpage:$total;
 		$paging.="Displaying $start - $end of ".'<span class="total-type-count">'.intval($total).'</span></span>';
 		if($pages>$perpage && ($currentpage)>$perpage)
-			$paging.=self::a('&laquo;',"$href&current=".intval($startPage).'&perpage='.intval($perpage),'prev page-numbers',true).' ';
+			$paging.=' <a href="'.$href.$current.intval($startPage).'" class="prev page-numbers">'.$prev."</a> ";
 		if($pages>1)
 			for($page=$startPage+1;$page<=$listPages;$page++){
 				if($page!=$currentpage)
-					$paging.=self::a($page,"$href&current=".intval($page).'&perpage='.intval($perpage),'page-numbers',true);
+					$paging.=self::a($page,$href.$current.intval($page),'page-numbers',true);
 				else
 					$paging.='<span class="page-numbers current">'.intval($currentpage).'</span>';
 			}
 		if($pages>$listPages && ($currentpage-1)<$pages)
-			$paging.=' '.self::a('&raquo;',"$href&current=".intval($page).'&perpage='.intval($perpage),'next page-numbers',true);
+			$paging.=' <a href="'.$href.$current.intval($page).'" class="next page-numbers">'.$next."</a> ";
 		$paging.="</div></div>";
 		if($dontprint)
 			return $paging;
-		echo $paging;	}
+		echo $paging;	
+	}
 	static function notification($id,$message,$error=false){
 		if($error)
 			echo "<div id=\"$id\" class=\"ui-state-error ui-corner-all\">$message</div>";		

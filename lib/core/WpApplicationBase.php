@@ -28,10 +28,14 @@ abstract class WpApplicationBase{
 		$this->useOptions=$useOptions;		
 		if(method_exists($this,'on_register_query_vars'))
 			add_filter('query_vars', array(&$this,'register_query_vars'));
-			if(method_exists($this,'on_init'))
-				add_action('init', array(&$this,'on_init'));
+		if(method_exists($this,'on_init'))
+			add_action('init', array(&$this,'on_init'));
 		if(is_admin()){
-			add_action( 'admin_init', array(&$this,'register_settings' ));				
+			if(method_exists($this,'on_print_admin_scripts'))
+				add_action('init', array(&$this,'print_admin_scripts'));
+			if(method_exists($this,'on_print_admin_styles'))
+				add_action('init', array(&$this,'print_admin_styles'));
+			add_action( 'admin_init', array(&$this,'register_settings' ));
 			if(method_exists($this,'on_plugin_page_link'))
 				add_filter( 'plugin_action_links_'.$this->pluginname, array(&$this,'plugin_page_links'), 10, 2 );
 			if(method_exists($this,'on_plugin_row_message'))
@@ -61,22 +65,24 @@ abstract class WpApplicationBase{
 				add_action('wp_footer',array(&$this,'on_render_footer'));
 		}
 		add_filter('pre_set_site_transient_update_plugins', array(&$this, 'site_transient_update_plugins'));
-        add_action('update_option__transient_update_plugins', array(&$this, 'transient_update_plugins'));		
-		$this->init();  
-		Debug::Value($appName,$this->app);
-
-	}
-		
-	private function init(){
-		if(method_exists($this,'on_initialize'))
-			$this->on_initialize();
+        add_action('update_option__transient_update_plugins', array(&$this, 'transient_update_plugins'));
 		if($this->useOptions){			
 			$this->options= Option::create($this->app);
 			if(method_exists($this,'on_load_options'))
-				$this->on_load_options();			
-		}		
+				$this->on_load_options();
+		}
+		Debug::Value($appName,$this->app);
+	}
+	public function init(){
+		if(method_exists($this,'on_initialize'))
+			$this->on_initialize();
 		if(is_admin() && method_exists($this,'on_init_update')){
 			$this->on_init_update();
+			$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);	
+			if($this->installed() && version_compare($oldVersion,$this->VERSION,'<')){
+				AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
+				$this->update();
+			}
 			if($this->UPDATE_SITE && isset($_REQUEST['action']) && 'upgrade-plugin'==$_REQUEST['action'] && isset($_REQUEST['plugin']) && urldecode($_REQUEST['plugin'])==$this->pluginname)
 				add_filter('http_request_args',array(&$this,'add_update_url'),10,2);
 		}
@@ -116,6 +122,8 @@ abstract class WpApplicationBase{
 		return $links;
 	}
 	function activate(){
+		if(method_exists($this,'on_init_update'))
+			$this->on_init_update();
 		$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);	
 		$installed=$this->installed();
 		AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
@@ -137,11 +145,6 @@ abstract class WpApplicationBase{
 			$this->on_deactivate();
 		if(!$this->useInstall){
 			AoiSoraSettings::uninstallApplication($this->app);
-		
-			if($this->useOptions){			
-				$this->options= Option::create($this->app);
-				$this->options->delete();
-			}
 		}
 	}
 	function installed(){
@@ -203,8 +206,11 @@ abstract class WpApplicationBase{
 		if(method_exists($this,'on_update')){
 			$this->on_update();
 		}
-		if(file_exists(trim($this->dir,'/').'/app/updates/'.$this->VERSION.'.php'))
-			include(trim($this->dir,'/').'/app/updates/'.$this->VERSION.'.php');/**/
+		$updatepath=trim($this->dir,'/').'/app/updates/'.$this->VERSION.'.php';
+		if(file_exists('/'.$updatepath))
+			include('/'.$updatepath);
+		else if(file_exists($updatepath))
+			include($updatepath);
 	}
 	private function load($dir){
 		Debug::Value('Loading directory',$dir);
@@ -266,7 +272,7 @@ abstract class WpApplicationBase{
 	}	
 	function get_version_info(){
 		global $wp_version;
-		$version_info=get_transient('aoisora-update-'.$this->slug);
+		$version_info=get_transient('aoisora-update-'.$this->SLUG);
 		if($version_info)
 			return $version_info;
 		$body=array('id' => $this->SLUG);

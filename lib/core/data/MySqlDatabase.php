@@ -1,6 +1,6 @@
 <?php
 class MySqlDatabase{
-	private $db;
+	public $db;
 	private $stmt;
 	private $relations=array();
 	private $indexes=array();
@@ -229,9 +229,10 @@ class MySqlDatabase{
 			foreach($q->where as $clause){
 				if(empty($clause) || $clause==null)
 					continue;
-				if($clause->method==' IN ' || $clause->method=='MATCH'){
+				if($clause->method==' IN ')
+					$params=array_merge($params,$clause->getParameters());				
+				else if($clause->method=='MATCH')
 					$params=array_merge($params,$clause->getParameter());
-				}
 				else if($clause->hasValue()){
 					$param=$clause->getParameter();
 					$paramKey=array_pop(array_keys($param));

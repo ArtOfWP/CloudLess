@@ -172,7 +172,7 @@ class WpHelper{
 			<?php if($saveAllTabs):?>
 			</form>
 			<?php endif;
-			HtmlHelper::registerFooterScript("jQuery(function(){jQuery(\"#$optiongroup"."tabs\").tabs();});",true);
+			HtmlHelper::registerFooterScript("jQuery(document).ready(function() {jQuery(function(){jQuery(\"#$optiongroup"."tabs\").tabs();});});",true);
 	}
 	/**
 	    $optiongroup=name of the optionsgroup you want to generate a form, for. If isarray optiongroup is the name of the option with the array.
@@ -268,8 +268,6 @@ class WpHelper{
 		return $list;
 	}
 	static function insertPage($title,$slug,$content,$status='draft',$author=false){
-		global $wpdb,$wp_rewrite;		
-		$page= array();
 		global $user_ID;
       	get_currentuserinfo();
       	$user=$author?$author:$user_ID;      	
@@ -283,6 +281,6 @@ class WpHelper{
       		'comment_status'=>'closed',
 			'import_id' => 0);
       	
-      	wp_insert_page($default);
+      	wp_insert_post($defaults);
 	}
 }

@@ -25,8 +25,7 @@ class Order{
 			$temp=$this->addMark($db_prefix.strtolower($p[0]));
 			$temp.=$this->addMark(strtolower($p[1]));
 		}else
-			$temp=$this->addMark($this->property);
+			$temp=$this->addMark(strtolower($this->property));
 		return $temp.' '.$this->order;
 	}
 }
-?>

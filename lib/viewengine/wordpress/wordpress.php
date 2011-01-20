@@ -105,7 +105,7 @@ Debug::Message('Loaded wordpress viewengine');
 	RewriteCond %{REQUEST_METHOD} !GET
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteCond %{REQUEST_URI} ^/(create|delete|update)$ [NC]	
+	RewriteCond %{REQUEST_URI} /(create|delete|update) [NC]
 	RewriteRule ^(.*)/(.*)$ '.$path.'/wp-content/plugins/AoiSora/preroute.php?controller=$1&action=$2 [L]
 </IfModule>
 # END PHPMVC

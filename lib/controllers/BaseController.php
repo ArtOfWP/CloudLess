@@ -79,8 +79,9 @@ class BaseController{
 			if (!$reflection->isPublic())
 				throw new RuntimeException("The action you tried to execute is not public.");
 			$this->$action();
-			if($this->render)
+			if($this->render){
 				$this->RenderToAction($action);
+			}
 		}else
 			throw new RuntimeException("The action you tried to execute does not exist.");
 	}
@@ -88,7 +89,7 @@ class BaseController{
 		$view=$this->findView($this->controller,$action);		
 		ob_start();
 		if($view){
-			extract($this->bag, EXTR_REFS);			
+			extract($this->bag, EXTR_REFS);
 			include($view);
 			$this->viewcontent=ob_get_contents();
 		}else
@@ -116,7 +117,7 @@ class BaseController{
 	protected function RenderFile($filepath){
 		ob_start();
 		if(file_exists($filepath)){
-			extract($this->bag, EXTR_REFS);		
+			extract($this->bag, EXTR_REFS);
 			include($filepath);
 			$this->viewcontent=ob_get_contents();
 		}else

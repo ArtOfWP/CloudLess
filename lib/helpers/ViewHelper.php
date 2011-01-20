@@ -15,7 +15,7 @@ class ViewHelper{
 		self::$ViewSections[$section]['handler']=$callback;
 	}
 	static function renderSection($section,$params=array(),$isArray=false){
-		$functions=self::$ViewSections[$section];
+		$functions=array_key_exists_v($section,self::$ViewSections);
 		if(is_array($functions)){
 			ob_start();
 			if(!$isArray && !is_array($params))
