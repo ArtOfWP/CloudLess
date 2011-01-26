@@ -238,11 +238,11 @@ class MySqlDatabase{
 					$paramKey=array_pop(array_keys($param));
 					if(array_key_exists($paramKey,$params)){
 						$paramCount++;
+						$clause->removeParameter($paramKey);
 						$paramKey=trim($paramKey,':');
 						$clause->setParameter($paramKey.$paramCount,$clause->getValue());
 						$param=$clause->getParameter();
 					}
-
 					Debug::Value('Param',$param);
 					$params=array_merge($params,$param);
 				}

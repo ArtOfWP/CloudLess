@@ -185,6 +185,10 @@ class R{
 	function setParameter($param,$value){
 		$this->parameters[":$param"]=$value;
 	}
+	function removeParameter($param){
+		$param=trim($param,':');
+		unset($this->parameters[":$param"]);		
+	}
 	function getParameter($key=false){
 		if($key)
 			return $this->parameters[":$key"];
