@@ -1,3 +1,5 @@
+11.1.2
+ * Fixed bug with restriction parameters having same name getting same value.
 11.1.1
  * IMPORTANT: Fixed update issue with some linux path configurations
  * Fixed issue with conflicting jQuery files for 3.1

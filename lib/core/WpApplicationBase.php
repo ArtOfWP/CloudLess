@@ -127,13 +127,13 @@ abstract class WpApplicationBase{
 		$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);	
 		$installed=$this->installed();
 		AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
-		if($installed && version_compare($oldVersion,$this->VERSION,'<')){
+		if($oldVersion && $installed && version_compare($oldVersion,$this->VERSION,'<')){
 			$this->update();
 		}else if(!$this->useInstall)
 			AoiSoraSettings::installApplication($this->app);
 		if(!$installed && $this->useOptions){
 			$this->options= Option::create($this->app);
-			if(method_exists($this,'on_load_options')){			
+			if(method_exists($this,'on_load_options')){
 				$this->on_load_options();		
 			}
 		}

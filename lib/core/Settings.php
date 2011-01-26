@@ -24,7 +24,9 @@ class AoiSoraSettings{
 	static function getApplicationVersion($name){
 		$aoiSoraApp = AoiSora::instance();
 		$apps=$aoiSoraApp->options->applications;
-		return $apps[$name]['version'];
+		if(isset($apps[$name]['version']))
+			return $apps[$name]['version'];
+		return false;
 	}
 	static function getApplications(){
 		$aoiSoraApp = AoiSora::instance();
