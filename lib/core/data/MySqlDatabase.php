@@ -312,7 +312,7 @@ class MySqlDatabase{
 	}
 	function executeSQL($sql){
 		$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);		
-		$this->db->exec($sql) or die(var_dump($this->db->errorInfo()));
+		$this->db->exec($sql);// or die(var_dump($this->db->errorInfo()));
 	}
 	private function bindParams(&$stmt,$param,$value){
 		$stmt->bindParam($param,$value);

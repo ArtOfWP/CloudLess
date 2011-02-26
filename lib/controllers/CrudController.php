@@ -193,6 +193,7 @@ abstract class CrudController extends BaseController{
 				
 				$path=UPLOADS_DIR.$folder.$upload["name"];
 				move_uploaded_file($upload["tmp_name"],$path);
+				chmod($path, octdec(644));				
 				$values[$property]=$upload["name"];
 				if(isset($this->thumbnails[$property]) && $this->thumbnails[$property][0]=='create'){
 					$image = new Resize_Image;
@@ -204,6 +205,7 @@ abstract class CrudController extends BaseController{
 					$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
 					$values[$this->thumbnails[$property][1]]='thumbs/'.$upload["name"];
 					$process = $image->resize();
+					chmod($process['new_file_path'], octdec(644));
 				}
 			}else{
 				if(!isset($this->values[$property.'_hasimage']) && empty($values[$property])){
@@ -232,6 +234,7 @@ abstract class CrudController extends BaseController{
 							$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
 							$values[$this->thumbnails[$property][1]]='thumbs/'.$name;
 							$process = $image->resize();
+							chmod($process['new_file_path'], octdec(644));							
 						}
 					}else{
 						Debug::Message('HAS IMAGE '.$property);
@@ -252,6 +255,7 @@ abstract class CrudController extends BaseController{
 							$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
 							$values[$this->thumbnails[$property][1]]='thumbs/'.$name;
 							$process = $image->resize();
+							chmod($process['new_file_path'], octdec(644));							
 						}						
 					}
 				}

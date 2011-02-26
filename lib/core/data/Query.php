@@ -66,7 +66,7 @@ class Query{
 	var $returnType;
 	public function from($table){
 		global $db_prefix;
-		$this->statement['from'][]=$this->addMark($db_prefix.$table);
+		$this->statement['from'][]=$this->addMark(strtolower($db_prefix.$table));
 		return $this;
 	}
 	public function selectDistinct($property,$table=false){

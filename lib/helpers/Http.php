@@ -47,7 +47,7 @@ class Http{
 		return $cache;
 	}
 	static function save_file($url,$fullpath){
-	    $out = fopen($fullpath, 'wb');
+	    $out = fopen($fullpath, "wb");
 	    if ($out == FALSE){
 	      print "File not opened<br>";
 	      exit;
