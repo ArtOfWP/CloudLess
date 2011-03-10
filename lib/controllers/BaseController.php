@@ -78,7 +78,9 @@ class BaseController{
 			$reflection = new ReflectionMethod($this, $action);
 			if (!$reflection->isPublic())
 				throw new RuntimeException("The action you tried to execute is not public.");
+			HookHelper::run($this->controller.'->pre'.ucfirst($action),$this);
 			$this->$action();
+			HookHelper::run($this->controller.'->post'.ucfirst($action),$this);
 			if($this->render){
 				$this->RenderToAction($action);
 			}
@@ -89,7 +91,7 @@ class BaseController{
 		$view=$this->findView($this->controller,$action);		
 		ob_start();
 		if($view){
-			extract($this->bag, EXTR_REFS);
+			extract($this->getBag(), EXTR_REFS);
 			include($view);
 			$this->viewcontent=ob_get_contents();
 		}else
@@ -98,13 +100,12 @@ class BaseController{
 		ob_end_clean();
 		global $viewcontent;
 		$viewcontent=$this->viewcontent;
-		Debug::Value('TITLE',$aoisoratitle);
 	}
 	protected function Render($controller,$action){
 		$view=$this->findView($controller,$action);		
 		ob_start();
 		if($view){
-			extract($this->bag, EXTR_REFS);		
+			extract($this->getBag(), EXTR_REFS);
 			include($view);
 			$this->viewcontent=ob_get_contents();
 		}else
@@ -114,10 +115,13 @@ class BaseController{
 		global $viewcontent;
 		$viewcontent=$this->viewcontent;
 	}
+	private function getBag(){
+		return FilterHelper::run($this->controller.'-bag',array($this->bag,$this->controller,$this->action,$this->values));
+	}
 	protected function RenderFile($filepath){
 		ob_start();
 		if(file_exists($filepath)){
-			extract($this->bag, EXTR_REFS);
+			extract($this->getBag(), EXTR_REFS);
 			include($filepath);
 			$this->viewcontent=ob_get_contents();
 		}else

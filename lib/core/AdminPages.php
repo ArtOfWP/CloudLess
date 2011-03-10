@@ -32,8 +32,7 @@ class AdminPages{
 		if(method_exists($this->app,'on_admin_print_styles'))
 			add_action("admin_print_styles-$pagename",array(&$this->app,'print_admin_styles'));
 		if(method_exists($this->app,'on_admin_print_scripts'))
-			add_action("admin_print_scripts-$pagename",array(&$this->app,'print_admin_scripts'));				
-			
+			add_action("admin_print_scripts-$pagename",array(&$this->app,'print_admin_scripts'));
 	}
 	function none(){}
 	function __call($method,$args){

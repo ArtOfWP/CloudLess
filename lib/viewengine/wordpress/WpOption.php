@@ -27,7 +27,9 @@ class WpOption implements IOption{
 		delete_option($this->name);
 	}
 	public function __get($option){
+		if(isset($this->options[$option]))
 		return $this->options[$option];
+		return NULL;
 	}
 	public function __set($option,$value){
 		$this->options[$option]=$value;
