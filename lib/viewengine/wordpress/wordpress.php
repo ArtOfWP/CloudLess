@@ -2,7 +2,7 @@
 	global $table_prefix;
 	global $db_prefix;
 	$db_prefix=$table_prefix.'aoisora_';
-Debug::Message('Loaded wordpress viewengine');
+	Debug::Message('Loaded wordpress viewengine');
 	define('PACKAGEURL',WP_PLUGIN_URL.'/AoiSora/');
 	if(!defined('WP_PLUGIN_DIR'))
 		define('APPPATH',dirname(__FILE__).'/');
@@ -115,10 +115,7 @@ Debug::Message('Loaded wordpress viewengine');
 	function initiate_editor($class){
 		wp_tiny_mce(false,array("editor_selector" => $class));
 	}
-	add_action('plugins_loaded','aoisora_loaded');
-	function aoisora_loaded(){
-		do_action('aoisora_loaded');
-	}
+
 	ViewHelper::registerViewSectionHandler('admin_head','wp_admin_section_handler');
 	ViewHelper::registerViewSectionHandler('admin_footer','wp_admin_section_handler');
 	ViewHelper::registerViewSectionHandler('admin_print_scripts','wp_admin_section_handler');

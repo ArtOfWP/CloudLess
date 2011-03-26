@@ -1,7 +1,7 @@
 <?php
 class ViewHelper{
 	private static $ViewSections=array();
-	static function registerViewSection($section,$callback){
+	static function registerViewSection($section,$callback,$priority=100){
 		if(!isset(self::$ViewSections[$section]['handler'])){
 	    	if(!isset(self::$ViewSections))
 	    		self::$ViewSections=array();
@@ -19,7 +19,9 @@ class ViewHelper{
 		self::$ViewSections[$section]['handler']=$callback;
 	}
 	static function renderSection($section,$params=array(),$isArray=false){
-		$functions=array_key_exists_v($section,self::$ViewSections);
+		$priorities=array_key_exists_v($section,self::$ViewSections);
+		if($priorities)
+			ksort($priorities);		
 		if(is_array($priorities)){
 			ob_start();
 			if(!$isArray && !is_array($params))

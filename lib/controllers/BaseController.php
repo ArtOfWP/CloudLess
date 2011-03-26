@@ -44,7 +44,10 @@ class BaseController{
 	}
 	protected function automaticRender(){
 			Debug::Message('Executing automatic action');
+			var_dump(Communication::getQueryString());
+			echo ACTIONKEY;
 			$action=array_key_exists_v(ACTIONKEY,Communication::getQueryString());
+			echo $action;
 			if(!isset($action) || empty($action))
 				if($this->action)
 					$action=$this->action;
@@ -78,9 +81,9 @@ class BaseController{
 			$reflection = new ReflectionMethod($this, $action);
 			if (!$reflection->isPublic())
 				throw new RuntimeException("The action you tried to execute is not public.");
-			HookHelper::run($this->controller.'->pre'.ucfirst($action),$this);
+			HookHelper::run($this->controller.'-pre'.ucfirst($action),$this);
 			$this->$action();
-			HookHelper::run($this->controller.'->post'.ucfirst($action),$this);
+			HookHelper::run($this->controller.'-post'.ucfirst($action),$this);
 			if($this->render){
 				$this->RenderToAction($action);
 			}
@@ -88,11 +91,11 @@ class BaseController{
 			throw new RuntimeException("The action you tried to execute does not exist.");
 	}
 	protected function RenderToAction($action){
-		$view=$this->findView($this->controller,$action);		
+		$view=$this->findView($this->controller,$action);	
 		ob_start();
 		if($view){
 			extract($this->getBag(), EXTR_REFS);
-			include($view);
+			require($view);
 			$this->viewcontent=ob_get_contents();
 		}else
 			$this->viewcontent='Could not find view: '.$action.' '.$view;

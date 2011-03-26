@@ -25,6 +25,8 @@ class FilterHelper{
 		if(!isset(self::$FilterSections[$filter]))
 			return $params[0];
 		$priorities=self::$FilterSections[$filter];
+		if($priorities)
+			ksort($priorities);
 		if(is_array($priorities)){
 			if(!is_array($params))
 				$params=array($params);

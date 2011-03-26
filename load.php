@@ -23,7 +23,7 @@ function loadAoiSora(){
 	include(PACKAGEPATH.'config.php');
 	include(PACKAGEPATH.'lib/Route.php');
 	include(PACKAGEPATH.'lib/Debug.php');
-	load(PACKAGEPATH.'lib/helpers/');	
+	load(PACKAGEPATH.'lib/helpers/');
 	load(PACKAGEPATH.'lib/core/');
 //	load(PACKAGEPATH.'lib/filters/');
 	include(PACKAGEPATH.'lib/filters/IFilter.php');
