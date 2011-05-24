@@ -567,7 +567,7 @@ $script="jQuery(document).ready(function() {
 		$mod=fmod($currentpage,$perpage);
 		$startPage=$mod?$currentpage-$mod:$currentpage-$perpage;
 
-		$listPages=($pages)>($startPage+$perpage)?$startPage+$perpage:$pages;
+		$listPages=($pages)>($startPage+10)?$startPage+10:$pages;
 
 		$start=$total?($perpage*$currentpage-$perpage+1):0;
 		$end=($perpage*$currentpage<=$total)?$perpage*$currentpage:$total;

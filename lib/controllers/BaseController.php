@@ -44,8 +44,6 @@ class BaseController{
 	}
 	protected function automaticRender(){
 			Debug::Message('Executing automatic action');
-			var_dump(Communication::getQueryString());
-			echo ACTIONKEY;
 			$action=array_key_exists_v(ACTIONKEY,Communication::getQueryString());
 			echo $action;
 			if(!isset($action) || empty($action))
