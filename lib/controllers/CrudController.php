@@ -15,8 +15,8 @@ abstract class CrudController extends BaseController{
 	protected $thumbnails;
 	private $automatic;
 	public $bag=array();
-	public function CrudController($automatic=true){
-		parent::BaseController(false);
+	public function __construct($automatic=true){
+		parent::__construct(false);
 		$this->automatic=$automatic;
 		Debug::Message('Loaded '.$this->controller.' extends Crudcontroller');
 	}
@@ -24,7 +24,7 @@ abstract class CrudController extends BaseController{
 	public function init(){
 		$this->defaultAction='listall';
 		parent::init();
-		$this->on_crudcontroller_init();
+		$this->onCrudControllerInit();
 		if($this->automatic){
 			Debug::Message('CRUD Executing automatic action ');
 			if($this->action){
@@ -48,10 +48,13 @@ abstract class CrudController extends BaseController{
 				$this->delete();
 		}
 	}
-	private function on_crudcontroller_init(){
+	private function onCrudControllerInit(){
 		$this->crudItem=new $this->controller;
+		//TODO deprecated since 11.6
 		if(array_key_exists('search',$this->values) && method_exists($this,'on_search_init'))
 			$this->on_search_init();
+		if(array_key_exists('search',$this->values) && method_exists($this,'onSearchInit'))
+			$this->onSearchInit();			
 	}
 	public function createnew(){
 		$this->bag['result']=array_key_exists_v('result',$this->values);		

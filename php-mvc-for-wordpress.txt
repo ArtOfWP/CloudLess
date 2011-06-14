@@ -10,8 +10,9 @@
  * Renamed HookHelper to Hook
  * Renamed FilterHelper to Filter
  * Added ShortCode helper.
- * Made wp hooks unspecific. That is AoiSora has its own hooks that it resend to WordPress
- 
+ * Made some wp hooks unspecific. That is AoiSora has its own hooks that it resend to WordPress
+ * Added render viewsections to BaseController, pre and post render action
+ * Removed duplicate code
 11.3.1
  * Added hooks to ActiveRecordBase,BaseController
  * Fixed null array with ViewHelper, HookHelper

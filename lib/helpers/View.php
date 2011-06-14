@@ -18,7 +18,7 @@ class View{
 	static function registerHandler($section,$callback){
 		self::$ViewSections[$section]['handler']=$callback;
 	}
-	static function render($section,$params=array(),$isArray=false){
+	static function generate($section,$params=array(),$isArray=false){
 		$priorities=array_key_exists_v($section,self::$ViewSections);
 		if($priorities)
 			ksort($priorities);		
@@ -31,8 +31,14 @@ class View{
 					call_user_func_array($function,$params);
 			$sections=ob_get_contents();
 			ob_end_clean();
-			echo $sections;
+			return $sections;
 		}
+		return '';
+	}
+	static function render($section,$params=array(),$isArray=false){
+		$sections=self::generate($section,$params,$isArray);
+		if($sections)
+			echo $sections;
 	}
 	static function isRegistered($section){
 		return array_key_exists($section,self::$ViewSections);

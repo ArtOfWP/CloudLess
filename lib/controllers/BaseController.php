@@ -15,8 +15,12 @@ class BaseController{
 	public $values=array();
 	private $automatic;
 	private function initiate(){
+		//TODO deprecated since 11.6
 		if(method_exists($this,'on_controller_preinit'))	
 			$this->on_controller_preinit();
+		if(method_exists($this,'onControllerPreInit'))	
+			$this->onControllerPreInit();			
+			
 		$item= get_class($this);
 		$this->controller =str_replace('Controller','',$item);
 		$this->values=Communication::getQueryString();
@@ -26,8 +30,11 @@ class BaseController{
 			$this->action=$this->defaultAction;
 		unset($this->values[CONTROLLERKEY]);
 		unset($this->values[ACTIONKEY]);
+		//TODO deprecated since 11.6
 		if(method_exists($this,'on_controller_init'))	
 			$this->on_controller_init();
+		if(method_exists($this,'onControllerInit'))	
+			$this->onControllerInit();			
 	}
 	public function init(){
 		$this->initiate();
@@ -37,7 +44,7 @@ class BaseController{
 		if($this->automatic)
 			$this->automaticRender();
 	}
-	public function BaseController($automatic=true,$viewpath=false){
+	public function __construct($automatic=true,$viewpath=false){
 		$this->automatic=$automatic;		
 		$this->viewpath=$viewpath;
 		Debug::Message('Loaded '.$this->controller.' extends Basecontroller');
@@ -79,9 +86,9 @@ class BaseController{
 			$reflection = new ReflectionMethod($this, $action);
 			if (!$reflection->isPublic())
 				throw new RuntimeException("The action you tried to execute is not public.");
-			HookHelper::run($this->controller.'-pre'.ucfirst($action),$this);
+			Hook::run($this->controller.'-pre'.ucfirst($action),$this);
 			$this->$action();
-			HookHelper::run($this->controller.'-post'.ucfirst($action),$this);
+			Hook::run($this->controller.'-post'.ucfirst($action),$this);
 			if($this->render){
 				$this->RenderToAction($action);
 			}
@@ -89,35 +96,29 @@ class BaseController{
 			throw new RuntimeException("The action you tried to execute does not exist.");
 	}
 	protected function RenderToAction($action){
-		$view=$this->findView($this->controller,$action);	
-		ob_start();
-		if($view){
-			extract($this->getBag(), EXTR_REFS);
-			require($view);
-			$this->viewcontent=ob_get_contents();
-		}else
-			$this->viewcontent='Could not find view: '.$action.' '.$view;
-		$this->render=false;
-		ob_end_clean();
-		global $viewcontent;
-		$viewcontent=$this->viewcontent;
+		$this->Render($this->controller,$action);
 	}
 	protected function Render($controller,$action){
 		$view=$this->findView($controller,$action);		
-		ob_start();
+		
 		if($view){
 			extract($this->getBag(), EXTR_REFS);
+			$section=View::generate($controller.'-render-pre'.ucfirst($action),$this);
+			ob_start();
 			include($view);
-			$this->viewcontent=ob_get_contents();
+			$this->viewcontent=$section.ob_get_contents();
+			ob_end_clean();
+			$section=View::render($controller.'-render-post'.ucfirst($action),$this);
+			$this->viewcontent.=$section;
 		}else
 			$this->viewcontent='Could not find view: '.$view;
 		$this->render=false;
-		ob_end_clean();
+		
 		global $viewcontent;
 		$viewcontent=$this->viewcontent;
 	}
 	private function getBag(){
-		return FilterHelper::run($this->controller.'-bag',array($this->bag,$this->controller,$this->action,$this->values));
+		return Filter::run($this->controller.'-bag',array($this->bag,$this->controller,$this->action,$this->values));
 	}
 	protected function RenderFile($filepath){
 		ob_start();
