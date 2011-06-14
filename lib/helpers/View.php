@@ -1,7 +1,7 @@
 <?php
-class ViewHelper{
+class View{
 	private static $ViewSections=array();
-	static function registerViewSection($section,$callback,$priority=100){
+	static function register($section,$callback,$priority=100){
 		if(!isset(self::$ViewSections[$section]['handler'])){
 	    	if(!isset(self::$ViewSections))
 	    		self::$ViewSections=array();
@@ -15,10 +15,10 @@ class ViewHelper{
 			call_user_func($handler,$section,$callback);
 		}
 	}
-	static function registerViewSectionHandler($section,$callback){
+	static function registerHandler($section,$callback){
 		self::$ViewSections[$section]['handler']=$callback;
 	}
-	static function renderSection($section,$params=array(),$isArray=false){
+	static function render($section,$params=array(),$isArray=false){
 		$priorities=array_key_exists_v($section,self::$ViewSections);
 		if($priorities)
 			ksort($priorities);		
@@ -34,10 +34,31 @@ class ViewHelper{
 			echo $sections;
 		}
 	}
-	static function isRegistered($filter){
-		return array_key_exists($filter,self::$ViewSections);
+	static function isRegistered($section){
+		return array_key_exists($section,self::$ViewSections);
 	}
 	static function hasCustomHandler($section){
 		return isset(self::$ViewSections[$section]['handler']);
+	}	
+}
+/*
+ * deprecated since 11.6
+ */
+class ViewHelper{
+	static function registerViewSection($section,$callback,$priority=100){
+		View::register($section,$callback,$priority);
 	}
+	static function registerViewSectionHandler($section,$callback){
+		View::registerHandler($section,$callback);
+	}
+	static function renderSection($section,$params=array(),$isArray=false){
+		View::render($section,$params,$isArray);
+	}
+	static function isRegistered($section){
+		return View::isRegistered($section);
+	}
+	static function hasCustomHandler($section){
+		return View::hasCustomHandler($section);
+	}
+	
 }

@@ -283,4 +283,6 @@ class WpHelper{
       	
       	wp_insert_post($defaults);
 	}
+	static function loadstyles($styles){
+	}
 }

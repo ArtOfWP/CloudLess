@@ -115,13 +115,57 @@
 	function initiate_editor($class){
 		wp_tiny_mce(false,array("editor_selector" => $class));
 	}
-
-	ViewHelper::registerViewSectionHandler('admin_head','wp_admin_section_handler');
-	ViewHelper::registerViewSectionHandler('admin_footer','wp_admin_section_handler');
-	ViewHelper::registerViewSectionHandler('admin_print_scripts','wp_admin_section_handler');
-	ViewHelper::registerViewSectionHandler('admin_print_styles','wp_admin_section_handler');
-	function wp_admin_section_handler($section,$callback){
-		add_action($section,$callback);
+	global $hooks;
+	$hooks=array('init','admin_init','admin_menu','set_plugin_has_updates'=>'update_option__transient_update_plugins');
+	foreach($hooks as $key => $hook)
+		if(is_numeric($key))
+			Hook::registerHandler($hook,'wp_hook_handler');
+		else
+			Hook::registerHandler($key,'wp_hook_handler');	
+	global $viewsections;
+	$viewsections=array('print_styles'=>'wp_print_styles','print_scripts'=>'wp_print_scripts',
+					'admin_print_scripts','admin_print_styles',
+					'footer'=>'wp_footer','admin_head','admin_footer','wp_print_scripts','wp_footer','wp_print_styles');
+	foreach($viewsections as $key => $section)
+		if(is_numeric($key))
+			View::registerHandler($section,'wp_section_handler');
+		else
+			View::registerHandler($key,'wp_section_handler');
+	
+	global $filters;
+	$filters=array('query_vars','http_request_args','rewrite_rules_array','list_pages','rewrite_rules_array','rewrite_rules_array','set_plugin_has_updates'=>'pre_set_site_transient_update_plugins');
+	foreach($filters as $key => $filter)
+		if(is_numeric($key))
+			Filter::registerHandler($filter,'wp_filter_handler');
+		else
+			Filter::registerHandler($key,'wp_filter_handler');
+	
+	Shortcode::registerHandler('add_shortcode');
+	
+	function wp_hook_handler($hook,$callback,$priority=100,$params=1){
+		global $hooks;
+		$newhook=array_key_exists_v($hook,$hooks);
+		if($newhook)
+			add_action($newhook,$callback,$priority);
+		else
+			add_action($hook,$callback,$priority);
+	}
+	
+	function wp_filter_handler($filter,$callback,$priority=100,$params=1){
+		global $filters;
+		$newfilter=array_key_exists_v($filter,$filters);
+		if($newsection)
+			add_action($newfilter,$callback,$priority,$params);		
+		else
+			add_action($filter,$callback,$priority,$params);		
+	}
+	function wp_section_handler($section,$callback,$priority=100,$params=1){
+		global $viewsections;
+		$newsection=array_key_exists_v($section,$viewsections);
+		if($newsection)
+			add_action($newsection,$callback,$priority,$params);
+		else
+			add_action($section,$callback,$priority,$params);
 	}
 	function adminURL($controller,$action,$query=false){
 		$url="admin.php?page=$controller&action=$action";

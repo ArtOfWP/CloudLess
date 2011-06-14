@@ -66,3 +66,8 @@ div.form .submit input{
 	padding-right:0;
 	font-size:12pt;	
 }
+.form-table label.error{
+color:#000;background-color:#FFEBE8;margin:5px; padding:3px; text-align:left;border:1px solid #FF0000;
+padding:3px 3px 3px 3px;
+color:fff;
+}

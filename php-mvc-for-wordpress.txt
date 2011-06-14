@@ -1,3 +1,17 @@
+11.6.1
+ * fixed per page bug generating same number of pages.
+ * changed htmlhelper->table to generate edit links on first object column instead of buttons.
+ * Removed Helper ending on Helpers
+ * Fixed type bug with array_has_key_exists_v
+ * Refactored method names to camelCase. Functions are underscored. 
+ * Fixed perpage bug with Html->paging
+ * Renamed HtmlHelper to Html
+ * Renamed ViewHelper to View
+ * Renamed HookHelper to Hook
+ * Renamed FilterHelper to Filter
+ * Added ShortCode helper.
+ * Made wp hooks unspecific. That is AoiSora has its own hooks that it resend to WordPress
+ 
 11.3.1
  * Added hooks to ActiveRecordBase,BaseController
  * Fixed null array with ViewHelper, HookHelper

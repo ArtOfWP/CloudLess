@@ -1,5 +1,5 @@
 <?php
-class HookHelper{
+class Hook{
 	private static $Hooks=array();
 	static function register($hook,$callback,$priority=100){
 		if(!isset(self::$Hooks[$hook]['handler'])){
@@ -13,8 +13,8 @@ class HookHelper{
 			call_user_func($handler,$hook,$callback,$priority);
 		}
 	}
-	static function registerCustomHandler($hook,$callback){
-		self::$ViewSections[$hook]['handler']=$callback;
+	static function registerHandler($hook,$callback){
+		self::$Hooks[$hook]['handler']=$callback;
 	}
 	static function run($hook,$params=array(),$isArray=false){
 		$priorities=array_key_exists_v($hook,self::$Hooks);
@@ -35,5 +35,23 @@ class HookHelper{
 	}
 	static function hasCustomHandler($hook){
 		return isset(self::$Hooks[$hook]['handler']);
+	}
+}
+//deprecated since 11.6
+class HookHelper{
+	static function register($hook,$callback,$priority=100){
+		Hook::register($hook,$callback,$priority);
+	}
+	static function registerCustomHandler($hook,$callback){
+		Hook::registerCustomHandler($hook,$callback);
+	}
+	static function run($hook,$params=array(),$isArray=false){
+		Hook::run($hook,$params,$isArray);
+	}
+	static function isRegistered($hook){
+		return Hook::isRegistered($hook);
+	}
+	static function hasCustomHandler($hook){
+		return Hook::hasCustomHandler($hook);
 	}
 }
