@@ -3,12 +3,12 @@ class Html{
 	private static $scripts=array();
 	static function createForm($id,$object,$path=false,$classes=false,$imagepath=''){
 		if(!$path)
-			$path=get_bloginfo('url').'/'.get_class($object).'/create';
+			$path=action_url($object,'create');
 		self::form($id,$object,$path,POST,'Add New',strtolower(get_class($object)),$classes,$imagepath);
 	}
 	static function updateForm($id,$object,$path=false,$classes=false,$imagepath=''){
 		if(!$path)
-		$path=get_bloginfo('url').'/'.get_class($object).'/update';
+		$path=action_url($object,'update');
 		self::form($id,$object,$path,POST,'Update',strtolower(get_class($object)),$classes,$imagepath);
 	}	
 	static function form($formid,$object,$action,$method,$submit='Send',$nonce=false,$classes=false,$imagepath=''){
@@ -332,7 +332,8 @@ $script="jQuery(document).ready(function() {
 			
 	}
 	static function currencydropdown($id,$selectedCurrency, $dontprint=false,$class=false){
-		$currency=array("USD"=>"United States Dollars","CAD$"=>"Canada Dollars","EUR"=>"Euro","GBP"=>"United Kingdom Pounds","SEK"=>"Swedish Kronor");
+		$currency=Filter::run('html_currency_dropdown_currencies',array(array("USD"=>"United States Dollars","CAD$"=>"Canada Dollars","EUR"=>"Euro","GBP"=>"United Kingdom Pounds","SEK"=>"Swedish Kronor","NOK" => "Norwegian Kronor","AUD"=>"Australian dollar","CHF"=>"Swiss franc","KRW"=>"South Korean Won","JPY"=>"Japanese Yen","CNY"=>"Chinese Yuan (Renminbi)")));
+		
 		$select="<select id=\"$id\" name=\"$id\" >";
 		foreach($currency as $key => $element)
 			$select.=self::option(str_replace('"','',$key),$element,strtolower($selectedCurrency)==strtolower($key),true);
@@ -347,6 +348,7 @@ $script="jQuery(document).ready(function() {
 		if($decimals!==false)
 			$value=number_format($value,$decimals);
 		switch($currency){
+			case 'aud':
 			case 'usd':
 				$price="$".$value;
 				break;
@@ -359,13 +361,21 @@ $script="jQuery(document).ready(function() {
 			case 'cad':
 				$price="CDN$".$value;
 				break;
+			case 'nok':
 			case 'sek':
 				$price=str_replace('.',',',$value).' kr';
 				break;
+			case 'chf':
+				$price='Fr'.str_replace('.',',',$value);
+			case 'krw':
+				$price="&#8361;".$value;
+			case 'cny':
+			case 'jpy':
+				$price="&yen;".$value;
 			default:
 				$price=$value.' '.$currency;
 		}
-		return $price;
+		return Filter::run('html_format_currency',array($price,$currency,$value,$decimals));
 	}
 	static function selectDropdownSorted($id,$array,$selectedValues=false,$dontprint=false,$class=false){
 		$select="<select id=\"$id\" name=\"$id\" >";
@@ -612,7 +622,7 @@ $script="jQuery(document).ready(function() {
 		echo $table;
 	}
 	static function ActionPath($class,$type){
-		echo get_bloginfo('url').'/'.strtolower($class).'/'.strtolower($type);
+		echo action_url($class,$type);
 	}
 	static function paging($href,$total,$currentpage,$perpage,$dontprint=false,$next="&raquo;",$prev="&laquo;"){
 		$paging='<div class="tablenav"><div class="tablenav-pages">';
@@ -790,6 +800,12 @@ class HtmlHelper{
 					$unique=$id;	
 					$validator=array_key_exists_v('validator',$settings);
 					$theForm.=self::input($id,'text',stripslashes(str_replace('"','',$value)),false,true);
+				}else if($field=='custom'){
+					$split=array_key_exists_v('custommethod',$settings);
+					if($split){
+						$split=explode('|',$split);
+						$theForm.="<select id=\"$id\" name=\"$id\">".call_user_func(array($split[0],$split[1]),$value)."</select>";
+					}
 				}else
 					$theForm.=self::input($id,$field,stripslashes(str_replace('"','',$value)),false,true);
 				$theForm.='</td></tr>';
@@ -996,7 +1012,7 @@ $script="jQuery(document).ready(function() {
 			
 	}
 	static function currencydropdown($id,$selectedCurrency, $dontprint=false,$class=false){
-		$currency=array("USD"=>"United States Dollars","CAD$"=>"Canada Dollars","EUR"=>"Euro","GBP"=>"United Kingdom Pounds","SEK"=>"Swedish Kronor");
+		$currency=array("USD"=>"United States Dollars","CAD$"=>"Canada Dollars","EUR"=>"Euro","GBP"=>"United Kingdom Pounds","SEK"=>"Swedish Kronor","NOK" => "Norwegian Kronor","AUD"=>"Australian dollar","CHF"=>"Swiss franc","KRW"=>"South Korean Won","JPY"=>"Japanese Yen","CNY"=>"Chinese Yuan (Renminbi)");
 		$select="<select id=\"$id\" name=\"$id\" >";
 		foreach($currency as $key => $element)
 			$select.=self::option(str_replace('"','',$key),$element,strtolower($selectedCurrency)==strtolower($key),true);
@@ -1006,11 +1022,12 @@ $script="jQuery(document).ready(function() {
 		echo $select;
 	}
 	static function formatCurrency($currency,$value,$decimals=false){
-		$price=$value;
+				$price=$value;
 		$currency=strtolower($currency);
 		if($decimals!==false)
 			$value=number_format($value,$decimals);
 		switch($currency){
+			case 'aud':
 			case 'usd':
 				$price="$".$value;
 				break;
@@ -1023,13 +1040,21 @@ $script="jQuery(document).ready(function() {
 			case 'cad':
 				$price="CDN$".$value;
 				break;
+			case 'nok':
 			case 'sek':
 				$price=str_replace('.',',',$value).' kr';
 				break;
+			case 'chf':
+				$price='Fr'.str_replace('.',',',$value);
+			case 'krw':
+				$price="&#8361;".$value;
+			case 'cny':
+			case 'jpy':
+				$price="&yen;".$value;
 			default:
 				$price=$value.' '.$currency;
 		}
-		return $price;
+		return Filter::run('html_format_currency',array($price,$currency,$value,$decimals));
 	}
 	static function selectDropdownSorted($id,$array,$selectedValues=false,$dontprint=false,$class=false){
 		$select="<select id=\"$id\" name=\"$id\" >";
@@ -1175,7 +1200,7 @@ $script="jQuery(document).ready(function() {
 		$text=stripslashes($text);
 		$text=htmlspecialchars($text, ENT_QUOTES);
 		if($dontprint)
-		return "<a href=\"$path\" $class>$text</a>";
+			return "<a href=\"$path\" $class>$text</a>";
 		echo "<a href=\"$path\" $class>$text</a>";
 	}
 	static function img($src,$alt=false,$class=false,$dontprint=false){

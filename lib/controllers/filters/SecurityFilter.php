@@ -3,7 +3,7 @@ class SecurityFilter implements IFilter{
 	private $useraction;
 	private $nonce_base;
 	private $refererPage;
-	function SecurityFilter($useraction=false,$nonce_base=false,$referer_page=false){
+	function __construct($useraction=false,$nonce_base=false,$referer_page=false){
 		$this->useraction=$useraction;
 		$this->nonce_base=$nonce_base;
 		$this->refererPage=$referer_page;

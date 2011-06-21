@@ -96,25 +96,26 @@ class AoiSora extends WpApplicationBase{
 			fclose($fh);
 		}
     }
-	function on_activate(){
-		$htaccessrules=get_htaccess_rules();
-		$path=get_htaccess_rules_path();
-		if(is_writable($path)){
-			$temp=file_get_contents($path);
-			$fh=fopen($path,'w');
-			if(strpos($temp,'PHPMVC')!==FALSE){
-				$htaccessrules=str_replace('$1','\$1',$htaccessrules);
-				$htaccessrules=str_replace('$2','\$2',$htaccessrules);				
-				$temp=preg_replace("/\# BEGIN PHPMVC.*\# END PHPMVC/s",$htaccessrules,$temp);
-			}else
-				fwrite($fh,$htaccessrules);
-			fwrite($fh,$temp);	
-			fclose($fh);
-		}
-	}
 	function aoisoraLoaded(){
 		AoiSora::instance();
 		HookHelper::run('aoisora-loaded');
 	}
 }
+}
+register_activation_hook(__FILE__, 'setup_htaccess_rules');
+function setup_htaccess_rules(){
+	$htaccessrules=get_htaccess_rules();
+	$path=get_htaccess_rules_path();
+	if(is_writable($path)){
+		$temp=file_get_contents($path);
+		$fh=fopen($path,'w');
+		if(strpos($temp,'PHPMVC')!==FALSE){
+			$htaccessrules=str_replace('$1','\$1',$htaccessrules);
+			$htaccessrules=str_replace('$2','\$2',$htaccessrules);				
+			$temp=preg_replace("/\# BEGIN PHPMVC.*\# END PHPMVC/s",$htaccessrules,$temp);
+		}else
+			fwrite($fh,$htaccessrules);
+		fwrite($fh,$temp);	
+		fclose($fh);
+	}
 }

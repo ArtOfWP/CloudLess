@@ -34,18 +34,18 @@ abstract class CrudController extends BaseController{
 			else if($this->methodIs(GET)){
 				$id=array_key_exists_v('Id',$this->values);
 				if($id)
-					$this->edit($id);					
+					$this->executeAction('edit');					
 				else if(array_key_exists_v('_method',$this->values))
-					$this->delete();
+					$this->executeAction('delete');
 				else
-					$this->listall();
+					$this->executeAction('listall');
 			}
 			else if($this->methodIs(POST))
-				$this->create();
+				$this->executeAction('create');
 			else if($this->methodIs(PUT))
-				$this->update();
+				$this->executeAction('update');
 			else if($this->methodIs(DELETE))
-				$this->delete();
+				$this->executeAction('delete');
 		}
 	}
 	private function onCrudControllerInit(){
@@ -54,14 +54,13 @@ abstract class CrudController extends BaseController{
 		if(array_key_exists('search',$this->values) && method_exists($this,'on_search_init'))
 			$this->on_search_init();
 		if(array_key_exists('search',$this->values) && method_exists($this,'onSearchInit'))
-			$this->onSearchInit();			
+			$this->onSearchInit();
 	}
 	public function createnew(){
 		$this->bag['result']=array_key_exists_v('result',$this->values);		
 		if(!isset($this->bag['new']) || empty($this->bag['new']))
 			$this->bag['new']=$this->crudItem;
 		$this->bag['result']=array_key_exists_v('result',$this->values);
-		$this->Render($this->controller,'createnew');		
 	}
 	public function listall(){
 		$this->bag['delete']=array_key_exists_v('delete',$this->values);
@@ -112,7 +111,6 @@ abstract class CrudController extends BaseController{
 			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$perpage,$order);
 		}
 		$this->bag['total']=Repo::total($this->controller);
-		$this->Render($this->controller,'listall');
 	}
 	public function edit(){
 		$id=array_key_exists_v('Id',$this->values);		
@@ -120,7 +118,6 @@ abstract class CrudController extends BaseController{
 		Debug::Value('Action','Edit');
 		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,true);
 		$this->bag['edit']=$this->crudItem;
-		$this->Render($this->controller,'edit');
 	}
 	public function create($redirect=true){
 		Debug::message('Creating ... ');

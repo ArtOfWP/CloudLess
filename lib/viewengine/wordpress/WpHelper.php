@@ -285,4 +285,16 @@ class WpHelper{
 	}
 	static function loadstyles($styles){
 	}
+	static function registerStyle($handle, $src=false, $deps=false, $ver=false, $media=false){
+		wp_register_style($handle, $src, $deps, $ver, $media);
+	}
+	static function enqueueStyle($handle, $src=false, $deps=false, $ver=false, $media=false){
+		wp_enqueue_style($handle, $src, $deps, $ver, $media);
+	}
+	static function registerScript($handle, $src=false, $deps=false, $ver=false, $in_footer=false){
+		wp_register_style($handle, $src, $deps, $ver, $media);
+	}	
+	static function enqueueScript($handle, $src=false, $deps=false, $ver=false, $in_footer=false){
+		wp_enqueue_style($handle, $src, $deps, $ver, $in_footer);
+	}		
 }

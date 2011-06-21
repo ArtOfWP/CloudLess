@@ -1,4 +1,6 @@
 <?php
+
+// Calls wp functions, refactor it.
 class AdminPages{
 	private $pagetitle;
 	private $menutitle;

@@ -20,12 +20,9 @@ abstract class WpApplicationBase{
 			$this->pluginname=$basename;//"$appName/$appName.php";
 		else
 			$this->pluginname=plugin_basename($file);//"$appName/$appName.php";		
-		register_activation_hook($this->pluginname, array(&$this,'activate'));
-		register_deactivation_hook($this->pluginname, array(&$this,'deactivate'));
-//		register_uninstall_hook($this->pluginname, array(&$this,'delete'));
 		$this->installfrompath=dirname($file).'/app/core/domain/';
 		$this->useInstall=$useInstall;
-		$this->useOptions=$useOptions;		
+		$this->useOptions=$useOptions;
 		//TODO deprecated since 11.6
 		if(method_exists($this,'on_register_query_vars'))
 			Filter::register('query_vars', array(&$this,'registerQueryVars'));
@@ -139,7 +136,12 @@ abstract class WpApplicationBase{
 	}
 	
 	function registerQueryVars($public_query_vars){
-		$vars=$this->on_register_query_vars();
+		$vars=array();
+		//TODO remove after 11.6.1
+		if(method_exists($this,'on_register_query_vars'))
+			$vars=$this->on_register_query_vars();
+		if(method_exists($this,'onRegisterQueryVars'))		
+			$vars=$this->onRegisterQueryVars();
 		foreach($vars as $var)
 			$public_query_vars[]=$var;
 		return $public_query_vars;
@@ -160,11 +162,16 @@ abstract class WpApplicationBase{
 			WpHelper::registerSettings($this->app,array($this->app));
 	}
 	function afterPluginRow($plugin_file, $plugin_data){
-		$display = $this->on_plugin_row_message();
+		//TODO remove after 11.6.1
+		if(method_exists($this,'on_plugin_row_message'))
+			$display=$this->on_plugin_row_message();
+		if(method_exists($this,'onPluginRowMessage'))		
+			$display=$this->onPluginRowMessage();		
 		extract($display);
-		echo '<tr class="'.$trclass.'" style="'.$trstyle.'"><td colspan="3" class="'.$tdclass.'" style="'.$tdstyle.'"><div class="'.$divclass.'" style="'.$divstyle.'">'.$message.'</div></td></tr>';
+		echo '<tr class="',$trclass,'" style="',$trstyle,'"><td colspan="3" class="',$tdclass,'" style="',$tdstyle,'"><div class="',$divclass,'" style="',$divstyle,'">',$message,'</div></td></tr>';
 	}
 	function pluginPageLinks($links){
+		//TODO remove after 11.6.1		
 		if(method_exists($this,'on_plugin_page_link'))
 			$plugin_link=$this->on_plugin_page_link();
 		if(method_exists($this,'onPluginPageLink'))
@@ -309,11 +316,11 @@ abstract class WpApplicationBase{
 					$myStyleUrl = WP_PLUGIN_URL .'/'.$this->app.$file;
 					$myStyleFile = WP_PLUGIN_DIR .'/'.$this->app.$file;
 					if ( file_exists($myStyleFile) ) {
-						wp_register_style($name, $myStyleUrl);
-						wp_enqueue_style( $name);
+						WpHelper::registerStyle($name, $myStyleUrl);
+						WpHelper::enqueueStyle( $name);
 					}
 				}else
-					wp_enqueue_style( $file);
+					WpHelper::enqueueStyle( $file);
 			}		
 		}
 	}
@@ -324,11 +331,11 @@ abstract class WpApplicationBase{
 					$myScriptUrl = WP_PLUGIN_URL .'/'.$this->app.$file;
 					$myScriptFile = WP_PLUGIN_DIR .'/'.$this->app.$file;
 					if ( file_exists($myScriptFile) ) {
-						wp_register_script($name, $myScriptUrl);
-						wp_enqueue_script( $name);
+						WpHelper::registerScript($name, $myScriptUrl);
+						WpHelper::enqueueScript( $name);
 					}
 				}else
-					wp_enqueue_script( $file);
+					WpHelper::enqueueScript( $file);
 			}		
 		}
 	}

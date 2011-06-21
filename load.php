@@ -25,11 +25,12 @@ function loadAoiSora(){
 	include(PACKAGEPATH.'lib/Debug.php');
 	load(PACKAGEPATH.'lib/helpers/');
 	load(PACKAGEPATH.'lib/core/');
-//	load(PACKAGEPATH.'lib/filters/');
-	include(PACKAGEPATH.'lib/filters/IFilter.php');
-	include(PACKAGEPATH.'lib/filters/SecurityFilter.php');
+	load(PACKAGEPATH.'lib/events/');
+//	include(PACKAGEPATH.'lib/filters/IFilter.php');
+//	include(PACKAGEPATH.'lib/filters/SecurityFilter.php');
 	load(PACKAGEPATH.'lib/controllers/');
-
+	load(PACKAGEPATH.'lib/views/');
+	
 	if(VIEWENGINE=='wordpress'){
 		load(PACKAGEPATH.'lib/viewengine/'.VIEWENGINE.'/');//.VIEWENGINE.'.php');
 	}

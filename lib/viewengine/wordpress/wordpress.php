@@ -125,7 +125,7 @@
 	global $viewsections;
 	$viewsections=array('print_styles'=>'wp_print_styles','print_scripts'=>'wp_print_scripts',
 					'admin_print_scripts','admin_print_styles',
-					'footer'=>'wp_footer','admin_head','admin_footer','wp_print_scripts','wp_footer','wp_print_styles');
+					'footer'=>'wp_footer','header'=>'wp_header','admin_head','admin_footer','wp_print_scripts','wp_footer','wp_print_styles');
 	foreach($viewsections as $key => $section)
 		if(is_numeric($key))
 			View::registerHandler($section,'wp_section_handler');
@@ -166,6 +166,13 @@
 			add_action($newsection,$callback,$priority,$params);
 		else
 			add_action($section,$callback,$priority,$params);
+	}
+	function action_url($class,$action){
+		$action=strtolower($action);
+		if(!is_string($class))
+			$class=get_class($class);
+		$class=strtolower($class);
+		return site_url('/'.$class.'/'.$action);
 	}
 	function adminURL($controller,$action,$query=false){
 		$url="admin.php?page=$controller&action=$action";

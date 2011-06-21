@@ -5,4 +5,5 @@ abstract class ShortCodeBase{
 		$sc=str_replace('shortcode','',strtolower($name));
 		Shortcode::register($sc, array(&$this,'render'));
 	}
+	abstract function render($atts, $content = false);
 }
