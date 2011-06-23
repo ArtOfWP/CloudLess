@@ -216,9 +216,6 @@ abstract class ActiveRecordBase{
 		$class=get_class($this);
 		HookHelper::run($method,$this);		
 		HookHelper::run($class.'->'.$method,$this);
-		$break=FilterHelper::run($class.'->'.$method,array(false,$this));
-		if($break)
-			return false;
 		if(method_exists($this,$method))
 			return $this->$method();
 		return true;

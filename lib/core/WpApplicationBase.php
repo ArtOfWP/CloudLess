@@ -30,6 +30,8 @@ abstract class WpApplicationBase{
 			Filter::register('query_vars', array(&$this,'registerQueryVars'));			
 		if(method_exists($this,'on_init'))
 			Hook::register('init', array(&$this,'on_init'));
+		if(method_exists($this,'onInit'))
+			Hook::register('init', array(&$this,'onInit'));			
 		if(is_admin()){
 			if(method_exists($this,'onInitAdmin'))
 				Hook::register('init', array(&$this,'onInitAdmin'));				
@@ -119,7 +121,7 @@ abstract class WpApplicationBase{
 			if(method_exists($this,'on_init_update'))
 				$this->on_init_update();
 			if(method_exists($this,'onInitUpdate'))
-				$this->onInitUpdate();				
+				$this->onInitUpdate();
 			$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);	
 			if($this->installed() && version_compare($oldVersion,$this->VERSION,'<')){
 				AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);

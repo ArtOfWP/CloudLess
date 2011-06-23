@@ -1,4 +1,4 @@
-11.6.1
+11.6.0.1
  * fixed per page bug generating same number of pages.
  * changed htmlhelper->table to generate edit links on first object column instead of buttons.
  * Fixed type bug with array_has_key_exists_v
@@ -20,6 +20,9 @@
  * Added hook to Controller->Render before and after format controller.'-pre'.Action,controller.'-after'.Action
  * removed duplicate render code in CrudController
  * restructured folders
+ * added View section to Html form generator
+ * added View section to Html table generator
+ * fixed html form html render bug
  
 11.3.1
  * Added hooks to ActiveRecordBase,BaseController

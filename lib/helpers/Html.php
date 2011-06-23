@@ -208,8 +208,10 @@ class Html{
 			}else{
 				$theForm.=self::select($id,$value,false,false,true);
 			}
-			$theForm.='</td>';
+			$theForm.='</td></tr>';
 		}
+		$theForm.=View::generate('render-form-'.$formid,array($object,$action,$method,$submit,$nonce,$classes,$imagepath));
+		$theForm.=View::generate('render-form-'.$formid.'-'.$action,array($object,$action,$method,$submit,$nonce,$classes,$imagepath));
 		$theForm.='</table>';
 		$theForm.='<p class="submit">';
 		if($classes)
@@ -591,11 +593,17 @@ $script="jQuery(document).ready(function() {
 				$tbody.=$filteredColumn;
 				$tbody.="</td>\n";
 			}
-//			$tbody.='<td style=\'width:50px;\'>'.self::deleteButton('Delete',$row->getId(),get_site_url().'/'.$class.'/delete',$nonce,true).'</td>';
+			$customColumns=FilterHelper::run("htmlhelper-table-row-columns-$id",array(array(),$row));
+			if($customColumns)
+				foreach($customColumns as $column)
+					$tbody.=$column;
+			//			$tbody.='<td style=\'width:50px;\'>'.self::deleteButton('Delete',$row->getId(),get_site_url().'/'.$class.'/delete',$nonce,true).'</td>';
 			$tbody.="</tr>";
 		}
 		$tbody.="</tbody>\n";
 		$ths='';
+		$headColumns=FilterHelper::run("htmlhelper-table-head-columns-$id",array(array()));
+		$headlines =$headlines + $headColumns;
 		foreach($headlines as $column){
 			if(is_array($column))
 					$column=$column[0];
@@ -888,8 +896,10 @@ class HtmlHelper{
 			}else{
 				$theForm.=self::select($id,$value,false,false,true);
 			}
-			$theForm.='</td>';
+			$theForm.='</td></tr>';
 		}
+		$theForm.=View::generate('render-form-'.$formid,array($object,$action,$method,$submit,$nonce,$classes,$imagepath));
+		$theForm.=View::generate('render-form-'.$formid.'-'.$action,array($object,$action,$method,$submit,$nonce,$classes,$imagepath));		
 		$theForm.='</table>';
 		$theForm.='<p class="submit">';
 		if($classes)
@@ -1270,15 +1280,21 @@ $script="jQuery(document).ready(function() {
 				$tbody.=$filteredColumn;
 				$tbody.="</td>\n";
 			}
-//			$tbody.='<td style=\'width:50px;\'>'.self::deleteButton('Delete',$row->getId(),get_site_url().'/'.$class.'/delete',$nonce,true).'</td>';
+			$customColumns=FilterHelper::run("htmlhelper-table-row-columns-$id",array(array(),$row));
+			if($customColumns)
+				foreach($customColumns as $column)
+					$tbody.=$column;
+			//			$tbody.='<td style=\'width:50px;\'>'.self::deleteButton('Delete',$row->getId(),get_site_url().'/'.$class.'/delete',$nonce,true).'</td>';
 			$tbody.="</tr>";
 		}
 		$tbody.="</tbody>\n";
 		$ths='';
+		$headColumns=FilterHelper::run("htmlhelper-table-head-columns-$id",array(array()));
+		$headlines =$headlines + $headColumns;
 		foreach($headlines as $column){
 			if(is_array($column))
 					$column=$column[0];
-			$ths.="<th class=\"".strtolower($column)."\">$column</th>\n";
+			$ths.="<th class=\"".str_replace(' ','-',strtolower($column))."\">$column</th>\n";
 		}
 		$table.="<thead>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllTop','checkbox','all',false,true)."</th>$ths\n<th class=\"delete\"></th></tr></thead>";
 		$table.="<tfoot>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllBottom','checkbox','all',false,true)."</th>$ths\n<th class=\"delete\"></th></tr></tfoot>";

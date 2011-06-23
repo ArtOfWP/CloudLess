@@ -27,7 +27,7 @@ if(is_admin()){
 		array_unshift($active, $plugin);
 		update_option('active_plugins', $active);
 	}
-		if(!file_exists(ABSPATH.'/.htaccess') && !is_writable(ABSPATH.'/.htaccess')){
+		if(!file_exists(ABSPATH.'/.htaccess') || !is_writable(ABSPATH.'/.htaccess')){
 		add_action('after_plugin_row_'.plugin_basename(__FILE__),'after_aoisora_plugin_htaccess_row', 10, 2 );
 	function after_aoisora_plugin_htaccess_row($plugin_file, $plugin_data){
 		echo '
@@ -46,13 +46,13 @@ class AoiSora extends WpApplicationBase{
 		parent::WpApplicationBase('AoiSora',__FILE__,true,false);
 		add_action('plugins_loaded',array($this,'aoisoraLoaded'));		
 	}
-	function on_init_update(){
+	function onInitUpdate(){
 		$this->VERSION='11.6.1';
 		$this->UPDATE_SITE='http://api.artofwp.com/?free_update=plugin';
 		$this->SLUG='php-mvc-for-wordpress';
 		$this->VERSION_INFO_LINK='http://api.artofwp.com/?update=plugin_information';		
 	}
-	function on_load_options(){
+	function onLoadOptions(){
 		$this->options= Option::create('AoiSora');
 		if($this->options->isEmpty()){
 			$this->options->applications=array();
@@ -60,7 +60,7 @@ class AoiSora extends WpApplicationBase{
 			$this->options->save();
 		}
 	}
-	function on_init(){
+	function onInit(){
 		wp_register_script('jquery-validate',"http://ajax.microsoft.com/ajax/jquery.validate/1.5.5/jquery.validate.min.js",array('jquery'));
 		wp_register_script('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core','jquery-ui-widget'));
 		wp_register_style('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.css'));
@@ -80,7 +80,7 @@ class AoiSora extends WpApplicationBase{
     	self::$instance->init();
     	return self::$instance;
     }
-    function on_update(){
+    function onUpdate(){
 	    $htaccessrules=get_htaccess_rules();
 		$path=get_htaccess_rules_path();
 		if(is_writable($path)){
@@ -97,10 +97,11 @@ class AoiSora extends WpApplicationBase{
 		}
     }
 	function aoisoraLoaded(){
-		AoiSora::instance();
-		HookHelper::run('aoisora-loaded');
+		Hook::run('aoisora-libraries');
+		Hook::run('aoisora-loaded');
 	}
 }
+AoiSora::instance();
 }
 register_activation_hook(__FILE__, 'setup_htaccess_rules');
 function setup_htaccess_rules(){
