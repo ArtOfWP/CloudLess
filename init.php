@@ -1,5 +1,5 @@
 <?php
-require_once('load.php');
+include('load.php');
 loadAoiSora();
 
 global $db;

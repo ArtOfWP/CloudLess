@@ -143,6 +143,8 @@ abstract class ActiveRecordBase{
 			return $this->$call();
 		else if(strpos($property,'Lazy')!==false)
 			return $this->$call();
+//		else if(property_exists($this,lcfirst($property)))
+//			return $this->$property;
 		return $this->tempProperties[$property];
 //		$trace = debug_backtrace();
 //		trigger_error('Undefined property via __get(): ' . $property .' in ' . $trace[0]['file'] .' on line ' . $trace[0]['line'],E_USER_NOTICE);

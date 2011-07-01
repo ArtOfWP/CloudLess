@@ -1,7 +1,7 @@
 <?php
 class WpSecurity implements ISecurity{
 function verifyNonce($nonce,$action=false){
-		return wp_verify_nonce($nonce,$action)==1;
+		return wp_verify_nonce($nonce,$action);
 	}
 	function createNonce($action=false){
 		return wp_create_nonce($action);
@@ -45,5 +45,4 @@ function verifyNonce($nonce,$action=false){
 	function current_user_is_in_role($role){
 		return $this->currentUserIsInRole($role);
 	}
-	
 }

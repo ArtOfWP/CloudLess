@@ -102,7 +102,7 @@ class Html{
 					else
 						$theForm.=self::select($id,$selects,false,$value,true);
 					if($dbfield && array_key_exists_v('addnew',$settings)=='true'){
-						$theForm.=self::a('Add new',PACKAGEURL.'plain.php?controller='.strtolower($dbfield).'&action=createnew&TB_iframe=true&height=230&width=340','thickbox button-secondary',true);
+						$theForm.=self::a('Add new',PACKAGEURL.'plain.php?controller='.strtolower($dbfield).'&amp;action=createnew&amp;TB_iframe=true&amp;height=230&amp;width=340','thickbox button-secondary',true);
 					}
 				}
 				else if($field=='url'){
@@ -290,14 +290,18 @@ $script="jQuery(document).ready(function() {
 					id=value.replace(' ','-');
 					jQuery(list).append('<li id=\"'+id+'\" class=\"ui-corner-all\"><span>'+value+'<a href=\"javascript:detagit(\''+field+'\',\'#'+id+'\',\''+value+'\')\">x</span></a></li>');
 					old=jQuery(field).val();
-					jQuery(field).val(old+','+value);
+					if(old)
+						jQuery(field).val(old+','+value);
+					else
+						jQuery(field).val(value);
 				};";
 				$script.="
 				function detagit(field,id,value){
 					jQuery(id).remove();
 					old=jQuery(field).val();					
-					temp=old.replace(','+value,'');
-					temp=temp.replace(value,'');	
+					temp=old.replace(value,'');
+					temp=old.replace(',,',',');
+					temp=temp.replace(value,'');
 					jQuery(field).val(temp);	
 				};";
 			self::registerFooterScript($script);
@@ -336,7 +340,8 @@ $script="jQuery(document).ready(function() {
 	static function currencydropdown($id,$selectedCurrency, $dontprint=false,$class=false){
 		$currency=Filter::run('html_currency_dropdown_currencies',array(array("USD"=>"United States Dollars","CAD$"=>"Canada Dollars","EUR"=>"Euro","GBP"=>"United Kingdom Pounds","SEK"=>"Swedish Kronor","NOK" => "Norwegian Kronor","AUD"=>"Australian dollar","CHF"=>"Swiss franc","KRW"=>"South Korean Won","JPY"=>"Japanese Yen","CNY"=>"Chinese Yuan (Renminbi)")));
 		
-		$select="<select id=\"$id\" name=\"$id\" >";
+		$class=$class?' class="'.$class.'" ':'';
+		$select='<select id="'.$id.'" name="'.$id.'" '.$class.'>';
 		foreach($currency as $key => $element)
 			$select.=self::option(str_replace('"','',$key),$element,strtolower($selectedCurrency)==strtolower($key),true);
 		$select.='</select>';
@@ -380,7 +385,8 @@ $script="jQuery(document).ready(function() {
 		return Filter::run('html_format_currency',array($price,$currency,$value,$decimals));
 	}
 	static function selectDropdownSorted($id,$array,$selectedValues=false,$dontprint=false,$class=false){
-		$select="<select id=\"$id\" name=\"$id\" >";
+		$class=$class?' class="'.$class.'" ':'';
+		$select='<select id="'.$id.'" name="'.$id.'" '.$class.'>';
 		foreach($array as $key => $pair){
 			if(is_array($pair)){
 				if(is_string($pair['parent']) || is_int($pair['parent']))
@@ -410,8 +416,8 @@ $script="jQuery(document).ready(function() {
 		echo $select;		
 	}
 	static function selectSimple($id,$array,$selectedValues=false,$dontprint=false,$class=false){
-		$class=$class?" class=\"$class\" ":'';		
-		$select="<select id=\"$id\" name=\"$id\" $class>";
+		$class=$class?' class="'.$class.'" ':'';
+		$select='<select id="'.$id.'" name="'.$id.'" '.$class.'>';
 		if(is_array($array))
 			foreach($array as $key=>$element){
 				if(is_string($element) || is_int($element)){
@@ -427,11 +433,12 @@ $script="jQuery(document).ready(function() {
 	} 
 	static function select($id,$array,$multiple=false,$selectedValues=false,$dontprint=false,$class=''){
 		$class=$class?"class=\"$class\" ":'';				
-		$select="<select id=\"$id\" name=\"$id\" $class";
-		if($multiple){
-			$select="<select id=\"$id"."[]\" name=\"$id"."[]\" multiple style=\"height:70px\" size=\"5\" $class";
-		}
-		$select.=' >';
+		$select='<select id="'.$id.'" name="'.$id;
+		if($multiple)
+			$select.='[]" multiple="multiple" size="5" ';
+		else
+			$select.='" ';
+		$select.=$class.' >';
 		$select.=self::option(0,'None',false,true);
 		if(is_array($array))
 			foreach($array as $key=>$element){
@@ -459,12 +466,14 @@ $script="jQuery(document).ready(function() {
 		echo $select;
 	}
 	static function option($value,$display,$selected=false,$dontprint=false){
-		$text="<option value=\"$value\">$display</option>";
+		$display=htmlspecialchars($display, ENT_QUOTES);
+		$text="<option";
 		$value=htmlspecialchars($value, ENT_QUOTES);
 		if($selected)
-		$text="<option selected=\"selected\" value=\"$value\">$display</option>";
+			$text.=' selected="selected"';
+		$text.=' value="'.$value.'">'.$display.'</option>';
 		if($dontprint)
-		return $text;
+			return $text;
 		echo $text;
 
 	}
@@ -494,19 +503,19 @@ $script="jQuery(document).ready(function() {
 	static function editLink($uri,$text,$id,$nonce,$dontprint=false){
 		$nonce=Security::create()->create_nonce($nonce);
 		if($dontprint)
-			return "<a href=\"$uri&Id=$id&_asnonce=$nonce\" class=\"edit-link\" >$text</a>";
-		echo "<a href=\"$uri&Id=$id&_asnonce=$nonce\" class=\"edit-link\" >$text</a>";
+			return "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"edit-link\" >$text</a>";
+		echo "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"edit-link\" >$text</a>";
 	}	
 	static function editButton($uri,$text,$id,$nonce,$dontprint=false){
 		$nonce=Security::create()->create_nonce($nonce);
 		if($dontprint)
-			return "<a href=\"$uri&Id=$id&_asnonce=$nonce\" class=\"button-secondary edit-button\" >$text</a>";
-		echo "<a href=\"$uri&Id=$id&_asnonce=$nonce\" class=\"button-secondary edit-button\" >$text</a>";
+			return "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"button-secondary edit-button\" >$text</a>";
+		echo "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"button-secondary edit-button\" >$text</a>";
 	}
 	static function viewLink($uri,$text,$id,$dontprint=false){
 		if($dontprint)
-			return "<a href=\"$uri&Id=$id\" class=\"button-secondary\" >$text</a>";
-		echo "<a href=\"$uri&Id=$id\" class=\"button-secondary\" >$text</a>";
+			return "<a href=\"$uri&amp;Id=$id\" class=\"button-secondary\" >$text</a>";
+		echo "<a href=\"$uri&amp;Id=$id\" class=\"button-secondary\" >$text</a>";
 	}
 	static function ax($text,$path,$class=false,$target=false,$onclick=false,$dontprint=false){
 		$class=$class?" class=\"$class\" ":'';
@@ -557,16 +566,17 @@ $script="jQuery(document).ready(function() {
 			return "</form>";
 		echo "</form>";		
 	}
-	static function table($id,$data,$headlines=false,$nonce=false,$useLinks=false,$class=false){
-		$table="<table id=\"$id\" class=\"ui-widget ui-corner-all\">\n";
-		$tbody="<tbody>\n";
+	static function table($id,$data,$headlines=false,$nonce=false,$useLinks=false,$cssClass=''){
+		$table="<table id=\"$id\" class=\"ui-widget ui-corner-all $cssClass\">\n";
+		$tbody="
+		<tbody>\n";
 		foreach($data as $row){
 			$class=strtolower(get_class($row));
 			$tbody.="<tr>\n";
 //			$tbody.="<td class=\"first\" style=\"vertical-align:middle;\">".self::editLink(admin_url("admin.php?page=$class&action=edit"),'Edit',$row->getId(),$nonce,true)."</td>\n";
 			if(!$headlines)
 			$headlines=ObjectUtility::getProperties($row);
-			$tbody.="<td class=\"first checkbox\">".self::input($class.'[]','checkbox',$row->getId(),'all',true)."</td>\n";
+			$tbody.='<td class="first checkbox"><input name="'.$class.'[]" type="checkbox" value="'.$row->getId().'"  class="all"  /></td>';
 			$notFirst=false;
 			foreach($headlines as $column){
 				if(is_array($column)){
@@ -583,11 +593,11 @@ $script="jQuery(document).ready(function() {
 				$tbody.='<td class="'.strtolower($column).'">';
 
 				if($notFirst){
-					$val=empty($value)?'':$value;
+					$val=empty($value)?'':htmlspecialchars($value, ENT_QUOTES);
 				}
 				else{
 					$notFirst=true;
-					$val=self::editLink(admin_url("admin.php?page=$class&action=edit"),$value,$row->getId(),$nonce,true);	
+					$val=self::editLink(admin_url("admin.php?page=$class&amp;action=edit"),htmlspecialchars($value, ENT_QUOTES),$row->getId(),$nonce,true);	
 				}
 				$filteredColumn=FilterHelper::run("htmlhelper-table-row-$id",array($val,$row,$column,$class,$notFirst));
 				$tbody.=$filteredColumn;
@@ -606,13 +616,15 @@ $script="jQuery(document).ready(function() {
 		$headlines =$headlines + $headColumns;
 		foreach($headlines as $column){
 			if(is_array($column))
-					$column=$column[0];
+				$column=$column[0];
+			$column=htmlspecialchars($column, ENT_QUOTES);				
 			$ths.="<th class=\"".strtolower($column)."\">$column</th>\n";
 		}
 		$table.="<thead>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllTop','checkbox','all',false,true)."</th>$ths\n<th class=\"delete\"></th></tr></thead>";
 		$table.="<tfoot>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllBottom','checkbox','all',false,true)."</th>$ths\n<th class=\"delete\"></th></tr></tfoot>";
 		$table.=$tbody;
-		$table.="</table>\n</div>";
+		$table.="
+		</table>";
 		
 		$script="
 		jQuery('#selectAllTop').click(function(){
@@ -636,7 +648,7 @@ $script="jQuery(document).ready(function() {
 		$paging='<div class="tablenav"><div class="tablenav-pages">';
 		$paging.='<span class="displaying-num">';
 		if(strpos($href,'?')!==false)
-			$current="&current=";
+			$current="&amp;current=";
 		else 
 			$current="?current=";
 		$pages=ceil($total/$perpage);
@@ -784,7 +796,7 @@ class HtmlHelper{
 					else
 						$theForm.=self::select($id,$selects,false,$value,true);
 					if($dbfield && array_key_exists_v('addnew',$settings)=='true'){
-						$theForm.=self::a('Add new',PACKAGEURL.'plain.php?controller='.strtolower($dbfield).'&action=createnew&TB_iframe=true&height=230&width=340','thickbox button-secondary',true);
+						$theForm.=self::a('Add new',PACKAGEURL.'plain.php?controller='.strtolower($dbfield).'&amp;action=createnew&amp;TB_iframe=true&amp;height=230&amp;width=340','thickbox button-secondary',true);
 					}
 				}
 				else if($field=='url'){
@@ -1023,7 +1035,8 @@ $script="jQuery(document).ready(function() {
 	}
 	static function currencydropdown($id,$selectedCurrency, $dontprint=false,$class=false){
 		$currency=array("USD"=>"United States Dollars","CAD$"=>"Canada Dollars","EUR"=>"Euro","GBP"=>"United Kingdom Pounds","SEK"=>"Swedish Kronor","NOK" => "Norwegian Kronor","AUD"=>"Australian dollar","CHF"=>"Swiss franc","KRW"=>"South Korean Won","JPY"=>"Japanese Yen","CNY"=>"Chinese Yuan (Renminbi)");
-		$select="<select id=\"$id\" name=\"$id\" >";
+		$class=$class?' class="'.$class.'" ':'';
+		$select='<select id="'.$id.'" name="'.$id.'" '.$class.'>';
 		foreach($currency as $key => $element)
 			$select.=self::option(str_replace('"','',$key),$element,strtolower($selectedCurrency)==strtolower($key),true);
 		$select.='</select>';
@@ -1067,7 +1080,8 @@ $script="jQuery(document).ready(function() {
 		return Filter::run('html_format_currency',array($price,$currency,$value,$decimals));
 	}
 	static function selectDropdownSorted($id,$array,$selectedValues=false,$dontprint=false,$class=false){
-		$select="<select id=\"$id\" name=\"$id\" >";
+		$class=$class?' class="'.$class.'" ':'';
+		$select='<select id="'.$id.'" name="'.$id.'" '.$class.'>';
 		foreach($array as $key => $pair){
 			if(is_array($pair)){
 				if(is_string($pair['parent']) || is_int($pair['parent']))
@@ -1097,8 +1111,8 @@ $script="jQuery(document).ready(function() {
 		echo $select;		
 	}
 	static function selectSimple($id,$array,$selectedValues=false,$dontprint=false,$class=false){
-		$class=$class?" class=\"$class\" ":'';		
-		$select="<select id=\"$id\" name=\"$id\" $class>";
+		$class=$class?' class="'.$class.'" ':'';
+		$select='<select id="'.$id.'" name="'.$id.'" '.$class.'>';
 		if(is_array($array))
 			foreach($array as $key=>$element){
 				if(is_string($element) || is_int($element)){
@@ -1114,11 +1128,12 @@ $script="jQuery(document).ready(function() {
 	} 
 	static function select($id,$array,$multiple=false,$selectedValues=false,$dontprint=false,$class=''){
 		$class=$class?"class=\"$class\" ":'';				
-		$select="<select id=\"$id\" name=\"$id\" $class";
-		if($multiple){
-			$select="<select id=\"$id"."[]\" name=\"$id"."[]\" multiple style=\"height:70px\" size=\"5\" $class";
-		}
-		$select.=' >';
+		$select='<select id="'.$id.'" name="'.$id;
+		if($multiple)
+			$select.='[]" multiple="multiple" size="5" ';
+		else
+			$select.='" ';
+		$select.=$class.' >';
 		$select.=self::option(0,'None',false,true);
 		if(is_array($array))
 			foreach($array as $key=>$element){
@@ -1181,19 +1196,19 @@ $script="jQuery(document).ready(function() {
 	static function editLink($uri,$text,$id,$nonce,$dontprint=false){
 		$nonce=Security::create()->create_nonce($nonce);
 		if($dontprint)
-			return "<a href=\"$uri&Id=$id&_asnonce=$nonce\" class=\"edit-link\" >$text</a>";
-		echo "<a href=\"$uri&Id=$id&_asnonce=$nonce\" class=\"edit-link\" >$text</a>";
+			return "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"edit-link\" >$text</a>";
+		echo "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"edit-link\" >$text</a>";
 	}	
 	static function editButton($uri,$text,$id,$nonce,$dontprint=false){
 		$nonce=Security::create()->create_nonce($nonce);
 		if($dontprint)
-			return "<a href=\"$uri&Id=$id&_asnonce=$nonce\" class=\"button-secondary edit-button\" >$text</a>";
-		echo "<a href=\"$uri&Id=$id&_asnonce=$nonce\" class=\"button-secondary edit-button\" >$text</a>";
+			return "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"button-secondary edit-button\" >$text</a>";
+		echo "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"button-secondary edit-button\" >$text</a>";
 	}
 	static function viewLink($uri,$text,$id,$dontprint=false){
 		if($dontprint)
-			return "<a href=\"$uri&Id=$id\" class=\"button-secondary\" >$text</a>";
-		echo "<a href=\"$uri&Id=$id\" class=\"button-secondary\" >$text</a>";
+			return "<a href=\"$uri&amp;Id=$id\" class=\"button-secondary\" >$text</a>";
+		echo "<a href=\"$uri&amp;Id=$id\" class=\"button-secondary\" >$text</a>";
 	}
 	static function ax($text,$path,$class=false,$target=false,$onclick=false,$dontprint=false){
 		$class=$class?" class=\"$class\" ":'';
@@ -1233,7 +1248,7 @@ $script="jQuery(document).ready(function() {
 		$theForm.=self::input('_redirect','hidden','referer',false,true);
 		$theForm.=self::input('_asnonce','hidden',Security::create()->create_nonce($nonce),false,true);
 		$theForm.=self::input('_method','hidden','delete',false,true);
-		$theForm.=str_replace('>'," onclick=\"return confirm('Are you sure you want to delete selected?')\" >",self::input('delete'.$id,'submit',$text,'button-secondary',true));		
+		$theForm.=str_replace('/>'," onclick=\"return confirm('Are you sure you want to delete selected?')\" />",self::input('delete'.$id,'submit',$text,'button-secondary',true));		
 //		$theForm.='</form>';
 		if($dontprint)
 			return $theForm;
@@ -1244,16 +1259,17 @@ $script="jQuery(document).ready(function() {
 			return "</form>";
 		echo "</form>";		
 	}
-	static function table($id,$data,$headlines=false,$nonce=false,$useLinks=false,$class=false){
-		$table="<table id=\"$id\" class=\"ui-widget ui-corner-all\">\n";
-		$tbody="<tbody>\n";
+	static function table($id,$data,$headlines=false,$nonce=false,$useLinks=false,$cssClass=''){
+		$table="<table id=\"$id\" class=\"ui-widget ui-corner-all $cssClass\">\n";
+		$tbody="
+		<tbody>\n";
 		foreach($data as $row){
 			$class=strtolower(get_class($row));
 			$tbody.="<tr>\n";
 //			$tbody.="<td class=\"first\" style=\"vertical-align:middle;\">".self::editLink(admin_url("admin.php?page=$class&action=edit"),'Edit',$row->getId(),$nonce,true)."</td>\n";
 			if(!$headlines)
 			$headlines=ObjectUtility::getProperties($row);
-			$tbody.="<td class=\"first checkbox\">".self::input($class.'[]','checkbox',$row->getId(),'all',true)."</td>\n";
+			$tbody.='<td class="first checkbox"><input name="'.$class.'[]" type="checkbox" value="'.$row->getId().'"  class="all"  /></td>';
 			$notFirst=false;
 			foreach($headlines as $column){
 				if(is_array($column)){
@@ -1270,11 +1286,11 @@ $script="jQuery(document).ready(function() {
 				$tbody.='<td class="'.strtolower($column).'">';
 
 				if($notFirst){
-					$val=empty($value)?'':$value;
+					$val=empty($value)?'':htmlspecialchars($value, ENT_QUOTES);
 				}
 				else{
 					$notFirst=true;
-					$val=self::editLink(admin_url("admin.php?page=$class&action=edit"),$value,$row->getId(),$nonce,true);	
+					$val=self::editLink(admin_url("admin.php?page=$class&amp;action=edit"),htmlspecialchars($value, ENT_QUOTES),$row->getId(),$nonce,true);	
 				}
 				$filteredColumn=FilterHelper::run("htmlhelper-table-row-$id",array($val,$row,$column,$class,$notFirst));
 				$tbody.=$filteredColumn;
@@ -1287,19 +1303,21 @@ $script="jQuery(document).ready(function() {
 			//			$tbody.='<td style=\'width:50px;\'>'.self::deleteButton('Delete',$row->getId(),get_site_url().'/'.$class.'/delete',$nonce,true).'</td>';
 			$tbody.="</tr>";
 		}
-		$tbody.="</tbody>\n";
+		$tbody.="
+		</tbody>\n";
 		$ths='';
 		$headColumns=FilterHelper::run("htmlhelper-table-head-columns-$id",array(array()));
 		$headlines =$headlines + $headColumns;
 		foreach($headlines as $column){
 			if(is_array($column))
 					$column=$column[0];
+			$column=htmlspecialchars($column, ENT_QUOTES);
 			$ths.="<th class=\"".str_replace(' ','-',strtolower($column))."\">$column</th>\n";
 		}
 		$table.="<thead>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllTop','checkbox','all',false,true)."</th>$ths\n<th class=\"delete\"></th></tr></thead>";
 		$table.="<tfoot>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllBottom','checkbox','all',false,true)."</th>$ths\n<th class=\"delete\"></th></tr></tfoot>";
 		$table.=$tbody;
-		$table.="</table>\n</div>";
+		$table.="</table>";
 		
 		$script="
 		jQuery('#selectAllTop').click(function(){
@@ -1323,7 +1341,7 @@ $script="jQuery(document).ready(function() {
 		$paging='<div class="tablenav"><div class="tablenav-pages">';
 		$paging.='<span class="displaying-num">';
 		if(strpos($href,'?')!==false)
-			$current="&current=";
+			$current="&amp;current=";
 		else 
 			$current="?current=";
 		$pages=ceil($total/$perpage);

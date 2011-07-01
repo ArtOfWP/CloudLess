@@ -1,7 +1,9 @@
 <?php
 class Repo{
-	static function findAll($class,$lazy=false){
-		return Query::createFrom($class,$lazy)->execute();		
+	static function findAll($class,$lazy=false,$order=false){
+		if($order)
+			return Query::createFrom($class,$lazy)->order($order)->execute();
+		return Query::createFrom($class,$lazy)->execute();
 	}
 	static function getById($class,$id,$lazy=false){
 		Debug::Value('Repo::getById',$class);
@@ -12,22 +14,29 @@ class Repo{
 				  ->execute();
 		return sizeof($objects)==1?$objects[0]:false;
 	}
-	static function find($class,$lazy=false,$restrictions=false,$groupby=false){
+	static function find($class,$lazy=false,$restrictions=false,$groupby=false,$order=false){
 		if($groupby || $restrictions){
 			$q=Query::createFrom($class,$lazy);
 			if($groupby)
 				$q->groupBy($groupby);
 			if($restrictions)
 				$q->where($restrictions);
+			if($order)
+				$q->order($order);
 			return $q->execute();
 		}
 		else
-			return self::findAll($class,$lazy);
+			return self::findAll($class,$lazy,$order);
 	}
-	static function findByProperty($class,$property,$value,$lazy=false){
+	static function findByProperty($class,$property,$value,$lazy=false,$order=false){
+		$q=Query::createFrom($class,$lazy);
 		if(is_array($value))
-			return Query::createFrom($class,$lazy)->where(R::In($property,$value))->execute();		
-		return Query::createFrom($class,$lazy)->where(R::Eq($property,$value))->execute();
+			$q->where(R::In($property,$value));		
+		else 
+			$q->where(R::Eq($property,$value));
+		if($order)
+			$q->order($order);
+		return $q->execute();
 	}
 	static function slicedFindAll($class,$firstResult,$maxResult,$order=false,$restrictions=false,$groupby=false){
 		$query=Query::createFrom($class,true)->limit($firstResult,$maxResult);

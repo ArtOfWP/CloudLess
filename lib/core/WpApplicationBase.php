@@ -19,7 +19,9 @@ abstract class WpApplicationBase{
 		if($basename)
 			$this->pluginname=$basename;//"$appName/$appName.php";
 		else
-			$this->pluginname=plugin_basename($file);//"$appName/$appName.php";		
+			$this->pluginname=plugin_basename($file);//"$appName/$appName.php";
+		register_activation_hook($file, array(&$this,'activate'));
+		register_deactivation_hook($file, array(&$this,'deactivate'));
 		$this->installfrompath=dirname($file).'/app/core/domain/';
 		$this->useInstall=$useInstall;
 		$this->useOptions=$useOptions;
@@ -187,7 +189,7 @@ abstract class WpApplicationBase{
 			$this->on_init_update();
 		if(method_exists($this,'onInitUpdate'))
 			$this->onInitUpdate();			
-		$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);	
+		$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);
 		$installed=$this->installed();
 		AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
 		if($oldVersion && $installed && version_compare($oldVersion,$this->VERSION,'<')){
@@ -205,7 +207,7 @@ abstract class WpApplicationBase{
 		if(method_exists($this,'on_activate'))
 			$this->on_activate();
 		if(method_exists($this,'onActivate'))
-			$this->onActivate();		
+			$this->onActivate();
 	}
 	function deactivate(){
 		//TODO deprecated 11.6
@@ -215,6 +217,7 @@ abstract class WpApplicationBase{
 			$this->onDeactivate();
 		if(!$this->useInstall){
 			AoiSoraSettings::uninstallApplication($this->app);
+			AoiSoraSettings::removeApplication($this->app);
 		}
 	}
 	function installed(){

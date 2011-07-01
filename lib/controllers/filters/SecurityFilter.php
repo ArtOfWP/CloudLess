@@ -1,4 +1,6 @@
 <?php
+if(!interface_exists('IFilter'))
+	include('IFilter.php');
 class SecurityFilter implements IFilter{
 	private $useraction;
 	private $nonce_base;
@@ -24,7 +26,7 @@ class SecurityFilter implements IFilter{
 			if(!$this->useraction || $s->current_user_can($this->useraction))
 				return true;
 			else{
-				die('You cannot perform this action');
+				$controller->RenderText('You cannot perform this action');
 				exit;
 			}
 		return false;

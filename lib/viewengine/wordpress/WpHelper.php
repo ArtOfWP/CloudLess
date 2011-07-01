@@ -36,7 +36,8 @@ class WpHelper{
 					}
 				}else
 					$label=$option;
-				$form_id=$values?$optiongroup.'['.$key.']':$key;
+				$form_id=$values?$optiongroup.'-'.$key:$key;
+				$form_name=$values?$optiongroup.'['.$key.']':$key;
 			?>
 				<tr valign="top">
 					<th scope="row">
@@ -45,12 +46,12 @@ class WpHelper{
 					<?php 
 						if($type):
 							if($type=='textarea'):?>
-								<textarea id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>"><?php echo $values?$values[$key]:get_option($key); ?></textarea>
+								<textarea id="<?php echo $form_id  ?>" name="<?php echo $form_name ?>"><?php echo $values?$values[$key]:get_option($key); ?></textarea>
 					<?php 	elseif($type=='checkbox'):?>
-								<input type="checkbox" id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>" value="1" <?php echo $values?isset($values[$key])&&$values[$key]:get_option($key)?'checked="checked"':''; ?> />
+								<input type="checkbox" id="<?php echo $form_id  ?>" name="<?php echo $form_name ?>" value="1" <?php echo $values?isset($values[$key])&&$values[$key]:get_option($key)?'checked="checked"':''; ?> />
 					<?php	elseif(strpos($type,'dropdown')!==false):?>
 					<?php 		$selected=$values?$values[$key]:get_option($key);	?>
-								<select id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>">
+								<select id="<?php echo $form_id  ?>" name="<?php echo $form_name ?>">
 					<?php 		foreach($dropdown as $text => $value):?>
 					<?php 			
 									if($selected==$value)
@@ -62,7 +63,7 @@ class WpHelper{
 								</select>
 					<?php 	endif;?>
 					<?php else:?>
-								<input type="text" id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>" value="<?php echo $values?$values[$key]:get_option($key); ?>" />
+								<input type="text" id="<?php echo $form_id  ?>" name="<?php echo $form_name ?>" value="<?php echo $values?$values[$key]:get_option($key); ?>" />
 					<?php endif;?>
 					</td>
 				</tr>
@@ -128,7 +129,8 @@ class WpHelper{
 					}
 				}else
 					$label=$option;
-				$form_id=$values?$optiongroup.'['.$key.']':$key;
+				$form_id=$values?$optiongroup.'-'.$key:$key;
+				$form_name=$values?$optiongroup.'['.$key.']':$key;
 			?>
 				<tr valign="top">
 					<th scope="row">
@@ -137,12 +139,12 @@ class WpHelper{
 					<?php 
 						if($type):
 							if($type=='textarea'):?>
-								<textarea id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>"><?php echo $values?$values[$key]:get_option($key); ?></textarea>
+								<textarea id="<?php echo $form_id  ?>" name="<?php echo $form_name ?>"><?php echo $values?$values[$key]:get_option($key); ?></textarea>
 					<?php 	elseif($type=='checkbox'):?>
-								<input type="checkbox" id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>" value="1" <?php echo $values?isset($values[$key])&&$values[$key]:get_option($key)?'checked="checked"':''; ?> />
+								<input type="checkbox" id="<?php echo $form_id  ?>" name="<?php echo $form_name ?>" value="1" <?php echo $values?isset($values[$key])&&$values[$key]:get_option($key)?'checked="checked"':''; ?> />
 					<?php	elseif(strpos($type,'dropdown')!==false):?>
 					<?php 		$selected=$values?$values[$key]:get_option($key);	?>
-								<select id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>">
+								<select id="<?php echo $form_id  ?>" name="<?php echo $form_name ?>">
 					<?php 		foreach($dropdown as $text => $value):?>
 					<?php 			
 									if($selected==$value)
@@ -154,7 +156,7 @@ class WpHelper{
 								</select>
 					<?php 	endif;?>
 					<?php else:?>
-								<input type="text" id="<?php echo $form_id  ?>" name="<?php echo $form_id  ?>" value="<?php echo $values?$values[$key]:get_option($key); ?>" />
+								<input type="text" id="<?php echo $form_id  ?>" name="<?php echo $form_name ?>" value="<?php echo $values?$values[$key]:get_option($key); ?>" />
 					<?php endif;?>
 					</td>
 				</tr>
@@ -208,20 +210,22 @@ class WpHelper{
 					}
 				}else
 					$label=$option;
+				$form_id=$values?$optiongroup.'-'.$key:$key;
+				$form_name=$values?$optiongroup.'['.$key.']':$key;					
 			?>
 				<tr valign="top">
 					<th scope="row">
-						<label for="<?php echo $values?$values[$key]:$key ?>"><?php if(is_int($label)) echo str_replace('_',' ',$values?$values[$key]:$key ); else echo $label ?></label></th>
+						<label for="<?php echo $form_id ?>"><?php if(is_int($label)) echo str_replace('_',' ',$values?$values[$key]:$key ); else echo $label ?></label></th>
 					<td>
 					<?php 
 						if($type):
 							if($type=='textarea'):?>
-								<textarea id="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" name="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>"><?php echo $values?$values[$key]:get_option($key); ?></textarea>
+								<textarea id="<?php echo $form_id  ?>" name="<?php echo $form_name  ?>"><?php echo $values?$values[$key]:get_option($key); ?></textarea>
 					<?php 	elseif($type=='checkbox'):?>
-								<input type="checkbox" id="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" name="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" value="1" <?php echo $values?$values[$key]:get_option($key)?'checked="checked"':''; ?> />					
+								<input type="checkbox" id="<?php echo $form_id  ?>" name="<?php echo $form_name  ?>" value="1" <?php echo $values?$values[$key]:get_option($key)?'checked="checked"':''; ?> />					
 					<?php	elseif(strpos($type,'dropdown')!==false):?>
 					<?php 		$selected=$values?$values[$key]:get_option($key);	?>
-								<select id="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" name="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>">
+								<select id="<?php echo $form_id  ?>" name="<?php echo $form_name  ?>">
 					<?php 		foreach($dropdown as $text => $value):?>
 					<?php 			
 									if($selected==$value)
@@ -233,7 +237,7 @@ class WpHelper{
 								</select>
 					<?php 	endif;?>
 					<?php else:?>
-								<input type="text" id="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" name="<?php echo $values?$optiongroup.'['.$key.']':$key  ?>" value="<?php echo $values?$values[$key]:get_option($key); ?>" />
+								<input type="text" id="<?php echo $form_id  ?>" name="<?php echo $form_name  ?>" value="<?php echo $values?$values[$key]:get_option($key); ?>" />
 					<?php endif;?>
 					</td>
 				</tr>

@@ -1,3 +1,5 @@
+11.6.0.3
+ * Fixed HTML validation errors
 11.6.0.1
  * fixed per page bug generating same number of pages.
  * changed htmlhelper->table to generate edit links on first object column instead of buttons.

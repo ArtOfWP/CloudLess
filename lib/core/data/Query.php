@@ -139,7 +139,11 @@ class Query{
 		return $this->statement;
 	}
 	public function groupBy($property){
-		$this->statement['groupby'][]=$this->addMark(strtolower($property));
+		if(is_array($order))
+			foreach($property as $p)
+				$this->statement['groupby'][]=$this->addMark(strtolower($p));
+		else
+			$this->statement['groupby'][]=$this->addMark(strtolower($property));
 		return $this;
 	}
 	public function setParameter($param,$value){

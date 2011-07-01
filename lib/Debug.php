@@ -2,7 +2,7 @@
 class Debug{
 
 	static function IsActive(){
-		if(defined('DEBUG'))
+		if(defined('DEBUG') && !(defined('DOING_AJAX') && DOING_AJAX))
 			return DEBUG;
 		return false;
 	}
