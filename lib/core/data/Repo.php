@@ -39,18 +39,18 @@ class Repo{
 		return $q->execute();
 	}
 	static function slicedFindAll($class,$firstResult,$maxResult,$order=false,$restrictions=false,$groupby=false){
-		$query=Query::createFrom($class,true)->limit($firstResult,$maxResult);
+		$q=Query::createFrom($class,true)->limit($firstResult,$maxResult);
 		if($order)
-			$query->order($order);
+			$q->order($order);
 		if($restrictions)
-			$query->where($restrictions);
+			$q->where($restrictions);
 		if($groupby)
 			if(is_array($groupby))
 				foreach($groupby as $param)
-					$query->groupby($param);
+					$q->groupby($param);
 			else
-				$query->groupby($groupby);
-		return $query->execute();
+				$q->groupby($groupby);
+		return $q->execute();
 	}
 	static function findOne($class,$requirement,$lazy=false){
 		$result=array();
