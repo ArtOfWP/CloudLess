@@ -1,6 +1,7 @@
 11.7.1
  * added ordering support to Repo methods.
  * added property array capability to Query groupby
+ * fixed bug with jQuery stars and latest WP jQuery version
  
 11.6.0.3
  * Fixed HTML validation errors
