@@ -2,6 +2,7 @@
 abstract class ActiveRecordBase{
 	private $tempProperties=array();
 	function create(){
+		Debug::Message('ARB Create '.get_class($this));			
 		if(!$this->runEventMethod(__FUNCTION__,'Pre'))
 			return;
 		$properties =ObjectUtility::getPropertiesAndValues($this);
@@ -40,13 +41,14 @@ abstract class ActiveRecordBase{
 							$row['values'][$col2]=$this->getId();
 							$db->insert($row);
 						}
-						$row=null;
+						$row=array();
 					}	
 				}
 		}
 		$this->runEventMethod(__FUNCTION__,'Post');		
 	}
 	function delete(){
+		Debug::Message('ARB Delete '.get_class($this));			
 		if(!$this->runEventMethod(__FUNCTION__,'Pre'))
 			return;
 		$lists=ObjectUtility::getArrayPropertiesAndValues($this);
@@ -65,7 +67,7 @@ abstract class ActiveRecordBase{
 	function update(){
 		if(!$this->runEventMethod(__FUNCTION__,'Pre'))
 			return;
-		Debug::Value('Update',get_class($this));	
+		Debug::Message('ARB Update '.get_class($this));	
 		$properties =ObjectUtility::getPropertiesAndValues($this);
 		Debug::Value('Properties',$properties);
 		$vo=array();
@@ -90,38 +92,51 @@ abstract class ActiveRecordBase{
 		
 		$lists=ObjectUtility::getArrayPropertiesAndValues($this);
 		$voDependant=array();
+		$col2=strtolower(get_class($this)).'_id';
+			
 		foreach($lists as $list =>$values){
 			$settings=ObjectUtility::getCommentDecoration($this,$list.'List');
 			$table=array_key_exists_v('dbrelationname',$settings);
+			$existRows=Query::create($table)->selectAll()->where(R::Eq($col2,$this->getId()))->execute();
+			$newRows=array();
 			Debug::Value('List values',$values);
 			if(sizeof($values)>0){
-				$delete=true;
 				foreach($values as $value){
 					if($table && is_subclass_of($value,'ActiveRecordBase')){
 						Debug::Value('Update list',$table);
 						$value->save();
 						$col1=strtolower(get_class($value)).'_id';
-						$col2=strtolower(get_class($this)).'_id';
-						if($delete){
-						Delete::create()->from($table)->where(R::Eq($col2,$this->getId()))->execute();						
-						$delete=false;
-						}
 						Debug::Message('Prepare relation insert');
-						$row['table']=$table;
-						$row['values'][$col1]=$value->getId();
-						$row['values'][$col2]=$this->getId();
-						$db->insert($row);
+						$insert=true;
+						$totalExistRows=sizeof($existRows);
+						for($x=0;$x<$totalExistRows;$x++ ){
+							$existRow=$existRows[$x];
+							if($existRow[$col1]==$value->getId() && $existRow[$col2]==$this->getId()){
+								$insert=false;
+								$newRows[]=$existRow;
+							}
+						}
+						if($insert){
+							$row['table']=$table;
+							$row['values'][$col1]=$value->getId();
+							$row['values'][$col2]=$this->getId();
+							$newRows[]=array($value->getId(),$this->getId());
+							$db->insert($row);
+						}
 						$row=array();
-					}	
+					}
 				}
-			}else{
-				Debug::Message('Delete single entity');
-				Delete::createFrom($table)->where(R::Eq($vo['table'].'_id',$this))->execute();
 			}
+			foreach($existRows as $existRow)
+				if(!in_array($existRow,$newRows)){
+					$col1=array_shift(array_keys($existRow));
+					Delete::create($table)->whereAnd(R::Eq($col1,$existRow[$col1]))->where(R::Eq($col2,$existRow[$col2]))->execute();
+				}
 		}
 		$this->runEventMethod(__FUNCTION__,'Post');		
 	}
 	function save(){
+		Debug::Message('ARB Save '.get_class($this));			
 		if(method_exists($this,'on_pre_save'))
 			if(!$this->on_pre_save())
 				return;
@@ -151,7 +166,7 @@ abstract class ActiveRecordBase{
 	}
 	public function __set($property,$value){
 		$call="set".$property;
-		if(property_exists($this,strtolower($property)))
+		if(method_exists($this,$call))
 			return $this->$call($value);
 		$this->tempProperties[$property]=$value;
 //		$trace = debug_backtrace();
@@ -169,6 +184,8 @@ abstract class ActiveRecordBase{
 	
 	public function __call($method,$arguments){
 		if($this->getId()){
+			Debug::Message('ARB __call '.get_class($this).'->'.$method);
+			Debug::Value('Arguments',$arguments);	
 			if(empty($arguments)){
 				$method=str_replace('Lazy','',$method);
 				$settings=ObjectUtility::getCommentDecoration($this,$method);
@@ -182,7 +199,7 @@ abstract class ActiveRecordBase{
 					$table=strtolower(get_class($this));
 /*					$stmt->From($foreigntable);
 					$stmt->From($this);*/
-					$properties =ObjectUtility::getProperties($temp);
+//					$properties =ObjectUtility::getProperties($temp);
 					
 /*					foreach($properties as $property)
 						$stmt->Select($foreigntable.'.'.strtolower($property));

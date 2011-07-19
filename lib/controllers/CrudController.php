@@ -22,6 +22,7 @@ abstract class CrudController extends BaseController{
 	}
 	
 	public function init(){
+		Debug::message('Init CRUD');
 		$this->defaultAction='listall';
 		parent::init();
 		$this->onCrudControllerInit();
@@ -49,6 +50,7 @@ abstract class CrudController extends BaseController{
 		}
 	}
 	private function onCrudControllerInit(){
+		Debug::message('onInit Crud');
 		$this->crudItem=new $this->controller;
 		//TODO deprecated since 11.6
 		if(array_key_exists('search',$this->values) && method_exists($this,'on_search_init'))
@@ -102,13 +104,13 @@ abstract class CrudController extends BaseController{
 					return;
 				}
 			}
-			Debug::Message('Search: Sliced find all');			
-			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$perpage,$order,$restrictions);
+			Debug::Message('Search: Sliced find all');
+			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$perpage,$order,$restrictions,false,true);
 			$this->bag['searchResultTotal']=Repo::total($this->controller,$restrictions);
 		}
 		else{
 			Debug::Message('No search: Sliced find all');
-			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$perpage,$order);
+			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$perpage,$order,false,false,true);
 		}
 		$this->bag['total']=Repo::total($this->controller);
 	}
@@ -120,7 +122,6 @@ abstract class CrudController extends BaseController{
 		$this->bag['edit']=$this->crudItem;
 	}
 	public function create($redirect=true){
-		Debug::message('Creating ... ');
 		$this->render=false;
 		$this->loadFromPost();
 		$this->crudItem->save();
@@ -133,7 +134,7 @@ abstract class CrudController extends BaseController{
 	public function update($redirect=true){
 		$this->render=false;		
 		$id=array_key_exists_v('Id',$this->values);		
-		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,true);		
+		$this->crudItem=Repo::getById(get_class($this->crudItem),$id);		
 		$this->loadFromPost();
 		$this->crudItem->save();
 		if($redirect)
@@ -162,7 +163,7 @@ abstract class CrudController extends BaseController{
 	private function loadFromPost(){
 		$folder='';
 		$width=100;
-		$heigh=100;
+		$height=100;
 		if($this->uploadSubFolder)
 			$folder=$this->uploadSubFolder.'/';
 		if($this->width)
@@ -186,24 +187,34 @@ abstract class CrudController extends BaseController{
 			Debug::Message('CHECKING UPLOADS');
 			if(strlen($upload["name"])>0){
 				Debug::Message('FOUND UPLOAD');
+				$name=str_replace(' ','-',$upload["name"]);
+				$name=str_replace('+','-', $name);					
 				if(isset($this->thumbnails[$property]) && $this->thumbnails[$property]=='thumb')
-					$path=UPLOADS_DIR.$folder.'thumbs/'.$upload["name"];
+					$path=UPLOADS_DIR.$folder.'thumbs/'.$name;
 				else
-					$path=UPLOADS_DIR.$folder.$upload["name"];
+					$path=UPLOADS_DIR.$folder.$name;
 				
-				$path=UPLOADS_DIR.$folder.$upload["name"];
 				move_uploaded_file($upload["tmp_name"],$path);
-				chmod($path, octdec(644));				
-				$values[$property]=$upload["name"];
+				chmod($path, octdec(644));
+				$values[$property]=$name;
 				if(isset($this->thumbnails[$property]) && $this->thumbnails[$property][0]=='create'){
+					$info=getimagesize($path);
 					$image = new Resize_Image;
-					$image->new_width = $width;
-					$image->new_height = $height;
+					if($info[1]>$height)
+						$image->new_height = $height;
+					else if($info[0]>$width)
+						$image->new_width = $width;
+					else{
+						$image->new_height = $info[1];
+						$image->new_width = $info[0];
+					}
 					$image->image_to_resize = $path;
 					$image->ratio = true;
-					$image->new_image_name = preg_replace('/\.[^.]*$/', '', $upload["name"]);
+					$info = pathinfo($name);
+					$file_name =  basename($name,'.'.$info['extension']);							
+					$image->new_image_name = $file_name;
 					$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
-					$values[$this->thumbnails[$property][1]]='thumbs/'.$upload["name"];
+					$values[$this->thumbnails[$property][1]]='thumbs/'.$name;
 					$process = $image->resize();
 					chmod($process['new_file_path'], octdec(644));
 				}
@@ -216,6 +227,7 @@ abstract class CrudController extends BaseController{
 						Debug::Message('HAS IMAGE LINK '.$property);
 						$url = $this->values[$property.'_hasimage'];
 						$name=str_replace(' ','-',urldecode(basename($url)));
+						$name=str_replace('+','-', $name);	
 						if(isset($this->thumbnails[$property]) && $this->thumbnails[$property]=='thumb')
 							$path=UPLOADS_DIR.$folder.'thumbs/'.$name;
 						else
@@ -225,16 +237,25 @@ abstract class CrudController extends BaseController{
 						Http::save_image($url,$path);
 						if(isset($this->thumbnails[$property]) && $this->thumbnails[$property][0]=='create'){
 							Debug::Message('CREATE THUMBNAIL');
+							$info=getimagesize($path);
 							$image = new Resize_Image;
-							$image->new_width = $width;
-							$image->new_height = $height;
+							if($info[1]>$height)
+								$image->new_height = $height;
+							else if($info[0]>$width)
+								$image->new_width = $width;
+							else{
+								$image->new_height = $info[1];
+								$image->new_width = $info[0];
+							}
 							$image->image_to_resize = $path; // Full Path to the file
 							$image->ratio = true; // Keep Aspect Ratio?
-							$image->new_image_name = preg_replace('/\.[^.]*$/', '', $name);
+							$info = pathinfo($name);
+							$file_name =  basename($name,'.'.$info['extension']);							
+							$image->new_image_name = $file_name;
 							$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
 							$values[$this->thumbnails[$property][1]]='thumbs/'.$name;
 							$process = $image->resize();
-							chmod($process['new_file_path'], octdec(644));							
+							chmod($process['new_file_path'], octdec(644));
 						}
 					}else{
 						Debug::Message('HAS IMAGE '.$property);
@@ -242,21 +263,31 @@ abstract class CrudController extends BaseController{
 						if(isset($this->thumbnails[$property]) && $this->thumbnails[$property][0]=='create'){
 							Debug::Message('CREATE THUMBNAIL');
 							$url = $this->values[$property.'_hasimage'];
-							$name=str_replace(' ','-',urldecode(basename($url)));							
+							$name=str_replace(' ','-',urldecode(basename($url)));	
+							$name=str_replace('+','-', $name);		
 							$path=UPLOADS_DIR.$folder.$name;
+							$info=getimagesize($path);
 							$image = new Resize_Image;
-							$image->new_width = $width;
-							$image->new_height = $height;
+							if($info[1]>$height)
+								$image->new_height = $height;
+							else if($info[0]>$width)
+								$image->new_width = $width;
+							else{
+								$image->new_height = $info[1];
+								$image->new_width = $info[0];
+							}
 							$image->image_to_resize = $path; // Full Path to the file
 							$image->ratio = true; // Keep Aspect Ratio?
 							// Name of the new image (optional) - If it's not set a new will be added automatically
-							$image->new_image_name = preg_replace('/\.[^.]*$/', '', $name);
+							$info = pathinfo($name);
+							$file_name =  basename($name,'.'.$info['extension']);							
+							$image->new_image_name = $file_name;
 							// Path where the new image should be saved. If it's not set the script will output the image without saving it 
 							$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
 							$values[$this->thumbnails[$property][1]]='thumbs/'.$name;
 							$process = $image->resize();
-							chmod($process['new_file_path'], octdec(644));							
-						}						
+							chmod($process['new_file_path'], octdec(644));
+						}
 					}
 				}
 			} 
@@ -270,10 +301,12 @@ abstract class CrudController extends BaseController{
 			$field=array_key_exists_v('field',$settings);
 			$objects=array();	
 			if($field=='text'){
-				$values=explode(',',trim($value," ,."));
-				if(sizeof($values)==0)
+				if(strlen($value)==0)
 					continue;
-				foreach($values as $value){
+				$listValues=explode(',',trim($value," ,."));
+				if(sizeof($listValues)==0)
+					continue;
+				foreach($listValues as $value){
 					if($dbrelation && $field=='text'){
 						$object= new $dbrelation;
 						$object->setName(trim($value));

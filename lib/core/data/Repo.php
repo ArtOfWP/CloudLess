@@ -1,6 +1,9 @@
 <?php
 class Repo{
 	static function findAll($class,$lazy=false,$order=false){
+		Debug::Value('Repo findAll ', $class);
+		Debug::Backtrace();
+		
 		if($order)
 			return Query::createFrom($class,$lazy)->order($order)->execute();
 		return Query::createFrom($class,$lazy)->execute();
@@ -8,6 +11,7 @@ class Repo{
 	static function getById($class,$id,$lazy=false){
 		Debug::Value('Repo::getById',$class);
 		Debug::Value('Id=',$id);
+		Debug::Backtrace();		
 		$objects= Query::createFrom($class,$lazy)
 				  ->where(R::Eq(new $class,$id))
 				  ->limit(0,1)
@@ -15,6 +19,9 @@ class Repo{
 		return sizeof($objects)==1?$objects[0]:false;
 	}
 	static function find($class,$lazy=false,$restrictions=false,$groupby=false,$order=false){
+		Debug::Value('Repo find ', $class);
+		Debug::Backtrace();		
+
 		if($groupby || $restrictions){
 			$q=Query::createFrom($class,$lazy);
 			if($groupby)
@@ -29,6 +36,9 @@ class Repo{
 			return self::findAll($class,$lazy,$order);
 	}
 	static function findByProperty($class,$property,$value,$lazy=false,$order=false){
+		Debug::Value('Repo findByProperty ',$class);
+		Debug::Value('Repo findByProperty ->',$slug);		
+		Debug::Backtrace();
 		$q=Query::createFrom($class,$lazy);
 		if(is_array($value))
 			$q->where(R::In($property,$value));		
@@ -38,8 +48,11 @@ class Repo{
 			$q->order($order);
 		return $q->execute();
 	}
-	static function slicedFindAll($class,$firstResult,$maxResult,$order=false,$restrictions=false,$groupby=false){
-		$q=Query::createFrom($class,true)->limit($firstResult,$maxResult);
+	static function slicedFindAll($class,$firstResult,$maxResult,$order=false,$restrictions=false,$groupby=false,$lazy=false){
+		Debug::Value('Repo slicedFindAll ', $class);
+		Debug::Backtrace();
+		$q=Query::createFrom($class,$lazy);
+		$q->limit($firstResult,$maxResult);
 		if($order)
 			$q->order($order);
 		if($restrictions)
@@ -53,6 +66,8 @@ class Repo{
 		return $q->execute();
 	}
 	static function findOne($class,$requirement,$lazy=false){
+		Debug::Value('Repo findOne', $class);
+		Debug::Backtrace();		
 		$result=array();
 		if($requirement instanceof R)
 			$result= Query::createFrom($class,$lazy)->where($requirement)->limit(0,1)->execute();
@@ -64,6 +79,9 @@ class Repo{
 			return false;
 	}
 	static function total($class,$restrictions=false,$groupby=false){
+		Debug::Value('Repo total ', $class);
+		Debug::Backtrace();
+		
 		$q=CountQuery::createFrom($class);
 		if($restrictions)
 			$q->where($restrictions);

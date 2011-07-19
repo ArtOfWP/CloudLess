@@ -1,8 +1,11 @@
 <?php
-
 class Query{
 	public $limit;
 	public $offset;
+	private $statement=array();
+	public $depends=array();
+	public $returnType;	
+	public $dependslist=array();
 	function Query($table=false){
 		$this->statement['from']=array();
 		$this->statement['order']=array();
@@ -21,49 +24,51 @@ class Query{
 		$q->returnType=$class;
 		$object = new $class();
 		Debug::Value('createFrom',$class);
+		Debug::Backtrace();
 		$properties =ObjectUtility::getProperties($object);
-		foreach($properties as $property){
-			if($lazy){
+		if($properties)
+			$q->depends=array();
+			foreach($properties as $property){
 				$dependson=array_key_exists_v('dbrelation',ObjectUtility::getCommentDecoration($object,'get'.$property));
-				Debug::Value('dbrelation',$dependson);
-				if($dependson){
-					//'select * from this, dependson where this.property=dependson.id';
+				if($dependson && $lazy){
+					Debug::Value('dbrelation',$dependson);
 					$temp= new $dependson();
-//					$table=$db_prefix.strtolower($dependson);
-					$gProperty= Query::createFrom($temp,false)
-								->where(R::Eq($temp,'id'));
-					Debug::Value('Depends',R::Eq($temp,'id')->toSQL());
+					$gProperty= Query::createFrom($temp)->where(R::Eq($temp,'Id'));
 					$q->depends[$property]=$gProperty;
 				}
+				$q->select($property,$maintable);
 			}
-			$q->select($property,$maintable);
-		}/*
 		$arrays=ObjectUtility::getArrayProperties($object);
-		foreach($arrays as $array){
-			if($lazy){
-				$dependson=array_key_exists_v('dbrelation',ObjectUtility::getCommentDecoration($object,$array));
-				Debug::Value('dbrelation',$dependson);
-				
+		if($arrays && $lazy){
+			Debug::Message('Generating array queries');
+			Debug::Value('Arrays', $arrays);
+			$q->dependslist=array();
+			foreach($arrays as $array){
+				$dependson=array_key_exists_v('dbrelation',ObjectUtility::getCommentDecoration($object,$array.'List'));
 				if($dependson){
-					$dbrelationname=array_key_exists_v('dbrelationname',ObjectUtility::getCommentDecoration($object,$array));
-					//'select * from this, dependson where this.property=dependson.id';
+					Debug::Message($class.' '.$array.' has relations');
+					Debug::Value('dbrelation',$dependson);
+					$dbrelationname=array_key_exists_v('dbrelationname',ObjectUtility::getCommentDecoration($object,$array.'List'));
 					$temp= new $dependson();
-//					$table=$db_prefix.strtolower($dependson);
-					$gProperty= Query::createFrom($temp,false)
-								->where(R::Eq($temp,'id'));
-					Debug::Value('Depends',R::Eq($temp,'id')->toSQL());
-					$q->depends[$array]=$gProperty;
+					Debug::Value('Relationname',$dbrelationname);
+					$qList=Query::createFrom($temp);
+					$qList->from($dbrelationname);
+					$qList->whereAnd(R::Eq($temp,$dbrelationname.'.'.$dependson.'_id',true));
+					$q->dependslist[$array]=$qList;
+					$qList=null;
+					$array=null;
+					$temp=null;
 				}
-			}
-		}*/		
+			}		
+		}
 		return $q;
 	}
 	static function create($table=false){
+		Debug::Value('Query create', $table);
+		Debug::Backtrace();
 		return new Query($table);
 	}
-	private $statement=array();
-	var $depends=array();
-	var $returnType;
+
 	public function from($table){
 		global $db_prefix;
 		$this->statement['from'][]=$this->addMark(strtolower($db_prefix.$table));
@@ -79,7 +84,10 @@ class Query{
 		}
 		return $this;
 	}
-	
+	public function selectAll(){
+		$this->statement['select'][]='*';
+		return $this;
+	}
 	public function select($property,$table=false){
 		global $db_prefix;
 		if($property instanceof SelectFunction){
@@ -163,16 +171,35 @@ class Query{
 					$object = new $class();			
 					ObjectUtility::setProperties($object,$row);
 					if(sizeof($this->depends)>0){
+						Debug::Message('Object property depends on');						
 						foreach($this->depends as $property => $query){
 							$getproperty='get'.$property;
 							$value=(int)$object->$getproperty();
-							if($value){			
-								$query->setParameter('id',$value);
+							if($value){
+								$query=clone $query;
+								$query->setParameter('Id',$value);
 								$value=$query->execute();
-								ObjectUtility::setProperties($object,array($property => $value[0]));
+								if($value)
+									ObjectUtility::setProperties($object,array($property => $value[0]));
 							}
+							$query=null;
 						}
 					}
+					if(sizeof($this->dependslist)>0){
+						Debug::Message('Object list depends on');
+						$dependslist = $this->dependslist;
+						Debug::Value('Dependings', $dependslist);
+						foreach($dependslist as $property => $query){
+							Debug::Value('Property', $property);
+							$query=clone $query;
+							$query->where(R::Eq(strtolower($class).'_id',$object));
+							Debug::Value('Query', $query);
+							$values=$query->execute();
+							$query=null;
+							if($values)
+								ObjectUtility::addToArray($object,$property,$values);
+						}
+					}					
 					$objects[]=$object;
 				}
 			}

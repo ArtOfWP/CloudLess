@@ -10,5 +10,9 @@ if(!defined('DEBUG'))
 	define('DEBUG',false);
 if(!defined('SQLDEBUG'))
 	define('SQLDEBUG',false);
+define('WRITE_TO_FILE',false);
+define('LOG_FILE',ABSPATH.'logfile.txt');
+if(file_exists(LOG_FILE))
+	unlink(LOG_FILE);
 if(!defined('NOREDIRECT'))
 	define('NOREDIRECT',false);

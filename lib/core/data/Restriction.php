@@ -51,7 +51,7 @@ class R{
 		$r = new R();
 		if($property instanceof ActiveRecordBase){
 			$r->table=$db_prefix.strtolower(get_class($property));
-			$r->column='id';
+			$r->column='Id';
 		}else
 			$r->column=strtolower($property);
 		$r->method='=';
@@ -68,7 +68,7 @@ class R{
 			else
 				$r->value=$value;
 			$r->hasvalue=true;
-			$r->setParameter($r->column,$r->value);
+			$r->setParameter(str_replace('.','',$r->column),$r->value);
 		}		
 		return $r;		
 	}
@@ -183,6 +183,7 @@ class R{
 		return $this->value;
 	}
 	function setParameter($param,$value){
+		Debug::Value('Set param :'.$param, $value);
 		$this->parameters[":$param"]=$value;
 	}
 	function removeParameter($param){

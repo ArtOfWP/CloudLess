@@ -5,6 +5,7 @@ class MySqlDatabase{
 	private $relations=array();
 	private $indexes=array();
 	private $indextype=array();
+	private $cache=array();
 	static function instance(){
 		global $db;
 		return $db;
@@ -124,7 +125,7 @@ class MySqlDatabase{
 		if($tableengine)
 			$table.=") ENGINE $tableengine";
 		else
-			$table.=") ENGINE InnoDB";
+			$table.=") ENGINE MyISAM";
 		
 		try{
 			$this->db->exec($table);
@@ -151,38 +152,53 @@ class MySqlDatabase{
 	function insert($row){
 		if(is_array($row)){
 			global $db_prefix;
+			$params=array();
+			$columns=array();
+			$params=array();	
 			$prepared='INSERT INTO `'.$db_prefix.strtolower($row['table']).'`';
 			$colval=$row['values'];
 			foreach($colval as $column => $value)
 				if(!empty($value)){
 					$column=strtolower($column);
 					$columns[]='`'.$column.'`';
-					$params[]=':'.$column;
-					$values[':'.$column]=$value;
+					$params[':'.$column]=$value;
 				}
 			$prepared.=' ('.implode(',',$columns).') ';
-			$prepared.=' VALUES('.implode(',',$params).')';
+			$prepared.=' VALUES('.implode(',',array_keys($params)).')';
 			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING); 
 			$stmt=$this->db->prepare($prepared);
 		    Debug::Value('SQL',$prepared);
 		    Debug::Value('SQL Params',$params);
+			foreach($params as $key => $value )
+				$stmt->bindValue($key,$value,$this->getParamDataType($value));			
 			if (!$stmt) {
 				Debug::Value('Error occured when preparing sql statement',$prepared);				
-	    		Debug::Value('SQL Params',$values);				
+	    		Debug::Value('SQL Params',$params);				
 			    Debug::Value('PDO::errorInfo()',$this->db->errorInfo());
 			}
 						
-			if (!$stmt->execute($values)) {
+			if (!$stmt->execute()) {
 				Debug::Value('Error with sql statement',$prepared);				
-			    Debug::Value('SQL Params',$values);
+			    Debug::Value('SQL Params',$params);
 				Debug::Message('PDO::errorInfo()');print_r($this->db->errorInfo());				
 			}				
 		}else
 			die('MySqlDatabase->insert only accepts arrays. See documentation for structure');
 		return (int)$this->db->lastInsertId();
 	}
+	private function getParamDataType($value){
+		if(is_int($value))
+			return PDO::PARAM_INT;
+		if(is_bool($value))
+			return PDO::PARAM_BOOL;
+		if(is_null($value))
+			return PDO::PARAM_NULL;
+		return PDO::PARAM_STR;
+	}
 	function update($row,$restriction){
 		if(is_array($row)){
+			$params=array();
+			$columns=array();
 			global $db_prefix;
 			$prepared='UPDATE `'.$db_prefix.strtolower($row['table']).'` ';
 			$colval=$row['values'];
@@ -190,24 +206,26 @@ class MySqlDatabase{
 //				if(!empty($value)){
 					$column=strtolower($column);
 					$columns[]="`$column`=:$column";					
-					$values[':'.$column]=$value;
+					$params[':'.$column]=$value;
 				}
-			$values=array_merge($values,$restriction->getParameter());
+			$params=array_merge($params,$restriction->getParameter());
 			$prepared.=' SET '.implode(',',$columns).' ';
 			$prepared.=' WHERE '.$restriction->toSQL();
 			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING); 
 			$stmt=$this->db->prepare($prepared);
-			Debug::Value('Sql statement',$prepared);				
-    		Debug::Value('SQL Params',$values);	
+			foreach($params as $key => $value )
+				$stmt->bindValue($key,$value,$this->getParamDataType($value));
+			Debug::Value('Sql statement',$prepared);
+    		Debug::Value('SQL Params',$params);	
 			if (!$stmt) {
 				Debug::Value('Error occured when preparing sql statement',$prepared);				
-	    		Debug::Value('SQL Params',$values);				
+	    		Debug::Value('SQL Params',$params);				
 			    Debug::Value('PDO::errorInfo()',$this->db->errorInfo());
 			}
 						
-			if (!$stmt->execute($values)) {
+			if (!$stmt->execute()) {
 				Debug::Value('Error with sql statement',$prepared);				
-			    Debug::Value('SQL Params',$values);
+			    Debug::Value('SQL Params',$params);
 				Debug::Message('PDO::errorInfo()');print_r($this->db->errorInfo());				
 			}
 		}else
@@ -215,6 +233,7 @@ class MySqlDatabase{
 //		return (int)$this->db->lastInsertId();
 	}
 	function query($q){
+		
 		$paramCount=0;
 		$from=implode(',',$q->from);
 	    $columns=implode(',',$q->select);
@@ -243,7 +262,6 @@ class MySqlDatabase{
 						$clause->setParameter($paramKey.$paramCount,$clause->getValue());
 						$param=$clause->getParameter();
 					}
-					Debug::Value('Param',$param);
 					$params=array_merge($params,$param);
 				}
 				$where.=$clause->toSQL();
@@ -265,25 +283,27 @@ class MySqlDatabase{
 		    Debug::Value('SQL Params',$params);
 	    }
 	    $stmt=$this->db->prepare($prepared);
-			if (!$stmt) {
-				Debug::Value('Error occured when preparing sql statement',$prepared);				
-	    		Debug::Value('SQL Params',$params);				
-			    Debug::Value('PDO::errorInfo()',$this->db->errorInfo());
-			}
-			if (!$stmt->execute($params)) {
-				Debug::Value('Error with sql statement',$prepared);				
-			    Debug::Value('SQL Params',$params);
-				Debug::Value('PDO::errorInfo()',$this->db->errorInfo());				
-			}	
+		foreach($params as $key => $value )
+			$stmt->bindValue($key,$value,$this->getParamDataType($value));
+		if (!$stmt) {
+			Debug::Value('Error occured when preparing sql statement',$prepared);				
+	   		Debug::Value('SQL Params',$params);				
+		    Debug::Value('PDO::errorInfo()',$this->db->errorInfo());
+		}
+		if (!$stmt->execute()) {
+			Debug::Value('Error with sql statement',$prepared);				
+		    Debug::Value('SQL Params',$params);
+			Debug::Value('PDO::errorInfo()',$this->db->errorInfo());				
+		}	
 		$result=$stmt->fetchAll($fetch_style=PDO::FETCH_ASSOC);
 		return $result;
 	}
 	function delete($d){
 		$from=implode(',',$d->from);
 	    $where='';
-	    $params=array(); 
-	    if($d->hasWhere())
-	    {
+		$columns=array();
+		$params=array();
+		if($d->hasWhere()){
 			foreach($d->where as $clause){		
 				$where.=$clause->toSQL();
 				if($clause->hasValue()){
@@ -298,24 +318,27 @@ class MySqlDatabase{
 	    Debug::Value('SQL',$prepared);
 	    Debug::Value('SQL Params',$params);
 	    $stmt=$this->db->prepare($prepared);
-			if (!$stmt) {
-				Debug::Value('Error occured when preparing sql statement',$prepared);				
-			    Debug::Value('SQL Params',$params);
-				Debug::Value('PDO::errorInfo()',$this->db->errorInfo());
-			}
-						
-			if (!$stmt->execute($params)) {
-				Debug::Value('Error occured when executing sql statement',$prepared);				
-			    Debug::Value('SQL Params',$params);
-				Debug::Value('PDO::errorInfo()',$this->db->errorInfo());
-			}			
+		foreach($params as $key => $value )
+			$stmt->bindValue($key,$value,$this->getParamDataType($value));
+		if (!$stmt) {
+			Debug::Value('Error occured when preparing sql statement',$prepared);				
+		    Debug::Value('SQL Params',$params);
+			Debug::Value('PDO::errorInfo()',$this->db->errorInfo());
+		}
+					
+		if (!$stmt->execute()) {
+			Debug::Value('Error occured when executing sql statement',$prepared);				
+		    Debug::Value('SQL Params',$params);
+			Debug::Value('PDO::errorInfo()',$this->db->errorInfo());
+		}			
 	}
 	function executeSQL($sql){
+		Debug::Message("SQL command is run: $sql");
 		$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);		
-		$this->db->exec($sql);// or die(var_dump($this->db->errorInfo()));
+		$this->db->exec($sql);
 	}
-	private function bindParams(&$stmt,$param,$value){
-		$stmt->bindParam($param,$value);
+	private function bindValues(&$stmt,$param,$value){
+		$stmt->bindValue($param,$value);
 	}
 	
 	function close(){

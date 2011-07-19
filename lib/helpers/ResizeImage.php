@@ -22,7 +22,7 @@ class Resize_Image {
 			exit("File ".$this->image_to_resize." does not exist.");
 		}
 
-		$info = GetImageSize($this->image_to_resize);
+		$info = getimagesize($this->image_to_resize);
 
 		if(empty($info))
 		{

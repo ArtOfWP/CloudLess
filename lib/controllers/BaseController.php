@@ -15,6 +15,7 @@ class BaseController{
 	public $values=array();
 	private $automatic;
 	private function initiate(){
+		Debug::message('BaseController initiate');		
 		//TODO deprecated since 11.6
 		if(method_exists($this,'on_controller_preinit'))	
 			$this->on_controller_preinit();
@@ -37,6 +38,7 @@ class BaseController{
 			$this->onControllerInit();			
 	}
 	public function init(){
+		Debug::message('BaseController init');
 		$this->initiate();
 		if($this->filter)
 			if(!$this->filter->perform($this,$this->values))
@@ -50,39 +52,39 @@ class BaseController{
 		Debug::Message('Loaded '.$this->controller.' extends Basecontroller');
 	}
 	protected function automaticRender(){
-			Debug::Message('Executing automatic action');
-			$action=array_key_exists_v(ACTIONKEY,Communication::getQueryString());
-			echo $action;
-			if(!isset($action) || empty($action))
-				if($this->action)
-					$action=$this->action;
-				else
-					$action='index';
-			Debug::Message('PreExecuted action: '.$action);
-			try{
-				$this->executeAction($action);
-			}catch(RuntimeException $ex){
-				$this->viewcontent='Could not find action: '.$action;
-				$this->render=false;
-			}
-			Debug::Message('Executed action: '.$action);			
-			if($this->render){
-				$view=$this->findView($this->controller,$action);
-				ob_start();
-				if($view){
-					extract($this->bag, EXTR_REFS);
-					require($view);
-					$this->viewcontent=ob_get_contents();
-				}else
-					$this->viewcontent='Could not find view: '.$action;
-				ob_end_clean();
-				$this->render=false;
-			}
-			global $viewcontent;
-			$viewcontent=$this->viewcontent;
+		Debug::Message('Executing automatic action');
+		$action=array_key_exists_v(ACTIONKEY,Communication::getQueryString());
+		echo $action;
+		if(!isset($action) || empty($action))
+			if($this->action)
+				$action=$this->action;
+			else
+				$action='index';
+		Debug::Message('PreExecuted action: '.$action);
+		try{
+			$this->executeAction($action);
+		}catch(RuntimeException $ex){
+			$this->viewcontent='Could not find action: '.$action;
+			$this->render=false;
+		}
+		if($this->render){
+			$view=$this->findView($this->controller,$action);
+			ob_start();
+			if($view){
+				extract($this->bag, EXTR_REFS);
+				require($view);
+				$this->viewcontent=ob_get_contents();
+			}else
+				$this->viewcontent='Could not find view: '.$action;
+			ob_end_clean();
+			$this->render=false;
+		}
+		global $viewcontent;
+		$viewcontent=$this->viewcontent;
 	}
 	public function executeAction($action){
 		if(method_exists($this,$action)){
+			Debug::Message('Executed action: '.$action);			
 			$reflection = new ReflectionMethod($this, $action);
 			if (!$reflection->isPublic())
 				throw new RuntimeException("The action you tried to execute is not public.");
@@ -96,9 +98,11 @@ class BaseController{
 			throw new RuntimeException("The action you tried to execute does not exist.");
 	}
 	protected function RenderToAction($action){
+		Debug::Message('RenderToAction: '.$action);
 		$this->Render($this->controller,$action);
 	}
 	protected function Render($controller,$action){
+		Debug::Message('Render: '.$controller,' ',$action);		
 		$view=$this->findView($controller,$action);		
 		
 		if($view){
@@ -121,6 +125,7 @@ class BaseController{
 		return Filter::run($this->controller.'-bag',array($this->bag,$this->controller,$this->action,$this->values));
 	}
 	protected function RenderFile($filepath){
+		Debug::Message('RenderFile: '.$filepath);		
 		ob_start();
 		if(file_exists($filepath)){
 			extract($this->getBag(), EXTR_REFS);
@@ -134,6 +139,7 @@ class BaseController{
 		$viewcontent=$this->viewcontent;		
 	}
 	protected function RenderText($text){
+		Debug::Message('RenderText: '.$text);		
 		$this->render=false;
 		global $viewcontent;
 		$viewcontent=$text;	
@@ -152,10 +158,18 @@ class BaseController{
 			return;
 		$redirect=Communication::useRedirect();
 		if($redirect)
-			if(strtolower($redirect)=='referer')
+			if(strtolower($redirect)=='referer'){
+				$redirect=str_replace('&result=1','',$redirect);
+				$redirect=str_replace('&result=2','',$redirect);
+				$redirect=str_replace('&result=0','',$redirect);
+				
 				Communication::redirectTo(str_replace('&result=1','',Communication::getReferer()),$query);
-			else
+			}else{
+				$redirect=str_replace('&result=1','',$redirect);
+				$redirect=str_replace('&result=2','',$redirect);				
+				$redirect=str_replace('&result=0','',$redirect);				
 				Communication::redirectTo($redirect,$query);
+			}
 	}
 	public static function ViewContents(){
 		global $viewcontent;

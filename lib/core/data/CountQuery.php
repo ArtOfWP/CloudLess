@@ -17,8 +17,8 @@ class CountQuery{
 		$q = new CountQuery($maintable);
 		return $q;
 	}
-	static function create(){
-		return new CountQuery();
+	static function create($table=false){
+		return new CountQuery($table);
 	}
 	private $statement=array();
 	var $depends=array();

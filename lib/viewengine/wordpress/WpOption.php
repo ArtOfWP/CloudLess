@@ -17,7 +17,6 @@ class WpOption implements IOption{
 	}
 	function save(){
 		Debug::Value('Saving options',$this->name);
-		Debug::Value('Options',$this->options);
 		if(get_option($this->name))
 			update_option($this->name,$this->options);
 		else
