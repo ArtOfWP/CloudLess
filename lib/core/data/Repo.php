@@ -18,6 +18,7 @@ class Repo{
 				  ->execute();
 		return sizeof($objects)==1?$objects[0]:false;
 	}
+
 	static function find($class,$lazy=false,$restrictions=false,$groupby=false,$order=false){
 		Debug::Value('Repo find ', $class);
 		Debug::Backtrace();		
