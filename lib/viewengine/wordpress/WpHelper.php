@@ -6,7 +6,7 @@ class WpHelper{
 			<?php $tabtitles=array_keys($tabs)?>
 			<ul class="ui-corner-none" style="border:none;background:none;">
 			<?php foreach($tabtitles as $tabtitle):?>
-			<li class="tab" style="border:solid 1px #CCCCCC"><?php HtmlHelper::a($tabtitle,"#".strtolower(str_replace(" ","-",$tabtitle))) ?></li>
+			<li class="tab" style="border:solid 1px #CCCCCC"><?php Html::a($tabtitle,"#".strtolower(str_replace(" ","-",$tabtitle))) ?></li>
 			<?php endforeach;?>
 			</ul>
 			<?php 
@@ -77,7 +77,7 @@ class WpHelper{
 			<?php endforeach;?>		
 		</div>								
 		<?php 
-		HtmlHelper::registerFooterScript("jQuery(function(){jQuery(\"#$id"."tabs\").tabs();});");
+		Html::registerFooterScript("jQuery(function(){jQuery(\"#$id"."tabs\").tabs();});");
 		?>
 			<?php 
 	}
@@ -103,7 +103,7 @@ class WpHelper{
 			<?php $tabtitles=array_keys($tabs)?>
 			<ul class="ui-corner-none" style="border:none;background:none;">
 			<?php foreach($tabtitles as $tabtitle):?>
-			<li class="tab" style="border:solid 1px #CCCCCC"><?php HtmlHelper::a($tabtitle,"#".strtolower(str_replace(" ","-",$tabtitle))) ?></li>
+			<li class="tab" style="border:solid 1px #CCCCCC"><?php Html::a($tabtitle,"#".strtolower(str_replace(" ","-",$tabtitle))) ?></li>
 			<?php endforeach;?>
 			</ul>
 			<?php foreach($tabs as $tabtitle => $options):?>
@@ -174,7 +174,7 @@ class WpHelper{
 			<?php if($saveAllTabs):?>
 			</form>
 			<?php endif;
-			HtmlHelper::registerFooterScript("jQuery(document).ready(function() {jQuery(function(){jQuery(\"#$optiongroup"."tabs\").tabs();});});",true);
+			Html::registerFooterScript("jQuery(document).ready(function() {jQuery(function(){jQuery(\"#$optiongroup"."tabs\").tabs();});});",true);
 	}
 	/**
 	    $optiongroup=name of the optionsgroup you want to generate a form, for. If isarray optiongroup is the name of the option with the array.

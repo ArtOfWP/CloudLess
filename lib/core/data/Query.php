@@ -180,7 +180,7 @@ class Query{
 								$query->setParameter('Id',$value);
 								$value=$query->execute();
 								if($value)
-									ObjectUtility::setProperties($object,array($property => $value[0]));
+									ObjectUtility::setProperties($object,array($property => array_shift($value)));
 							}
 							$query=null;
 						}
@@ -199,8 +199,11 @@ class Query{
 							if($values)
 								ObjectUtility::addToArray($object,$property,$values);
 						}
-					}					
-					$objects[]=$object;
+					}
+					if(method_exists($object,'getId'))
+						$objects[$object->getId()]=$object;
+					else
+						$objects[]=$object;
 				}
 			}
 			return $objects;

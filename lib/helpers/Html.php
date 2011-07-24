@@ -126,6 +126,12 @@ class Html{
 					$unique=$id;	
 					$validator=array_key_exists_v('validator',$settings);
 					$theForm.=self::input($id,'text',stripslashes(str_replace('"','',$value)),false,true);
+				}else if($field=='custom'){
+					$split=array_key_exists_v('custommethod',$settings);
+					if($split){
+						$split=explode('|',$split);
+						$theForm.="<select id=\"$id\" name=\"$id\">".call_user_func(array($split[0],$split[1]),$value)."</select>";
+					}
 				}else
 					$theForm.=self::input($id,$field,stripslashes(str_replace('"','',$value)),false,true);
 				$theForm.='</td></tr>';
@@ -360,7 +366,7 @@ $script="jQuery(document).ready(function() {
 				$price="$".$value;
 				break;
 			case 'gbp':
-				$price="£".$value;
+				$price="ï¿½".$value;
 				break;
 			case 'eur':
 				$price="EUR ".$value;
@@ -575,7 +581,7 @@ $script="jQuery(document).ready(function() {
 			$tbody.="<tr>\n";
 //			$tbody.="<td class=\"first\" style=\"vertical-align:middle;\">".self::editLink(admin_url("admin.php?page=$class&action=edit"),'Edit',$row->getId(),$nonce,true)."</td>\n";
 			if(!$headlines)
-			$headlines=ObjectUtility::getProperties($row);
+				$headlines=ObjectUtility::getProperties($row);
 			$tbody.='<td class="first checkbox"><input name="'.$class.'[]" type="checkbox" value="'.$row->getId().'"  class="all"  /></td>';
 			$notFirst=false;
 			foreach($headlines as $column){
@@ -586,10 +592,12 @@ $script="jQuery(document).ready(function() {
 						$format=$column[2];
 						$value=date($format,strtotime($value));
 					}
+					$column=$column[0];
 				}else{
 					$method='get'.$column;
 					$value=$row->$method();					
 				}
+				
 				$tbody.='<td class="'.strtolower($column).'">';
 
 				if($notFirst){
@@ -599,11 +607,11 @@ $script="jQuery(document).ready(function() {
 					$notFirst=true;
 					$val=self::editLink(admin_url("admin.php?page=$class&amp;action=edit"),htmlspecialchars($value, ENT_QUOTES),$row->getId(),$nonce,true);	
 				}
-				$filteredColumn=FilterHelper::run("htmlhelper-table-row-$id",array($val,$row,$column,$class,$notFirst));
+				$filteredColumn=Filter::run("htmlhelper-table-row-$id",array($val,$row,$column,$class,$notFirst));
 				$tbody.=$filteredColumn;
 				$tbody.="</td>\n";
 			}
-			$customColumns=FilterHelper::run("htmlhelper-table-row-columns-$id",array(array(),$row));
+			$customColumns=Filter::run("htmlhelper-table-row-columns-$id",array(array(),$row));
 			if($customColumns)
 				foreach($customColumns as $column)
 					$tbody.=$column;
@@ -612,16 +620,23 @@ $script="jQuery(document).ready(function() {
 		}
 		$tbody.="</tbody>\n";
 		$ths='';
-		$headColumns=FilterHelper::run("htmlhelper-table-head-columns-$id",array(array()));
-		$headlines =$headlines + $headColumns;
+		$headlines=Filter::run("htmlhelper-table-head-columns-$id",array($headlines));
 		foreach($headlines as $column){
-			if(is_array($column))
-				$column=$column[0];
-			$column=htmlspecialchars($column, ENT_QUOTES);				
-			$ths.="<th class=\"".strtolower($column)."\">$column</th>\n";
+			if(is_array($column)){
+				if(isset($column['title']))
+					$columnName=$column['title'];
+				else
+					$columnName=$column[0];
+				$columnClass=$column[0];
+			}else{
+				$columnName=$column;
+				$columnClass=$column;
+			}
+			$columnName=htmlspecialchars($columnName, ENT_QUOTES);				
+			$ths.="<th class=\"".strtolower($columnClass)."\">$columnName</th>\n";
 		}
-		$table.="<thead>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllTop','checkbox','all',false,true)."</th>$ths\n<th class=\"delete\"></th></tr></thead>";
-		$table.="<tfoot>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllBottom','checkbox','all',false,true)."</th>$ths\n<th class=\"delete\"></th></tr></tfoot>";
+		$table.="<thead>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllTop','checkbox','all',false,true)."</th>$ths\n</tr></thead>";
+		$table.="<tfoot>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllBottom','checkbox','all',false,true)."</th>$ths\n</tr></tfoot>";
 		$table.=$tbody;
 		$table.="
 		</table>";
@@ -1055,7 +1070,7 @@ $script="jQuery(document).ready(function() {
 				$price="$".$value;
 				break;
 			case 'gbp':
-				$price="£".$value;
+				$price="ï¿½".$value;
 				break;
 			case 'eur':
 				$price="EUR ".$value;
@@ -1292,11 +1307,11 @@ $script="jQuery(document).ready(function() {
 					$notFirst=true;
 					$val=self::editLink(admin_url("admin.php?page=$class&amp;action=edit"),htmlspecialchars($value, ENT_QUOTES),$row->getId(),$nonce,true);	
 				}
-				$filteredColumn=FilterHelper::run("htmlhelper-table-row-$id",array($val,$row,$column,$class,$notFirst));
+				$filteredColumn=Filter::run("htmlhelper-table-row-$id",array($val,$row,$column,$class,$notFirst));
 				$tbody.=$filteredColumn;
 				$tbody.="</td>\n";
 			}
-			$customColumns=FilterHelper::run("htmlhelper-table-row-columns-$id",array(array(),$row));
+			$customColumns=Filter::run("htmlhelper-table-row-columns-$id",array(array(),$row));
 			if($customColumns)
 				foreach($customColumns as $column)
 					$tbody.=$column;
@@ -1306,7 +1321,7 @@ $script="jQuery(document).ready(function() {
 		$tbody.="
 		</tbody>\n";
 		$ths='';
-		$headColumns=FilterHelper::run("htmlhelper-table-head-columns-$id",array(array()));
+		$headColumns=Filter::run("htmlhelper-table-head-columns-$id",array(array()));
 		$headlines =$headlines + $headColumns;
 		foreach($headlines as $column){
 			if(is_array($column))
@@ -1314,8 +1329,8 @@ $script="jQuery(document).ready(function() {
 			$column=htmlspecialchars($column, ENT_QUOTES);
 			$ths.="<th class=\"".str_replace(' ','-',strtolower($column))."\">$column</th>\n";
 		}
-		$table.="<thead>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllTop','checkbox','all',false,true)."</th>$ths\n<th class=\"delete\"></th></tr></thead>";
-		$table.="<tfoot>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllBottom','checkbox','all',false,true)."</th>$ths\n<th class=\"delete\"></th></tr></tfoot>";
+		$table.="<thead>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllTop','checkbox','all',false,true)."</th>$ths\n</tr></thead>";
+		$table.="<tfoot>\n<tr>\n<th class=\"first checkbox\">".self::input('selectAllBottom','checkbox','all',false,true)."</th>$ths\n</tr></tfoot>";
 		$table.=$tbody;
 		$table.="</table>";
 		

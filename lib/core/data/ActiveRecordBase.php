@@ -158,8 +158,6 @@ abstract class ActiveRecordBase{
 			return $this->$call();
 		else if(strpos($property,'Lazy')!==false)
 			return $this->$call();
-//		else if(property_exists($this,lcfirst($property)))
-//			return $this->$property;
 		return $this->tempProperties[$property];
 //		$trace = debug_backtrace();
 //		trigger_error('Undefined property via __get(): ' . $property .' in ' . $trace[0]['file'] .' on line ' . $trace[0]['line'],E_USER_NOTICE);
@@ -195,19 +193,8 @@ abstract class ActiveRecordBase{
 				if(strpos($method,'List')!==false){
 					$method=str_replace('get','',$method);									
 					$settings=ObjectUtility::getCommentDecoration($this,$method);
-//					$stmt=new SelectStatement();
 					$table=strtolower(get_class($this));
-/*					$stmt->From($foreigntable);
-					$stmt->From($this);*/
-//					$properties =ObjectUtility::getProperties($temp);
-					
-/*					foreach($properties as $property)
-						$stmt->Select($foreigntable.'.'.strtolower($property));
-						$stmt->From($settings['dbrelationname']);
-						$stmt->Where(R::Eq($this,$table.'_id'));*/
-//						$stmt->Where(R::Eq());
-//						$db->select($select);
-// select * from item, company,relation WHERE item.id = relation.item_id AND company.id=relation.company_id
+
 					Debug::Value('Relationname',$settings['dbrelationname']);
 
 					$q=Query::createFrom($temp);
@@ -233,8 +220,8 @@ abstract class ActiveRecordBase{
 	private function runEventMethod($event,$when){
 		$method='on'.$when.ucfirst($event);
 		$class=get_class($this);
-		HookHelper::run($method,$this);		
-		HookHelper::run($class.'->'.$method,$this);
+		Hook::run($method,$this);		
+		Hook::run($class.'->'.$method,$this);
 		if(method_exists($this,$method))
 			return $this->$method();
 		return true;

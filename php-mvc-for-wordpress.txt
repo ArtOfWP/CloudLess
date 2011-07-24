@@ -2,7 +2,11 @@
  * added ordering support to Repo methods.
  * added property array capability to Query groupby
  * fixed bug with jQuery stars and latest WP jQuery version
- 
+ * fixed loading of one to many loading.
+ * fixed so Query,Repo always load complete objects even relations
+ * fixed so Query loading list sets object Id as key
+ * altered Repo:findOne so it accepts Requirements as array
+
 11.6.0.3
  * Fixed HTML validation errors
 11.6.0.1

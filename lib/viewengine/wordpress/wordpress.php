@@ -75,9 +75,10 @@
 		add_action('admin_footer', 'aoisora_script_footer');
 
 	function aoisora_script_footer() {
-		$scripts=HtmlHelper::getFooterScripts();
+		$scripts=Html::getFooterScripts();
+		$scripts+=HtmlHelper::getFooterScripts();
 		if(empty($scripts))
-			return;
+			return;			
 		echo "<script type=\"text/javascript\">";
 		echo implode(' ',$scripts);
 		echo "</script>";
@@ -154,7 +155,7 @@
 	function wp_filter_handler($filter,$callback,$priority=100,$params=1){
 		global $filters;
 		$newfilter=array_key_exists_v($filter,$filters);
-		if($newsection)
+		if($newfilter)
 			add_action($newfilter,$callback,$priority,$params);		
 		else
 			add_action($filter,$callback,$priority,$params);		

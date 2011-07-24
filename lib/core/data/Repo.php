@@ -16,7 +16,7 @@ class Repo{
 				  ->where(R::Eq(new $class,$id))
 				  ->limit(0,1)
 				  ->execute();
-		return sizeof($objects)==1?$objects[0]:false;
+		return sizeof($objects)==1?array_shift($objects):false;
 	}
 
 	static function find($class,$lazy=false,$restrictions=false,$groupby=false,$order=false){
@@ -70,12 +70,9 @@ class Repo{
 		Debug::Value('Repo findOne', $class);
 		Debug::Backtrace();		
 		$result=array();
-		if($requirement instanceof R)
-			$result= Query::createFrom($class,$lazy)->where($requirement)->limit(0,1)->execute();
-		else
-			die('Supplied $requirement parameter is not an R(equirement) object');
+		$result= Query::createFrom($class,$lazy)->where($requirement)->limit(0,1)->execute();
 		if(sizeof($result)>0)
-			return $result[0];
+			return array_shift($result);
 		else
 			return false;
 	}
