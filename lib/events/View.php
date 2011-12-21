@@ -29,7 +29,7 @@ class View
 
     static function generate($section, $params = array(), $isArray = false)
     {
-        $priorities = (array)array_key_exists_v($section, self::$ViewSections);
+        $priorities = array_key_exists_v($section, self::$ViewSections);
         if ($priorities)
             ksort($priorities);
         if (is_array($priorities)) {

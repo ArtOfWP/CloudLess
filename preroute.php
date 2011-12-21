@@ -2,8 +2,8 @@
 define('PREROUTE',true);
 global $loadviewengine;
 $loadviewengine='WordPress';
-require_once('../../../wp-load.php');
-require_once('init.php');
+include('../../../wp-load.php');
+include('init.php');
 $success=Route::reroute();
 if(!$success){
 	header("Status: 404");

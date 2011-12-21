@@ -30,7 +30,7 @@ class Filter
     static function run($filter, $params = array())
     {
         $value = $params[0];
-        $priorities = (array)array_key_exists_v($filter, self::$FilterSections);
+        $priorities = array_key_exists_v($filter, self::$FilterSections);
         if ($priorities)
             ksort($priorities);
         if ($priorities)
@@ -39,6 +39,7 @@ class Filter
             if (!is_array($params))
                 $params = array($params);
             foreach ($priorities as $functions)
+
                 foreach ($functions as $function) {
                     if(!is_callable($function)){
                                             if(is_array($function))

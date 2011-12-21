@@ -20,7 +20,7 @@ class Hook{
 		self::$Hooks[$hook]['handler']=$callback;
 	}
 	static function run($hook,$params=array(),$isArray=false){
-		$priorities=(array)array_key_exists_v($hook,self::$Hooks);
+		$priorities=array_key_exists_v($hook,self::$Hooks);
 		if($priorities)
 			ksort($priorities);
 		if(is_array($priorities)){
