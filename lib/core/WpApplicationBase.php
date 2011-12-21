@@ -1,13 +1,13 @@
 <?php
 abstract class WpApplicationBase{
-	protected $installfrompath;
+	protected $installFromPath;
 	protected $VERSION=false;
 	protected $VERSION_INFO_LINK=false;
 	protected $UPDATE_SITE=false;
 	protected $UPDATE_SITE_EXTRA=false;	
 	protected $SLUG=false;
 	private $models=array();
-	public $pluginname;
+	public $pluginName;
 	public $dir;
 	public $app;
 	public $options;
@@ -17,12 +17,12 @@ abstract class WpApplicationBase{
 		$this->dir=dirname($file);
 		$this->app=$appName;
 		if($basename)
-			$this->pluginname=$basename;//"$appName/$appName.php";
+			$this->pluginName=$basename;//"$appName/$appName.php";
 		else
-			$this->pluginname=plugin_basename($file);//"$appName/$appName.php";
+			$this->pluginName=plugin_basename($file);//"$appName/$appName.php";
 		register_activation_hook($file, array(&$this,'activate'));
 		register_deactivation_hook($file, array(&$this,'deactivate'));
-		$this->installfrompath=dirname($file).'/app/core/domain/';
+		$this->installFromPath=dirname($file).'/app/core/domain/';
 		$this->useInstall=$useInstall;
 		$this->useOptions=$useOptions;
 		//TODO deprecated since 11.6
@@ -48,13 +48,13 @@ abstract class WpApplicationBase{
 			
 			Hook::register( 'admin_init', array(&$this,'registerSettings' ));
 			
-			Filter::registerHandler('plugin_action_links_'.$this->pluginname,'wp_filter_handler');
+			Filter::registerHandler('plugin_action_links_'.$this->pluginName,'wp_filter_handler');
 			if(method_exists($this,'onPluginPageLink'))
-				Filter::register( 'plugin_action_links_'.$this->pluginname, array(&$this,'pluginPageLinks'), 10, 2 );
+				Filter::register( 'plugin_action_links_'.$this->pluginName, array(&$this,'pluginPageLinks'), 10, 2 );
 
 			if(method_exists($this,'onPluginRowMessage') || method_exists($this,'on_plugin_row_message')){
-				Hook::registerHandler( 'after_plugin_row_'.$this->pluginname,'wp_section_handler');
-				Hook::register( 'after_plugin_row_'.$this->pluginname, array(&$this,'afterPluginRow'), 10, 2 );				
+				Hook::registerHandler( 'after_plugin_row_'.$this->pluginName,'wp_section_handler');
+				Hook::register( 'after_plugin_row_'.$this->pluginName, array(&$this,'afterPluginRow'), 10, 2 );
 			}
 			if(method_exists($this,'onRewriteRulesArray'))
 				Filter::register('rewrite_rules_array',array(&$this,'onRewriteRulesArray'));			
@@ -73,7 +73,7 @@ abstract class WpApplicationBase{
 				Filter::register('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
 			//TODO: deprecated
 			if(method_exists($this,'on_plugin_page_link'))
-				Filter::register( 'plugin_action_links_'.$this->pluginname, array(&$this,'pluginPageLinks'), 10, 2 );		
+				Filter::register( 'plugin_action_links_'.$this->pluginName, array(&$this,'pluginPageLinks'), 10, 2 );
 			if(isset($_GET['plugin']) && $_GET['plugin']==$appName)
 				Hook::register('install_plugins_pre_plugin-information',array(&$this,'versionInformation'));
 		}else{
@@ -129,7 +129,7 @@ abstract class WpApplicationBase{
 				AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
 				$this->update();
 			}
-			if($this->UPDATE_SITE && isset($_REQUEST['action']) && 'upgrade-plugin'==$_REQUEST['action'] && isset($_REQUEST['plugin']) && urldecode($_REQUEST['plugin'])==$this->pluginname)
+			if($this->UPDATE_SITE && isset($_REQUEST['action']) && 'upgrade-plugin'==$_REQUEST['action'] && isset($_REQUEST['plugin']) && urldecode($_REQUEST['plugin'])==$this->pluginName)
 				Filter::register('http_request_args',array(&$this,'addUpdateUrl'),10,2);
 		}
 	}
@@ -229,9 +229,9 @@ abstract class WpApplicationBase{
 			$this->on_preinstall();			
 		if(method_exists($this,'onPreInstall'))
 			$this->onPreInstall();		
-		Debug::Value('Install from path',$this->installfrompath);
+		Debug::Value('Install from path',$this->installFromPath);
 		$this->models=array();
-		$this->load($this->installfrompath);
+		$this->load($this->installFromPath);
 		$result=true;
 		$this->create();
 		if($result)
@@ -259,7 +259,7 @@ abstract class WpApplicationBase{
 		if(method_exists($this,'onPreUninstall'))
 			$this->onPreUninstall();			
 		$this->models=array();
-		$this->load($this->installfrompath);
+		$this->load($this->installFromPath);
 		$result=true;		
 		$this->drop();
 		if($result)
@@ -293,11 +293,11 @@ abstract class WpApplicationBase{
 			$this->on_update();
 		if(method_exists($this,'onUpdate'))
 			$this->onUpdate();
-		$updatepath=trim($this->dir,'/').'/app/updates/'.$this->VERSION.'.php';
-		if(file_exists('/'.$updatepath))
-			include('/'.$updatepath);
-		else if(file_exists($updatepath))
-			include($updatepath);
+		$updatePath=trim($this->dir,'/').'/app/updates/'.$this->VERSION.'.php';
+		if(file_exists('/'.$updatePath))
+			include('/'.$updatePath);
+		else if(file_exists($updatePath))
+			include($updatePath);
 	}
 	private function load($dir){
 		Debug::Value('Loading directory',$dir);
@@ -403,7 +403,7 @@ abstract class WpApplicationBase{
 		if(empty($this->UPDATE_SITE) || !is_admin())
 			return;
 		global $wp_version;
-		$plugin=$this->pluginname;
+		$plugin=$this->pluginName;
 		$version_info = $this->getVersionInfo();
 
         if(!$version_info["has_access"] || version_compare($this->VERSION, $version_info["version"], '>=')){

@@ -102,8 +102,7 @@ class BaseController{
 	}
 	protected function Render($controller,$action){
 		Debug::Message('Render: '.$controller,' ',$action);		
-		$view=$this->findView($controller,$action);		
-		
+		$view=$this->findView($controller,$action);
 		if($view){
 			extract($this->getBag(), EXTR_REFS);
 			$section=View::generate($controller.'-render-pre'.ucfirst($action),$this);

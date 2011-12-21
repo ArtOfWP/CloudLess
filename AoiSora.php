@@ -10,13 +10,25 @@ Author URI: http://artofwp.com/
 // Configures/loads AoiSora
 
 if(!class_exists("AoiSora")){
-define('PACKAGEPATH',dirname(__FILE__).'/');
+    $tempPath='';
+    if(defined('WP_PLUGIN_DIR'))
+        $tempPath=WP_PLUGIN_DIR.'/AoiSora/';
+    else if(defined('WP_CONTENT_DIR'))
+        $tempPath.'/plugins/AoiSora/';
+    else
+        $tempPath=ABSPATH.'wp-content/plugins/AoiSora/';
+define('PACKAGEPATH',$tempPath);
+function sl_file($file,$isPlugin=true){
+    if($isPlugin)
+        return WP_PLUGIN_DIR.'/'.$file.'/'.$file.'.php';
+    return WP_PLUGIN_DIR.'/'.$file;
+}
 include('init.php');
 
 if(is_admin()){
 	add_filter('after_plugin_row','update_aoisora_load_first',10,3);
 	function update_aoisora_load_first($plugin_file,$plugin_data){
-		$plugin = plugin_basename(__FILE__);
+		$plugin = plugin_basename(sl_file('AoiSora'));
 		$active = get_option('active_plugins');
 		if ( $active[0] == $plugin)
 			return;
@@ -28,7 +40,7 @@ if(is_admin()){
 		update_option('active_plugins', $active);
 	}
 		if(!file_exists(ABSPATH.'/.htaccess') || !is_writable(ABSPATH.'/.htaccess')){
-		add_action('after_plugin_row_'.plugin_basename(__FILE__),'after_aoisora_plugin_htaccess_row', 10, 2 );
+		add_action('after_plugin_row_'.plugin_basename(sl_file('AoiSora')),'after_aoisora_plugin_htaccess_row', 10, 2 );
 	function after_aoisora_plugin_htaccess_row($plugin_file, $plugin_data){
 		echo '
 <tr class="error" style=""><td colspan="3" class="" style=""><div class="" style="padding:3px 3px 3px 3px;font-weight:bold;font-size:8pt;border:solid 1px #CC0000;background-color:#FFEBE8">AoiSora requries .htaccess with the following code before #BEGIN WORDPRESS.
@@ -43,7 +55,7 @@ class AoiSora extends WpApplicationBase{
 	public $options;
 	private static $instance;
 	function AoiSora(){
-		parent::WpApplicationBase('AoiSora',__FILE__,true,false);
+		parent::WpApplicationBase('AoiSora',sl_file('AoiSora'),true,false);
 		add_action('plugins_loaded',array($this,'aoisoraLoaded'));
 	}
 	function onInitUpdate(){
@@ -72,7 +84,18 @@ class AoiSora extends WpApplicationBase{
 			wp_register_style('forms',plugins_url('AoiSora/lib/css/forms.css'));			
 			wp_register_style('wordpress',plugins_url('AoiSora/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css'));
 		}
-	}	
+        if(isset($_GET[CONTROLLERKEY]) && isset($_GET[ACTIONKEY]))
+            add_action('template_redirect',array($this,'preRoute'));
+    }
+    function preRoute(){
+        $success=Route::reroute();
+        if(!$success){
+            header("Status: 404");
+            header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found",true,$http_response_code= 404);
+            echo "<h1>404 Not Found</h1>";
+            exit;
+        }
+    }
     static function instance(){
     	if(self::$instance)
     		return self::$instance;
@@ -104,7 +127,7 @@ class AoiSora extends WpApplicationBase{
 }
 AoiSora::instance();
 }
-register_activation_hook(__FILE__, 'setup_htaccess_rules');
+register_activation_hook(sl_file('AoiSora'), 'setup_htaccess_rules');
 function setup_htaccess_rules(){
 	$htaccessrules=get_htaccess_rules();
 	$path=get_htaccess_rules_path();
