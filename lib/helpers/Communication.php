@@ -47,12 +47,17 @@ class Communication{
 		return $qs;
 	}
 	static function getFormValues($keys=false){
+        if(defined('TESTING')){
+        	global $testpost;
+            $qs=$testpost;
+        }else{
+            $qs= $_POST;
+        }
 		if($keys){
-		$values = array();	
-		$values=array_intersect_key($_POST,$keys);
-		return $values;
+    		$values=array_intersect_key($qs,$keys);
+	    	return $values;
 		}
-		return $_POST;
+		return $qs;
 	}
 	static function getUpload($keys){
 		$files=array_intersect_key($_FILES,$keys);

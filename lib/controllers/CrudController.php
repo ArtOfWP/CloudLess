@@ -1,10 +1,6 @@
 <?php
 include_once('BaseController.php');
 abstract class CrudController extends BaseController{
-	protected $crudItem;
-	protected $uploadSubFolder;
-	protected $width;
-	protected $height;
 	protected $perpage=20;
 	protected $order=false;
 	protected $order_property=false;
@@ -12,7 +8,7 @@ abstract class CrudController extends BaseController{
 	protected $crudClass;
 	protected $search_restrictions=false;
 	protected $search_property=false;
-	protected $thumbnails;
+
 	private $automatic;
 	public $bag=array();
 	public function __construct($automatic=true){
@@ -160,175 +156,4 @@ abstract class CrudController extends BaseController{
 			return true;
 		return false;			
 	}
-	private function loadFromPost(){
-		$folder='';
-		$width=100;
-		$height=100;
-		if($this->uploadSubFolder)
-			$folder=$this->uploadSubFolder.'/';
-		if($this->width)
-			$width=$this->width;
-		if($this->height)
-			$height=$this->height;			
-		$properties = ObjectUtility::getPropertiesAndValues($this->crudItem);
-		Debug::Message('LoadFromPost');
-		$arrvalues=$this->values;
-		Debug::Value('Post',$arrvalues);
-
-		//		Debug::Value('Uploaded',Communication::getUpload($properties));
-		$values=Communication::getFormValues($properties);
-		$values=array_map('stripslashes',$values);
-		Debug::Value('Loaded properties/values for '.get_class($this->crudItem),$values);		
-		$arrprop=ObjectUtility::getArrayPropertiesAndValues($this->crudItem);
-		$lists=array_search_key('_list',$arrvalues);
-		Debug::Value('Loaded listvalues from post',$lists);
-		$uploads=Communication::getUpload($properties);
-		foreach($uploads as $property => $upload){
-			Debug::Message('CHECKING UPLOADS');
-			if(strlen($upload["name"])>0){
-				Debug::Message('FOUND UPLOAD');
-				$name=str_replace(' ','-',$upload["name"]);
-				$name=str_replace('+','-', $name);					
-				if(isset($this->thumbnails[$property]) && $this->thumbnails[$property]=='thumb')
-					$path=UPLOADS_DIR.$folder.'thumbs/'.$name;
-				else
-					$path=UPLOADS_DIR.$folder.$name;
-				
-				move_uploaded_file($upload["tmp_name"],$path);
-				chmod($path, octdec(644));
-				$values[$property]=$name;
-				if(isset($this->thumbnails[$property]) && $this->thumbnails[$property][0]=='create'){
-					$info=getimagesize($path);
-					$image = new Resize_Image;
-					if($info[1]>$height)
-						$image->new_height = $height;
-					else if($info[0]>$width)
-						$image->new_width = $width;
-					else{
-						$image->new_height = $info[1];
-						$image->new_width = $info[0];
-					}
-					$image->image_to_resize = $path;
-					$image->ratio = true;
-					$info = pathinfo($name);
-					$file_name =  basename($name,'.'.$info['extension']);							
-					$image->new_image_name = $file_name;
-					$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
-					$values[$this->thumbnails[$property][1]]='thumbs/'.$name;
-					$process = $image->resize();
-					chmod($process['new_file_path'], octdec(644));
-				}
-			}else{
-				if(!isset($this->values[$property.'_hasimage']) && empty($values[$property])){
-					$values[$property]='';
-				}
-				else{
-					if(strpos($this->values[$property.'_hasimage'],'ttp')==1){
-						Debug::Message('HAS IMAGE LINK '.$property);
-						$url = $this->values[$property.'_hasimage'];
-						$name=str_replace(' ','-',urldecode(basename($url)));
-						$name=str_replace('+','-', $name);	
-						if(isset($this->thumbnails[$property]) && $this->thumbnails[$property]=='thumb')
-							$path=UPLOADS_DIR.$folder.'thumbs/'.$name;
-						else
-							$path=UPLOADS_DIR.$folder.$name;
-						$values[$property]=$name;
-						
-						Http::save_image($url,$path);
-						if(isset($this->thumbnails[$property]) && $this->thumbnails[$property][0]=='create'){
-							Debug::Message('CREATE THUMBNAIL');
-							$info=getimagesize($path);
-							$image = new Resize_Image;
-							if($info[1]>$height)
-								$image->new_height = $height;
-							else if($info[0]>$width)
-								$image->new_width = $width;
-							else{
-								$image->new_height = $info[1];
-								$image->new_width = $info[0];
-							}
-							$image->image_to_resize = $path; // Full Path to the file
-							$image->ratio = true; // Keep Aspect Ratio?
-							$info = pathinfo($name);
-							$file_name =  basename($name,'.'.$info['extension']);							
-							$image->new_image_name = $file_name;
-							$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
-							$values[$this->thumbnails[$property][1]]='thumbs/'.$name;
-							$process = $image->resize();
-							chmod($process['new_file_path'], octdec(644));
-						}
-					}else{
-						Debug::Message('HAS IMAGE '.$property);
-						Debug::Value('Thumbnails',$this->thumbnails);
-						if(isset($this->thumbnails[$property]) && $this->thumbnails[$property][0]=='create'){
-							Debug::Message('CREATE THUMBNAIL');
-							$url = $this->values[$property.'_hasimage'];
-							$name=str_replace(' ','-',urldecode(basename($url)));	
-							$name=str_replace('+','-', $name);		
-							$path=UPLOADS_DIR.$folder.$name;
-							$info=getimagesize($path);
-							$image = new Resize_Image;
-							if($info[1]>$height)
-								$image->new_height = $height;
-							else if($info[0]>$width)
-								$image->new_width = $width;
-							else{
-								$image->new_height = $info[1];
-								$image->new_width = $info[0];
-							}
-							$image->image_to_resize = $path; // Full Path to the file
-							$image->ratio = true; // Keep Aspect Ratio?
-							// Name of the new image (optional) - If it's not set a new will be added automatically
-							$info = pathinfo($name);
-							$file_name =  basename($name,'.'.$info['extension']);							
-							$image->new_image_name = $file_name;
-							// Path where the new image should be saved. If it's not set the script will output the image without saving it 
-							$image->save_folder = UPLOADS_DIR.$folder.'thumbs/';
-							$values[$this->thumbnails[$property][1]]='thumbs/'.$name;
-							$process = $image->resize();
-							chmod($process['new_file_path'], octdec(644));
-						}
-					}
-				}
-			} 
-		}
-		ObjectUtility::setProperties($this->crudItem,$values);
-		foreach($lists as $method => $value){
-			Debug::Value($method,$value);
-			$settings=ObjectUtility::getCommentDecoration($this->crudItem,str_ireplace("_list","",$method).'List');
-			$dbrelation=array_key_exists_v('dbrelation',$settings);
-			Debug::Value($method,$dbrelation);
-			$field=array_key_exists_v('field',$settings);
-			$objects=array();	
-			if($field=='text'){
-				if(strlen($value)==0)
-					continue;
-				$listValues=explode(',',trim($value," ,."));
-				if(sizeof($listValues)==0)
-					continue;
-				foreach($listValues as $value){
-					if($dbrelation && $field=='text'){
-						$object= new $dbrelation;
-						$object->setName(trim($value));
-						$object->save();
-						$objects[]=$object;
-					}
-				}
-			}
-			else if($dbrelation){
-					if(is_array($value))
-						foreach($value as $val){
-							$object=Repo::getById($dbrelation,$val);
-							$objects[]=$object;
-						}
-					else{	
-						$object=Repo::getById($dbrelation,$value);
-						$objects[]=$object;
-					}
-				}
-				
-			ObjectUtility::addToArray($this->crudItem,str_ireplace("_list","",$method),$objects);
-		}
-	}
-
 }
