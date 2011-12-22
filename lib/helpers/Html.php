@@ -3,12 +3,12 @@ class Html{
 	private static $scripts=array();
 	static function createForm($id,$object,$path=false,$classes=false,$imagepath=''){
 		if(!$path)
-			$path=action_url($object,'create');
+			$path=action_url($object,'create',true);
 		self::form($id,$object,$path,POST,'Add New',strtolower(get_class($object)),$classes,$imagepath);
 	}
 	static function updateForm($id,$object,$path=false,$classes=false,$imagepath=''){
 		if(!$path)
-		$path=action_url($object,'update');
+		$path=action_url($object,'update',true);
 		self::form($id,$object,$path,POST,'Update',strtolower(get_class($object)),$classes,$imagepath);
 	}	
 	static function form($formid,$object,$action,$method,$submit='Send',$nonce=false,$classes=false,$imagepath=''){
@@ -54,12 +54,13 @@ class Html{
 					$theForm.=self::textarea($id,stripslashes($value),$id,true);
 				}
 				else if($field=='htmlarea'){
-					$theForm.='<p class="alignright">
-	<a class="button toggleVisual">Visual</a>
-	<a class="button toggleHTML">HTML</a>
-</p>';
-					$htmlarea=$id;
-					$theForm.=self::textarea($id,stripslashes($value),"$id theEditor",true);
+                    ob_start();
+					$version=initiate_editor($id,stripslashes($value));
+                    if($version=='old')
+                        self::textarea($id,stripslashes($value),"$id theEditor");
+                    $htmlarea=ob_get_contents();
+                    ob_end_clean();
+                    $theForm.= $htmlarea;
 				}
 				else if($field=='image'){
 					if($value){
@@ -216,6 +217,7 @@ class Html{
 			}
 			$theForm.='</td></tr>';
 		}
+
 		$theForm.=View::generate('render-form-'.$formid,array($object,$action,$method,$submit,$nonce,$classes,$imagepath));
 		$theForm.=View::generate('render-form-'.$formid.'-'.$action,array($object,$action,$method,$submit,$nonce,$classes,$imagepath));
 		$theForm.='</table>';

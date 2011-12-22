@@ -113,8 +113,12 @@
 ';
 		return $htaccess_rules;
 	}
-	function initiate_editor($class){
-		wp_tiny_mce(false,array("editor_selector" => $class));
+	function initiate_editor($id,$content){
+        if(function_exists('wp_editor')){
+            wp_editor($content,$id);
+        }else{
+    		wp_tiny_mce(false,array("editor_selector" => $id));
+        }
 	}
 	global $hooks;
 	$hooks=array('init','admin_init','admin_menu','set_plugin_has_updates'=>'update_option__transient_update_plugins');
@@ -168,11 +172,13 @@
 		else
 			add_action($section,$callback,$priority,$params);
 	}
-	function action_url($class,$action){
+	function action_url($class,$action,$partial=false){
 		$action=strtolower($action);
 		if(!is_string($class))
 			$class=get_class($class);
 		$class=strtolower($class);
+        if($partial)
+            return '/'.$class.'/'.$action;
 		return site_url('/'.$class.'/'.$action);
 	}
 	function adminURL($controller,$action,$query=false){
