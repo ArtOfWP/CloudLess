@@ -2,10 +2,12 @@
 global $viewcontent;
 if(class_exists('BaseController'))
 	return;
+
 class BaseController{
+    private static $currentAction;
 	protected $controller;
 	protected $action;
-	protected $defaultAction;
+	protected $defaultAction='index';
 	protected $filter;
 	protected $redirect;
 	protected $viewpath;
@@ -14,7 +16,9 @@ class BaseController{
 	public $viewcontent;
 	public $values=array();
 	private $automatic;
-	private function initiate(){
+    private static $currentController;
+
+    private function initiate(){
 		Debug::message('BaseController initiate');		
 		//TODO deprecated since 11.6
 		if(method_exists($this,'on_controller_preinit'))	
@@ -83,10 +87,11 @@ class BaseController{
 	}
 	public function executeAction($action){
 		if(method_exists($this,$action)){
-			Debug::Message('Executed action: '.$action);			
+			Debug::Message('Executed action: '.$action);
 			$reflection = new ReflectionMethod($this, $action);
 			if (!$reflection->isPublic())
 				throw new RuntimeException("The action you tried to execute is not public.");
+            self::$currentAction=$action;
 			Hook::run($this->controller.'-pre'.ucfirst($action),$this);
 			$this->$action();
 			Hook::run($this->controller.'-post'.ucfirst($action),$this);
@@ -143,13 +148,14 @@ class BaseController{
 		$viewcontent=$text;	
 	}
 	public function Notfound(){
-		ob_start();
-		include(VIEWS.$controller.'/'.$action.'.php');
-		$this->render=false;
-		$this->viewcontent=ob_get_contents();
-		ob_end_clean();
-		global $viewcontent;
-		$viewcontent=$this->viewcontent;
+        $view=$this->findView($this->controller,'notfound');
+        if($view) {
+            $this->setUpRouting($this->controller, 'notfound');
+            $this->Render($this->controller,'notfound');
+        }else{
+            $this->setUpRouting('default','notfound');
+            $this->Render('default','notfound');
+        }
 	}
 	protected function redirect($query=false){
 		if(defined('NOREDIRECT') && NOREDIRECT)
@@ -173,10 +179,15 @@ class BaseController{
 		global $viewcontent;
 		return $viewcontent;
 	}
-	
+	public static function CurrentAction(){
+        return self::$currentAction;
+    }
+    public static function CurrentController(){
+         return self::$currentController;
+    }
 	private function findView($controller,$action){
 		if($this->viewpath){
-			return $this->viewpath.$controller.'/'.$action.'.php';
+			return rtrim($this->viewpath,'/').'/'.$controller.'/'.$action.'.php';
 		}		
 		$apps=AoiSoraSettings::getApplications();
 		$total=sizeof($apps);
@@ -198,4 +209,10 @@ class BaseController{
 	protected function setDefaultAction($action){
 		$this->action=$action; 
 	}
+
+    public static function setUpRouting($controller, $action)
+    {
+        self::$currentController=$controller;
+        self::$currentAction=$action;
+    }
 }

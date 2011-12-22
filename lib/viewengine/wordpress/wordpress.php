@@ -181,3 +181,10 @@
 			$url.="&".$query;
 		admin_url($url);
 	}
+add_action('wp','aois_add_global_ctr_act');
+
+function aois_add_global_ctr_act(){
+    $ctrl=array_key_exists_v('controller',Communication::getQueryString());
+	$action=array_key_exists_v(FRONTEND_ACTIONKEY,Communication::getQueryString());
+    BaseController::setUpRouting($ctrl,$action);
+}
