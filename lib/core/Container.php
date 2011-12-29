@@ -27,7 +27,7 @@ class Container
     private function fetchTuple($key){
         return array_key_exists_v(strtolower($key),$this->values);
     }
-    public function make($key)
+    public function make($key,$params=array())
     {
         $class = $this->fetchTuple($key);
         if ('object'==$class[1]) {
@@ -64,6 +64,10 @@ class Container
             $obj = new $className();
         return $obj;
     }
+    /**
+     * @static
+     * @return Container
+     */
     public static function instance(){
         if(!isset(self::$instance) && empty(self::$instance))
             self::$instance=new Container();

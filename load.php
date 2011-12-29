@@ -1,15 +1,23 @@
 <?php
 function load($dir){
+//    echo '<ul style="background-color: #FFF">';
 	$handle = opendir($dir);
 	while(false !== ($resource = readdir($handle))) {
 		if($resource!='.' && $resource!='..'){
-			if(is_dir($dir.$resource))
+//            echo '<li>';
+            
+			if(is_dir($dir.$resource)){
+//                echo "<b>$dir$resource</b>";
 				load($dir.$resource.'/');
-			else
+            }else{
+//                echo "<em>$dir$resource</em>";
 			 	include($dir.$resource);
+            }
+//            echo '</li>';
 		}
 	}
 	closedir($handle);
+//    echo '</ul>';
 }
 function loadApp($dir){
 	if(is_dir($dir.'/app/core/'))

@@ -52,11 +52,15 @@ get_htaccess_rules().'</pre>
 	}	
 }
 class AoiSora extends WpApplicationBase{
+    /**
+      * @var $options WpOption
+      */
 	public $options;
 	private static $instance;
 	function AoiSora(){
 		parent::WpApplicationBase('AoiSora',sl_file('AoiSora'),true,false);
 		add_action('plugins_loaded',array($this,'aoisoraLoaded'));
+        $this->setUpJS();
 	}
 	function onInitUpdate(){
 		$this->VERSION='11.7.1';
@@ -72,20 +76,35 @@ class AoiSora extends WpApplicationBase{
 			$this->options->save();
 		}
 	}
-	function onInit(){
-		wp_register_script('jquery-validate',"http://ajax.microsoft.com/ajax/jquery.validate/1.5.5/jquery.validate.min.js",array('jquery'));
-		wp_register_script('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core','jquery-ui-widget'));
-		wp_register_style('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.css'));
-		global $wp_version;
-		if(version_compare($wp_version,'3.1','<'))
-			wp_register_script('jquery-ui-widget',plugins_url('AoiSora/lib/js/ui.widget.js'),'jquery');
-		if(is_admin()){
-			wp_register_script('jquery-ui-tag-it',plugins_url('AoiSora/lib/js/jquery.ui.tag-it/ui.tag-it.js'),array('jquery','jquery-ui-core'));			
-			wp_register_style('forms',plugins_url('AoiSora/lib/css/forms.css'));			
-			wp_register_style('wordpress',plugins_url('AoiSora/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css'));
-		}
+    private function setUpJS(){
+        $cont=Container::instance();
+        /**
+         * @var $scripts ScriptIncludes
+         * @var $styles ScriptIncludes
+         */
+        $scripts=$cont->fetch('ScriptIncludes');
+        $styles=$cont->fetch('StyleIncludes');
+        $jVal= new FrontInclude('jquery-validate',"http://ajax.microsoft.com/ajax/jquery.validate/1.5.5/jquery.validate.min.js",array('jquery'));
+        $scripts->register($jVal);
+        $jUiStars = new FrontInclude('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core','jquery-ui-widget'));
+        $scripts->register($jUiStars);
+        global $wp_version;
+   		if(version_compare($wp_version,'3.1','<')){
+   			$jUiWidget = new FrontInclude('jquery-ui-widget',plugins_url('AoiSora/lib/js/ui.widget.js'),'jquery');
+            $scripts->register($jUiWidget);
+        }
+  		$jUiTagIt = new FrontInclude('jquery-ui-tag-it',plugins_url('AoiSora/lib/js/jquery.ui.tag-it/ui.tag-it.js'),array('jquery','jquery-ui-core','jquery-ui-widget'));
+        $scripts->register($jUiTagIt);
+        $jUiStyles = new FrontInclude('jquery-ui-stars',plugins_url('AoiSora/lib/js/jquery.ui.stars/ui.stars.min.css'));
+        $styles->register($jUiStyles);
+        $forms=new FrontInclude('forms',plugins_url('AoiSora/lib/css/forms.css'));
+     	$wordpress= new FrontInclude('wordpress',plugins_url('AoiSora/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css'));
+        $styles->register($forms);
+        $styles->register($wordpress);
+    }
+    function onInit(){
         if(isset($_GET[CONTROLLERKEY]) && isset($_GET[ACTIONKEY]))
-            add_action('template_redirect',array($this,'preRoute'));
+            Hook::register('template_redirect',array($this,'preRoute'));
     }
     function preRoute(){
         $success=Route::reroute();
@@ -120,7 +139,7 @@ class AoiSora extends WpApplicationBase{
 		}
     }
 	function aoisoraLoaded(){
-		do_action('aoisora-loaded');
+        aoisora_loaded();
 		Hook::run('aoisora-libraries');
 		Hook::run('aoisora-loaded');
 	}

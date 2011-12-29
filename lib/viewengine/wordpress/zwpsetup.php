@@ -28,6 +28,11 @@
 	$wud=wp_upload_dir();
 	define('UPLOADS_DIR',$wud['basedir'].'/');
 	define('UPLOADS_URI',$wud['baseurl'].'/');
+    $container=Container::instance();
+    $container->add('IScriptInclude',new WpScriptIncludes());
+    $container->add('ScriptIncludes',new ScriptIncludes());
+$container->add('IStyleInclude',new WpStyleIncludes());
+$container->add('StyleIncludes',new StyleIncludes());
 	function register_aoisora_query_vars($public_query_vars) {
 		$public_query_vars[] = "controller";
 		$public_query_vars[] = "action";
@@ -121,7 +126,7 @@
         }
 	}
 	global $hooks;
-	$hooks=array('init','admin_init','admin_menu','set_plugin_has_updates'=>'update_option__transient_update_plugins');
+	$hooks=array('init','admin_init','admin_menu','set_plugin_has_updates'=>'update_option__transient_update_plugins','template_redirect');
 	foreach($hooks as $key => $hook)
 		if(is_numeric($key))
 			Hook::registerHandler($hook,'wp_hook_handler');
@@ -193,4 +198,8 @@ function aois_add_global_ctr_act(){
     $ctrl=array_key_exists_v('controller',Communication::getQueryString());
 	$action=array_key_exists_v(FRONTEND_ACTIONKEY,Communication::getQueryString());
     BaseController::setUpRouting($ctrl,$action);
+}
+
+function aoisora_loaded(){
+    do_action('aoisora-loaded');
 }

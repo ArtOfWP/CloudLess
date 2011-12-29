@@ -341,7 +341,7 @@ abstract class WpApplicationBase{
 					}
 				}else
 					WpHelper::enqueueScript( $file);
-			}		
+			}
 		}
 	}
 	//TODO: deprecated since 11.6

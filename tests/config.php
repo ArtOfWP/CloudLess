@@ -20,6 +20,8 @@ load(PACKAGEPATH.'lib/helpers/');
 //include(PACKAGEPATH.'lib/controllers/filters/SecurityFilter.php');
 load(PACKAGEPATH.'lib/controllers/');
 if(defined('VIEWENGINE') && VIEWENGINE=='wordpress'){
+//C:\Users\andreas\My Projects\development\aoisora\wp-content\plugins\AoiSora\tests\config.php
+    include('/../../../../wp-load.php');
 	load(PACKAGEPATH.'lib/viewengine/'.VIEWENGINE.'/');//.VIEWENGINE.'.php');
 }
 }
