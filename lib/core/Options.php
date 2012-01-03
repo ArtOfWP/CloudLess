@@ -96,6 +96,7 @@ class Options
         }
     }
     public function save(){
+        $this->init();
         $options=array();
         /**
          * @var Option $option
@@ -105,14 +106,16 @@ class Options
         $this->ioptions->save($this->namespace,$options);
     }
     public function init(){
-        $options=$this->ioptions->load($this->namespace);
-        foreach($options as $key => $value){
-            if(isset($this->pairs[$key]))
-                $this->pairs[$key]->setValue($value);
-            else
-                $this->pairs[$key]=new Option($key,$value);
+        if(!$this->initialized){
+            $options=$this->ioptions->load($this->namespace);
+            foreach($options as $key => $value){
+                if(isset($this->pairs[$key]))
+                    $this->pairs[$key]->setValue($value);
+                else
+                    $this->pairs[$key]=new Option($key,$value);
         }
-        $this->initialized=true;
+            $this->initialized=true;
+        }
     }
     /**
      * @deprecated
@@ -123,9 +126,9 @@ class Options
     public function __get($option){
    		return $this->getValue($option);
    	}
-    	public function __set($option,$value){
-            $this->setValue($option,$value);
-    	}
+    public function __set($option,$value){
+        $this->updateValue($option,$value);
+    }
     	public function __isset($option){
     		return isset($this->pairs[$option]);
     	}

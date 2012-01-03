@@ -197,7 +197,8 @@ abstract class WpApplicationBase{
 		}else if(!$this->useInstall)
 			AoiSoraSettings::installApplication($this->app);
 		if(!$installed && $this->useOptions){
-			$this->options= Option::create($this->app);
+//			$this->options= Option::create($this->app);
+            $this->options= new Options($this->app);
 			if(method_exists($this,'on_load_options'))
 				$this->on_load_options();
 			if(method_exists($this,'onLoadOptions'))
