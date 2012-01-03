@@ -114,6 +114,12 @@ class Options
         }
         $this->initialized=true;
     }
+    /**
+     * @deprecated
+     */
+    public function isEmpty(){
+        return sizeof($this->pairs)==0;
+    }
     public function __get($option){
    		return $this->getValue($option);
    	}

@@ -4,7 +4,7 @@ abstract class WpApplicationBase{
 	protected $VERSION=false;
 	protected $VERSION_INFO_LINK=false;
 	protected $UPDATE_SITE=false;
-	protected $UPDATE_SITE_EXTRA=false;	
+	protected $UPDATE_SITE_EXTRA=false;
 	protected $SLUG=false;
 	private $models=array();
 	public $pluginName;
@@ -13,7 +13,7 @@ abstract class WpApplicationBase{
 	public $options;
 	private $useInstall;
 	private $useOptions;
-	function WpApplicationBase($appName,$file,$useOptions=false,$useInstall=false,$basename=false){	
+	function WpApplicationBase($appName,$file,$useOptions=false,$useInstall=false,$basename=false){
 		$this->dir=dirname($file);
 		$this->app=$appName;
 		if($basename)
@@ -29,25 +29,25 @@ abstract class WpApplicationBase{
 		if(method_exists($this,'on_register_query_vars'))
 			Filter::register('query_vars', array(&$this,'registerQueryVars'));
 		if(method_exists($this,'onRegisterQueryVars'))
-			Filter::register('query_vars', array(&$this,'registerQueryVars'));			
+			Filter::register('query_vars', array(&$this,'registerQueryVars'));
 		if(method_exists($this,'on_init'))
 			Hook::register('init', array(&$this,'on_init'));
 		if(method_exists($this,'onInit'))
-			Hook::register('init', array(&$this,'onInit'));			
+			Hook::register('init', array(&$this,'onInit'));
 		if(is_admin()){
 			if(method_exists($this,'onInitAdmin'))
-				Hook::register('init', array(&$this,'onInitAdmin'));				
+				Hook::register('init', array(&$this,'onInitAdmin'));
 			if(method_exists($this,'onAdminInit'))
-				Hook::register('admin_init', array(&$this,'onAdminInit'));				
+				Hook::register('admin_init', array(&$this,'onAdminInit'));
 			if(method_exists($this,'onAdminMenu'))
-				Hook::register('admin_menu',array(&$this,'onAdminMenu'));			
+				Hook::register('admin_menu',array(&$this,'onAdminMenu'));
 			if(method_exists($this,'onPrintAdminScripts') || method_exists($this,'on_print_admin_scripts'))
 				Hook::register('init', array(&$this,'printAdminScripts'));
 			if(method_exists($this,'onPrintAdminStyles') || method_exists($this,'on_print_admin_styles'))
 				Hook::register('init', array(&$this,'printAdminStyles'));
-			
+
 			Hook::register( 'admin_init', array(&$this,'registerSettings' ));
-			
+
 			Filter::registerHandler('plugin_action_links_'.$this->pluginName,'wp_filter_handler');
 			if(method_exists($this,'onPluginPageLink'))
 				Filter::register( 'plugin_action_links_'.$this->pluginName, array(&$this,'pluginPageLinks'), 10, 2 );
@@ -57,18 +57,18 @@ abstract class WpApplicationBase{
 				Hook::register( 'after_plugin_row_'.$this->pluginName, array(&$this,'afterPluginRow'), 10, 2 );
 			}
 			if(method_exists($this,'onRewriteRulesArray'))
-				Filter::register('rewrite_rules_array',array(&$this,'onRewriteRulesArray'));			
+				Filter::register('rewrite_rules_array',array(&$this,'onRewriteRulesArray'));
 			// Deprecated stuff
 			//TODO: deprecated
 			if(method_exists($this,'on_init_admin'))
 				Hook::register('init', array(&$this,'on_init_admin'));
-			//TODO: deprecated	
+			//TODO: deprecated
 			if(method_exists($this,'on_admin_init'))
 				Hook::register('admin_init', array(&$this,'on_admin_init'));
-			//TODO: deprecated		
+			//TODO: deprecated
 			if(method_exists($this,'on_admin_menu'))
 				Hook::register('admin_menu',array(&$this,'on_admin_menu'));
-			//TODO: deprecated	
+			//TODO: deprecated
 			if(method_exists($this,'on_rewrite_rules_array'))
 				Filter::register('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
 			//TODO: deprecated
@@ -82,19 +82,19 @@ abstract class WpApplicationBase{
 			if(method_exists($this,'onPrintScripts'))
 				View::register('print_scripts',array(&$this,'printScripts'));
 			if(method_exists($this,'onAddPageLinks'))
-				Filter::register('list_pages', array(&$this,'onAddPageLinks'));	
+				Filter::register('list_pages', array(&$this,'onAddPageLinks'));
 			if(method_exists($this,'onRewriteRulesArray'))
 				Filter::register('rewrite_rules_array',array(&$this,'onRewriteRulesArray'));
 			if(method_exists($this,'onRenderFooter'))
 				View::register('footer',array(&$this,'onRenderFooter'));
-				
+
 			//TODO: deprecated since 11.6
 			if(method_exists($this,'on_print_styles'))
 				View::register('print_styles',array(&$this,'printStyles'));
 			if(method_exists($this,'on_print_scripts'))
 				View::register('print_scripts',array(&$this,'printScripts'));
 			if(method_exists($this,'on_add_page_links'))
-				Filter::register('list_pages', array(&$this,'on_add_page_links'));	
+				Filter::register('list_pages', array(&$this,'on_add_page_links'));
 			if(method_exists($this,'on_rewrite_rules_array'))
 				Filter::register('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
 			if(method_exists($this,'on_render_footer'))
@@ -103,7 +103,7 @@ abstract class WpApplicationBase{
 		}
 		Filter::register('set_plugin_has_updates', array(&$this, 'siteTransientUpdatePlugins'));
         Hook::register('set_plugin_has_updates', array(&$this, 'transientUpdatePlugins'));
-		if($this->useOptions){			
+		if($this->useOptions){
 			$this->options= new Options($this->app);
 			//TODO deprecated since 11.6
 			if(method_exists($this,'on_load_options'))
@@ -124,7 +124,7 @@ abstract class WpApplicationBase{
 				$this->on_init_update();
 			if(method_exists($this,'onInitUpdate'))
 				$this->onInitUpdate();
-			$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);	
+			$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);
 			if($this->installed() && version_compare($oldVersion,$this->VERSION,'<')){
 				AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
 				$this->update();
@@ -133,34 +133,34 @@ abstract class WpApplicationBase{
 				Filter::register('http_request_args',array(&$this,'addUpdateUrl'),10,2);
 		}
 	}
-	
+
 	function addUpdateUrl($r,$url){
 			$r['headers']['Referer']=get_site_url();
 			return $r;
 	}
-	
+
 	function registerQueryVars($public_query_vars){
 		$vars=array();
 		//TODO remove after 11.6.1
 		if(method_exists($this,'on_register_query_vars'))
 			$vars=$this->on_register_query_vars();
-		if(method_exists($this,'onRegisterQueryVars'))		
+		if(method_exists($this,'onRegisterQueryVars'))
 			$vars=$this->onRegisterQueryVars();
 		foreach($vars as $var)
 			$public_query_vars[]=$var;
 		return $public_query_vars;
 	}
-	function registerSettings(){		
+	function registerSettings(){
 		if(method_exists($this,'on_register_settings') || method_exists($this,'onRegisterSettings')){
 			if(method_exists($this,'on_register_settings'))
 				$settings = $this->on_register_settings();
 			if(method_exists($this,'onRegisterSettings'))
-				$settings = $this->onRegisterSettings();				
+				$settings = $this->onRegisterSettings();
 			foreach($settings as $option => $key)
 				if(is_array($key))
 					WpHelper::registerSettings($option,$key);
 				else
-					WpHelper::registerSettings($option,array($key));				
+					WpHelper::registerSettings($option,array($key));
 		}
 		if($this->useOptions)
 			WpHelper::registerSettings($this->app,array($this->app));
@@ -169,13 +169,13 @@ abstract class WpApplicationBase{
 		//TODO remove after 11.6.1
 		if(method_exists($this,'on_plugin_row_message'))
 			$display=$this->on_plugin_row_message();
-		if(method_exists($this,'onPluginRowMessage'))		
-			$display=$this->onPluginRowMessage();		
+		if(method_exists($this,'onPluginRowMessage'))
+			$display=$this->onPluginRowMessage();
 		extract($display);
 		echo '<tr class="',$trclass,'" style="',$trstyle,'"><td colspan="3" class="',$tdclass,'" style="',$tdstyle,'"><div class="',$divclass,'" style="',$divstyle,'">',$message,'</div></td></tr>';
 	}
 	function pluginPageLinks($links){
-		//TODO remove after 11.6.1		
+		//TODO remove after 11.6.1
 		if(method_exists($this,'on_plugin_page_link'))
 			$plugin_link=$this->on_plugin_page_link();
 		if(method_exists($this,'onPluginPageLink'))
@@ -188,7 +188,7 @@ abstract class WpApplicationBase{
 		if(method_exists($this,'on_init_update'))
 			$this->on_init_update();
 		if(method_exists($this,'onInitUpdate'))
-			$this->onInitUpdate();			
+			$this->onInitUpdate();
 		$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);
 		$installed=$this->installed();
 		AoiSoraSettings::addApplication($this->app,$this->dir,$this->VERSION);
@@ -226,21 +226,21 @@ abstract class WpApplicationBase{
 	public function install(){
 		//TODO deprecated 11.6
 		if(method_exists($this,'on_preinstall'))
-			$this->on_preinstall();			
+			$this->on_preinstall();
 		if(method_exists($this,'onPreInstall'))
-			$this->onPreInstall();		
+			$this->onPreInstall();
 		Debug::Value('Install from path',$this->installFromPath);
 		$this->models=array();
 		$this->load($this->installFromPath);
 		$result=true;
 		$this->create();
 		if($result)
-			AoiSoraSettings::installApplication($this->app);			
+			AoiSoraSettings::installApplication($this->app);
 		//TODO: deprecated since 11.6
 		if(method_exists($this,'on_after_install'))
 			$this->on_after_install();
 		if(method_exists($this,'onAfterInstall'))
-			$this->onAfterInstall();			
+			$this->onAfterInstall();
 		return $result;
 	}
 	private function create(){
@@ -257,36 +257,36 @@ abstract class WpApplicationBase{
 		if(method_exists($this,'on_preuninstall'))
 			$this->on_preuninstall();
 		if(method_exists($this,'onPreUninstall'))
-			$this->onPreUninstall();			
+			$this->onPreUninstall();
 		$this->models=array();
 		$this->load($this->installFromPath);
-		$result=true;		
+		$result=true;
 		$this->drop();
 		if($result)
 			AoiSoraSettings::uninstallApplication($this->app);
-		if($this->useOptions){			
+		if($this->useOptions){
 				$this->options= Option::create($this->app);
 				$this->options->delete();
 		}
-		AoiSoraSettings::removeApplication($this->app);		
+		AoiSoraSettings::removeApplication($this->app);
 		//TODO deprecated 11.6
 		if(method_exists($this,'on_after_uninstall'))
 			$this->on_after_uninstall();
 		if(method_exists($this,'onAfterUninstall'))
-			$this->onAfterUninstall();				
+			$this->onAfterUninstall();
 	}
 	private function drop(){
-		global $db;		
+		global $db;
 		foreach($this->models as $model){
 			$m = new $model();
 			$db->dropTable($m);
 		}
-		$db->dropStoredRelations();		
+		$db->dropStoredRelations();
 	}
 	function delete(){
 		if($this->options)
 			$this->options->delete();
-	}	
+	}
 	private function update(){
 		//TODO deprecated since 11.6
 		if(method_exists($this,'on_update'))
@@ -306,8 +306,8 @@ abstract class WpApplicationBase{
 			if($resource!='.' && $resource!='..'){
 				if(is_dir($dir.$resource))
 					$this->load($dir.$resource.'/');
-				else{			
-					$this->models[]=str_replace('.php','',$resource);				 	
+				else{
+					$this->models[]=str_replace('.php','',$resource);
 					Debug::Value('Loaded',$resource);
 				}
 			}
@@ -326,7 +326,7 @@ abstract class WpApplicationBase{
 					}
 				}else
 					WpHelper::enqueueStyle( $file);
-			}		
+			}
 		}
 	}
 	private function loadscripts($scripts){
@@ -363,8 +363,8 @@ abstract class WpApplicationBase{
 	}
 	function printStyles(){
 		$this->loadstyles($this->on_print_styles());
-		
-	}	
+
+	}
 	function getVersionInfo(){
 		global $wp_version;
 		$version_info=get_transient('aoisora-update-'.$this->SLUG);
@@ -373,11 +373,11 @@ abstract class WpApplicationBase{
 		$body=array('id' => $this->SLUG);
 		if($this->UPDATE_SITE_EXTRA)
 			$body=$body+$this->UPDATE_SITE_EXTRA;
-		
+
 		$options = array('method' => 'POST', 'timeout' => 3, 'body' => $body);
 		$options['headers']= array(
             'Content-Type' => 'application/x-www-form-urlencoded; charset=' . get_option('blog_charset'),
-			'Content-Length' => strlen(implode(',',$body)),		
+			'Content-Length' => strlen(implode(',',$body)),
 			'user-agent' => 'WordPress/' . $wp_version,
 			'referer'=> get_bloginfo('url')
 		);
@@ -392,7 +392,7 @@ abstract class WpApplicationBase{
 	static $count=0;
 	function transientUpdatePlugins(){
 		if(empty($this->UPDATE_SITE) || !is_admin())
-			return;	
+			return;
 		$plugins = get_transient("update_plugins");
 		$plugins = $this->siteTransientUpdatePlugins($plugins);
 		set_transient("update_plugins", $plugins);

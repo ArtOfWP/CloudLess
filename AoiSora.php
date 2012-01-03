@@ -70,11 +70,9 @@ class AoiSora extends WpApplicationBase{
 	}
 	function onLoadOptions(){
 		$this->options= new Options('AoiSora');// Option::create('AoiSora');
-        $applications=new Option('applications');
-        $applications->setDefaultValue(array());
+        $applications=new Option('applications',array());
         $this->options->add($applications);
-        $installed=new Option('installed');
-        $installed->setDefaultValue(array());
+        $installed=new Option('installed',array());
         $this->options->add($installed);
 		$this->options->save();
 	}
