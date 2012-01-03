@@ -31,8 +31,10 @@
     $container=Container::instance();
     $container->add('IScriptInclude',new WpScriptIncludes());
     $container->add('ScriptIncludes',new ScriptIncludes());
-$container->add('IStyleInclude',new WpStyleIncludes());
-$container->add('StyleIncludes',new StyleIncludes());
+    $container->add('IStyleInclude',new WpStyleIncludes());
+    $container->add('StyleIncludes',new StyleIncludes());
+    $container->add('IOptions','WpOptions','class');
+
 	function register_aoisora_query_vars($public_query_vars) {
 		$public_query_vars[] = "controller";
 		$public_query_vars[] = "action";

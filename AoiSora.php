@@ -53,7 +53,7 @@ get_htaccess_rules().'</pre>
 }
 class AoiSora extends WpApplicationBase{
     /**
-      * @var $options WpOption
+      * @var $options Options
       */
 	public $options;
 	private static $instance;
@@ -69,12 +69,14 @@ class AoiSora extends WpApplicationBase{
 		$this->VERSION_INFO_LINK='http://api.artofwp.com/?update=plugin_information';		
 	}
 	function onLoadOptions(){
-		$this->options= Option::create('AoiSora');
-		if($this->options->isEmpty()){
-			$this->options->applications=array();
-			$this->options->installed=array();
-			$this->options->save();
-		}
+		$this->options= new Options('AoiSora');// Option::create('AoiSora');
+        $applications=new Option('applications');
+        $applications->setDefaultValue(array());
+        $this->options->add($applications);
+        $installed=new Option('installed');
+        $installed->setDefaultValue(array());
+        $this->options->add($installed);
+		$this->options->save();
 	}
     private function setUpJS(){
         $cont=Container::instance();
