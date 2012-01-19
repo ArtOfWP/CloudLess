@@ -183,8 +183,8 @@ abstract class ActiveRecordBase{
 	public function __call($method,$arguments){
 		if($this->getId()){
 			Debug::Message('ARB __call '.get_class($this).'->'.$method);
-			Debug::Value('Arguments',$arguments);	
-			if(empty($arguments)){
+			Debug::Value('Arguments',$arguments);
+			if(empty($arguments) && strpos($method,'Lazy')!==false){
 				$method=str_replace('Lazy','',$method);
 				$settings=ObjectUtility::getCommentDecoration($this,$method);
 				$foreign=$settings['dbrelation'];
@@ -214,8 +214,13 @@ abstract class ActiveRecordBase{
 					$this->$method($temp);
 					return $temp;
 				}
-			}
+			}else{
+            }
 		}
+        if(strpos($method,'set')!==false){
+            $method=str_replace('set','',$method);
+            $this->$method=array_pop($arguments);
+        }
 	}
 	private function runEventMethod($event,$when){
 		$method='on'.$when.ucfirst($event);

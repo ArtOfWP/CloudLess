@@ -103,6 +103,7 @@ class MySqlDatabase{
 			}
 			$dbindexkind=array_key_exists_v('dbindexkind',$settings);
 			$dbindexorder=array_key_exists_v('dbindexorder',$settings);
+            $dbindexname=array_key_exists_v('dbindexname',$settings);
 			if($dbindexkind=='primary'){
 				Debug::Message('Primary index');
 				if($dbindexorder>0)
@@ -111,7 +112,7 @@ class MySqlDatabase{
 					$this->indexes[$tablename][$dbindexname]='`'.$column.'` ';
 				$this->indextype[$tablename]['primary']='PRIMARY KEY';
 			}
-			$dbindexname=array_key_exists_v('dbindexname',$settings);
+
 			if($dbindexname){
 				Debug::Message('Index '.$dbindexname);
 				if($dbindexorder>0){
@@ -248,6 +249,10 @@ class MySqlDatabase{
 			foreach($q->where as $clause){
 				if(empty($clause) || $clause==null)
 					continue;
+                if(is_string($clause)){
+                    $where.=$clause;
+                    continue;
+                }
 				if($clause->method==' IN ')
 					$params=array_merge($params,$clause->getParameters());				
 				else if($clause->method=='MATCH')
@@ -271,17 +276,18 @@ class MySqlDatabase{
 	    	$groupby=' GROUP BY '.implode(',',$q->groupby);	    
 	    
 	    if(sizeof($q->order)>0)
-		    $order=' ORDER BY '.implode(',',$q->order);	    	
+		    $order=' ORDER BY '.implode(',',$q->order);
 	    
-	    if($q->hasLimit())
-	    	$limit = ' LIMIT '.$q->offset.','.$q->limit.' ';
-
+	    if($q->hasLimit()){
+	    	$limit = ' LIMIT '.($q->offset?$q->offset.','.$q->limit:$q->limit).' ';
+        }
 	    $prepared='SELECT '.$columns.' FROM '.$from.$where.$groupby.$order.$limit;
 
 	    if(defined('SQLDEBUG') && SQLDEBUG){
 		    Debug::Value('SQL',$prepared);
 		    Debug::Value('SQL Params',$params);
 	    }
+
 	    $stmt=$this->db->prepare($prepared);
 		foreach($params as $key => $value )
 			$stmt->bindValue($key,$value,$this->getParamDataType($value));

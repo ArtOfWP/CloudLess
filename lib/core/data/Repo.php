@@ -38,7 +38,7 @@ class Repo{
 	}
 	static function findByProperty($class,$property,$value,$lazy=false,$order=false){
 		Debug::Value('Repo findByProperty ',$class);
-		Debug::Value('Repo findByProperty ->',$slug);		
+		Debug::Value('Repo findByProperty ->',$property);
 		Debug::Backtrace();
 		$q=Query::createFrom($class,$lazy);
 		if(is_array($value))
@@ -49,6 +49,17 @@ class Repo{
 			$q->order($order);
 		return $q->execute();
 	}
+    /**
+     * @static
+     * @param string|object $class
+     * @param $firstResult
+     * @param $maxResult
+     * @param Order|Order[] $order
+     * @param R|R[] $restrictions
+     * @param string|string[] $groupby
+     * @param bool $lazy
+     * @return array
+     */
 	static function slicedFindAll($class,$firstResult,$maxResult,$order=false,$restrictions=false,$groupby=false,$lazy=false){
 		Debug::Value('Repo slicedFindAll ', $class);
 		Debug::Backtrace();

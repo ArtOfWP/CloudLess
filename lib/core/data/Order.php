@@ -24,8 +24,13 @@ class Order{
 		if(sizeof($p)>1){
 			$temp=$this->addMark($db_prefix.strtolower($p[0]));
 			$temp.=$this->addMark(strtolower($p[1]));
-		}else
+		}elseif($this->property)
 			$temp=$this->addMark(strtolower($this->property));
 		return $temp.' '.$this->order;
 	}
+
+    public static function Random($number='') {
+        $o= new Order(false,'RAND('.$number.')');
+        return $o;
+    }
 }

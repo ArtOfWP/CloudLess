@@ -100,14 +100,18 @@ class Query{
 	}
 	public function where($restriction){
 		if(is_array($restriction)){
-			$this->statement['where']=((array)$this->statement['where'])+$restriction;
+			$this->statement['where']=array_merge(((array)$this->statement['where']),$restriction);
 		}else
 			$this->statement['where'][]=$restriction;
 		return $this;
 	}
-	public function limit($offset,$limit){
-		$this->limit=$limit;
-		$this->offset=$offset;
+	public function limit($offset,$limit=false){
+        if($limit===false){
+            $this->limit=$offset;
+        }else{
+	    	$this->limit=$limit;
+    		$this->offset=$offset;
+        }
 		return $this;
 	}
 	public function And_($restriction){
@@ -146,12 +150,22 @@ class Query{
 	public function getStatement(){
 		return $this->statement;
 	}
+    private function splitAndMark($property){
+        global $db_prefix;
+        $select=explode('.',$property);
+        if(sizeof($select)>1)
+            $select[0]=$db_prefix.$select[0];
+        $columns=array();
+        foreach($select as $s)
+            $columns[]=$this->addMark(strtolower($s));
+        return implode('.',$columns);
+    }
 	public function groupBy($property){
-		if(is_array($order))
+		if(is_array($property))
 			foreach($property as $p)
-				$this->statement['groupby'][]=$this->addMark(strtolower($p));
+				$this->statement['groupby'][]=$this->splitAndMark($p);
 		else
-			$this->statement['groupby'][]=$this->addMark(strtolower($property));
+			$this->statement['groupby'][]=$this->splitAndMark($property);
 		return $this;
 	}
 	public function setParameter($param,$value){

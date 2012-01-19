@@ -65,6 +65,9 @@
 			include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/views/components/$component/$component.php"));
 		if(!$params)
 			$params=array();
+        /**
+         * $c ViewComponent
+         */
 		$c = new $component($params);
 		$c->render();
 	}
@@ -121,10 +124,13 @@
 		return $htaccess_rules;
 	}
 	function initiate_editor($id,$content){
-        if(function_exists('wp_editor')){
+        global $wp_version;
+        if(version_compare($wp_version,'3.3','>=')){
             wp_editor($content,$id);
+            return 'new';
         }else{
     		wp_tiny_mce(false,array("editor_selector" => $id));
+            return 'old';
         }
 	}
 	global $hooks;
@@ -192,7 +198,7 @@
 		$url="admin.php?page=$controller&action=$action";
 		if($query)
 			$url.="&".$query;
-		admin_url($url);
+		return admin_url($url);
 	}
 add_action('wp','aois_add_global_ctr_act');
 

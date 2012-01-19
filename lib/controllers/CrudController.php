@@ -88,7 +88,6 @@ abstract class CrudController extends BaseController{
 		$this->bag['currentpage']=$page;
 		$page=$page>0?$page-1:0;
 		$first=$page*$perpage;
-		
 		if(array_key_exists('search',$this->values)){
 			$restrictions=$this->search_restrictions;
 			if(!$restrictions){

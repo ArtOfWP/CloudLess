@@ -60,8 +60,11 @@ class ObjectUtility{
 	
 	static function setProperties($object,$values){
 		foreach($values as $property => $value){
-			$method=new ReflectionMethod(get_class($object),'set'.$property);
-			$method->invoke($object,$value);
+            if(method_exists($object,'set'.$property)){
+			    $method=new ReflectionMethod(get_class($object),'set'.$property);
+			    $method->invoke($object,$value);
+            }else
+                $object->$property=$value;
 		}	
 	}
 	static function getClassCommentDecoration($object){

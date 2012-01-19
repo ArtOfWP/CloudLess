@@ -15,19 +15,18 @@ class SecurityFilter implements IFilter{
 		if($this->nonce_base){
 			$nonce=array_key_exists_v('_asnonce',$controller->values);
 			if($nonce){
-				$verified_nonce=$s->verify_nonce($nonce,$this->nonce_base);
+				$verified_nonce=$s->verifyNonce($nonce,$this->nonce_base);
 				if(!$verified_nonce)
 					return false;
 			}
 			else
 				return false;
 		}
-		if($s->current_user_is_logged_in())
-			if(!$this->useraction || $s->current_user_can($this->useraction))
+		if($s->currentUserIsLoggedIn())
+			if(!$this->useraction || $s->currentUserCan($this->useraction))
 				return true;
 			else{
 				$controller->RenderText('You cannot perform this action');
-				exit;
 			}
 		return false;
 	}

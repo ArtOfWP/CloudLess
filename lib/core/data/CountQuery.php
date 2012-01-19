@@ -42,7 +42,7 @@ class CountQuery{
 	}
 	public function where($restriction){
 		if(is_array($restriction)){
-			$this->statement['where']=((array)$this->statement['where'])+$restriction;
+			$this->statement['where']=array_merge(((array)$this->statement['where']),$restriction);
 		}else
 			$this->statement['where'][]=$restriction;
 		return $this;

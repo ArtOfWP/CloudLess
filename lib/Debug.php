@@ -7,14 +7,14 @@ class Debug{
 	}
 	static function Message($message){
 		if(Debug::IsActive())
-			if(WRITE_TO_FILE)
+			if(defined('WRITE_TO_FILE') && WRITE_TO_FILE)
 				file_put_contents(LOG_FILE,time()."\t".$message."\n",FILE_APPEND);
 			else
 				echo '<p>'.$message.'</p>';
 	}
 	static function Value($message,$value){
 		if(Debug::IsActive())			
-			if(WRITE_TO_FILE){
+			if(defined('WRITE_TO_FILE') && WRITE_TO_FILE){
 				$value=is_array($value)|| is_object($value)?"\n".print_r($value,true):"\t".$value;
 				file_put_contents(LOG_FILE,time()."\t".$message.$value."\n",FILE_APPEND);				
 			}else{
@@ -30,7 +30,7 @@ class Debug{
 	static function Backtrace(){
 		if(Debug::IsActive()){		
 			$thisfile = debug_backtrace();
-			if(WRITE_TO_FILE){
+			if(defined('WRITE_TO_FILE') && WRITE_TO_FILE){
 				file_put_contents(LOG_FILE,time()."\tYou got here from ".$thisfile[0]['file']." on ".$thisfile[0]['line']."\n before that you were in ".$thisfile[1]['file']." on ".$thisfile[1]['line']."\n",FILE_APPEND);			
 			}else{
 				echo "<p>you got here from ".$thisfile[0]['file']." on ".$thisfile[0]['line'].'<br />';

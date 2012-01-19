@@ -25,3 +25,12 @@
 		}
 		return $array;
 	}
+function array_search_keys_value($search,$haystack){
+	$array= array();
+	foreach($haystack as $key=>$value){
+		$sub=strstr($value,$search);
+		if($sub)
+			$array[]=$key;
+	}
+	return $array;
+}

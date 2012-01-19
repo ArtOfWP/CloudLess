@@ -261,5 +261,8 @@ class R{
 	private function addMark($ct){
 		return '`'.$ct.'`';
 	}
-	
+
+    const BOTH = 1;
+    const LEFT = 0;
+    const RIGHT=2;
 }

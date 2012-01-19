@@ -16,7 +16,7 @@ class Html{
 		$imagepath=$imagepath?$imagepath.'/':'';
 		$elements=ObjectUtility::getPropertiesAndValues($object);
 		$upload=$method==POST?'enctype="multipart/form-data"':'';
-		$theForm='<form id=""$formid" action="$action" method="$method" '.$upload.' ><table class="form-table">';
+		$theForm='<form id="'.$formid.'" action="'.$action.'" method="'.$method.'" '.$upload.' ><table class="form-table">';
 		$theForm.=self::input('_redirect','hidden','referer',false,true);
 		if($nonce){
 			$theForm.=self::input('_asnonce','hidden',Security::create()->create_nonce($nonce),false,true);
@@ -108,7 +108,7 @@ class Html{
 				}
 				else if($field=='url'){
 					$theForm.=self::input($id,'text',str_replace('"','',$value),'regular-text',true);
-					$theForm.='<br />'.self::ax('Test link',$value,false,false,'_blank',true);
+					$theForm.='<br />'.self::ax('Test link',$value,false,'_blank',false,true);
 				}
 				else if($field=='checkbox'){					
 					$theForm.=self::checkbox($id,1,$value,'checkbox',true);
@@ -248,11 +248,13 @@ class Html{
 		';
 			self::registerFooterScript($script);
 		}
-        /*
-		if(isset($htmlarea)){
-$script="jQuery(document).ready(function() {
-	var id = '$htmlarea';
-	jQuery('a.toggleVisual').click(
+//TODO make it better
+        global $wp_version;
+
+		if(isset($htmlarea) && version_compare($wp_version,'3.3','<')){
+            $script="jQuery(document).ready(function() {
+        	var id = '$htmlarea';
+	        jQuery('a.toggleVisual').click(
 		function() {
 			tinyMCE.execCommand('mceAddControl', false, id);
 		}
@@ -265,7 +267,7 @@ $script="jQuery(document).ready(function() {
 });";
 			self::registerFooterScript($script);
 		}
-*/
+
 		if(isset($stars)){
 			$script='';
 			foreach($stars as $id)
@@ -533,8 +535,8 @@ $script="jQuery(document).ready(function() {
 		$text=stripslashes($text);
 		$text=htmlspecialchars($text, ENT_QUOTES);
 		if($dontprint)
-		return "<a href=\"$path\" $class>$text</a>";
-		echo "<a href=\"$path\" $class>$text</a>";
+    		return "<a href=\"$path\" $class $target $onclick>$text</a>";
+		echo "<a href=\"$path\" $class $target $onclick>$text</a>";
 	}	
 	static function a($text,$path,$class=false,$dontprint=false){
 		$class=$class?" class=\"$class\" ":'';

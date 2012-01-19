@@ -84,19 +84,8 @@ class BaseController
             $this->render = false;
         }
         if ($this->render) {
-            $view = $this->findView($this->controller, $action);
-            ob_start();
-            if ($view) {
-                extract($this->bag, EXTR_REFS);
-                require($view);
-                $this->viewcontent = ob_get_contents();
-            } else
-                $this->viewcontent = 'Could not find view: ' . $action;
-            ob_end_clean();
-            $this->render = false;
+            $this->Render($this->controller,$action);
         }
-        global $viewcontent;
-        $viewcontent = $this->viewcontent;
     }
 
     public function executeAction($action)
@@ -254,7 +243,6 @@ class BaseController
             if (file_exists($path . VIEWS . $lcontroller . '/' . $laction . '.php'))
                 return $path . VIEWS . $lcontroller . '/' . $laction . '.php';
         }
-
         return false;
     }
 
