@@ -54,6 +54,6 @@ class AoiSoraSettings{
 	static function installed($app){
 		$aoiSoraApp = AoiSora::instance();
 		$apps=$aoiSoraApp->options->installed;
-		return in_array($app,(array)$apps);
+        return in_array($app,(array)$apps);
 	}
 }

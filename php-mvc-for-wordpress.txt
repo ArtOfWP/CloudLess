@@ -1,3 +1,34 @@
+12.1
+Improvements
+ * Controllers now support action parameters
+ * Includes now have a separate framework, no more high coupling with WP
+ * Can now reset controller actions when chaining.
+ * Added options support with default values.
+ * Removed unnecessary includes/require_once
+ * Added dependency injection support
+ * Can now be used with symlinks
+ * Reorganized alot of code.
+ * Less coupling with WordPress, moving in right direction.
+ * Added support for literals in Requirements arrays. So you can group using ().
+ * Added support for Random order of queries.
+ * Added support for AS columns to Max and Min.
+ * Added a lot more documentation to the functions. Work in progress
+
+
+Fixed bugs 
+ * How Filter,View, Hook calls handlers
+ * Html action urls
+ * BaseController now loads correct notfound files
+ * AVG function now supports as columns
+ * View finding now supports default path
+ * WysiWyg box now functions in WP 3.3 and earlier versions
+ * OnAdminPrintScripts/style now calls correct methods
+ * Fixed bug with table relationships and queries.
+
+Not seen
+ * Written more tests so I don't screw things up as much
+
+
 11.7.1
  * added ordering support to Repo methods.
  * added property array capability to Query groupby

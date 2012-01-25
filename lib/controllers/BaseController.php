@@ -288,7 +288,6 @@ class BaseController
             $values = Communication::getFormValues($properties);
         }
         $values = array_map('stripslashes', $values);
-        var_dump($values);
         Debug::Value('Loaded properties/values for ' . get_class($crudItem), $values);
         $arrprop = ObjectUtility::getArrayPropertiesAndValues($crudItem);
         $lists = array_search_key('_list', $arrvalues);

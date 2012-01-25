@@ -4,14 +4,9 @@ class Option{
     private $value;
     private $defaultValue;
     private $type;
-    /**
-     * @static
-     * @param $name
-     * @return IOption
-     */
-	static function create($name){
-		return ViewEngine::createOption($name);
-	}
+    static function create($name){
+        return ViewEngine::createOption($name);
+    }
     public function __construct($key=false,$value=false,$type='string'){
         if($key){
             $this->setKey($key);

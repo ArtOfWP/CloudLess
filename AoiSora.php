@@ -69,13 +69,12 @@ class AoiSora extends WpApplicationBase{
 		$this->VERSION_INFO_LINK='http://api.artofwp.com/?update=plugin_information';		
 	}
 	function onLoadOptions(){
-		$this->options= new Options('AoiSora');// Option::create('AoiSora');
         $applications=new Option('applications',array());
         $this->options->add($applications);
         $installed=new Option('installed',array());
         $this->options->add($installed);
         $this->options->init();
-	}
+    }
     private function setFrontIncludes(){
         $cont=Container::instance();
         /**
@@ -103,7 +102,7 @@ class AoiSora extends WpApplicationBase{
         $styles->register($wordpress);
     }
     function onInit(){
-        if(isset($_GET[CONTROLLERKEY]) && isset($_GET[ACTIONKEY]))
+        if(PREROUTE && isset($_GET[CONTROLLERKEY]) && isset($_GET[ACTIONKEY]))
             Hook::register('template_redirect',array($this,'preRoute'));
     }
     function preRoute(){

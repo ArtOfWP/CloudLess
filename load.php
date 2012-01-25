@@ -1,23 +1,30 @@
 <?php
 function load($dir){
+    $files=loadFiles($dir);
+    sort($files);
+    foreach($files as $file)
+        include($file);
+}
+function loadFiles($dir){
+    $files=array();
 //    echo '<ul style="background-color: #FFF">';
-	$handle = opendir($dir);
-	while(false !== ($resource = readdir($handle))) {
-		if($resource!='.' && $resource!='..'){
-//            echo '<li>';
-            
-			if(is_dir($dir.$resource)){
-//                echo "<b>$dir$resource</b>";
-				load($dir.$resource.'/');
+    $handle = opendir($dir);
+    while(false !== ($resource = readdir($handle))) {
+        if($resource!='.' && $resource!='..'){
+ //           echo '<li>';
+            if(is_dir($dir.$resource)){
+ //               echo "<b>$dir$resource</b>";
+                $files=$files+loadFiles($dir.$resource.'/');
             }else{
-//                echo "<em>$dir$resource</em>";
-			 	include($dir.$resource);
+  //              echo "<em>$dir$resource</em>";
+                $files[$resource]=$dir.$resource;//include($dir.$resource);
             }
-//            echo '</li>';
-		}
-	}
-	closedir($handle);
-//    echo '</ul>';
+  //          echo '</li>';
+        }
+    }
+    closedir($handle);
+    return $files;
+ //   echo '</ul>';
 }
 function loadApp($dir){
 	if(is_dir($dir.'/app/core/'))
@@ -31,6 +38,7 @@ function loadAoiSora(){
 	include(PACKAGEPATH.'config.php');
 	include(PACKAGEPATH.'lib/Route.php');
 	include(PACKAGEPATH.'lib/Debug.php');
+    load(PACKAGEPATH.'lib/interfaces/');
 	load(PACKAGEPATH.'lib/helpers/');
 	load(PACKAGEPATH.'lib/core/');
 	load(PACKAGEPATH.'lib/events/');

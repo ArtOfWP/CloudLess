@@ -183,13 +183,18 @@ class WpHelper{
 	 */
 	static function simpleOptionsForm($optiongroup,$options=false,$isarray=false){		
 		if(!$options){
-			$options=array();
 			global $new_whitelist_options;
 			$options=$new_whitelist_options[$optiongroup];
 		}
 		$values=false;
-		if($isarray)
+		if($isarray){
 			$values=get_option($optiongroup);
+            if(empty($values)){
+                $temp=Container::instance()->fetch($optiongroup.'Options');
+                if($temp)
+                    $values=$temp->getArray();
+            }
+        }
 		?>
 		<form method="post" action="options.php">
 			<?php settings_fields($optiongroup); ?>
@@ -210,8 +215,8 @@ class WpHelper{
 					}
 				}else
 					$label=$option;
-				$form_id=$values?$optiongroup.'-'.$key:$key;
-				$form_name=$values?$optiongroup.'['.$key.']':$key;					
+				$form_id=$optiongroup.'-'.$key;
+				$form_name=$optiongroup.'['.$key.']';
 			?>
 				<tr valign="top">
 					<th scope="row">

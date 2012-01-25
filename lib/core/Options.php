@@ -108,14 +108,24 @@ class Options
     public function init(){
         if(!$this->initialized){
             $options=$this->ioptions->load($this->namespace);
+            if(!empty($options))
             foreach($options as $key => $value){
                 if(isset($this->pairs[$key]))
                     $this->pairs[$key]->setValue($value);
                 else
                     $this->pairs[$key]=new Option($key,$value);
-        }
+            }
             $this->initialized=true;
         }
+    }
+    public function __get($key){
+        if(isset($this->pairs[$key]))
+            return $this->pairs[$key]->getValue();
+        else
+            trigger_error("$key key does not exist",E_USER_WARNING );
+    }
+    public function __set($key,$value){
+
     }
     /**
      * @deprecated
@@ -123,13 +133,10 @@ class Options
     public function isEmpty(){
         return sizeof($this->pairs)==0;
     }
-    public function __get($option){
-   		return $this->getValue($option);
-   	}
-    public function __set($option,$value){
-        $this->updateValue($option,$value);
+    public function getArray(){
+        $options=array();
+        foreach($this->pairs as $key => $option)
+            $options[$key]=$option->getValue();
+        return $options;
     }
-    	public function __isset($option){
-    		return isset($this->pairs[$option]);
-    	}
 }

@@ -54,13 +54,21 @@ class Html{
 					$theForm.=self::textarea($id,stripslashes($value),$id,true);
 				}
 				else if($field=='htmlarea'){
-                    ob_start();
-					$version=initiate_editor($id,stripslashes($value));
-                    if($version=='old')
-                        self::textarea($id,stripslashes($value),"$id theEditor");
-                    $htmlarea=ob_get_contents();
-                    ob_end_clean();
-                    $theForm.= $htmlarea;
+                    global $wp_version;
+                    if(version_compare($wp_version,'3.3','<')){
+                        $theForm.='<p class="alignright">
+	<a class="button toggleVisual">Visual</a>
+	<a class="button toggleHTML">HTML</a>
+</p>';
+                        $htmlarea=$id;
+                        $theForm.=self::textarea($id,stripslashes($value),"$id theEditor",true);
+                    }else{
+                        ob_start();
+					    initiate_editor($id,stripslashes($value));
+                        $htmlarea=ob_get_contents();
+                        ob_end_clean();
+                        $theForm.= $htmlarea;
+                    }
 				}
 				else if($field=='image'){
 					if($value){
@@ -251,7 +259,7 @@ class Html{
 //TODO make it better
         global $wp_version;
 
-		if(isset($htmlarea) && version_compare($wp_version,'3.3','<')){
+		if(version_compare($wp_version,'3.3','<')){
             $script="jQuery(document).ready(function() {
         	var id = '$htmlarea';
 	        jQuery('a.toggleVisual').click(
