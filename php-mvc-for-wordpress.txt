@@ -13,7 +13,7 @@ Improvements
  * Added support for Random order of queries.
  * Added support for AS columns to Max and Min.
  * Added a lot more documentation to the functions. Work in progress
-
+ *
 
 Fixed bugs 
  * How Filter,View, Hook calls handlers
