@@ -77,10 +77,10 @@ class Query{
 	public function selectDistinct($property,$table=false){
 		global $db_prefix;
 		if($property instanceof SelectFunction){
-			$this->statement['select'][]='DISTINCT '.$property->toSQL($this->addMark($property->getColumn()));
+			$this->statement['select'][]='DISTINCT '.$property->toSQL(strtolower($this->addMark($property->getColumn())));
 		}else{
 			$property=$this->addMark(strtolower($property));
-			$this->statement['select'][]=$table?'DISTINCT '.$this->addMark($db_prefix.$table).'.'.$property:'DISTTINCT '.$property;
+			$this->statement['select'][]=strtolower($table?'DISTINCT '.$this->addMark($db_prefix.$table).'.'.$property:'DISTTINCT '.$property);
 		}
 		return $this;
 	}
@@ -94,7 +94,7 @@ class Query{
 			$this->statement['select'][]=$property->toSQL($this->addMark($property->getColumn()));
 		}else{
 			$property=$this->addMark(strtolower($property));
-			$this->statement['select'][]=$table?$this->addMark($db_prefix.$table).'.'.$property:$property;
+			$this->statement['select'][]=strtolower($table?$this->addMark($db_prefix.$table).'.'.$property:$property);
 		}
 		return $this;		
 	}

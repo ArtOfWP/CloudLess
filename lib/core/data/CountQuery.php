@@ -30,7 +30,7 @@ class CountQuery{
 	}
 	public function selectDistinct($property,$table=false){
 		global $db_prefix;
-		$property=$this->addMark(strtolower($property));
+		$property=$this->addMark($property);
 		$this->statement['select'][]=$table?'COUNT( DISTINCT '.$this->addMark($db_prefix.$table).'.'.$property.')':'COUNT( DISTINCT '.$property.')';
 		return $this;
 	}
@@ -62,7 +62,7 @@ class CountQuery{
 		return $this->statement;
 	}
 	public function groupBy($property){
-		$this->statement['groupby'][]=$this->addMark(strtolower($property));
+		$this->statement['groupby'][]=$this->addMark($property);
 		return $this;
 	}	
 	public function setParameter($param,$value){
@@ -95,6 +95,6 @@ class CountQuery{
 	}
 	private function addMark($ct){
 		$ct=trim($ct,"`");
-		return '`'.$ct.'`';
+		return '`'.strtolower($ct).'`';
 	}
 }

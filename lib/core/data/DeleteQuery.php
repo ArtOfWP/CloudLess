@@ -20,16 +20,16 @@ class Delete{
 	private $statement=array();
 	public function from($table){
 		global $db_prefix;
-		$this->statement['from'][]=$this->addMark(strtolower($db_prefix.$table));
+		$this->statement['from'][]=$this->addMark($db_prefix.$table);
 		return $this;		
 	}
 	public function where($restriction){
-		if(is_array($restriction)){
-			$this->statement['where']=((array)$this->statement['where'])+$restriction;
-		}else
-			$this->statement['where'][]=$restriction;
-		return $this;
-	}
+        if(is_array($restriction)){
+            $this->statement['where']=array_merge(((array)$this->statement['where']),$restriction);
+        }else
+            $this->statement['where'][]=$restriction;
+        return $this;
+    }
 	public function whereAnd($restriction){
 		$this->where($restriction);
 		$this->statement['where'][]=R::_And();
@@ -62,6 +62,6 @@ class Delete{
 	}
 	private function addMark($ct){
 		$ct=trim($ct,"`");
-		return '`'.$ct.'`';
+		return '`'.strtolower($ct).'`';
 	}
 }

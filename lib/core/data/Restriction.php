@@ -259,7 +259,7 @@ class R{
 		}
 	}
 	private function addMark($ct){
-		return '`'.$ct.'`';
+		return '`'.strtolower($ct).'`';
 	}
 
     const BOTH = 1;

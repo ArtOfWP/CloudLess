@@ -2,7 +2,6 @@
 Improvements
  * Controllers now support action parameters
  * Includes now have a separate framework, no more high coupling with WP
- * Can now reset controller actions when chaining.
  * Added options support with default values.
  * Removed unnecessary includes/require_once
  * Added dependency injection support
@@ -13,7 +12,8 @@ Improvements
  * Added support for Random order of queries.
  * Added support for AS columns to Max and Min.
  * Added a lot more documentation to the functions. Work in progress
- *
+ * Added easy access to current control and action in BaseController.
+ * Can now change controller actions when chaining.
 
 Fixed bugs 
  * How Filter,View, Hook calls handlers
@@ -24,10 +24,7 @@ Fixed bugs
  * WysiWyg box now functions in WP 3.3 and earlier versions
  * OnAdminPrintScripts/style now calls correct methods
  * Fixed bug with table relationships and queries.
-
-Not seen
- * Written more tests so I don't screw things up as much
-
+ * Fixed bug with capital letter table names
 
 11.7.1
  * added ordering support to Repo methods.
