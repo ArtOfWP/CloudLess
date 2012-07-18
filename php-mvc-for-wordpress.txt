@@ -1,4 +1,4 @@
-12.1
+12.7
 Improvements
  * Controllers now support action parameters
  * Includes now have a separate framework, no more high coupling with WP
@@ -25,6 +25,7 @@ Fixed bugs
  * OnAdminPrintScripts/style now calls correct methods
  * Fixed bug with table relationships and queries.
  * Fixed bug with capital letter table names
+ * Fixed bug with load non existing file
 
 11.7.1
  * added ordering support to Repo methods.
