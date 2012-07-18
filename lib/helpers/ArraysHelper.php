@@ -8,6 +8,12 @@
 					return $val==$value;
 		return false;
 	}
+
+    /**
+     * @param $needle
+     * @param $haystack
+     * @return bool|mixed
+     */
 	function array_key_exists_v($needle,$haystack){
         if($haystack)
     		foreach($haystack as $key => $value)
@@ -25,6 +31,7 @@
 		}
 		return $array;
 	}
+
 function array_search_keys_value($search,$haystack){
 	$array= array();
 	foreach($haystack as $key=>$value){

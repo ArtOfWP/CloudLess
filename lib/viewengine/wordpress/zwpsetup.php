@@ -143,7 +143,7 @@
 	global $viewsections;
 	$viewsections=array('print_styles'=>'wp_print_styles','print_scripts'=>'wp_print_scripts',
 					'admin_print_scripts','admin_print_styles',
-					'footer'=>'wp_footer','header'=>'wp_header','admin_head','admin_footer','wp_print_scripts','wp_footer','wp_print_styles');
+					'footer'=>'wp_footer','head'=>'wp_head','admin_head','admin_footer','wp_print_scripts','wp_footer','wp_print_styles');
 	foreach($viewsections as $key => $section)
 		if(is_numeric($key))
 			View::registerHandler($section,'wp_section_handler');
@@ -185,6 +185,14 @@
 		else
 			add_action($section,$callback,$priority,$params);
 	}
+    function wp_section_handler_run($section, $params = array()) {
+        global $viewsections;
+        $section= ($newsection = array_key_exists_v($section,$viewsections)) ? $newsection: $section;
+        if ($params)
+            call_user_func_array('do_action',array($section,$params));
+        else
+            call_user_func_array('do_action',array($section));
+    }
 	function action_url($class,$action,$partial=false){
 		$action=strtolower($action);
 		if(!is_string($class))

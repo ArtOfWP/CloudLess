@@ -14,12 +14,9 @@ class ScriptIncludes implements IIncludes
             $this->scriptInclude=Container::instance()->fetch('IScriptInclude');
         $this->scriptInclude->init();
     }
+
     /**
-     * @param string $handle the id for the script
-     * @param string $src the url path to the script
-     * @param array $deps other includes that this include depends on
-     * @param bool $ver version number of the script
-     * @param bool $in_footer
+     * @param FrontInclude $include
      */
     public function register(FrontInclude $include)
     {
@@ -39,11 +36,12 @@ class ScriptIncludes implements IIncludes
      {
          $this->scriptInclude->enqueue($location,$include);
      }
-/**
- * @param $location string
- * @param $handle string
- * @return bool
- */
+
+    /**
+     * @param $location string
+     * @param $handle string
+     * @return bool
+     */
     function dequeue($location, $handle)
     {
         return $this->scriptInclude->dequeue($location,$handle);
