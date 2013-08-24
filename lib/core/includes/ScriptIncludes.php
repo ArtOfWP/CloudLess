@@ -33,7 +33,6 @@ class ScriptIncludes implements IIncludes {
     /**
      * Deregister a resource using its handle
      * @param string $handle
-     * @return bool
      */
     function deregister($handle) {
         return $this->scriptInclude->deregister($handle);
@@ -43,6 +42,7 @@ class ScriptIncludes implements IIncludes {
      * Enqueue a resource to be loaded
      * @param string $location where it should be loaded
      * @param FrontInclude $include
+     * @return mixed|void
      */
     function enqueue($location, FrontInclude $include) {
          $this->scriptInclude->enqueue($location,$include);

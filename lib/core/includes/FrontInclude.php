@@ -14,7 +14,7 @@ class FrontInclude {
      * @param string $version version number for the resource
      * @param bool $inFooter
      */
-    function __construct($handle='', $src, $dependency = array(), $version = '', $inFooter = false){
+    function __construct($handle='', $src = '', $dependency = array(), $version = '', $inFooter = false){
         $this->handle=$handle;
         $this->src=$src;
         $this->dependency=$dependency;

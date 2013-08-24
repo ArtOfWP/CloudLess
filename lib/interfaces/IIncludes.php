@@ -13,38 +13,37 @@ interface IIncludes
 
     /**
      * @param $handle
-     * @return mixed
+     * @return bool
      */
     function deregister($handle);
 
     /**
-     * @param $location
+     * @param string $location
      * @param FrontInclude $include
-     * @return mixed
+     * @return bool
      */
     function enqueue($location,FrontInclude $include);
 
     /**
-     * @param $location
-     * @param $handle
-     * @return mixed
+     * @param string $location
+     * @param string $handle
+     * @return bool
      */
     function dequeue($location,$handle);
 
     /**
-     * @param $handle
-     * @return mixed
+     * @param string $handle
+     * @return bool
      */
     function isRegistered($handle);
 
     /**
-     * @param $handle
-     * @return mixed
+     * @param string $handle
+     * @return bool
      */
     function isEnqueued($handle);
 
     /**
-     * @return mixed
      */
     function init();
 }
