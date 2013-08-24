@@ -69,13 +69,15 @@ class OptionsTests extends PHPUnit_Framework_TestCase
         $options->setValue('key','value');
         $this->assertTrue($options->exists('key'));
     }
+
     function testDeleteOptions(){
         $bio=new BIOptions('test');
         $options = new Options('test',$bio);
         $options->setValue('key','value');
-        $options->delete('key');
+        $options->remove('key');
         $this->assertFalse($options->exists('key'));
     }
+
     function testSetDefaultValue(){
         $bio=new BIOptions('test');
         $options = new Options('test',$bio);
