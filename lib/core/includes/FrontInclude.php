@@ -1,73 +1,120 @@
 <?php
+
 /**
- * User: andreas
- * Date: 2011-12-23
- * Time: 16:57
+ * Class FrontInclude
+ * Stylesheet or JavaScript file that should be registered and loaded.
  */
-class FrontInclude
-{
+class FrontInclude {
     private $handle, $src, $dependency = array(), $version = false, $inFooter = false;
-    function __construct($handle=false, $src=false, $dependency = array(), $version = false, $inFooter = false){
+
+    /**
+     * @param string $handle name of the resource
+     * @param string $src path to resource
+     * @param string[] $dependency list of short names(handles) that the include depends on
+     * @param string $version version number for the resource
+     * @param bool $inFooter
+     */
+    function __construct($handle='', $src, $dependency = array(), $version = '', $inFooter = false){
         $this->handle=$handle;
         $this->src=$src;
         $this->dependency=$dependency;
         $this->version=$version;
         $this->inFooter=$inFooter;
     }
-    public function setHandle($handle)
-    {
+
+    /**
+     * Set the name for the resource
+     * @param $handle
+     */
+    public function setHandle($handle) {
         $this->handle = $handle;
     }
 
-    public function getHandle()
-    {
+    /**
+     * Get the name for the resource
+     * @return bool
+     */
+    public function getHandle() {
         return $this->handle;
     }
 
-    public function setDependency($dependency)
-    {
+    /**
+     * Set resource dependencies
+     * @param string[] $dependency
+     */
+    public function setDependency($dependency) {
         $this->dependency = $dependency;
     }
 
-    public function getDependency()
-    {
+    /**
+     * Get resource dependencies
+     * @return array
+     */
+    public function getDependency() {
         return $this->dependency;
     }
 
-    public function setInFooter($inFooter)
-    {
+    /**
+     * If resource should be loaded in footer
+     * @param $inFooter
+     */
+    public function setInFooter($inFooter) {
         $this->inFooter = $inFooter;
     }
 
-    public function getInFooter()
-    {
+    /**
+     *
+     * @return bool
+     */
+    public function loadInFooter() {
         return $this->inFooter;
     }
 
-    public function setSrc($src)
-    {
+    /**
+     * Set the path to the resource
+     * @param $src
+     */
+    public function setSrc($src) {
         $this->src = $src;
     }
 
-    public function getSrc()
-    {
+    /**
+     * Get the path to the resource
+     * @return bool
+     */
+    public function getSrc() {
         return $this->src;
     }
 
-    public function setVersion($version)
-    {
+    /**
+     * Set the version number
+     * @param string $version
+     */
+    public function setVersion($version) {
         $this->version = $version;
     }
 
-    public function getVersion()
-    {
+    /**
+     * Get the version number
+     * @return string
+     */
+    public function getVersion() {
         return $this->version;
     }
-    public function register(){
+
+    /**
+     * Register the include as a script
+     */
+    public function register() {
         $si = new ScriptIncludes();
         $si->register($this);
     }
-    public function enqueue($location){
+
+    /**
+     * Enqueue the resource to be loaded
+     * @param string $location
+     */
+    public function enqueue($location) {
         $si = new ScriptIncludes();
         $si->enqueue($location,$this);
     }

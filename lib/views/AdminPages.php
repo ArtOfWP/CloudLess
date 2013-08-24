@@ -1,6 +1,9 @@
 <?php
 
-// Calls wp functions, refactor it.
+/**
+ * Class AdminPages
+ * TODO: Remove WordPress dependency
+ */
 class AdminPages{
 	private $pagetitle;
 	private $menutitle;
@@ -9,7 +12,16 @@ class AdminPages{
 	private $dir;
 	private $icon_url;
 	private $app;
-	function AdminPages($app,$pagetitle,$menutitle,$accesslevel,$name,$icon_url=false){
+
+    /**
+     * @param $app
+     * @param $pagetitle
+     * @param $menutitle
+     * @param $accesslevel
+     * @param $name
+     * @param bool $icon_url
+     */
+    function AdminPages($app,$pagetitle,$menutitle,$accesslevel,$name,$icon_url=false){
 		$this->app=$app;
 		$this->dir=$app->dir;
 		$this->pagetitle=$pagetitle;
@@ -18,26 +30,58 @@ class AdminPages{
 		$this->name=$name;
 		$this->icon_url=$icon_url;
 	}
-	function addMenu(){
+
+    /**
+     * Add menu
+     */
+    function addMenu(){
 		if($this->icon_url)
-			$this->addScriptStyleAction(add_menu_page($this->pagetitle,$this->menutitle,$this->accesslevel,$this->name,array(&$this,'none'),$this->icon_url));		
+			$this->addScriptStyleAction(add_menu_page($this->pagetitle,$this->menutitle,$this->accesslevel,$this->name,array($this,'none'),$this->icon_url));
 		else
-			$this->addScriptStyleAction(add_menu_page($this->pagetitle,$this->menutitle,$this->accesslevel,$this->name,array(&$this,'none')));
+			$this->addScriptStyleAction(add_menu_page($this->pagetitle,$this->menutitle,$this->accesslevel,$this->name,array($this,'none')));
 	}
-	function addSubmenu($pagetitle,$menutitle,$accesslevel,$controller,$action){
-		$this->addScriptStyleAction(add_submenu_page($this->name,$pagetitle,$menutitle,$accesslevel,$controller,array(&$this,$action)));
+
+    /**
+     * Add submenu
+     * @param string $pagetitle
+     * @param string $menutitle
+     * @param string $accesslevel
+     * @param string $controller
+     * @param callback $action
+     */
+    function addSubmenu($pagetitle, $menutitle, $accesslevel, $controller, $action){
+		$this->addScriptStyleAction(add_submenu_page($this->name,$pagetitle,$menutitle,$accesslevel,$controller,array($this,$action)));
 	}
-	function addOptionsPage($pagetitle,$menutitle,$accesslevel){
+
+    /**
+     * @param $pagetitle
+     * @param $menutitle
+     * @param $accesslevel
+     */
+    function addOptionsPage($pagetitle,$menutitle,$accesslevel){
 		$this->addScriptStyleAction(add_options_page($pagetitle,$menutitle,$accesslevel,str_replace(" ","",strtolower($menutitle)),array(&$this,'options')));		
 	}
-	private function addScriptStyleAction($pagename){
+
+    /**
+     * @param $pagename
+     */
+    private function addScriptStyleAction($pagename){
 		if(method_exists($this->app,'on_admin_print_styles'))
 			add_action("admin_print_styles-$pagename",array(&$this->app,'print_admin_styles'));
 		if(method_exists($this->app,'on_admin_print_scripts'))
 			add_action("admin_print_scripts-$pagename",array(&$this->app,'print_admin_scripts'));
 	}
-	function none(){}
-	function __call($method,$args){
+
+    /**
+     * Used for toplevel menu pages.
+     */
+    function none(){}
+
+    /**
+     * @param $method
+     * @param $args
+     */
+    function __call($method,$args){
 		if(method_exists($this,$method))
 			$this->$method();
 		else{
@@ -54,7 +98,11 @@ class AdminPages{
 			}
 		}
 	}
-	protected function printContent(){
+
+    /**
+     * Prints the generated content
+     */
+    protected function printContent(){
 		global $viewcontent;
 		echo $viewcontent;
 	}

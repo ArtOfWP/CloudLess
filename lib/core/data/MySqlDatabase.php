@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * Class MySqlDatabase
+ */
 class MySqlDatabase{
 	public $db;
 	private $stmt;
@@ -6,19 +10,34 @@ class MySqlDatabase{
 	private $indexes=array();
 	private $indextype=array();
 	private $cache=array();
-	static function instance(){
+
+    /**
+     * @return MySqlDatabase
+     */
+    static function instance(){
 		global $db;
 		return $db;
 	}
-	function MySqlDatabase($autoConnect=true){
+
+    /**
+     * @param bool $autoConnect
+     */
+    function MySqlDatabase($autoConnect=true){
 		if(!$autoConnect)
 			return;
 		if(defined('HOST'))
-			$this->connect(HOST,DATABASE,USERNAME,PASSWORD);
+			$this->connect(HOST, DATABASE, USERNAME, PASSWORD);
 		else
 			$this->connect(DB_HOST,DB_NAME,DB_USER,DB_PASSWORD);
 	}
-	function connect($host,$database,$username,$password){
+
+    /**
+     * @param $host
+     * @param $database
+     * @param $username
+     * @param $password
+     */
+    function connect($host,$database,$username,$password){
 		try {
 			$this->db = new PDO('mysql:host='.$host.';dbname='.$database, $username, $password);
 		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT); 			
@@ -27,7 +46,11 @@ class MySqlDatabase{
     		die();
 		}
 	}
-	function dropTable($object){
+
+    /**
+     * @param $object
+     */
+    function dropTable($object){
 		global $db_prefix;
 		$table='DROP TABLE `'.$db_prefix.strtolower(get_class($object)).'`';
 		$this->db->exec($table);
@@ -43,7 +66,11 @@ class MySqlDatabase{
 			}
 		}
 	}
-	function createTable($object){
+
+    /**
+     * @param $object
+     */
+    function createTable($object){
 		global $db_prefix;
 		$tablename=$db_prefix.strtolower(get_class($object));
 		Debug::Value('create table',$tablename);
@@ -150,7 +177,12 @@ class MySqlDatabase{
 			}
 		}		
 	}
-	function insert($row){
+
+    /**
+     * @param $row
+     * @return int
+     */
+    function insert($row){
 		if(is_array($row)){
 			global $db_prefix;
 			$params=array();
@@ -187,7 +219,12 @@ class MySqlDatabase{
 			die('MySqlDatabase->insert only accepts arrays. See documentation for structure');
 		return (int)$this->db->lastInsertId();
 	}
-	private function getParamDataType($value){
+
+    /**
+     * @param $value
+     * @return mixed
+     */
+    private function getParamDataType($value){
 		if(is_int($value))
 			return PDO::PARAM_INT;
 		if(is_bool($value))
@@ -196,7 +233,12 @@ class MySqlDatabase{
 			return PDO::PARAM_NULL;
 		return PDO::PARAM_STR;
 	}
-	function update($row,$restriction){
+
+    /**
+     * @param $row
+     * @param $restriction
+     */
+    function update($row,$restriction){
 		if(is_array($row)){
 			$params=array();
 			$columns=array();
@@ -233,7 +275,12 @@ class MySqlDatabase{
 			die('MySqlDatabase->update only accepts arrays. See documentation for structure');
 //		return (int)$this->db->lastInsertId();
 	}
-	function query($q){
+
+    /**
+     * @param $q
+     * @return mixed
+     */
+    function query($q){
 		
 		$paramCount=0;
 		$from=implode(',',$q->from);
@@ -304,7 +351,11 @@ class MySqlDatabase{
 		$result=$stmt->fetchAll($fetch_style=PDO::FETCH_ASSOC);
 		return $result;
 	}
-	function delete($d){
+
+    /**
+     * @param $d
+     */
+    function delete($d){
 		$from=implode(',',$d->from);
 	    $where='';
 		$columns=array();
@@ -338,19 +389,36 @@ class MySqlDatabase{
 			Debug::Value('PDO::errorInfo()',$this->db->errorInfo());
 		}			
 	}
-	function executeSQL($sql){
+
+    /**
+     * @param $sql
+     */
+    function executeSQL($sql){
 		Debug::Message("SQL command is run: $sql");
 		$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);		
 		$this->db->exec($sql);
 	}
-	private function bindValues(&$stmt,$param,$value){
+
+    /**
+     * @param $stmt
+     * @param $param
+     * @param $value
+     */
+    private function bindValues(&$stmt,$param,$value){
 		$stmt->bindValue($param,$value);
 	}
-	
-	function close(){
+
+    /**
+     *
+     */
+    function close(){
 		$this->db=null;
 	}
-	function createStoredRelations(){
+
+    /**
+     *
+     */
+    function createStoredRelations(){
 		global $db_prefix;
 		$relations=$this->relations;
 		foreach($relations as $table => $columns){
@@ -364,7 +432,11 @@ class MySqlDatabase{
 			}
 		}
 	}
-	function dropStoredRelations(){
+
+    /**
+     *
+     */
+    function dropStoredRelations(){
 		global $db_prefix;
 		$relations=$this->relations;
 		foreach($relations as $table => $columns){
@@ -372,7 +444,11 @@ class MySqlDatabase{
 			$this->db->exec($table);
 		}
 	}
-	function createStoredIndexes(){
+
+    /**
+     *
+     */
+    function createStoredIndexes(){
 		global $db_prefix;
 
 		foreach($this->indexes as $table => $data){

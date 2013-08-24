@@ -1,35 +1,82 @@
 <?php
 /**
- * User: andreas
- * Date: 2011-12-21
- * Time: 16:14
+ * Class Container
+ * This is a Inversion of Control Container
  */
 class Container
 {
     private $values;
     private static $instance;
-    function __construct()
-    {
+
+    /**
+     * Create a container
+     */
+    function __construct() {
         $this->values = array();
     }
 
-    public function add($key, $object,$type='object')
-    {
+    /**
+     * Add an object to be handle by container
+     * @param string $key unique value for object
+     * @param string $object
+     * @param string $type
+     * @throws InvalidArgumentException thrown if key is not unique, i.e already added
+     */
+    public function add($key, $object, $type='object') {
+        if (isset($this->values[strtolower($key)]))
+            throw new InvalidArgumentException('The key is not unique');
         $this->values[strtolower($key)] = array($object,$type);
     }
 
-    public function fetch($key)
-    {
+    /**
+     * Remove an object
+     * @param string $key
+     */
+    public function  remove($key) {
+        if (isset($this->values[strtolower($key)]))
+            unset($this->values[strtolower($key)]);
+
+    }
+
+    /**
+     * Check if key has been added
+     * @param string $key
+     * @return bool
+     */
+    public function exists($key) {
+        return isset($this->values[strtolower($key)]);
+    }
+
+    /**
+     * Fetch an object
+     * @param $key
+     * @return bool|mixed
+     */
+    public function fetch($key) {
         $tuple= $this->fetchTuple($key);
 
         return is_array($tuple)?array_shift($tuple):$tuple;
     }
-    private function fetchTuple($key){
+
+    /**
+     * @param $key
+     * @return bool|mixed
+     */
+    private function fetchTuple($key) {
         return array_key_exists_v(strtolower($key),$this->values);
     }
-    public function make($key,$params=array())
-    {
+
+    /**
+     * Make an object of type of added key
+     * @param string $key
+     * @param array $params
+     * @return object
+     * @throws InvalidArgumentException throws if the key does not exist in container
+     */
+    public function make($key, $params=array()) {
         $class = $this->fetchTuple($key);
+        if (!$class)
+            throw new InvalidArgumentException("$key does not exist in container");
         if ('object'==$class[1]) {
             $className = get_class($class[0]);
         } else if('class'==$class[1])
@@ -64,11 +111,13 @@ class Container
             $obj = new $className();
         return $obj;
     }
+
     /**
+     * Instantiate a Container
      * @static
      * @return Container
      */
-    public static function instance(){
+    public static function instance() {
         if(!isset(self::$instance) && empty(self::$instance))
             self::$instance=new Container();
         return self::$instance;

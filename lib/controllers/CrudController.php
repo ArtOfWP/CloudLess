@@ -1,23 +1,64 @@
 <?php
 include_once('BaseController.php');
-abstract class CrudController extends BaseController{
-	protected $perpage=20;
-	protected $order=false;
-	protected $order_property=false;
-	protected $order_way='asc';
-	protected $crudClass;
-	protected $search_restrictions=false;
-	protected $search_property=false;
 
-	private $automatic;
-	public $bag=array();
-	public function __construct($automatic=true){
+/**
+ * Class CrudController
+ * @extends BaseController
+ *
+ */
+abstract class CrudController extends BaseController {
+    /**
+     * @var int Number of items per page
+     */
+    protected $per_page=20;
+    /**
+     * @var bool|string How items should be sorted
+     */
+    protected $order=false;
+    /**
+     * @var bool|string which property should be sorted on
+     */
+    protected $order_property=false;
+    /**
+     * @var string  Which way they item should be sorted
+     */
+    protected $order_way='asc';
+    /**
+     * @var string The class to connect with the controller
+     */
+    protected $crudClass;
+    /**
+     * @var bool|R[] Restrictions that should limit the search.
+     */
+    protected $search_restrictions=false;
+    /**
+     * @var bool| string the property to search on.
+     */
+    protected $search_property=false;
+
+    /**
+     * @var bool If controller should be automatic.
+     */
+    private $automatic;
+    /**
+     * @var array Values set on action
+     */
+    public $bag=array();
+
+    /**
+     * Construct the controller setup variables.
+     * @param bool $automatic
+     */
+    public function __construct($automatic=true){
 		parent::__construct(false);
 		$this->automatic=$automatic;
 		Debug::Message('Loaded '.$this->controller.' extends Crudcontroller');
 	}
-	
-	public function init(){
+
+    /**
+     * Init executes the actions etc.
+     */
+    public function init(){
 		Debug::message('Init CRUD');
 		$this->defaultAction='listall';
 		parent::init();
@@ -45,26 +86,35 @@ abstract class CrudController extends BaseController{
 				$this->executeAction('delete');
 		}
 	}
-	private function onCrudControllerInit(){
+
+    /**
+     * Setup CrudController and execute search init if method exists.
+     */
+    private function onCrudControllerInit(){
 		Debug::message('onInit Crud');
 		$this->crudItem=new $this->controller;
-		//TODO deprecated since 11.6
-		if(array_key_exists('search',$this->values) && method_exists($this,'on_search_init'))
-			$this->on_search_init();
 		if(array_key_exists('search',$this->values) && method_exists($this,'onSearchInit'))
 			$this->onSearchInit();
 	}
-	public function createnew(){
+
+    /**
+     * The action setups bag with created item.
+     */
+    public function createnew(){
 		$this->bag['result']=array_key_exists_v('result',$this->values);		
 		if(!isset($this->bag['new']) || empty($this->bag['new']))
 			$this->bag['new']=$this->crudItem;
 		$this->bag['result']=array_key_exists_v('result',$this->values);
 	}
-	public function listall(){
+
+    /**
+     * List all CRUD items
+     */
+    public function listall(){
 		$this->bag['delete']=array_key_exists_v('delete',$this->values);
 		$this->bag['deletePath']=get_site_url().'/'.strtolower($this->controller).'/delete';
-		$perpage=array_key_exists_v('perpage',$this->values);
-		$perpage=$perpage?$perpage:$this->perpage;
+		$per_page=array_key_exists_v('perpage',$this->values);
+		$per_page=$per_page?$per_page:$this->per_page;
 		$order=$this->order;
 		
 		if(!$order){
@@ -82,12 +132,12 @@ abstract class CrudController extends BaseController{
 			}
 		}
 		
-		$this->bag['perpage']=$perpage;		
+		$this->bag['perpage']=$per_page;
 		$page=array_key_exists_v('current',$this->values);
 		$page=$page?$page:1;
 		$this->bag['currentpage']=$page;
 		$page=$page>0?$page-1:0;
-		$first=$page*$perpage;
+		$first=$page*$per_page;
 		if(array_key_exists('search',$this->values)){
 			$restrictions=$this->search_restrictions;
 			if(!$restrictions){
@@ -100,23 +150,33 @@ abstract class CrudController extends BaseController{
 				}
 			}
 			Debug::Message('Search: Sliced find all');
-			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$perpage,$order,$restrictions,false,true);
+			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$per_page,$order,$restrictions,false,true);
 			$this->bag['searchResultTotal']=Repo::total($this->controller,$restrictions);
 		}
 		else{
 			Debug::Message('No search: Sliced find all');
-			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$perpage,$order,false,false,true);
+			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$per_page,$order,false,false,true);
 		}
 		$this->bag['total']=Repo::total($this->controller);
 	}
-	public function edit(){
+
+    /**
+     * Setups edited item in bag.
+     */
+    public function edit(){
 		$id=array_key_exists_v('Id',$this->values);		
 		$this->bag['result']=array_key_exists_v('result',$this->values);
 		Debug::Value('Action','Edit');
 		$this->crudItem=Repo::getById(get_class($this->crudItem),$id,true);
 		$this->bag['edit']=$this->crudItem;
 	}
-	public function create($redirect=true){
+
+    /**
+     * Create the CRUD item
+     * @param bool $redirect
+     * @return ActiveRecordBase
+     */
+    public function create($redirect=true){
 		$this->render=false;
 		$this->loadFromPost();
 		$this->crudItem->save();
@@ -126,7 +186,11 @@ abstract class CrudController extends BaseController{
 			return $this->crudItem;
 	}
 
-	public function update($redirect=true){
+    /**
+     * Update the CRUD item
+     * @param bool $redirect
+     */
+    public function update($redirect=true){
 		$this->render=false;		
 		$id=array_key_exists_v('Id',$this->values);		
 		$this->crudItem=Repo::getById(get_class($this->crudItem),$id);		
@@ -135,7 +199,11 @@ abstract class CrudController extends BaseController{
 		if($redirect)
 			$this->redirect('result=2');
 	}
-	public function delete(){
+
+    /**
+     * Delete the CRUD item.
+     */
+    public function delete(){
 		$this->render=false;		
 		if(is_array($_POST[strtolower(get_class($this->crudItem))])){
 			$ids=$_POST[strtolower(get_class($this->crudItem))];
@@ -149,8 +217,14 @@ abstract class CrudController extends BaseController{
 			$this->crudItem->delete();
 		}
 		$this->redirect('delete=1');
-	}	
-	private function methodIs($method){
+	}
+
+    /**
+     * Verify the request method.
+     * @param $method
+     * @return bool
+     */
+    private function methodIs($method){
 		if(Communication::getMethod()==$method)
 			return true;
 		return false;			

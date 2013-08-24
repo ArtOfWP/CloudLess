@@ -1,10 +1,46 @@
 <?php
+
+/**
+ * Class ISecurity
+ */
 interface ISecurity{
-	function verifyNonce($nonce,$action=false);
-	function createNonce($action=false);
-	function getCurrentUser();
-	function currentUserCan($action);
-	function currentUserIsLoggedIn();
-	function currentUserIsInRole($role);
-	static function instance();
+    /**
+     * @param $nonce
+     * @param bool $action
+     * @return mixed
+     */
+    function verifyNonce($nonce,$action=false);
+
+    /**
+     * @param bool $action
+     * @return mixed
+     */
+    function createNonce($action=false);
+
+    /**
+     * @return mixed
+     */
+    function getCurrentUser();
+
+    /**
+     * @param $action
+     * @return mixed
+     */
+    function currentUserCan($action);
+
+    /**
+     * @return mixed
+     */
+    function currentUserIsLoggedIn();
+
+    /**
+     * @param $role
+     * @return mixed
+     */
+    function currentUserIsInRole($role);
+
+    /**
+     * @return mixed
+     */
+    static function instance();
 }

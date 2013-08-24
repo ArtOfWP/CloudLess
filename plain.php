@@ -1,4 +1,7 @@
 <?php
+/**
+ * Very simple and clean admin page. To be used with popups etc from withing WP backend.
+ */
 define('WP_ADMIN', TRUE);
 require_once (preg_replace("/wp-content.*/","wp-load.php",__FILE__));
 require_once (preg_replace("/wp-content.*/","/wp-admin/admin.php",__FILE__));

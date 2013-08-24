@@ -1,11 +1,26 @@
 <?php
+
+/**
+ * Class Shortcode
+ */
 class Shortcode{
 	private static $shortCodeCallback;
 	private static $shortCodes=array();
-	static function registerHandler($callback){
+
+    /**
+     * Register shortcode handler
+     * @param $callback
+     */
+    static function registerHandler($callback){
 		self::$shortCodeCallback=$callback;
 	}
-	static function register($id,$callback){
+
+    /**
+     * Register a shortcode
+     * @param $id
+     * @param $callback
+     */
+    static function register($id,$callback){
 		if(self::$shortCodeCallback)
 			call_user_func(self::$shortCodeCallback,$id,$callback);
 		else

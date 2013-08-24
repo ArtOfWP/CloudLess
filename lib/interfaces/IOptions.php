@@ -1,12 +1,25 @@
 <?php
+
 /**
- * User: andreas
- * Date: 2011-12-30
- * Time: 20:32
+ * Class IOptions
  */
-interface IOptions
-{
+interface IOptions {
+    /**
+     * @param $namespace
+     * @return mixed
+     */
     public function delete($namespace);
+
+    /**
+     * @param $namespace
+     * @return mixed
+     */
     public function load($namespace);
+
+    /**
+     * @param $namespace
+     * @param $options
+     * @return mixed
+     */
     public function save($namespace,$options);
 }

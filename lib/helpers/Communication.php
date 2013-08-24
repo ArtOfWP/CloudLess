@@ -3,15 +3,25 @@ define ('PUT','put');
 define ('GET','get');
 define ('POST','post');
 define ('DELETE','delete');
+/**
+ * Class Communication
+ */
 class Communication{
-	static function createUrlAndQuery($url,$array){
-		
-	}
-	static function cleanUrl($dirty_url){
+    /**
+     * Remove query string and other stuff from an url
+     * @param $dirty_url
+     * @return mixed
+     */
+    static function cleanUrl($dirty_url){
 		list($clean_url)= explode('?',htmlspecialchars(strip_tags($dirty_url),ENT_NOQUOTES));
 		return $clean_url;
 	}
-	static function getMethod(){
+
+    /**
+     * Retrieves the request method. Checks for post key '_method'
+     * @return string
+     */
+    static function getMethod(){
 		$tempMethod=$_SERVER['REQUEST_METHOD'];
 		if(strcasecmp($tempMethod,PUT)==0)
 			return PUT;
@@ -28,10 +38,23 @@ class Communication{
 		else if(strcasecmp($tempMethod,DELETE)==0)
 			return DELETE;
 	}
-	static function QueryStringEquals($key,$value){
+
+    /**
+     * Checks if query string has key value pair
+     * @param string $key
+     * @param string|int $value
+     * @return bool
+     */
+    static function QueryStringEquals($key, $value){
 		return array_key_has_value($key,$value,self::getQueryString());
 	}
-	static function getQueryString($key=false){
+
+    /**
+     * Returns the query string
+     * @param string $key
+     * @return bool|mixed
+     */
+    static function getQueryString($key=null){
 		if(defined('TESTING')){
 			global $testquery;
 			$qs=$testquery;	
@@ -46,7 +69,13 @@ class Communication{
 			$qs=array_key_exists_v($key,$qs);
 		return $qs;
 	}
-	static function getFormValues($keys=false){
+
+    /**
+     * Returns form values matching keys
+     * @param array $keys
+     * @return array
+     */
+    static function getFormValues($keys=array()){
         if(defined('TESTING')){
         	global $testpost;
             $qs=$testpost;
@@ -59,18 +88,34 @@ class Communication{
 		}
 		return $qs;
 	}
-	static function getUpload($keys){
+
+    /**
+     * Get upload contents from $_FILES matching keys
+     * @param $keys
+     * @return array
+     */
+    static function getUpload($keys){
 		$files=array_intersect_key($_FILES,$keys);
 		return $files;
 	}
-	static function getReferer(){
+
+    /**
+     * Retrieve the referrer
+     * @return mixed
+     */
+    static function getReferer(){
 		if(function_exists('wp_get_referer'))
 			return wp_get_referer();
 		else
 			return $_SERVER['HTTP_REFERER'];
 	}
-		
-	static function redirectTo($url,$data=false){
+
+    /**
+     * Redirect to url with data
+     * @param string $url
+     * @param string|array|bool $data
+     */
+    static function redirectTo($url,$data=null){
 			$data=ltrim($data,"&");
 		if(is_array($data))
 			$data=http_build_query($data);
@@ -85,11 +130,25 @@ class Communication{
 			exit;
 		}
 	}
-	static function useRedirect(){
+
+    /**
+     * Check if redirect should be used and if so return the redirect url
+     * @return bool|mixed
+     */
+    static function useRedirect(){
 		return array_key_exists_v('_redirect',$_POST);
 	}
 	//TODO work in progress
-	static function loadFromPost($class,$uploadSubFolder=false,$thumbnails,$width=100,$height=100){
+    /**
+     * Loads an object with properties matching the $_POST data
+     * @param $class
+     * @param bool $uploadSubFolder
+     * @param $thumbnails
+     * @param int $width
+     * @param int $height
+     * @return mixed
+     */
+    static function loadFromPost($class,$uploadSubFolder=false,$thumbnails,$width=100,$height=100){
 		if(is_string($class))
 			$crudItem= new $class();
 		else

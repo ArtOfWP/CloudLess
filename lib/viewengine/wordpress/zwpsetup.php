@@ -1,4 +1,5 @@
 <?php
+//TODO: Refactor and clean up
 	global $table_prefix;
 	global $db_prefix;
 	$db_prefix=$table_prefix.'aoisora_';

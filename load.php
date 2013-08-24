@@ -1,4 +1,8 @@
 <?php
+/**
+ * Loads directories files are included
+ * @param sting $dir
+ */
 function load($dir){
     $files=loadFiles($dir);
     sort($files);
@@ -7,6 +11,12 @@ function load($dir){
             include $file;
     }
 }
+
+/**
+ * Traverses a directory and returns all found files.
+ * @param $dir
+ * @return array
+ */
 function loadFiles($dir){
     $files=array();
     $handle = opendir($dir);
@@ -22,12 +32,21 @@ function loadFiles($dir){
     closedir($handle);
     return $files;
 }
+
+/**
+ * Loads an application
+ * @param string $dir
+ */
 function loadApp($dir){
 	if(is_dir($dir.'/app/core/'))
 		load($dir.'/app/core/');
 	if(is_dir($dir.'/app/controllers/'))
 		load($dir.'/app/controllers/');
 }
+
+/**
+ * Loads required files, Loads wordpress viewengine if defined.
+ */
 function loadAoiSora(){
 	include(PACKAGEPATH.'config.php');
 	include(PACKAGEPATH.'lib/Route.php');

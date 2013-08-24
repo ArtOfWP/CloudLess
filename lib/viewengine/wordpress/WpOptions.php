@@ -1,27 +1,39 @@
 <?php
-/**
- * User: andreas
- * Date: 2011-12-30
- * Time: 20:31
- */
 
+/**
+ * Class WpOptions
+ */
 class WpOptions implements IOptions
 {
+    /**
+     * @param $namespace
+     * @return bool
+     */
     function delete($namespace){
-        delete_option($namespace);
+        return delete_option($namespace);
     }
-     function load($namespace){
+
+    /**
+     * @param $namespace
+     * @return array|bool
+     */
+    function load($namespace){
          $options=get_option($namespace);
          if(empty($options))
              $options=array();
          return $options;
      }
 
+    /**
+     * @param $namespace
+     * @param $options
+     * @return bool
+     */
     function save($namespace,$options){
         if(get_option($namespace))
-    	    update_option($namespace,$options);
+    	    return update_option($namespace,$options);
         else
-    	    add_option($namespace,$options);
+            return add_option($namespace,$options);
     }
 
 }

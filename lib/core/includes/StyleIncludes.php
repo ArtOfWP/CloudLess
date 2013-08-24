@@ -1,12 +1,16 @@
 <?php
+
 /**
- * User: andreas
- * Date: 2011-12-23
- * Time: 12:06
+ * Class StyleIncludes
  */
 class StyleIncludes implements IIncludes
 {
     private $styleInclude;
+
+    /**
+     * Inject a style handler for includes
+     * @param IIncludes $iStyleInclude
+     */
     function __construct(IIncludes $iStyleInclude=NULL){
         if($iStyleInclude)
             $this->styleInclude=$iStyleInclude;
@@ -14,56 +18,66 @@ class StyleIncludes implements IIncludes
             $this->styleInclude=Container::instance()->fetch('IStyleInclude');
         $this->styleInclude->init();
     }
+
     /**
-     * @param string $handle the id for the Style
-     * @param string $src the url path to the Style
-     * @param array $deps other includes that this include depends on
-     * @param bool $ver version number of the Style
-     * @param bool $in_footer
+     * Register a include
+     * @param FrontInclude $include
      */
-    public function register(FrontInclude $include)
-    {
+    public function register(FrontInclude $include) {
         $this->styleInclude->register($include);
     }
 
     /**
-     * @param $handle string
+     * Deregister a resource using its handle
+     * @param string $handle
      * @return bool
      */
-    function deregister($handle)
-    {
+    function deregister($handle) {
         return $this->styleInclude->deregister($handle);
     }
 
-    function enqueue($location, FrontInclude $include)
-     {
+    /**
+     * Enqueue a resource to be loaded
+     * @param string $location where it should be loaded
+     * @param FrontInclude $include
+     */
+    function enqueue($location, FrontInclude $include) {
          return $this->styleInclude->enqueue($location,$include);
      }
-    function dequeue($location, $handle)
-    {
+
+    /**
+     * Remove resource from queue
+     * @param string $location
+     * @param string $handle
+     * @return bool
+     */
+    function dequeue($location, $handle) {
         return $this->styleInclude->dequeue($location,$handle);
     }
+
     /**
-     * @param $handle string
+     * Check if resource is queued
+     * @param string $handle
      * @return bool
      */
-    function isEnqueued($handle)
-    {
+    function isEnqueued($handle) {
         return $this->styleInclude->isEnqueued($handle);
     }
+
     /**
-     * @param $handle string
+     * Check if resource is registered
+     * @param string $handle
      * @return bool
      */
-    public function isRegistered($handle)
-    {
+    public function isRegistered($handle) {
         return $this->styleInclude->isRegistered($handle);
     }
+
     /**
+     * Initiate the include handler
      * @return bool
      */
-    function init()
-    {
+    function init() {
         return $this->styleInclude->init();
     }
 }

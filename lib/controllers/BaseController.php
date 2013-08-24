@@ -3,33 +3,89 @@ global $viewcontent;
 if (class_exists('BaseController'))
     return;
 
-class BaseController
-{
+/**
+ * Class BaseController
+ * The base class to use for controllers
+ */
+class BaseController {
+    /**
+     * @var string Currently running action
+     */
     private static $currentAction;
+    /**
+     * @var string currently controller
+     */
     protected $controller;
+    /**
+     * @var string action detected
+     */
     protected $action;
+    /**
+     * @var string the default action to run if $action is empty
+     */
     protected $defaultAction = 'index';
+    /**
+     * @var IFilter The filter to perform before actions
+     */
     protected $filter;
+    /**
+     * @var bool If there should be a redirect
+     */
     protected $redirect;
+    /**
+     * @var string the path to the views for the controller
+     */
     protected $viewpath;
+    /**
+     * @var bool If Controller should render or not
+     */
     public $render = true;
+    /**
+     * @var array The values loaded by the action to be used by the view.
+     */
     public $bag = array();
+    /**
+     * @var string The rendered content
+     */
     public $viewcontent;
+    /**
+     * @var array THe values retrieved by the HTTP method
+     */
     public $values = array();
+    /**
+     * @var bool If the actions should be handled automatically
+     */
     private $automatic;
+    /**
+     * @var string The current executing controller
+     */
     private static $currentController;
+    /**
+     * @var ActiveRecordBase The object to use for CRUD actions
+     */
     protected $crudItem;
+    /**
+     * @var string The folder to upload files too
+     */
     protected $uploadSubFolder;
+    /**
+     * @var int The width images should resize to.
+     */
     protected $width;
+    /**
+     * @var int The height images should resize to.
+     */
     protected $height;
+    /**
+     * @var string Where thumbnails should be stored
+     */
     protected $thumbnails;
 
-    private function initiate()
-    {
+    /**
+     * Setup the controller.
+     */
+    private function initiate() {
         Debug::message('BaseController initiate');
-        //TODO deprecated since 11.6
-        if (method_exists($this, 'on_controller_preinit'))
-            $this->on_controller_preinit();
         if (method_exists($this, 'onControllerPreInit'))
             $this->onControllerPreInit();
 
@@ -42,15 +98,14 @@ class BaseController
             $this->action = $this->defaultAction;
         unset($this->values[CONTROLLERKEY]);
         unset($this->values[ACTIONKEY]);
-        //TODO deprecated since 11.6
-        if (method_exists($this, 'on_controller_init'))
-            $this->on_controller_init();
         if (method_exists($this, 'onControllerInit'))
             $this->onControllerInit();
     }
 
-    public function init()
-    {
+    /**
+     * Initiate the controller and execute filter and do automatic rendering if enabled.
+     */
+    public function init() {
         Debug::message('BaseController init');
         $this->initiate();
         if ($this->filter)
@@ -60,15 +115,22 @@ class BaseController
             $this->automaticRender();
     }
 
-    public function __construct($automatic = true, $viewpath = false)
-    {
+    /**
+     * Sets initial variables etc.
+     *
+     * @param bool $automatic If automatic rendering should be done
+     * @param string $viewPath THe path to teh views
+     */
+    public function __construct($automatic = true, $viewPath = '') {
         $this->automatic = $automatic;
-        $this->viewpath = $viewpath;
+        $this->viewpath = $viewPath;
         Debug::Message('Loaded ' . $this->controller . ' extends Basecontroller');
     }
 
-    protected function automaticRender()
-    {
+    /**
+     * Executes action and does automatic rendering.
+     */
+    protected function automaticRender() {
         Debug::Message('Executing automatic action');
         $action = array_key_exists_v(ACTIONKEY, Communication::getQueryString());
         if (!isset($action) || empty($action))
@@ -88,8 +150,12 @@ class BaseController
         }
     }
 
-    public function executeAction($action)
-    {
+    /**
+     * Executes an action on the controller.
+     * @param string $action The name of the action to execute.
+     * @throws RuntimeException Thrown if action is not found.
+     */
+    public function executeAction($action) {
         if (method_exists($this, $action)) {
             Debug::Message('Executed action: ' . $action);
             $reflection = new ReflectionMethod($this, $action);
@@ -120,14 +186,21 @@ class BaseController
             throw new RuntimeException("The action you tried to execute does not exist.");
     }
 
-    protected function RenderToAction($action)
-    {
+    /**
+     * Renders the current controllers action
+     * @param string $action The action to render
+     */
+    protected function RenderToAction($action) {
         Debug::Message('RenderToAction: ' . $action);
         $this->Render($this->controller, $action);
     }
 
-    protected function Render($controller, $action)
-    {
+    /**
+     * Renders a controller and its action.
+     * @param $controller
+     * @param $action
+     */
+    protected function Render($controller, $action) {
         Debug::Message('Render: ' . $controller, ' ', $action);
         $view = $this->findView($controller, $action);
         if ($view) {
@@ -137,7 +210,7 @@ class BaseController
             include($view);
             $this->viewcontent = $section . ob_get_contents();
             ob_end_clean();
-            $section = View::render($controller . '-render-post' . ucfirst($action), $this);
+            View::render($controller . '-render-post' . ucfirst($action), $this);
             $this->viewcontent .= $section;
         } else
             $this->viewcontent = 'Could not find view: ' . $view;
@@ -147,50 +220,64 @@ class BaseController
         $viewcontent = $this->viewcontent;
     }
 
-    private function getBag()
-    {
+    /**
+     * Retrieves the bag filled with values set by the action.
+     * @return mixed
+     */
+    private function getBag() {
         return Filter::run($this->controller . '-bag', array($this->bag, $this->controller, $this->action, $this->values));
     }
 
-    protected function RenderFile($filepath)
-    {
-        Debug::Message('RenderFile: ' . $filepath);
+    /**
+     * Renders a file.
+     * @param string $filePath
+     */
+    protected function RenderFile($filePath) {
+        Debug::Message('RenderFile: ' . $filePath);
         ob_start();
-        if (file_exists($filepath)) {
+        if (file_exists($filePath)) {
             extract($this->getBag(), EXTR_REFS);
-            include($filepath);
+            include($filePath);
             $this->viewcontent = ob_get_contents();
         } else
-            $this->viewcontent = 'Could not find view: ' . $$filepath;
+            $this->viewcontent = 'Could not find view: ' . $$filePath;
         $this->render = false;
         ob_end_clean();
         global $viewcontent;
         $viewcontent = $this->viewcontent;
     }
 
-    protected function RenderText($text)
-    {
+    /**
+     * The text to render to screen.
+     * @param string $text
+     */
+    public function RenderText($text) {
         Debug::Message('RenderText: ' . $text);
         $this->render = false;
         global $viewcontent;
         $viewcontent = $text;
     }
 
-    public function Notfound()
-    {
-        $view = $this->findView($this->controller, 'notfound');
+    /**
+     * Default Not Found action. Executed when action etc cannot be found.
+     */
+    public function NotFound() {
+        $view = $this->findView($this->controller, 'NotFound');
         if ($view) {
-            $this->setUpRouting($this->controller, 'notfound');
-            $this->Render($this->controller, 'notfound');
+            $this->setUpRouting($this->controller, 'NotFound');
+            $this->Render($this->controller, 'NotFound');
         } else {
-            $this->setUpRouting('default', 'notfound');
-            $this->Render('default', 'notfound');
+            $this->setUpRouting('default', 'NotFound');
+            $this->Render('default', 'NotFound');
         }
     }
 
-    protected function redirect($query = false)
-    {
-        if (defined('NOREDIRECT') && NOREDIRECT)
+    /**
+     * Redirect request with query
+     * @param array $query
+     */
+    protected function redirect($query = array()) {
+        if (defined('NO_REDIRECT') && NO_REDIRECT)
             return;
         $redirect = Communication::useRedirect();
         if ($redirect)
@@ -208,57 +295,82 @@ class BaseController
             }
     }
 
-    public static function ViewContents()
-    {
+    /**
+     * The rendered content
+     * @return mixed
+     */
+    public static function ViewContents() {
         global $viewcontent;
         return $viewcontent;
     }
 
-    public static function CurrentAction()
-    {
+    /**
+     * The currently executing action
+     * @return string
+     */
+    public static function CurrentAction() {
         return self::$currentAction;
     }
 
-    public static function CurrentController()
-    {
+    /**
+     * The current running controller
+     * @return mixed
+     */
+    public static function CurrentController() {
         return self::$currentController;
     }
 
-    private function findView($controller, $action)
-    {
+    /**
+     * @param string $controller
+     * @param string $action
+     * @return string Empty string if path is not found.
+     */
+    private function findView($controller, $action) {
         if ($this->viewpath) {
             return rtrim($this->viewpath, '/') . '/' . $controller . '/' . $action . '.php';
         }
         $apps = AoiSoraSettings::getApplications();
         $total = sizeof($apps);
         Debug::Message('Nbr of apps: ' . $total);
-        $lcontroller = strtolower($controller);
-        $laction = strtolower($action);
+        $lc_controller = strtolower($controller);
+        $lc_action = strtolower($action);
         foreach ($apps as $app) {
             $path = $app['path'];
             Debug::Value('Path', $path);
             Debug::Value('Searching', $path . VIEWS . $controller . '/' . $action . '.php');
             if (file_exists($path . VIEWS . $controller . '/' . $action . '.php'))
                 return $path . VIEWS . $controller . '/' . $action . '.php';
-            if (file_exists($path . VIEWS . $lcontroller . '/' . $laction . '.php'))
-                return $path . VIEWS . $lcontroller . '/' . $laction . '.php';
+            if (file_exists($path . VIEWS . $lc_controller . '/' . $lc_action . '.php'))
+                return $path . VIEWS . $lc_controller . '/' . $lc_action . '.php';
         }
-        return false;
+        return '';
     }
 
-    protected function setDefaultAction($action)
-    {
+    /**
+     * Set the default action to use.
+     * @param $action
+     */
+    protected function setDefaultAction($action) {
         $this->action = $action;
     }
 
-    public static function setUpRouting($controller, $action)
-    {
+    /**
+     * Set up routing. That is the Controller and Action to use.
+     * @param $controller
+     * @param $action
+     */
+    public static function setUpRouting($controller, $action) {
         self::$currentController = $controller;
         self::$currentAction = $action;
     }
 
-    protected function loadFromPost($crudItem = false, $stripPrefix = false)
-    {
+    /**
+     * Loads a CRUD item from a POST request
+     * @param bool $crudItem
+     * @param bool $stripPrefix
+     * @return bool
+     */
+    protected function loadFromPost($crudItem = false, $stripPrefix = false) {
         if (!$crudItem)
             $crudItem = $this->crudItem;
         $folder = '';
@@ -406,8 +518,8 @@ class BaseController
         foreach ($lists as $method => $value) {
             Debug::Value($method, $value);
             $settings = ObjectUtility::getCommentDecoration($this->crudItem, str_ireplace("_list", "", $method) . 'List');
-            $dbrelation = array_key_exists_v('dbrelation', $settings);
-            Debug::Value($method, $dbrelation);
+            $db_relation = array_key_exists_v('dbrelation', $settings);
+            Debug::Value($method, $db_relation);
             $field = array_key_exists_v('field', $settings);
             $objects = array();
             if ($field == 'text') {
@@ -417,22 +529,22 @@ class BaseController
                 if (sizeof($listValues) == 0)
                     continue;
                 foreach ($listValues as $value) {
-                    if ($dbrelation && $field == 'text') {
-                        $object = new $dbrelation;
+                    if ($db_relation && $field == 'text') {
+                        $object = new $db_relation;
                         $object->setName(trim($value));
                         $object->save();
                         $objects[] = $object;
                     }
                 }
             }
-            else if ($dbrelation) {
+            else if ($db_relation) {
                 if (is_array($value))
                     foreach ($value as $val) {
-                        $object = Repo::getById($dbrelation, $val);
+                        $object = Repo::getById($db_relation, $val);
                         $objects[] = $object;
                     }
                 else {
-                    $object = Repo::getById($dbrelation, $value);
+                    $object = Repo::getById($db_relation, $value);
                     $objects[] = $object;
                 }
             }
@@ -443,8 +555,12 @@ class BaseController
         return $crudItem;
     }
 
-    private function stripPrefix($prefix, $key)
-    {
+    /**
+     * @param $prefix
+     * @param $key
+     * @return mixed
+     */
+    private function stripPrefix($prefix, $key) {
         return str_replace($prefix, '', $key);
     }
 }

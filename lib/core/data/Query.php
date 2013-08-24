@@ -1,80 +1,151 @@
 <?php
+
+/**
+ * Class Query
+ */
 class Query{
-	public $limit;
-	public $offset;
-	private $statement=array();
-	public $depends=array();
-	public $returnType;	
-	public $dependslist=array();
-	function Query($table=false){
+    /**
+     * @var int limit query
+     */
+    public $limit;
+    /**
+     * @var int offset query
+     */
+    public $offset;
+    /**
+     * @var array query statements
+     */
+    private $statement=array();
+    /**
+     * @var array list of objects that the main object/class depends on
+     */
+    public $depends=array();
+    /**
+     * @var string the type of return of select query
+     */
+    public $returnType;
+    /**
+     * @var array list of dependencies
+     */
+    public $dependslist=array();
+
+    /**
+     * Create a query
+     * @param bool $table
+     */
+    function Query($table=false){
 		$this->statement['from']=array();
 		$this->statement['order']=array();
 		$this->statement['groupby']=array();
-		$this->statement['select']=array();			
-		$this->statement['where']=array();					
+		$this->statement['select']=array();
+		$this->statement['where']=array();
 		if($table){
 			$this->from($table);
 		}
 	}
-	static function createFrom($class,$lazy=false){
+
+    /**
+     * Create a query based on a class or an instantiated class, i.e object. Lazy preloads the return object.
+     * @param $class
+     * @param bool $lazy
+     * @return Query
+     */
+    static function createFrom($class,$lazy=false){
 		if(is_object($class))
 			$class=get_class($class);
-		$maintable=strtolower($class);
-		$q = new Query($maintable);
-		$q->returnType=$class;
+		$main_table=strtolower($class);
+		$query = new Query($main_table);
+		$query->returnType=$class;
 		$object = new $class();
 		Debug::Value('createFrom',$class);
 		Debug::Backtrace();
-		$properties =ObjectUtility::getProperties($object);
-		if($properties)
-			$q->depends=array();
-			foreach($properties as $property){
-				$dependson=array_key_exists_v('dbrelation',ObjectUtility::getCommentDecoration($object,'get'.$property));
-				if($dependson && $lazy){
-					Debug::Value('dbrelation',$dependson);
-					$temp= new $dependson();
-					$gProperty= Query::createFrom($temp)->where(R::Eq($temp,'Id'));
-					$q->depends[$property]=$gProperty;
-				}
-				$q->select($property,$maintable);
-			}
-		$arrays=ObjectUtility::getArrayProperties($object);
-		if($arrays && $lazy){
-			Debug::Message('Generating array queries');
-			Debug::Value('Arrays', $arrays);
-			$q->dependslist=array();
-			foreach($arrays as $array){
-				$dependson=array_key_exists_v('dbrelation',ObjectUtility::getCommentDecoration($object,$array.'List'));
-				if($dependson){
-					Debug::Message($class.' '.$array.' has relations');
-					Debug::Value('dbrelation',$dependson);
-					$dbrelationname=array_key_exists_v('dbrelationname',ObjectUtility::getCommentDecoration($object,$array.'List'));
-					$temp= new $dependson();
-					Debug::Value('Relationname',$dbrelationname);
-					$qList=Query::createFrom($temp);
-					$qList->from($dbrelationname);
-					$qList->whereAnd(R::Eq($temp,$dbrelationname.'.'.$dependson.'_id',true));
-					$q->dependslist[$array]=$qList;
-					$qList=null;
-					$array=null;
-					$temp=null;
-				}
-			}		
-		}
-		return $q;
+        self::setup_one_to_one_dependencies($lazy, $object, $query, $main_table);
+        self::setup_one_to_many_dependencies($class, $lazy, $object, $query);
+		return $query;
 	}
-	static function create($table=false){
+
+    /**
+     * Create query based on table.
+     * @param bool $table
+     * @return Query
+     */
+    static function create($table=false){
 		Debug::Value('Query create', $table);
 		Debug::Backtrace();
 		return new Query($table);
 	}
 
-	public function from($table){
+    /**
+     * Set from, adds new from per call
+     * @param $table
+     * @return $this
+     */
+    public function from($table){
 		global $db_prefix;
 		$this->statement['from'][]=$this->addMark(strtolower($db_prefix.$table));
 		return $this;
 	}
-	public function selectDistinct($property,$table=false){
+
+    /**
+     * @param bool $lazy
+     * @param object $object
+     * @param Query $query
+     * @param string $main_table
+     */
+    private static function setup_one_to_one_dependencies($lazy, $object, $query, $main_table) {
+        $properties = ObjectUtility::getProperties($object);
+        foreach ($properties as $property) {
+            $depends_on = array_key_exists_v('dbrelation', ObjectUtility::getCommentDecoration($object, 'get' . $property));
+            if ($depends_on && $lazy) {
+                Debug::Value('dbrelation', $depends_on);
+                $temp = new $depends_on();
+                $gProperty = Query::createFrom($temp)->where(R::Eq($temp, 'Id'));
+                $query->depends[$property] = $gProperty;
+            }
+            $query->select($property, $main_table);
+        }
+    }
+
+    /**
+     * @param string $class
+     * @param bool $lazy
+     * @param object $object
+     * @param Query $query
+     */
+    private static function setup_one_to_many_dependencies($class, $lazy, $object, $query)
+    {
+        $arrays = ObjectUtility::getArrayProperties($object);
+        if ($arrays && $lazy) {
+            Debug::Message('Generating array queries');
+            Debug::Value('Arrays', $arrays);
+            $query->dependslist = array();
+            foreach ($arrays as $array) {
+                $dependson = array_key_exists_v('dbrelation', ObjectUtility::getCommentDecoration($object, $array . 'List'));
+                if ($dependson) {
+                    Debug::Message($class . ' ' . $array . ' has relations');
+                    Debug::Value('dbrelation', $dependson);
+                    $dbrelationname = array_key_exists_v('dbrelationname', ObjectUtility::getCommentDecoration($object, $array . 'List'));
+                    $temp = new $dependson();
+                    Debug::Value('Relationname', $dbrelationname);
+                    $qList = Query::createFrom($temp);
+                    $qList->from($dbrelationname);
+                    $qList->whereAnd(R::Eq($temp, $dbrelationname . '.' . $dependson . '_id', true));
+                    $query->dependslist[$array] = $qList;
+                    $qList = null;
+                    $array = null;
+                    $temp = null;
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds a distinct select either a string based property or a select function. New calls adds new distincts
+     * @param string|SelectFunction $property
+     * @param bool $table
+     * @return $this
+     */
+    public function selectDistinct($property,$table=false){
 		global $db_prefix;
 		if($property instanceof SelectFunction){
 			$this->statement['select'][]='DISTINCT '.$property->toSQL(strtolower($this->addMark($property->getColumn())));
@@ -84,11 +155,23 @@ class Query{
 		}
 		return $this;
 	}
-	public function selectAll(){
+
+    /**
+     * Adds a select all columns
+     * @return $this
+     */
+    public function selectAll(){
 		$this->statement['select'][]='*';
 		return $this;
 	}
-	public function select($property,$table=false){
+
+    /**
+     * Add select
+     * @param string|SelectFunction $property
+     * @param string $table
+     * @return $this
+     */
+    public function select($property,$table=''){
 		global $db_prefix;
 		if($property instanceof SelectFunction){
 			$this->statement['select'][]=$property->toSQL($this->addMark($property->getColumn()));
@@ -96,16 +179,29 @@ class Query{
 			$property=$this->addMark(strtolower($property));
 			$this->statement['select'][]=strtolower($table?$this->addMark($db_prefix.$table).'.'.$property:$property);
 		}
-		return $this;		
+		return $this;
 	}
-	public function where($restriction){
+
+    /**
+     * Add where clause
+     * @param R|R[]$restriction
+     * @return $this
+     */
+    public function where($restriction){
 		if(is_array($restriction)){
 			$this->statement['where']=array_merge(((array)$this->statement['where']),$restriction);
 		}else
 			$this->statement['where'][]=$restriction;
 		return $this;
 	}
-	public function limit($offset,$limit=false){
+
+    /**
+     * Offset and limit query
+     * @param int $offset
+     * @param int|bool $limit
+     * @return $this
+     */
+    public function limit($offset,$limit=false){
         if($limit===false){
             $this->limit=$offset;
         }else{
@@ -114,42 +210,93 @@ class Query{
         }
 		return $this;
 	}
-	public function And_($restriction){
+
+    /**
+     * Adds an R::_And() restriction before adding restriction
+     * @param R|R[] $restriction
+     * @return $this
+     */
+    public function And_($restriction){
 		$this->statement['where'][]=R::_And();
 		$this->where($restriction);
 		return $this;
 	}
-	public function Or_($restriction){
+
+    /**
+     * Adds an R::_Or() restriction before adding provided restriction
+     * @param R|R[] $restriction
+     * @return $this
+     */
+    public function Or_($restriction){
 		$this->statement['where'][]=R::_Or();
 		$this->where($restriction);
 		return $this;
-	}	
-	public function whereAnd($restriction){
+	}
+
+    /**
+     * Adds an R::_And() restriction after adding restriction
+     * @param R|R[] $restriction
+     * @return $this
+     */
+    public function whereAnd($restriction){
 		$this->where($restriction);
 		$this->statement['where'][]=R::_And();
 		return $this;
 	}
-	public function whereOr($restriction){
+
+    /**
+     * Adds an R::_Or() restriction after adding provided restriction
+     * @param R|R[] $restriction
+     * @return $this
+     */
+    public function whereOr($restriction){
 		$this->where($restriction);
 		$this->statement['where'][]=R::_Or();
 		return $this;
-	}	
-	public function order($order){
+	}
+
+    /**
+     * Adds an order
+     * @param Order $order
+     * @return $this
+     */
+    public function order($order){
 		if(is_array($order))
 			$this->statement['order']=((array)$this->statement['order'])+$order;
 		else
 			$this->statement['order'][]=$order;
 		return $this;
 	}
-	public function hasWhere(){
+
+    /**
+     * Checks if where clause is set
+     * @return bool
+     */
+    public function hasWhere(){
 		return isset($this->statement['where']) && !empty($this->statement['where']) && sizeof($this->statement['where']) && $this->statement['where'][0]!=null;
 	}
-	public function hasLimit(){
+
+    /**
+     * Checks if query is limited
+     * @return bool
+     */
+    public function hasLimit(){
 		return !empty($this->limit);
 	}
-	public function getStatement(){
+
+    /**
+     * Returns statements
+     * @return array
+     */
+    public function getStatement(){
 		return $this->statement;
 	}
+
+    /**
+     * Splits an property into table and column
+     * @param $property
+     * @return string
+     */
     private function splitAndMark($property){
         global $db_prefix;
         $select=explode('.',$property);
@@ -160,7 +307,13 @@ class Query{
             $columns[]=$this->addMark(strtolower($s));
         return implode('.',$columns);
     }
-	public function groupBy($property){
+
+    /**
+     * Groups query
+     * @param string|string[] $property
+     * @return $this
+     */
+    public function groupBy($property){
 		if(is_array($property))
 			foreach($property as $p)
 				$this->statement['groupby'][]=$this->splitAndMark($p);
@@ -168,64 +321,40 @@ class Query{
 			$this->statement['groupby'][]=$this->splitAndMark($property);
 		return $this;
 	}
-	public function setParameter($param,$value){
-		foreach($this->statement['where'] as $restriction){
+
+    /**
+     * Set parameter
+     * @param string $param
+     * @param $value
+     */
+    public function setParameter($param,$value){
+        /**
+         * @var R $restriction
+         */
+        foreach($this->statement['where'] as $restriction){
 			$restriction->setParameter($param,$value);
 		}
 	}
-	function execute(){
+
+    /**
+     * Executes query
+     * @return array
+     */
+    function execute(){
 		global $db;
 		$rows=$db->query($this);
 		Debug::Value('Rows returned',sizeof($rows));
-		if(isset($this->returnType)){
-			$class=$this->returnType;
-			$objects=array();
-			if(sizeof($rows)>0){
-				foreach($rows as $row){
-					$object = new $class();			
-					ObjectUtility::setProperties($object,$row);
-					if(sizeof($this->depends)>0){
-						Debug::Message('Object property depends on');						
-						foreach($this->depends as $property => $query){
-							$getproperty='get'.$property;
-							$value=(int)$object->$getproperty();
-							if($value){
-								$query=clone $query;
-								$query->setParameter('Id',$value);
-								$value=$query->execute();
-								if($value)
-									ObjectUtility::setProperties($object,array($property => array_shift($value)));
-							}
-							$query=null;
-						}
-					}
-					if(sizeof($this->dependslist)>0){
-						Debug::Message('Object list depends on');
-						$dependslist = $this->dependslist;
-						Debug::Value('Dependings', $dependslist);
-						foreach($dependslist as $property => $query){
-							Debug::Value('Property', $property);
-							$query=clone $query;
-							$query->where(R::Eq(strtolower($class).'_id',$object));
-							Debug::Value('Query', $query);
-							$values=$query->execute();
-							$query=null;
-							if($values)
-								ObjectUtility::addToArray($object,$property,$values);
-						}
-					}
-					if(method_exists($object,'getId'))
-						$objects[$object->getId()]=$object;
-					else
-						$objects[]=$object;
-				}
-			}
-			return $objects;
-		}else
+		if(isset($this->returnType)) {
+            return $this->setup_return_objects($rows);
+		} else
 			return $rows;
 	}
-	
-	function __get($property){
+
+    /**
+     * @param $property
+     * @return array
+     */
+    function __get($property){
 		switch($property){
 			case 'from':
 			case 'select':
@@ -237,8 +366,88 @@ class Query{
 				return array();
 		}
 	}
-	private function addMark($ct){
+
+    /**
+     * @param $ct
+     * @return string
+     */
+    private function addMark($ct){
 		$ct=trim($ct,"`");
 		return '`'.$ct.'`';
 	}
+
+    /**
+     * @param $rows
+     * @return array
+     */
+    private function setup_return_objects($rows) {
+        $class = $this->returnType;
+        $objects = array();
+        if (sizeof($rows) > 0) {
+            foreach ($rows as $row) {
+                $object = new $class();
+                ObjectUtility::setProperties($object, $row);
+                if (sizeof($this->depends) > 0) {
+                    $this->setup_one_to_one_return_type($object);
+                }
+                if (sizeof($this->dependslist) > 0) {
+                    $this->setup_one_to_many_return_object($class, $object);
+                }
+                if (method_exists($object, 'getId'))
+                    $objects[$object->getId()] = $object;
+                else
+                    $objects[] = $object;
+            }
+        }
+        return $objects;
+    }
+
+    /**
+     * Setups a one to one
+     * @param object $object
+     */
+    private function setup_one_to_one_return_type($object) {
+        Debug::Message('Object property depends on');
+        /**
+         * @var string $property
+         * @var Query $query
+         */
+        foreach ($this->depends as $property => $query) {
+            $getproperty = 'get' . $property;
+            $value = (int)$object->$getproperty();
+            if ($value) {
+                $query = clone $query;
+                $query->setParameter('Id', $value);
+                $value = $query->execute();
+                if ($value)
+                    ObjectUtility::setProperties($object, array($property => array_shift($value)));
+            }
+            $query = null;
+        }
+    }
+
+    /**
+     * Setups one to many object
+     * @param $class
+     * @param $object
+     */
+    private function setup_one_to_many_return_object($class, $object) {
+        Debug::Message('Object list depends on');
+        $dependslist = $this->dependslist;
+        Debug::Value('Dependings', $dependslist);
+        /**
+         * @var string $property
+         * @var Query $query
+         */
+        foreach ($dependslist as $property => $query) {
+            Debug::Value('Property', $property);
+            $query = clone $query;
+            $query->where(R::Eq(strtolower($class) . '_id', $object));
+            Debug::Value('Query', $query);
+            $values = $query->execute();
+            $query = null;
+            if ($values)
+                ObjectUtility::addToArray($object, $property, $values);
+        }
+    }
 }

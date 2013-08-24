@@ -1,4 +1,7 @@
 <?php
+/**
+ * Handles rerouting that comes from htaccess redirects
+ */
 define('PREROUTE',true);
 global $loadviewengine;
 $loadviewengine='WordPress';

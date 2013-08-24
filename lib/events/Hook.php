@@ -1,8 +1,19 @@
 <?php
+
+/**
+ * Class Hook
+ */
 class Hook{
 	public static $Hooks=array();
-	static function register($hook,$callback,$priority=100){
-		if(!isset(self::$Hooks[$hook]['handler'])){
+
+    /**
+     * Register a hook
+     * @param string $hook
+     * @param array|string $callback
+     * @param int $priority where in list it should
+     */
+    static function register($hook,$callback,$priority=100) {
+		if (!isset(self::$Hooks[$hook]['handler'])) {
             if (is_array($callback)) {
                             if (is_string($callback[0]))
                                 $id = hash('md5', $callback[0] . $callback[1] . $priority);
@@ -11,15 +22,28 @@ class Hook{
                         }else
 	    		$id=hash('md5',$callback.$priority);
 			self::$Hooks[$hook][$priority][$id]=$callback;
-		}else{
+		} else {
 			$handler=self::$Hooks[$hook]['handler'];
 			call_user_func($handler,$hook,$callback,$priority);
 		}
 	}
-	static function registerHandler($hook,$callback){
+
+    /**
+     * Register an custom handler for hook
+     * @param $hook
+     * @param $callback
+     */
+    static function registerHandler($hook,$callback) {
 		self::$Hooks[$hook]['handler']=$callback;
 	}
-	static function run($hook,$params=array(),$isArray=false){
+
+    /**
+     * Run the hook
+     * @param string $hook
+     * @param array $params
+     * @param bool $isArray
+     */
+    static function run($hook,$params=array(),$isArray=false) {
 		$priorities=array_key_exists_v($hook,self::$Hooks);
 		if($priorities)
 			ksort($priorities);
@@ -45,28 +69,22 @@ class Hook{
 			}
 		}
 	}
-	static function isRegistered($hook){
+
+    /**
+     * Check if hook is registered
+     * @param string $hook
+     * @return bool
+     */
+    static function isRegistered($hook) {
 		return array_key_exists($hook,self::$Hooks);
 	}
-	static function hasCustomHandler($hook){
+
+    /**
+     * Check if hook has a custom handler
+     * @param string $hook
+     * @return bool
+     */
+    static function hasCustomHandler($hook) {
 		return isset(self::$Hooks[$hook]['handler']);
-	}
-}
-//deprecated since 11.6
-class HookHelper{
-	static function register($hook,$callback,$priority=100){
-		Hook::register($hook,$callback,$priority);
-	}
-	static function registerCustomHandler($hook,$callback){
-		Hook::registerHandler($hook,$callback);
-	}
-	static function run($hook,$params=array(),$isArray=false){
-		Hook::run($hook,$params,$isArray);
-	}
-	static function isRegistered($hook){
-		return Hook::isRegistered($hook);
-	}
-	static function hasCustomHandler($hook){
-		return Hook::hasCustomHandler($hook);
 	}
 }

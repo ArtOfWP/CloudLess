@@ -1,16 +1,30 @@
 <?php
 if(!interface_exists('IFilter'))
 	include('IFilter.php');
+/**
+ * Class SecurityFilter
+ * Used together with a controller to limit access to the actions.
+ */
 class SecurityFilter implements IFilter{
 	private $useraction;
 	private $nonce_base;
-	private $refererPage;
-	function __construct($useraction=false,$nonce_base=false,$referer_page=false){
+
+    /**
+     * @param bool $useraction The action to verify
+     * @param bool $nonce_base The base of the nonce, usually name ot the project, plugin etc.
+     */
+    function __construct($useraction=false,$nonce_base=false) {
 		$this->useraction=$useraction;
 		$this->nonce_base=$nonce_base;
-		$this->refererPage=$referer_page;
 	}
-	function perform($controller,$data){
+
+    /**
+     * Performs the security check, verify nonce and if user can perform action.
+     * @param BaseController $controller
+     * @param $data
+     * @return bool
+     */
+    function perform($controller,$data){
 		$s = Security::create();
 		if($this->nonce_base){
 			$nonce=array_key_exists_v('_asnonce',$controller->values);

@@ -1,4 +1,13 @@
 <?php
+/**
+ * Class IFilter
+ * Filter to be used with Controllers
+ */
 interface IFilter{
-	function perform($controller,$data);
+    /**
+     * @param BaseController $controller
+     * @param mixed $data
+     * @return mixed
+     */
+    function perform($controller,$data);
 }

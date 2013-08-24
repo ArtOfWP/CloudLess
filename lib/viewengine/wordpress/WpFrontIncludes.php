@@ -1,50 +1,39 @@
 <?php
-/**
- * User: andreas
- * Date: 2011-12-27
- * Time: 18:00
- */
 abstract class WpFrontIncludes implements IIncludes
 {
     private $includes=array();
     private $queue=array();
     private $dequeue=array();
     private $unincludes=array();
-    function register(FrontInclude $include)
-    {
+    function register(FrontInclude $include) {
         $this->includes[$include->getHandle()]=$include;
     }
 
-    function deregister($handle)
-    {
+    function deregister($handle) {
         if(isset($this->includes[$handle]))
             unset($this->includes[$handle]);
         $this->unincludes[]=$handle;
         return true;
     }
 
-    function enqueue($location, FrontInclude $include)
-    {
+    function enqueue($location, FrontInclude $include) {
         if(!isset($this->queue[$location])|| empty($this->queue[$location]))
             $this->queue[$location]=array();
         $this->queue[$location][$include->getHandle()]=$include;
     }
 
-    function dequeue($location, $handle)
-    {
+    function dequeue($location, $handle) {
         if(isset($this->queue[$location][$handle]))
             unset($this->queue[$location][$handle]);
         $this->dequeue[$location]=$handle;
         return true;
     }
 
-    function isRegistered($handle)
-    {
+    function isRegistered($handle) {
        return isset($this->includes[$handle]) && !empty($this->includes[$handle]);
     }
 
-    function isEnqueued($handle)
-    {
+    function isEnqueued($handle) {
         foreach($this->queue as $includes)
             foreach($includes as $qHandle => $include)
                 if($handle==$qHandle)
@@ -52,8 +41,7 @@ abstract class WpFrontIncludes implements IIncludes
         return false;
     }
 
-    function init()
-    {
+    function init() {
         add_action('init',array($this,'registerIncludes'));
         add_action('login_enqueue_scripts',array($this,'loginEnqueueIncludes'));
         add_action('admin_enqueue_scripts',array($this,'adminEnqueueIncludes'));
@@ -71,16 +59,16 @@ abstract class WpFrontIncludes implements IIncludes
             $this->deregisterInclude($include);
         }
     }
-    function loginEnqueueIncludes(){
+    function loginEnqueueIncludes() {
         $this->enqueueLocation('login');
     }
-    function adminEnqueueIncludes(){
+    function adminEnqueueIncludes() {
         $this->enqueueLocation('administration');
     }
-    function wpEnqueueIncludes(){
+    function wpEnqueueIncludes() {
         $this->enqueueLocation('frontend');
     }
-    private function enqueueLocation($location){
+    private function enqueueLocation($location) {
         /**
         * @var $include FrontInclude
         */

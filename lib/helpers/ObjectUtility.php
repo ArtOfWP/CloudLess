@@ -1,7 +1,15 @@
 <?php
-class ObjectUtility{
 
-	static function getProperties($object){
+/**
+ * Class ObjectUtility
+ */
+class ObjectUtility{
+    /**
+     * Retrieve properties from object
+     * @param $object
+     * @return array
+     */
+    static function getProperties($object){
 		$class = new ReflectionClass(get_class($object));
 		$class->getDocComment();
 		$methods= $class->getMethods(ReflectionMethod::IS_PUBLIC);
@@ -14,8 +22,13 @@ class ObjectUtility{
 		}
 		return $properties;
 	}
-	
-	static function getArrayProperties($object){
+
+    /**
+     * Retrieve array based properties. They end in list.
+     * @param $object
+     * @return array
+     */
+    static function getArrayProperties($object){
 		$class = new ReflectionClass(get_class($object));
 		$methods= $class->getMethods(ReflectionMethod::IS_PUBLIC);
 		$properties=array();
@@ -26,8 +39,13 @@ class ObjectUtility{
 			}
 		return $properties;
 	}
-	
-	static function getArrayPropertiesAndValues($object){
+
+    /**
+     * Retrive the array properties and their values
+     * @param $object
+     * @return array
+     */
+    static function getArrayPropertiesAndValues($object){
 		$class = new ReflectionClass(get_class($object));
 		$methods= $class->getMethods(ReflectionMethod::IS_PUBLIC);
 		$properties=array();
@@ -36,7 +54,14 @@ class ObjectUtility{
 				$properties[str_replace('List','',$method->getName())]=$method->invoke($object);	
 		return $properties;
 	}
-	static function addToArray($object,$method,$values){
+
+    /**
+     * Add values to array property. Method has 'add' prefix.
+     * @param $object
+     * @param $method
+     * @param $values
+     */
+    static function addToArray($object,$method,$values){
 		Debug::Message('AddToArrayMethod');
 		Debug::Value($method,$values);
 		$class = new ReflectionClass(get_class($object));
@@ -45,8 +70,13 @@ class ObjectUtility{
 			$method->invoke($object,$value);
 		}
 	}
-	
-	static function getPropertiesAndValues($object){
+
+    /**
+     * Return the properties and their values
+     * @param $object
+     * @return array key is property, value is the property value
+     */
+    static function getPropertiesAndValues($object){
 		$class = new ReflectionClass(get_class($object));
 		$methods= $class->getMethods(ReflectionMethod::IS_PUBLIC);
 		$properties=array();
@@ -57,8 +87,13 @@ class ObjectUtility{
 		}
 		return $properties;
 	}
-	
-	static function setProperties($object,$values){
+
+    /**
+     * Set properties values
+     * @param $object
+     * @param array $values key value pair. Key is property, value is property value
+     */
+    static function setProperties($object,$values){
 		foreach($values as $property => $value){
             if(method_exists($object,'set'.$property)){
 			    $method=new ReflectionMethod(get_class($object),'set'.$property);
@@ -67,7 +102,13 @@ class ObjectUtility{
                 $object->$property=$value;
 		}	
 	}
-	static function getClassCommentDecoration($object){
+
+    /**
+     * Get the class decoration
+     * @param $object
+     * @return array
+     */
+    static function getClassCommentDecoration($object){
 		$class = new ReflectionClass(get_class($object));
 		$comment=$class->getDocComment();
 		$comment=str_replace('/**','',$comment);
@@ -82,7 +123,14 @@ class ObjectUtility{
 		}
 		return $settings;
 	}
-	static function getCommentDecoration($object,$method){
+
+    /**
+     * Get method comment decoration
+     * @param $object
+     * @param $method
+     * @return array
+     */
+    static function getCommentDecoration($object,$method){
 		$rmethod=new ReflectionMethod(get_class($object),$method);
 		$comment=$rmethod->getDocComment();
 		$comment=str_replace('/**','',$comment);

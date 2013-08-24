@@ -1,8 +1,20 @@
 <?php
-class Filter
-{
-    public static $FilterSections;
 
+/**
+ * Class Filter
+ */
+class Filter {
+    /**
+     * @var array
+     */
+    public static $FilterSections = array();
+
+    /**
+     * Register callback for and filter
+     * @param $filter
+     * @param $callback
+     * @param int $priority
+     */
     static function register($filter, $callback, $priority = 100)
     {
         if (!isset(self::$FilterSections[$filter]['handler'])) {
@@ -22,11 +34,22 @@ class Filter
         }
     }
 
+    /**
+     * Register an handler for filter
+     * @param $filter
+     * @param $callback
+     */
     static function registerHandler($filter, $callback)
     {
         self::$FilterSections[$filter]['handler'] = $callback;
     }
 
+    /**
+     * Run the filter
+     * @param $filter
+     * @param array $params
+     * @return mixed
+     */
     static function run($filter, $params = array())
     {
         $value = $params[0];
@@ -60,49 +83,21 @@ class Filter
         return $value;
     }
 
-    static function isRegistered($filter)
-    {
+    /**
+     * Check if filter has been registered
+     * @param $filter
+     * @return bool
+     */
+    static function isRegistered($filter) {
         return array_key_exists($filter, self::$FilterSections);
     }
 
-    static function hasHandler($filter)
-    {
+    /**
+     * Check if an filter has an handler
+     * @param $filter
+     * @return bool
+     */
+    static function hasCustomHandler($filter) {
         return isset(self::$FilterSections[$filter]['handler']);
-    }
-}
-
-/*
- * deprecated since 11.6
- */
-class FilterHelper
-{
-    static function registerFilter($filter, $callback, $priority = 100)
-    {
-        Filter::register($filter, $callback, $priority);
-    }
-
-    static function registerCustomHandler($filter, $callback)
-    {
-        Filter::registerHandler($filter, $callback);
-    }
-
-    static function runFilter($filter, $params = array())
-    {
-        return Filter::run($filter, $params);
-    }
-
-    static function run($filter, $params = array())
-    {
-        return Filter::run($filter, $params);
-    }
-
-    static function isRegistered($filter)
-    {
-        return Filter::isRegistered($filter);
-    }
-
-    static function hasCustomHandler($filter)
-    {
-        return Filter::hasHandler($filter);
     }
 }

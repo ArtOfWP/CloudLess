@@ -15,38 +15,81 @@ class R{
 	static $LEFT=0;
 	static $BOTH=1;
 	static $RIGHT=2;
-		
-	static function Match($columns,$keywords){
+
+    /**
+     * Match keywords against columns
+     * @param $columns
+     * @param $keywords
+     * @return R
+     */
+    static function Match($columns, $keywords){
 		$r = new R();
 		$r->method='MATCH';
 		$r->columns=$columns;
-//		$r->value=trim($keywords);
 		$r->setParameter('matchParams'.sizeof($columns),trim($keywords));
-//		$r->param=str_replace(array(' ','-','+'),'',trim($r->value));
 		return $r;
 	}
-	static function Ge($property,$value,$isProperty=false){
-		$r=R::Eq($property,$value,$isProperty);
+
+    /**
+     * Greater than or equal to
+     * @param string $property column to check against
+     * @param mixed $value value to compare against
+     * @param bool $isProperty value is an ActiveRecordBase object use property
+     * @return R
+     */
+    static function Ge($property, $value, $isProperty=false){
+		$r=R::Eq($property, $value, $isProperty);
 		$r->method='>=';
 		return $r;
 	}
-	static function Le($property,$value,$isProperty=false){
-		$r=R::Ge($property,$value,$isProperty);
+
+    /**
+     * Less than or equal too
+     * @param string $property column to check against
+     * @param mixed $value value to compare against
+     * @param bool $isProperty
+     * @return R
+     */
+    static function Le($property, $value, $isProperty=false){
+		$r=R::Ge($property, $value, $isProperty);
 		$r->method='<=';
 		return $r;
 	}
-	
-	static function Lt($property,$value,$isProperty=false){
+
+    /**
+     * Less than
+     * @param string $property column to check against
+     * @param mixed $value value to compare against
+     * @param bool $isProperty
+     * @return R
+     */
+    static function Lt($property, $value, $isProperty=false){
 		$r=R::Eq($property,$value,$isProperty);
 		$r->method='<';
 		return $r;
 	}
-	static function Gt($property,$value,$isProperty=false){
+
+    /**
+     * Greater than
+     * @param string $property column to check against
+     * @param mixed $value value to compare against
+     * @param bool $isProperty
+     * @return R
+     */
+    static function Gt($property, $value, $isProperty=false){
 		$r=R::Eq($property,$value,$isProperty);
 		$r->method='>';
 		return $r;
 	}
-	static function Eq($property,$value,$isProperty=false){
+
+    /**
+     * Equal too
+     * @param string $property column to check against
+     * @param mixed $value value to compare against
+     * @param bool $isProperty
+     * @return R
+     */
+    static function Eq($property,$value, $isProperty=false){
 		global $db_prefix;
 		$r = new R();
 		if($property instanceof ActiveRecordBase){
@@ -72,7 +115,15 @@ class R{
 		}		
 		return $r;		
 	}
-	static function NotEq($property,$value,$isProperty=false){
+
+    /**
+     * Not equal too
+     * @param string $property column to check against
+     * @param mixed $value value to compare against
+     * @param bool $isProperty
+     * @return R
+     */
+    static function NotEq($property,$value,$isProperty=false){
 		global $db_prefix;
 		$r = new R();
 		if($property instanceof ActiveRecordBase){
@@ -97,8 +148,17 @@ class R{
 			$r->setParameter($r->column,$r->value);			
 		}
 		return $r;		
-	}	
-	static function EqP($class,$property,$value,$isProperty=false){
+	}
+
+    /**
+     * Equal too compares ActiveRecordBase
+     * @param $class
+     * @param string $property column to check against
+     * @param mixed $value value to compare against
+     * @param bool $isProperty
+     * @return R
+     */
+    static function EqP($class,$property,$value,$isProperty=false){
 		global $db_prefix;
 		$r = new R();
 		if($class instanceof ActiveRecordBase){
@@ -125,8 +185,15 @@ class R{
 			$r->setParameter($r->column,$r->value);
 		}
 		return $r;		
-	}	
-	static function In($property,$values){
+	}
+
+    /**
+     * column value in list of values
+     * @param $property
+     * @param $values
+     * @return R
+     */
+    static function In($property,$values){
 		global $db_prefix;
 		$r = new R();
 		if($property instanceof ActiveRecordBase){
@@ -156,7 +223,15 @@ class R{
 //		}
 		return $r;	
 	}
-	static function Like($property,$value,$placement=0){
+
+    /**
+     * Like
+     * @param $property
+     * @param $value
+     * @param int $placement
+     * @return R
+     */
+    static function Like($property,$value,$placement=0){
 		$r = new R();
 		$r->column=strtolower($property);
 		$r->method='LIKE';
@@ -166,39 +241,86 @@ class R{
 		$r->hasvalue=true;
 		return $r;
 	}
-	static function _And(){
+
+    /**
+     * AND restriction
+     * @return R
+     */
+    static function _And(){
 		$r = new R();
 		$r->method=' AND ';
 		return $r;
 	}
-	static function _Or(){
+
+    /**
+     * OR restriction
+     * @return R
+     */
+    static function _Or(){
 		$r = new R();
 		$r->method=' OR ';
 		return $r;
-	}	
-	function hasValue(){
+	}
+
+    /**
+     * If has value
+     * @return bool
+     */
+    function hasValue(){
 		return $this->hasvalue;
 	}
-	function getValue(){
+
+    /**
+     * Retrieve value
+     * @return mixed
+     */
+    function getValue(){
 		return $this->value;
 	}
-	function setParameter($param,$value){
+
+    /**
+     * Set parameter
+     * @param $param
+     * @param $value
+     */
+    function setParameter($param,$value){
 		Debug::Value('Set param :'.$param, $value);
 		$this->parameters[":$param"]=$value;
 	}
-	function removeParameter($param){
+
+    /**
+     * remove parameter
+     * @param $param
+     */
+    function removeParameter($param){
 		$param=trim($param,':');
 		unset($this->parameters[":$param"]);		
 	}
-	function getParameter($key=false){
+
+    /**
+     * Return parameter
+     * @param bool $key
+     * @return array
+     */
+    function getParameter($key=false){
 		if($key)
 			return $this->parameters[":$key"];
 		return $this->parameters;
 	}
-	function getParameters(){		
+
+    /**
+     * Return parameters
+     * @return array
+     */
+    function getParameters(){
 		return $this->parameters;
 	}
-	function toSQL(){
+
+    /**
+     * Convert restriction to SQL counterpart
+     * @return string
+     */
+    function toSQL(){
 		switch($this->method){
 			case "LIKE":
 				if($this->placement==R::$LEFT)
@@ -258,7 +380,12 @@ class R{
 				return $this->method;
 		}
 	}
-	private function addMark($ct){
+
+    /**
+     * @param $ct
+     * @return string
+     */
+    private function addMark($ct){
 		return '`'.strtolower($ct).'`';
 	}
 

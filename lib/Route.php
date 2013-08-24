@@ -1,6 +1,13 @@
 <?php
+
+/**
+ * Class Route
+ */
 class Route{
-	static function reroute(){
+    /**
+     * @return bool
+     */
+    static function reroute(){
 		$controller=array_key_exists_v(CONTROLLERKEY,Communication::getQueryString());
 		$action = array_key_exists_v(ACTIONKEY,Communication::getQueryString());/**/
 		$success=true;
@@ -14,7 +21,13 @@ class Route{
 		Debug::Value('Success',$success);
 		return $success;
 	}
-	static function rerouteToController($controller){
+
+    /**
+     * Retroute request to controller
+     * @param string $controller
+     * @return bool
+     */
+    static function rerouteToController($controller){
 		$controller=$controller.'Controller';
 		if(class_exists($controller)){
 			$ctrl=new $controller();
@@ -24,7 +37,14 @@ class Route{
 		}
 		return true;
 	}
-	static function rerouteToAction($controller,$action){
+
+    /**
+     * Reroute request to action on controller
+     * @param string $controller
+     * @param string $action
+     * @return bool
+     */
+    static function rerouteToAction($controller,$action){
 		$controller=$controller.'Controller';
 		Debug::Value('RerouteToAction',$controller.'->'.$action);
 		if(class_exists($controller)){

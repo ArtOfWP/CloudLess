@@ -1,10 +1,18 @@
 <?php
-class View
-{
+
+/**
+ * Class View
+ */
+class View {
     public static $ViewSections = array();
 
-    static function register($section, $callback, $priority = 100)
-    {
+    /**
+     * Register a section
+     * @param $section
+     * @param $callback
+     * @param int $priority
+     */
+    static function register($section, $callback, $priority = 100) {
         if (!isset(self::$ViewSections[$section]['handler'])) {
             if (!isset(self::$ViewSections))
                 self::$ViewSections = array();
@@ -22,13 +30,23 @@ class View
         }
     }
 
-    static function registerHandler($section, $callback)
-    {
+    /**
+     * Register a handler for the section
+     * @param string $section
+     * @param array|string $callback
+     */
+    static function registerHandler($section, $callback) {
         self::$ViewSections[$section]['handler'] = $callback;
     }
 
-    static function generate($section, $params = array(), $isArray = false)
-    {
+    /**
+     * Generate the section
+     * @param string $section
+     * @param array $params
+     * @param bool $isArray
+     * @return string
+     */
+    static function generate($section, $params = array(), $isArray = false) {
         $priorities = array_key_exists_v($section, self::$ViewSections);
         if (self::hasCustomHandler($section)) {
             ob_start();
@@ -70,52 +88,33 @@ class View
         return '';
     }
 
-    static function render($section, $params = array(), $isArray = false)
-    {
+    /**
+     * Render the section
+     * @param string $section
+     * @param array $params
+     * @param bool $isArray
+     */
+    static function render($section, $params = array(), $isArray = false) {
         $sections = self::generate($section, $params, $isArray);
         if ($sections)
             echo $sections;
     }
 
-    static function isRegistered($section)
-    {
+    /**
+     * Check if section is registered
+     * @param string $section
+     * @return bool
+     */
+    static function isRegistered($section) {
         return array_key_exists($section, self::$ViewSections);
     }
 
-    static function hasCustomHandler($section)
-    {
+    /**
+     * Checks if section has custom handler
+     * @param string $section
+     * @return bool
+     */
+    static function hasCustomHandler($section) {
         return isset(self::$ViewSections[$section]['handler']);
     }
-}
-
-/*
-* deprecated since 11.6
-*/
-class ViewHelper
-{
-    static function registerViewSection($section, $callback, $priority = 100)
-    {
-        View::register($section, $callback, $priority);
-    }
-
-    static function registerViewSectionHandler($section, $callback)
-    {
-        View::registerHandler($section, $callback);
-    }
-
-    static function renderSection($section, $params = array(), $isArray = false)
-    {
-        View::render($section, $params, $isArray);
-    }
-
-    static function isRegistered($section)
-    {
-        return View::isRegistered($section);
-    }
-
-    static function hasCustomHandler($section)
-    {
-        return View::hasCustomHandler($section);
-    }
-
 }

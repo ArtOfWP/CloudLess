@@ -1,9 +1,23 @@
 <?php
+
+/**
+ * Class ShortCodeBase
+ */
 abstract class ShortCodeBase{
-	function init(){
+    /**
+     * Initiate shortcode
+     */
+    function init(){
 		$name=get_class($this);
 		$sc=str_replace('shortcode','',strtolower($name));
 		Shortcode::register($sc, array(&$this,'render'));
 	}
-	abstract function render($atts, $content = false);
+
+    /**
+     * Render shortcode
+     * @param array $atts
+     * @param string $content
+     * @return mixed
+     */
+    abstract function render($atts, $content = '');
 }

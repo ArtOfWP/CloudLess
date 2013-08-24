@@ -1,7 +1,20 @@
 <?php
-abstract class ActiveRecordBase{
-	private $tempProperties=array();
-	function create(){
+
+/**
+ * Class ActiveRecordBase
+ * @method int getId()
+ * @method int setId(int $id)
+ */
+abstract class ActiveRecordBase {
+    /**
+     * @var array
+     */
+    private $tempProperties=array();
+
+    /**
+     * Create the object
+     */
+    function create(){
 		Debug::Message('ARB Create '.get_class($this));			
 		if(!$this->runEventMethod(__FUNCTION__,'Pre'))
 			return;
@@ -11,8 +24,11 @@ abstract class ActiveRecordBase{
 		$vo['values']=array();
 		foreach($properties as $key =>$value){
 			if(isset($value)){
-				if($value instanceof ActiveRecordBase){					
-					if($value->getId()===false)
+				if($value instanceof ActiveRecordBase){
+                    /**
+                     * @var ActiveRecordBase $value
+                     */
+                    if($value->getId()===false)
 						$value->create();
 					$vo['values'][$key]=$value->getId();										
 				}else{
@@ -47,7 +63,11 @@ abstract class ActiveRecordBase{
 		}
 		$this->runEventMethod(__FUNCTION__,'Post');		
 	}
-	function delete(){
+
+    /**
+     * Deletes an object
+     */
+    function delete(){
 		Debug::Message('ARB Delete '.get_class($this));			
 		if(!$this->runEventMethod(__FUNCTION__,'Pre'))
 			return;
@@ -64,7 +84,11 @@ abstract class ActiveRecordBase{
 		->execute();
 		$this->runEventMethod(__FUNCTION__,'Post');		
 	}
-	function update(){
+
+    /**
+     * Update the object
+     */
+    function update(){
 		if(!$this->runEventMethod(__FUNCTION__,'Pre'))
 			return;
 		Debug::Message('ARB Update '.get_class($this));	
@@ -78,15 +102,12 @@ abstract class ActiveRecordBase{
 			if($key!='Id' && isset($value)){
 				if($value instanceof ActiveRecordBase){					
 					Debug::Message($key.' instanceof ARB');
-//					$value->create();
-					$vo['values'][$key]=$value->getId();										
+					$vo['values'][$key]=$value->getId();
 				}else{
 					$vo['values'][$key]=$value;
 				}
 			}
 		}
-//		Debug::Message('<strong>Create '.$vo['table'].'</strong>');
-//		Debug::Value('Values',$vo['values']);
 		global $db;
 		$db->update($vo,R::Eq($this,$this->getId()));
 		
@@ -103,7 +124,10 @@ abstract class ActiveRecordBase{
 			if(sizeof($values)>0){
 				foreach($values as $value){
 					if($table && is_subclass_of($value,'ActiveRecordBase')){
-						Debug::Value('Update list',$table);
+                        /**
+                         * @var ActiveRecordBase $value
+                         */
+                        Debug::Value('Update list',$table);
 						$value->save();
 						$col1=strtolower(get_class($value)).'_id';
 						Debug::Message('Prepare relation insert');
@@ -135,7 +159,11 @@ abstract class ActiveRecordBase{
 		}
 		$this->runEventMethod(__FUNCTION__,'Post');		
 	}
-	function save(){
+
+    /**
+     * Saves anm object. Updates if existing creates if new.
+     */
+    function save(){
 		Debug::Message('ARB Save '.get_class($this));			
 		if(method_exists($this,'on_pre_save'))
 			if(!$this->on_pre_save())
@@ -148,39 +176,72 @@ abstract class ActiveRecordBase{
 			$this->create();
 		$this->runEventMethod(__FUNCTION__,'Post');
 	}
-	static function _($class){
+
+    /**
+     * Instantiates an object based on class name.
+     * @param string $class
+     * @return mixed
+     */
+    static function _($class){
 		$item = new $class();
 		return $item;
 	}
-	public function __get($property){
+
+    /**
+     * Returns a property
+     * @param string $property
+     * @return mixed
+     */
+    public function __get($property){
 		$call="get".$property;
 		if(method_exists($this,$call))
 			return $this->$call();
 		else if(strpos($property,'Lazy')!==false)
 			return $this->$call();
 		return $this->tempProperties[$property];
-//		$trace = debug_backtrace();
-//		trigger_error('Undefined property via __get(): ' . $property .' in ' . $trace[0]['file'] .' on line ' . $trace[0]['line'],E_USER_NOTICE);
 	}
-	public function __set($property,$value){
+
+    /**
+     * Sets an property
+     * @param $property
+     * @param $value
+     * @return mixed
+     */
+    public function __set($property,$value){
 		$call="set".$property;
 		if(method_exists($this,$call))
 			return $this->$call($value);
 		$this->tempProperties[$property]=$value;
-//		$trace = debug_backtrace();
-//		trigger_error('Undefined property via __set(): ' . $property .' in ' . $trace[0]['file'] .' on line ' . $trace[0]['line'],E_USER_NOTICE);        
 	}
-	
+
+    /**
+     * Checks if an property is set
+     * @param $property
+     * @return bool
+     */
     public function __isset($property) {
         return !empty($this->$property);
     }
+
+    /**
+     * Unset an property
+     * @param $property
+     */
     public function __unset($property) {
     	$property=strtolower($property);
         unset($this->$property);
     }/**/
-	
-	
-	public function __call($method,$arguments){
+
+
+    /**
+     * Call a method. if its ends with Lazy it gets the items from database upon request.
+     * If it for example is name getItemList it will retrieve all items and call addItem($item) to add to the list.
+     *
+     * @param $method
+     * @param $arguments
+     * @return array
+     */
+    public function __call($method,$arguments){
 		if($this->getId()){
 			Debug::Message('ARB __call '.get_class($this).'->'.$method);
 			Debug::Value('Arguments',$arguments);
@@ -188,7 +249,10 @@ abstract class ActiveRecordBase{
 				$method=str_replace('Lazy','',$method);
 				$settings=ObjectUtility::getCommentDecoration($this,$method);
 				$foreign=$settings['dbrelation'];
-				$temp=new $foreign();
+                /**
+                 * @var ActiveRecordBase $temp
+                 */
+                $temp=new $foreign();
 				$foreign=strtolower($foreign);
 				if(strpos($method,'List')!==false){
 					$method=str_replace('get','',$method);									
@@ -221,14 +285,24 @@ abstract class ActiveRecordBase{
             $method=str_replace('set','',$method);
             $this->$method=array_pop($arguments);
         }
+        return array();
 	}
-	private function runEventMethod($event,$when){
+
+    /**
+     * Runs the events connected with the method
+     * @param $event
+     * @param $when
+     * @return bool
+     */
+    private function runEventMethod($event,$when){
 		$method='on'.$when.ucfirst($event);
 		$class=get_class($this);
-		Hook::run($method,$this);		
-		Hook::run($class.'->'.$method,$this);
+		Hook::run($method, array($this));
+		Hook::run($class.'->'.$method, array($this));
 		if(method_exists($this,$method))
 			return $this->$method();
 		return true;
 	}
+
+    abstract function getById($id);
 }

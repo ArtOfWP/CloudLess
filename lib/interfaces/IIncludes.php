@@ -1,16 +1,50 @@
 <?php
+
 /**
- * User: andreas
- * Date: 2011-12-21
- * Time: 22:58
-*/
+ * Class IIncludes
+ */
 interface IIncludes
 {
-   function register( FrontInclude $include );
-   function deregister($handle);
-   function enqueue($location,FrontInclude $include);
-   function dequeue($location,$handle);
-   function isRegistered($handle);
-   function isEnqueued($handle);
-   function init();
+    /**
+     * @param FrontInclude $include
+     * @return mixed
+     */
+    function register( FrontInclude $include );
+
+    /**
+     * @param $handle
+     * @return mixed
+     */
+    function deregister($handle);
+
+    /**
+     * @param $location
+     * @param FrontInclude $include
+     * @return mixed
+     */
+    function enqueue($location,FrontInclude $include);
+
+    /**
+     * @param $location
+     * @param $handle
+     * @return mixed
+     */
+    function dequeue($location,$handle);
+
+    /**
+     * @param $handle
+     * @return mixed
+     */
+    function isRegistered($handle);
+
+    /**
+     * @param $handle
+     * @return mixed
+     */
+    function isEnqueued($handle);
+
+    /**
+     * @return mixed
+     */
+    function init();
 }

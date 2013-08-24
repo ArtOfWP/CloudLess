@@ -1,8 +1,7 @@
 <?php
+
 /**
- * User: andreas
- * Date: 2011-12-30
- * Time: 15:13
+ * Class Options
  */
 class Options
 {
@@ -16,15 +15,23 @@ class Options
     private $namespace;
     private $ioptions;
     private $initialized=false;
-    public function __construct($namespace,IOptions $ioptions=NULL){
+
+    /**
+     * @param $namespace
+     * @param IOptions $iOptions
+     */
+    public function __construct($namespace,IOptions $iOptions=NULL) {
         $this->namespace=$namespace;
-        if($ioptions)
-            $this->ioptions=$ioptions;
+        if($iOptions)
+            $this->ioptions=$iOptions;
         else
             $this->ioptions=Container::instance()->make('IOptions',array($namespace));
     }
-    public function add(Option $option)
-    {
+
+    /**
+     * @param Option $option
+     */
+    public function add(Option $option) {
         if($this->initialized){
             $old=$this->pairs[$option->getKey()];
             $option->setValue($old->getValue());
@@ -32,17 +39,28 @@ class Options
         }else
             $this->pairs[$option->getKey()]=$option;
     }
-    public function get($key)
-    {
+
+    /**
+     * Return Option
+     * @param $key
+     * @return null|Option
+     */
+    public function get($key) {
         /**
         * @var Option $option
         */
         if(!isset($this->pairs[$key]))
-            return false;
+            return null;
         return $this->pairs[$key];
     }
-    public function setValue($key, $value)
-    {
+
+    /**
+     * Set value for key
+     * @param string $key
+     * @param mixed $value
+     * @return bool
+     */
+    public function setValue($key, $value) {
         $exists=false;
         if(!isset($this->pairs[$key])){
             $this->pairs[$key]=new Option($key,$value);
@@ -51,15 +69,24 @@ class Options
         return $exists;
     }
 
-    public function getValue($key)
-    {
+    /**
+     * Get value from key
+     * @param string $key
+     * @return null|mixed
+     */
+    public function getValue($key) {
         if(!isset($this->pairs[$key]))
-            return false;
+            return null;
         return $this->pairs[$key]->getValue();
     }
 
-    public function updateValue($key, $value)
-    {
+    /**
+     * Update an option
+     * @param string $key
+     * @param mixed $value
+     * @return bool
+     */
+    public function updateValue($key, $value) {
         if(isset($this->pairs[$key])){
             $this->pairs[$key]->setValue($value);
             return true;
@@ -67,13 +94,21 @@ class Options
          return false;
     }
 
-    public function exists($key)
-    {
+    /**
+     * Check if option key exists
+     * @param string $key
+     * @return bool
+     */
+    public function exists($key) {
         return isset($this->pairs[$key]);
     }
 
-    public function remove($key)
-    {
+    /**
+     * Remove an option
+     * @param string $key
+     * @return bool
+     */
+    public function remove($key) {
         $exists=false;
         if(isset($this->pairs[$key])){
             unset($this->pairs[$key]);
@@ -81,12 +116,19 @@ class Options
         }
         return $exists;
     }
-    public function delete(){
+
+    /**
+     * Delete options
+     */
+    public function delete() {
         $this->ioptions->delete($this->namespace);
         unset($this->pairs);
     }
-    public function reset()
-    {
+
+    /**
+     * Reset options to default values
+     */
+    public function reset() {
         /**
          * @var $key string
          * @var $option Option
@@ -95,7 +137,11 @@ class Options
             $this->pairs[$key]=$option->reset();
         }
     }
-    public function save(){
+
+    /**
+     * Save options
+     */
+    public function save() {
         $this->init();
         $options=array();
         /**
@@ -105,7 +151,11 @@ class Options
             $options[$option->getKey()]=$option->getValue();
         $this->ioptions->save($this->namespace,$options);
     }
-    public function init(){
+
+    /**
+     * Initiate Options by loading them
+     */
+    public function init() {
         if(!$this->initialized){
             $options=$this->ioptions->load($this->namespace);
             if(!empty($options))
@@ -118,14 +168,24 @@ class Options
             $this->initialized=true;
         }
     }
-    public function __get($key){
+
+    /**
+     * @param $key
+     * @return mixed
+     */
+    public function __get($key) {
         if(isset($this->pairs[$key]))
             return $this->pairs[$key]->getValue();
         else
             trigger_error("$key key does not exist",E_USER_WARNING );
     }
-    public function __set($key,$value){
 
+    /**
+     * @param $key
+     * @param $value
+     */
+    public function __set($key,$value) {
+        $this->pairs[$key]->setValue($value);
     }
     /**
      * @deprecated
@@ -133,6 +193,10 @@ class Options
     public function isEmpty(){
         return sizeof($this->pairs)==0;
     }
+
+    /**
+     * @return array
+     */
     public function getArray(){
         $options=array();
         foreach($this->pairs as $key => $option)

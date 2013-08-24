@@ -46,11 +46,11 @@ class FilterTest extends PHPUnit_Framework_TestCase{
     	}
 	public function testRegisterCustomHandler(){
 		Filter::registerHandler('test_filter_handler','testFilterHandler2');
-		$this->assertTrue(Filter::hasHandler('test_filter_handler'));
+		$this->assertTrue(Filter::hasCustomHandler('test_filter_handler'));
 	}
 	public function testRunCustomHandler(){
 		Filter::registerHandler('test_filter_handler2','testFilterHandler');
-		$this->assertTrue(Filter::hasHandler('test_filter_handler2'));
+		$this->assertTrue(Filter::hasCustomHandler('test_filter_handler2'));
 		Filter::register('test_filter_handler2','test_filter_handler2');
 		global $customStuff;
 		$this->assertTrue(isset($customStuff['test_filter_handler2']));

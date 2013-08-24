@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * Class WpApplicationBase
+ * Todo: make it independant of WordPress. Make an applciation base and then make an DI for WordPress
+ */
 abstract class WpApplicationBase{
 	protected $installFromPath;
 	protected $VERSION=false;
@@ -13,7 +18,15 @@ abstract class WpApplicationBase{
 	public $options;
 	private $useInstall;
 	private $useOptions;
-	function WpApplicationBase($appName,$file,$useOptions=false,$useInstall=false,$basename=false){
+
+    /**
+     * @param $appName
+     * @param $file
+     * @param bool $useOptions
+     * @param bool $useInstall
+     * @param bool $basename
+     */
+    function WpApplicationBase($appName,$file,$useOptions=false,$useInstall=false,$basename=false){
 		$this->dir=dirname($file);
 		$this->app=$appName;
 		if($basename)
@@ -58,22 +71,6 @@ abstract class WpApplicationBase{
 			}
 			if(method_exists($this,'onRewriteRulesArray'))
 				Filter::register('rewrite_rules_array',array(&$this,'onRewriteRulesArray'));
-			// Deprecated stuff
-			//TODO: deprecated
-			if(method_exists($this,'on_init_admin'))
-				Hook::register('init', array(&$this,'on_init_admin'));
-			//TODO: deprecated
-			if(method_exists($this,'on_admin_init'))
-				Hook::register('admin_init', array(&$this,'on_admin_init'));
-			//TODO: deprecated
-			if(method_exists($this,'on_admin_menu'))
-				Hook::register('admin_menu',array(&$this,'on_admin_menu'));
-			//TODO: deprecated
-			if(method_exists($this,'on_rewrite_rules_array'))
-				Filter::register('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
-			//TODO: deprecated
-			if(method_exists($this,'on_plugin_page_link'))
-				Filter::register( 'plugin_action_links_'.$this->pluginName, array(&$this,'pluginPageLinks'), 10, 2 );
 			if(isset($_GET['plugin']) && $_GET['plugin']==$appName)
 				Hook::register('install_plugins_pre_plugin-information',array(&$this,'versionInformation'));
 		}else{
@@ -87,19 +84,6 @@ abstract class WpApplicationBase{
 				Filter::register('rewrite_rules_array',array(&$this,'onRewriteRulesArray'));
 			if(method_exists($this,'onRenderFooter'))
 				View::register('footer',array(&$this,'onRenderFooter'));
-
-			//TODO: deprecated since 11.6
-			if(method_exists($this,'on_print_styles'))
-				View::register('print_styles',array(&$this,'printStyles'));
-			if(method_exists($this,'on_print_scripts'))
-				View::register('print_scripts',array(&$this,'printScripts'));
-			if(method_exists($this,'on_add_page_links'))
-				Filter::register('list_pages', array(&$this,'on_add_page_links'));
-			if(method_exists($this,'on_rewrite_rules_array'))
-				Filter::register('rewrite_rules_array',array(&$this,'on_rewrite_rules_array'));
-			if(method_exists($this,'on_render_footer'))
-				View::register('footer',array(&$this,'on_render_footer'));
-			//TODO: end
 		}
 		Filter::register('set_plugin_has_updates', array(&$this, 'siteTransientUpdatePlugins'));
         Hook::register('set_plugin_has_updates', array(&$this, 'transientUpdatePlugins'));
@@ -120,10 +104,11 @@ abstract class WpApplicationBase{
 		}
 		Debug::Value($appName,$this->app);
 	}
-	public function init(){
-		//TODO deprecated since 11.6
-		if(method_exists($this,'on_initialize'))
-			$this->on_initialize();
+
+    /**
+     *
+     */
+    public function init(){
 		if(method_exists($this,'onInitialize'))
 				$this->onInitialize();
 		if(is_admin() && (method_exists($this,'on_init_update') || method_exists($this,'onInitUpdate'))){
@@ -141,26 +126,34 @@ abstract class WpApplicationBase{
 		}
 	}
 
-	function addUpdateUrl($r,$url){
+    /**
+     * @param $r
+     * @param $url
+     * @return mixed
+     */
+    function addUpdateUrl($r,$url){
 			$r['headers']['Referer']=get_site_url();
 			return $r;
 	}
 
-	function registerQueryVars($public_query_vars){
+    /**
+     * @param $public_query_vars
+     * @return array
+     */
+    function registerQueryVars($public_query_vars){
 		$vars=array();
-		//TODO remove after 11.6.1
-		if(method_exists($this,'on_register_query_vars'))
-			$vars=$this->on_register_query_vars();
 		if(method_exists($this,'onRegisterQueryVars'))
 			$vars=$this->onRegisterQueryVars();
 		foreach($vars as $var)
 			$public_query_vars[]=$var;
 		return $public_query_vars;
 	}
-	function registerSettings(){
+
+    /**
+     *
+     */
+    function registerSettings(){
 		if(method_exists($this,'on_register_settings') || method_exists($this,'onRegisterSettings')){
-			if(method_exists($this,'on_register_settings'))
-				$settings = $this->on_register_settings();
 			if(method_exists($this,'onRegisterSettings'))
 				$settings = $this->onRegisterSettings();
 			foreach($settings as $option => $key)
@@ -172,28 +165,33 @@ abstract class WpApplicationBase{
 		if($this->useOptions)
 			WpHelper::registerSettings($this->app,array($this->app));
 	}
-	function afterPluginRow($plugin_file, $plugin_data){
-		//TODO remove after 11.6.1
-		if(method_exists($this,'on_plugin_row_message'))
-			$display=$this->on_plugin_row_message();
+
+    /**
+     * @param $plugin_file
+     * @param $plugin_data
+     */
+    function afterPluginRow($plugin_file, $plugin_data){
 		if(method_exists($this,'onPluginRowMessage'))
 			$display=$this->onPluginRowMessage();
 		extract($display);
 		echo '<tr class="',$trclass,'" style="',$trstyle,'"><td colspan="3" class="',$tdclass,'" style="',$tdstyle,'"><div class="',$divclass,'" style="',$divstyle,'">',$message,'</div></td></tr>';
 	}
-	function pluginPageLinks($links){
-		//TODO remove after 11.6.1
-		if(method_exists($this,'on_plugin_page_link'))
-			$plugin_link=$this->on_plugin_page_link();
+
+    /**
+     * @param $links
+     * @return mixed
+     */
+    function pluginPageLinks($links){
 		if(method_exists($this,'onPluginPageLink'))
 			$plugin_link=$this->onPluginPageLink();
 		array_unshift( $links, $plugin_link); // before other links
 		return $links;
 	}
-	function activate(){
-		//TODO: deprecated since 11.6
-		if(method_exists($this,'on_init_update'))
-			$this->on_init_update();
+
+    /**
+     *
+     */
+    function activate(){
 		if(method_exists($this,'onInitUpdate'))
 			$this->onInitUpdate();
 		$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);
@@ -211,16 +209,14 @@ abstract class WpApplicationBase{
 			if(method_exists($this,'onLoadOptions'))
 				$this->onLoadOptions();
 		}
-		//TODO deprecated 11.6
-		if(method_exists($this,'on_activate'))
-			$this->on_activate();
 		if(method_exists($this,'onActivate'))
 			$this->onActivate();
 	}
-	function deactivate(){
-		//TODO deprecated 11.6
-		if(method_exists($this,'on_deactivate'))
-			$this->on_deactivate();
+
+    /**
+     *
+     */
+    function deactivate(){
 		if(method_exists($this,'onDeactivate'))
 			$this->onDeactivate();
 		if(!$this->useInstall){
@@ -228,13 +224,18 @@ abstract class WpApplicationBase{
 			AoiSoraSettings::removeApplication($this->app);
 		}
 	}
-	function installed(){
+
+    /**
+     * @return bool
+     */
+    function installed(){
 		return AoiSoraSettings::installed($this->app);
 	}
-	public function install(){
-		//TODO deprecated 11.6
-		if(method_exists($this,'on_preinstall'))
-			$this->on_preinstall();
+
+    /**
+     * @return bool
+     */
+    public function install(){
 		if(method_exists($this,'onPreInstall'))
 			$this->onPreInstall();
 		Debug::Value('Install from path',$this->installFromPath);
@@ -244,14 +245,15 @@ abstract class WpApplicationBase{
 		$this->create();
 		if($result)
 			AoiSoraSettings::installApplication($this->app);
-		//TODO: deprecated since 11.6
-		if(method_exists($this,'on_after_install'))
-			$this->on_after_install();
 		if(method_exists($this,'onAfterInstall'))
 			$this->onAfterInstall();
 		return $result;
 	}
-	private function create(){
+
+    /**
+     *
+     */
+    private function create(){
 		global $db;
 		foreach($this->models as $model){
 			$m = new $model();
@@ -260,10 +262,11 @@ abstract class WpApplicationBase{
 		$db->createStoredRelations();
 		$db->createStoredIndexes();
 	}
-	public function uninstall(){
-		//TODO: deprecated 11.6
-		if(method_exists($this,'on_preuninstall'))
-			$this->on_preuninstall();
+
+    /**
+     *
+     */
+    public function uninstall(){
 		if(method_exists($this,'onPreUninstall'))
 			$this->onPreUninstall();
 		$this->models=array();
@@ -277,13 +280,14 @@ abstract class WpApplicationBase{
 				$this->options->delete();
 		}
 		AoiSoraSettings::removeApplication($this->app);
-		//TODO deprecated 11.6
-		if(method_exists($this,'on_after_uninstall'))
-			$this->on_after_uninstall();
 		if(method_exists($this,'onAfterUninstall'))
 			$this->onAfterUninstall();
 	}
-	private function drop(){
+
+    /**
+     *
+     */
+    private function drop(){
 		global $db;
 		foreach($this->models as $model){
 			$m = new $model();
@@ -291,14 +295,19 @@ abstract class WpApplicationBase{
 		}
 		$db->dropStoredRelations();
 	}
-	function delete(){
+
+    /**
+     *
+     */
+    function delete(){
 		if($this->options)
 			$this->options->delete();
 	}
-	private function update(){
-		//TODO deprecated since 11.6
-		if(method_exists($this,'on_update'))
-			$this->on_update();
+
+    /**
+     *
+     */
+    private function update(){
 		if(method_exists($this,'onUpdate'))
 			$this->onUpdate();
 		$updatePath=trim($this->dir,'/').'/app/updates/'.$this->VERSION.'.php';
@@ -307,7 +316,11 @@ abstract class WpApplicationBase{
 		else if(file_exists($updatePath))
 			include($updatePath);
 	}
-	private function load($dir){
+
+    /**
+     * @param $dir
+     */
+    private function load($dir){
 		Debug::Value('Loading directory',$dir);
 		$handle = opendir($dir);
 		while(false !== ($resource = readdir($handle))) {
@@ -322,7 +335,11 @@ abstract class WpApplicationBase{
 		}
 		closedir($handle);
 	}
-	private function loadstyles($styles){
+
+    /**
+     * @param $styles
+     */
+    private function loadstyles($styles){
 		if(isset($styles) && !empty($styles) && is_array($styles)){
 			foreach($styles as $name => $file){
 				if(is_string($name)){
@@ -337,7 +354,11 @@ abstract class WpApplicationBase{
 			}
 		}
 	}
-	private function loadscripts($scripts){
+
+    /**
+     * @param $scripts
+     */
+    private function loadscripts($scripts){
 		if(isset($scripts) && !empty($scripts) && is_array($scripts)){
 			foreach($scripts as $name => $file){
 				if(is_string($name)){
@@ -353,27 +374,53 @@ abstract class WpApplicationBase{
 		}
 	}
 	//TODO: deprecated since 11.6
-	function print_admin_styles(){
+    /**
+     *
+     */
+    function print_admin_styles(){
 		$this->printAdminStyles();
 	}
-	function printAdminStyles(){
+
+    /**
+     *
+     */
+    function printAdminStyles(){
 		$this->loadstyles($this->on_admin_print_styles());
 	}
 	//TODO: deprecated since 11.6
-	function print_admin_scripts(){
+    /**
+     *
+     */
+    function print_admin_scripts(){
 		$this->printAdminScripts();
 	}
-	function printAdminScripts(){
+
+    /**
+     *
+     */
+    function printAdminScripts(){
 		$this->loadscripts($this->on_admin_print_scripts());
 	}
-	function printScripts(){
+
+    /**
+     *
+     */
+    function printScripts(){
 		$this->loadscripts($this->on_print_scripts());
 	}
-	function printStyles(){
+
+    /**
+     *
+     */
+    function printStyles(){
 		$this->loadstyles($this->on_print_styles());
 
 	}
-	function getVersionInfo(){
+
+    /**
+     * @return array|mixed
+     */
+    function getVersionInfo(){
 		global $wp_version;
 		$version_info=get_transient('aoisora-update-'.$this->SLUG);
 		if($version_info)
@@ -398,7 +445,11 @@ abstract class WpApplicationBase{
 		return array();
 	}
 	static $count=0;
-	function transientUpdatePlugins(){
+
+    /**
+     *
+     */
+    function transientUpdatePlugins(){
 		if(empty($this->UPDATE_SITE) || !is_admin())
 			return;
 		$plugins = get_transient("update_plugins");
@@ -407,7 +458,12 @@ abstract class WpApplicationBase{
 		if(function_exists("set_site_transient"))
 			set_site_transient("update_plugins", $plugins);
 	}
-	function siteTransientUpdatePlugins($plugins=false){
+
+    /**
+     * @param bool $plugins
+     * @return bool
+     */
+    function siteTransientUpdatePlugins($plugins=false){
 		if(empty($this->UPDATE_SITE) || !is_admin())
 			return;
 		global $wp_version;
@@ -431,7 +487,11 @@ abstract class WpApplicationBase{
 		}
 		return $plugins;
 	}
-	function versionInformation(){
+
+    /**
+     *
+     */
+    function versionInformation(){
 		if(!$this->VERSION_INFO_LINK)
 			return;
 		$response=Http::getPage($this->VERSION_INFO_LINK.'&id='.$this->SLUG);

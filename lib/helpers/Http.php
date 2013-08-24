@@ -1,9 +1,22 @@
 <?php
+
+/**
+ * Class Http
+ */
 class Http{
-	static function get_useragent(){
+    /**
+     * Retrieve the user agent from request
+     * @return string
+     */
+    static function get_useragent(){
 		return htmlspecialchars(strip_tags($_SERVER['HTTP_USER_AGENT']));
 	}
-	static function get_request_domain(){
+
+    /**
+     * Retrieve the requesting domain
+     * @return string
+     */
+    static function get_request_domain(){
 		if(isset($_SERVER['HTTP_REFERER'])){
    		$parseUrl = parse_url(trim($_SERVER['HTTP_REFERER']));
 		$domain=trim($parseUrl['host'] ? $parseUrl['host'] : array_shift(explode('/', $parseUrl['path'], 2)));
@@ -13,10 +26,20 @@ class Http{
 		$domain=strtolower($domain);
 		return $domain;
 	}
-	static function get_IP(){
+
+    /**
+     * @return string
+     */
+    static function get_IP(){
 		return htmlspecialchars(strip_tags($_SERVER['REMOTE_ADDR']));
 	}
-	static function save_image($img,$fullpath='basename'){
+
+    /**
+     * Save an image to
+     * @param string $img
+     * @param string $fullpath
+     */
+    static function save_image($img, $fullpath='basename'){
 
 		if($fullpath=='basename'){
 			$fullpath = basename($img);
@@ -34,7 +57,14 @@ class Http{
 		fwrite($fp, $rawdata);
 		fclose($fp);
 	}
-	static function getPage($url,$referer=false){
+
+    /**
+     * Retrives a page
+     * @param $url
+     * @param bool $referer
+     * @return mixed
+     */
+    static function getPage($url,$referer=false){
 		$ch=curl_init();
 
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -46,7 +76,13 @@ class Http{
 		curl_close ($ch);
 		return $cache;
 	}
-	static function save_file($url,$fullpath){
+
+    /**
+     * Save a file to disk
+     * @param $url
+     * @param $fullpath
+     */
+    static function save_file($url,$fullpath){
 	    $out = fopen($fullpath, "wb");
 	    if ($out == FALSE){
 	      print "File not opened<br>";

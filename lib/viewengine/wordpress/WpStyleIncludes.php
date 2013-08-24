@@ -8,12 +8,12 @@ class WpStyleIncludes extends WpFrontIncludes
 {
     function enqueueInclude(FrontInclude $style)
     {
-        wp_enqueue_style($style->getHandle(),$style->getSrc(),$style->getDependency(),$style->getVersion(),$style->getInFooter());
+        wp_enqueue_style($style->getHandle(),$style->getSrc(),$style->getDependency(),$style->getVersion(),$style->loadInFooter());
     }
 
     function registerInclude(FrontInclude $style)
     {
-        wp_register_style($style->getHandle(),$style->getSrc(),$style->getDependency(),$style->getVersion(),$style->getInFooter());
+        wp_register_style($style->getHandle(),$style->getSrc(),$style->getDependency(),$style->getVersion(),$style->loadInFooter());
     }
 
     function dequeueInclude($styleHandle)

@@ -1,18 +1,37 @@
 <?php
+
+/**
+ * Class Debug
+ */
 class Debug{
-	static function IsActive(){
+    /**
+     * Is debug active
+     * @return bool
+     */
+    static function IsActive(){
 		if(defined('DEBUG') && !(defined('DOING_AJAX') && DOING_AJAX))
 			return DEBUG;
 		return false;
 	}
-	static function Message($message){
+
+    /**
+     * Log debug message
+     * @param $message
+     */
+    static function Message($message){
 		if(Debug::IsActive())
 			if(defined('WRITE_TO_FILE') && WRITE_TO_FILE)
 				file_put_contents(LOG_FILE,time()."\t".$message."\n",FILE_APPEND);
 			else
 				echo '<p>'.$message.'</p>';
 	}
-	static function Value($message,$value){
+
+    /**
+     * Log debug message with value
+     * @param $message
+     * @param $value
+     */
+    static function Value($message,$value){
 		if(Debug::IsActive())			
 			if(defined('WRITE_TO_FILE') && WRITE_TO_FILE){
 				$value=is_array($value)|| is_object($value)?"\n".print_r($value,true):"\t".$value;
@@ -27,7 +46,11 @@ class Debug{
 				echo '<p><strong>'.$message.':</strong>  '.$value.'</p>';
 			}
 	}
-	static function Backtrace(){
+
+    /**
+     * Log backtrace
+     */
+    static function Backtrace(){
 		if(Debug::IsActive()){		
 			$thisfile = debug_backtrace();
 			if(defined('WRITE_TO_FILE') && WRITE_TO_FILE){
@@ -38,25 +61,52 @@ class Debug{
 			}
 		}
 	}
-	static function timeIt(){
+
+    /**
+     * Start timer and return it
+     * @return RunningTime
+     */
+    static function timeIt(){
 		$r= new RunningTime();
 		$r->start();
 		return $r;
 	}
 }
+
+/**
+ * Class RunningTime
+ */
 class RunningTime{
 	private $starttime;
 	private $endtime;
-	function start(){
+
+    /**
+     * Start timer
+     */
+    function start(){
 		$this->starttime= microtime(true);
 	}
-	function stop(){
+
+    /**
+     * Stop timer
+     */
+    function stop(){
 		$this->endtime= microtime(true);
 	}
-	function timerun(){
+
+    /**
+     * Retrieve the timelapsed
+     * @return mixed
+     */
+    function timerun(){
 		return $this->endtime-$this->starttime;
 	}
-	function __toString(){
+
+    /**
+     * Convert time to string
+     * @return string
+     */
+    function __toString(){
 		return $this->timerun().'';
 	}
 }

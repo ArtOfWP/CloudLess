@@ -1,7 +1,26 @@
 <?php
+
+/**
+ * Class IOption
+ */
 interface IOption{
-	function init();	
-	function isEmpty();
-	function save();
-	function delete();
+    /**
+     * @return mixed
+     */
+    function init();
+
+    /**
+     * @return mixed
+     */
+    function isEmpty();
+
+    /**
+     * @return mixed
+     */
+    function save();
+
+    /**
+     * @return mixed
+     */
+    function delete();
 }

@@ -87,11 +87,6 @@ class WpHelper{
 		if $optionNames is not supplied the function will retrieve the options it self and use the optionkey as label.
 	 */
 	static function tabbedOptionsForm($optiongroup,$tabs,$saveAllTabs=true){		
-/*		if(!$options){
-			$options=array();
-			global $new_whitelist_options;
-			$options=$new_whitelist_options[$optiongroup];
-		}*/
 		$values=get_option($optiongroup);
 		?>
 		<?php if($saveAllTabs):?>

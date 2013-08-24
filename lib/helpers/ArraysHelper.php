@@ -1,5 +1,13 @@
 <?php
-	function array_key_has_value($key,$value,$haystack){
+
+/**
+ * Checks if an array has a specific value
+ * @param $key
+ * @param $value
+ * @param $haystack
+ * @return bool
+ */
+function array_key_has_value($key,$value,$haystack){
 		foreach($haystack as $k => $val)
 			if($key==$k)
 				if(is_array($value))
@@ -9,20 +17,27 @@
 		return false;
 	}
 
-    /**
-     * @param $needle
-     * @param $haystack
-     * @return bool|mixed
-     */
-	function array_key_exists_v($needle,$haystack){
-        if($haystack)
-    		foreach($haystack as $key => $value)
-	    		if($needle===$key)
-		    		return $value;
-		return false;
-	}
-	
-	function array_search_key($search,$haystack){
+/**
+ * Checks if an array has a needle and if so returns its value.
+ * @param string $needle
+ * @param array $haystack
+ * @return bool|mixed
+ */
+function array_key_exists_v($needle,$haystack){
+    if($haystack)
+        foreach($haystack as $key => $value)
+            if($needle===$key)
+                return $value;
+    return false;
+}
+
+/**
+ * Searches an array to see if keys matching the search string exists if so returns all matching key value pairs
+ * @param string $search
+ * @param array $haystack
+ * @return array
+ */
+function array_search_key($search,$haystack){
 		$array= array();
 		foreach($haystack as $key => $value){
 			$sub=stristr($key,$search);
@@ -32,6 +47,12 @@
 		return $array;
 	}
 
+/**
+ * Searches an array to see if values matching the search string exists if so returns all matching keys
+ * @param string $search
+ * @param string $haystack
+ * @return array
+ */
 function array_search_keys_value($search,$haystack){
 	$array= array();
 	foreach($haystack as $key=>$value){

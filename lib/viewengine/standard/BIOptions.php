@@ -1,9 +1,4 @@
 <?php
-/**
- * User: andreas
- * Date: 2011-12-30
- * Time: 20:48
- */
 class BIOptions implements IOptions
 {
     /**
