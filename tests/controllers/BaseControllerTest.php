@@ -12,6 +12,10 @@ define('TESTING',true);
 include('/../config.php');
 include('/../classes/Person.php');
 include('/../classes/Tag.php');
+global $testquery,$testpost;
+$testquery=array();
+$testpost=array();
+
 class BaseControllerTest extends PHPUnit_Framework_TestCase{
 	public function correctExtendedController(){
         setUp('test','test');

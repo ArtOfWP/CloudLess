@@ -72,5 +72,5 @@ class Person extends ActiveRecordBase{
 	}
 	function addTags($tag){
 		$this->tags[]=$tag;
-	}		
+	}
 }

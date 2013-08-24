@@ -92,7 +92,7 @@ class BaseController {
         $item = get_class($this);
         $this->controller = str_replace('Controller', '', $item);
         $this->values = Communication::getQueryString();
-        $this->values += Communication::getFormValues();
+        $this->values = array_merge($this->values, Communication::getFormValues());
         $this->action = array_key_exists_v(ACTIONKEY, $this->values);
         if (!$this->action)
             $this->action = $this->defaultAction;

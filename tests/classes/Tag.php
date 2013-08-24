@@ -38,5 +38,5 @@ class Tag extends ActiveRecordBase{
 	}
 	function setTotalTagged($total){
 		$this->total=$total;
-	}	
+	}
 }

@@ -303,6 +303,4 @@ abstract class ActiveRecordBase {
 			return $this->$method();
 		return true;
 	}
-
-    abstract function getById($id);
 }

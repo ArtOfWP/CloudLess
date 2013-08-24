@@ -65,7 +65,7 @@ class Communication{
 			else
 				$qs= $_GET;
 		}
-		if($key!==false)
+		if($key)
 			$qs=array_key_exists_v($key,$qs);
 		return $qs;
 	}
@@ -159,9 +159,6 @@ class Communication{
 			
 		$properties = ObjectUtility::getPropertiesAndValues($crudItem);
 		Debug::Message('LoadFromPost');
-		$arrvalues=$formValues;
-		Debug::Value('Post',$arrvalues);
-
 		//		Debug::Value('Uploaded',Communication::getUpload($properties));
 		$propertyFormValues=Communication::getFormValues($properties);
 		$propertyFormValues=array_map('stripslashes',$propertyFormValues);
