@@ -75,8 +75,6 @@ class Container
      */
     public function make($key, $params=array()) {
         $class = $this->fetchTuple($key);
-        if (!$class)
-            throw new InvalidArgumentException("$key does not exist in container");
         if ('object'==$class[1]) {
             $className = get_class($class[0]);
         } else if('class'==$class[1])
