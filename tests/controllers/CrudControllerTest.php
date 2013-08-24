@@ -44,9 +44,6 @@ class CrudControllerTest extends PHPUnit_Framework_TestCase{
 	}	
 }
 class PersonController extends CrudController{
-	function currentController(){
-		return $this->controller;
-	}
 	function test(){
 		$this->bag['test']='test';
 	}
