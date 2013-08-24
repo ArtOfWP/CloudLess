@@ -30,6 +30,7 @@ class StylesIncludesTest extends PHPUnit_Framework_TestCase
         $si = new StyleIncludes($StyleStub);
         $si->register($this->getTestFI());
         $StyleStub->expects($this->any())->method('isRegistered')->will($this->returnValue(false));
+        $StyleStub->expects($this->any())->method('deregister')->will($this->returnValue(true));
         $this->assertTrue($si->deregister($this->getTestFI()));
         $this->assertFalse($si->isRegistered('popup'));
     }
@@ -49,6 +50,7 @@ class StylesIncludesTest extends PHPUnit_Framework_TestCase
         $si->register($this->getTestFI());
         $si->enqueue('administration',$this->getTestFI());
         $StyleStub->expects($this->any())->method('isEnqueued')->will($this->returnValue(false));
+        $StyleStub->expects($this->any())->method('dequeue')->will($this->returnValue(true));
         $this->assertTrue($si->dequeue('administration','popup'));
         $this->assertFalse($si->isEnqueued('popup'));
     }
