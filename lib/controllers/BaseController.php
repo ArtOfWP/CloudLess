@@ -280,19 +280,13 @@ class BaseController {
         if (defined('NO_REDIRECT') && NO_REDIRECT)
             return;
         $redirect = Communication::useRedirect();
-        if ($redirect)
-            if (strtolower($redirect) == 'referer') {
-                $redirect = str_replace('&result=1', '', Communication::getReferer());
-                $redirect = str_replace('&result=2', '', $redirect);
-                $redirect = str_replace('&result=0', '', $redirect);
-
-                Communication::redirectTo(str_replace('&result=1', '', $redirect), $query);
-            } else {
-                $redirect = str_replace('&result=1', '', $redirect);
-                $redirect = str_replace('&result=2', '', $redirect);
-                $redirect = str_replace('&result=0', '', $redirect);
-                Communication::redirectTo($redirect, $query);
-            }
+        if ($redirect) {
+            if (strtolower($redirect) == 'referer')
+                $redirect = preg_replace('/[\&|\?]result\=\d+/', '', Communication::getReferer());
+            else
+                $redirect = preg_replace('/[\&|\?]result\=\d+/', '', $redirect);
+            Communication::redirectTo($redirect, $query);
+        }
     }
 
     /**
