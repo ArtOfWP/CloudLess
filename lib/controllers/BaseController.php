@@ -93,11 +93,11 @@ class BaseController {
         $this->controller = str_replace('Controller', '', $item);
         $this->values = Communication::getQueryString();
         $this->values = array_merge($this->values, Communication::getFormValues());
-        $this->action = array_key_exists_v(ACTIONKEY, $this->values);
+        /*$this->action = array_key_exists_v(ACTIONKEY, $this->values);
         if (!$this->action)
             $this->action = $this->defaultAction;
         unset($this->values[CONTROLLERKEY]);
-        unset($this->values[ACTIONKEY]);
+        unset($this->values[ACTIONKEY]);*/
         if (method_exists($this, 'onControllerInit'))
             $this->onControllerInit();
     }
@@ -155,7 +155,7 @@ class BaseController {
      * @param string $action The name of the action to execute.
      * @throws RuntimeException Thrown if action is not found.
      */
-    public function executeAction($action) {
+    public function executeAction($action, $getParams) {
         if (method_exists($this, $action)) {
             Debug::Message('Executed action: ' . $action);
             $reflection = new ReflectionMethod($this, $action);
@@ -170,9 +170,9 @@ class BaseController {
                     if ($rClass) {
                         $pObj = $rClass->newInstance();
                         $paramValues[] = $this->loadFromPost($pObj,$param->getName().'_');
-                    } else if (isset($this->values[$param->getName()])) {
-                        $paramValues[] = $this->values[$param->getName()];
-                        unset($this->values[$param->getName()]);
+                    } else if (isset($getParams[$param->getName()])) {
+                        $paramValues[] = $getParams[$param->getName()];
+                        //unset($this->values[$param->getName()]);
                     }
                 }
             }
@@ -183,7 +183,7 @@ class BaseController {
                 $this->RenderToAction($action);
             }
         } else
-            throw new RuntimeException("The action you tried to execute does not exist.");
+            throw new RuntimeException("The action you tried to execute does not exist. $action");
     }
 
     /**

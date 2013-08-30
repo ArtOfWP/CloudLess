@@ -10,7 +10,7 @@ define('CONTROLLERS',LIB.'/controllers/');
 
 include(PACKAGEPATH.'load.php');
 if(LOADALL){
-include(PACKAGEPATH.'lib/Route.php');
+include(PACKAGEPATH . 'lib/Route.php');
 include(PACKAGEPATH.'lib/Debug.php');
 load(PACKAGEPATH.'lib/helpers/');
     load(PACKAGEPATH.'lib/events/');

@@ -81,6 +81,7 @@ class Container
             $className = $class[0];
         else
             $className = $key;
+
         $rclass = new ReflectionClass($className);
         $rclassCstr = $rclass->getConstructor();
         if ($rclassCstr) {
@@ -101,7 +102,7 @@ class Container
                     }else
                         $invokeParams[] = $pValue[0];
                 }
-                $obj = $rclass->newInstanceArgs($invokeParams);
+                $obj = $rclass->newInstanceArgs(array_merge($params,$invokeParams));
 
             } else
                 $obj = new $className();

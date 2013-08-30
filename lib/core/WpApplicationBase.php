@@ -27,7 +27,8 @@ abstract class WpApplicationBase{
      * @param bool $basename
      */
     function WpApplicationBase($appName,$file,$useOptions=false,$useInstall=false,$basename=false){
-		$this->dir=dirname($file);
+        add_action('plugins_loaded',array($this,'aoisoraLoaded'));
+        $this->dir=dirname($file);
 		$this->app=$appName;
 		if($basename)
 			$this->pluginName=$basename;//"$appName/$appName.php";
@@ -87,22 +88,6 @@ abstract class WpApplicationBase{
 		}
 		Filter::register('set_plugin_has_updates', array(&$this, 'siteTransientUpdatePlugins'));
         Hook::register('set_plugin_has_updates', array(&$this, 'transientUpdatePlugins'));
-		if($this->useOptions){
-            $this->options= new Options($this->app);
-            if(method_exists($this,'onInitUpdate'))
-                $this->onInitUpdate();
-            if(method_exists($this,'on_init_update'))
-                $this->on_init_update();
-
-            if(version_compare($this->VERSION,'12','<='))
-			    $this->options=Option::create($this->app);
-			//TODO deprecated since 11.6
-			if(method_exists($this,'on_load_options'))
-				$this->on_load_options();
-			if(method_exists($this,'onLoadOptions'))
-				$this->onLoadOptions();
-		}
-		Debug::Value($appName,$this->app);
 	}
 
     /**
@@ -111,9 +96,7 @@ abstract class WpApplicationBase{
     public function init(){
 		if(method_exists($this,'onInitialize'))
 				$this->onInitialize();
-		if(is_admin() && (method_exists($this,'on_init_update') || method_exists($this,'onInitUpdate'))){
-			if(method_exists($this,'on_init_update'))
-				$this->on_init_update();
+		if(is_admin() && (method_exists($this,'onInitUpdate'))){
 			if(method_exists($this,'onInitUpdate'))
 				$this->onInitUpdate();
 			$oldVersion=AoiSoraSettings::getApplicationVersion($this->app);

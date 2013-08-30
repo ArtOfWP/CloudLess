@@ -48,8 +48,11 @@ function loadApp($dir){
  * Loads required files, Loads wordpress viewengine if defined.
  */
 function loadAoiSora(){
-	include(PACKAGEPATH.'config.php');
-	include(PACKAGEPATH.'lib/Route.php');
+    if (!defined('CLOUDLESS_CONFIG'))
+        include(PACKAGEPATH.'config.php');
+    else
+        include CLOUDLESS_CONFIG;
+	include(PACKAGEPATH . 'lib/Route.php');
 	include(PACKAGEPATH.'lib/Debug.php');
     load(PACKAGEPATH.'lib/interfaces/');
 	load(PACKAGEPATH.'lib/helpers/');
@@ -57,8 +60,9 @@ function loadAoiSora(){
 	load(PACKAGEPATH.'lib/events/');
 	load(PACKAGEPATH.'lib/controllers/');
 	load(PACKAGEPATH.'lib/views/');
-	
 	if(VIEWENGINE=='wordpress'){
 		load(PACKAGEPATH.'lib/viewengine/'.VIEWENGINE.'/');
-	}
+	} else {
+        load(PACKAGEPATH.'lib/viewengine/standard/');
+    }
 }

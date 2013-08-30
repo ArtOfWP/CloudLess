@@ -3,10 +3,8 @@
  * Handles rerouting that comes from htaccess redirects
  */
 define('PREROUTE',true);
-global $loadviewengine;
-$loadviewengine='WordPress';
-include('../../../wp-load.php');
-//include('init.php');
+//include('../../../wp-load.php');
+require_once 'AoiSora.php';
 $success=Route::reroute();
 if(!$success){
 	header("Status: 404");
