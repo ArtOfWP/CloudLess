@@ -1,5 +1,8 @@
 <?php
 namespace CLMVC\Helpers;
+use CLMVC\Core\Debug;
+use ReflectionMethod;
+use ReflectionClass;
 /**
  * Class ObjectUtility
  */
@@ -64,7 +67,6 @@ class ObjectUtility{
     static function addToArray($object,$method,$values){
 		Debug::Message('AddToArrayMethod');
 		Debug::Value($method,$values);
-		$class = new ReflectionClass(get_class($object));
 		$method=new ReflectionMethod(get_class($object),'add'.$method);
 		foreach($values as $value){
 			$method->invoke($object,$value);
