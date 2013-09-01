@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\Interfaces;
 
 /**
  * Class IIncludes

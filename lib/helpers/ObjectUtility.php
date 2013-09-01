@@ -1,5 +1,5 @@
 <?php
-
+namespace CLMVC\Helpers;
 /**
  * Class ObjectUtility
  */

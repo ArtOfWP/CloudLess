@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\Events;
 
 /**
  * Class Hook

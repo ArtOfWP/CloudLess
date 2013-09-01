@@ -1,5 +1,5 @@
 <?php
-
+namespace CLMVC\Core\Includes;
 /**
  * Class FrontInclude
  * Stylesheet or JavaScript file that should be registered and loaded.

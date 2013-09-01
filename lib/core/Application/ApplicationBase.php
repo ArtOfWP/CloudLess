@@ -1,11 +1,8 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: Andreas
- * Date: 2013-08-25
- * Time: 15:15
- * To change this template use File | Settings | File Templates.
- */
+
+namespace CLMVC\Core\Application;
+use CLMVC\Core\Options;
+use CLMVC\Core\Debug;
 
 class ApplicationBase {
     public $app, $dir, $appName;

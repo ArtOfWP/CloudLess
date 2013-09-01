@@ -8,6 +8,13 @@ Author: Andreas Nurbo
 Author URI: http://artofwp.com/
 */
 // Configures/loads AoiSora
+namespace CLMVC;
+
+use CLMVC\Core\Application\ApplicationBase;
+use CLMVC\Core\Includes\FrontInclude;
+use CLMVC\Core\Includes\ScriptIncludes;
+use CLMVC\Core\Options;
+use CLMVC\Core\Option;
 
 if(!class_exists("AoiSora")){
     function sl_file($file,$isPlugin=true){
@@ -31,7 +38,7 @@ class AoiSora extends ApplicationBase{
     /**
      * Sets up aoisoraLoaded hook, calls parent class. Setups up standard libraries
      */
-    function AoiSora(){
+    function __construct(){
 		parent::__construct('AoiSora',sl_file('AoiSora'),true, true);
         $this->setFrontIncludes();
 	}

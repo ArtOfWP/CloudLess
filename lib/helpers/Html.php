@@ -1,5 +1,5 @@
 <?php
-
+namespace CLMVC\Helpers;
 /**
  * Class Html
  * Contains helper methods to generate HTML code

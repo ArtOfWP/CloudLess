@@ -36,7 +36,7 @@ abstract class WpApplicationBase{
 			$this->pluginName=plugin_basename($file);//"$appName/$appName.php";
 		register_activation_hook($file, array(&$this,'activate'));
 		register_deactivation_hook($file, array(&$this,'deactivate'));
-		$this->installFromPath=dirname($file).'/app/core/domain/';
+		$this->installFromPath=dirname($file).'/app/Core/domain/';
 		$this->useInstall=$useInstall;
 		$this->useOptions=$useOptions;
 		//TODO deprecated since 11.6

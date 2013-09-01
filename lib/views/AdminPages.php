@@ -1,5 +1,5 @@
 <?php
-
+namespace CLMVC\Views;
 /**
  * Class AdminPages
  * TODO: Remove WordPress dependency
@@ -86,7 +86,7 @@ class AdminPages{
 			$this->$method();
 		else{
 			if(strtolower($method)=='options')
-				include($this->dir. '/app/views/options.php');
+				include($this->dir. '/app/Views/options.php');
 			else{
 				$controller=array_key_exists_v(CONTROLLERKEY,Communication::getQueryString());
 				$action=array_key_exists_v(ACTIONKEY,Communication::getQueryString());

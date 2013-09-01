@@ -1,4 +1,6 @@
 <?php
+namespace CLMVC\Core\Includes;
+use CLMVC\Interfaces\IIncludes;
 /**
  * ScriptIncludes
  * Handler for JavaScript FrontIncludes

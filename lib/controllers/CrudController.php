@@ -1,6 +1,5 @@
 <?php
-include_once('BaseController.php');
-
+namespace CLMVC\Controllers;
 /**
  * Class CrudController
  * @extends BaseController

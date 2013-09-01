@@ -1,5 +1,6 @@
 <?php
-
+namespace CLMVC\Core\Includes;
+use CLMVC\Interfaces\IIncludes;
 /**
  * Class StyleIncludes
  */

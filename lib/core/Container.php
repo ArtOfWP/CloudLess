@@ -1,4 +1,6 @@
 <?php
+namespace CLMVC\Core;
+
 /**
  * Class Container
  * This is a Inversion of Control Container

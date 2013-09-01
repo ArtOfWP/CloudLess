@@ -5,21 +5,21 @@ define('PACKAGEPATH',dirname(__FILE__).'/../');
 define('APPPATH',dirname(__FILE__).'/../');
 define('LIB','/app/');
 define('DOMAIN',LIB.'domain/');
-define('VIEWS',LIB.'views/');
-define('CONTROLLERS',LIB.'/controllers/');
+define('VIEWS',LIB.'Views/');
+define('CONTROLLERS',LIB.'/Controllers/');
 
-include(PACKAGEPATH.'load.php');
+include(PACKAGEPATH.'clmvc-autoloader.php');
 if(LOADALL){
 include(PACKAGEPATH . 'lib/Route.php');
-include(PACKAGEPATH.'lib/Debug.php');
-load(PACKAGEPATH.'lib/helpers/');
-    load(PACKAGEPATH.'lib/events/');
-    load(PACKAGEPATH.'lib/interfaces/');
-    load(PACKAGEPATH.'lib/core/');
-//	load(PACKAGEPATH.'lib/filters/');
-//include(PACKAGEPATH.'lib/controllers/filters/IFilter.php');
-//include(PACKAGEPATH.'lib/controllers/filters/SecurityFilter.php');
-load(PACKAGEPATH.'lib/controllers/');
+include(PACKAGEPATH . 'lib/Debug.php');
+load(PACKAGEPATH.'lib/Helpers/');
+    load(PACKAGEPATH.'lib/Events/');
+    load(PACKAGEPATH.'lib/Interfaces/');
+    load(PACKAGEPATH.'lib/Core/');
+//	load(PACKAGEPATH.'lib/Filters/');
+//include(PACKAGEPATH.'lib/Controllers/Filters/IFilter.php');
+//include(PACKAGEPATH.'lib/Controllers/Filters/SecurityFilter.php');
+load(PACKAGEPATH.'lib/Controllers/');
 if(defined('VIEWENGINE') && VIEWENGINE=='wordpress'){
 //C:\Users\andreas\My Projects\development\aoisora\wp-content\plugins\AoiSora\tests\config.php
     include('/../../../../wp-load.php');

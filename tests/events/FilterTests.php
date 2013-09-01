@@ -2,8 +2,8 @@
 define('LOADALL',false);
 define('LOADDATABASE',false);
 include('/../config.php');
-include(PACKAGEPATH.'lib/helpers/ArraysHelper.php');
-include(PACKAGEPATH.'lib/events/Filter.php');
+include(PACKAGEPATH . 'lib/Helpers/ArraysHelper.php');
+include(PACKAGEPATH . 'lib/Events/Filter.php');
 global $customStuff;
 $customStuff=array();
 class FilterTest extends PHPUnit_Framework_TestCase{

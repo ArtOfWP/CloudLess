@@ -5,8 +5,8 @@
 define('VIEWENGINE','wordpress');
 define('LIB','/app/');
 define('DOMAIN',LIB.'domain/');
-define('VIEWS',LIB.'views/');
-define('CONTROLLERS',LIB.'/controllers/');
+define('VIEWS',LIB.'Views/');
+define('CONTROLLERS',LIB.'/Controllers/');
 
 if(!defined('DEBUG'))
 	define('DEBUG',false);

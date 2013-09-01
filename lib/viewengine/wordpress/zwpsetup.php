@@ -99,9 +99,9 @@ if(is_admin()){
 	
 	function viewcomponent($app,$component,$params=false){
 		if(strpos($app,WP_PLUGIN_DIR)!==false || strpos($app,':'))
-			include_once($app."/".strtolower("app/views/components/$component/$component.php"));		
+			include_once($app."/".strtolower("app/Views/components/$component/$component.php"));
 		else
-			include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/views/components/$component/$component.php"));
+			include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/Views/components/$component/$component.php"));
 		if(!$params)
 			$params=array();
         /**

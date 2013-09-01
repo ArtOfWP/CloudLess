@@ -1,5 +1,6 @@
 <?php
-
+namespace CLMVC\Events;
+use CLMVC\Helpers;
 /**
  * Class View
  */

@@ -1,5 +1,7 @@
 <?php
+namespace CLMVC\Core;
 
+use CLMVC\Interfaces\IOptions;
 /**
  * Class Options
  */

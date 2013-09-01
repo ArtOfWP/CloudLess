@@ -1,4 +1,6 @@
 <?php
+namespace CLMVC\Core\Http;
+
 class Route {
 
     private $route;

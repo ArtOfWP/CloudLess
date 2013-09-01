@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\Core;
 
 /**
  * Class Option
