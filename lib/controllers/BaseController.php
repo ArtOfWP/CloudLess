@@ -1,11 +1,13 @@
 <?php
-global $viewcontent;
-if (class_exists('BaseController'))
-    return;
+namespace CLMVC\Controllers;
+use CLMVC\Core\Debug;
+use CLMVC\Helpers\Communication;
+use CLMVC\Events\Hook;
+use ReflectionMethod;
 
 /**
  * Class BaseController
- * The base class to use for controllers
+ * The base class to use for Controllers
  */
 class BaseController {
     /**
@@ -187,7 +189,7 @@ class BaseController {
     }
 
     /**
-     * Renders the current controllers action
+     * Renders the current Controllers action
      * @param string $action The action to render
      */
     protected function RenderToAction($action) {
