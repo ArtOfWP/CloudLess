@@ -137,31 +137,9 @@ if(is_admin()){
 			return get_bloginfo('url');
 		}
 	}
-	function get_akismet_key(){
-		return akismet_get_key();
-	}
-	function get_htaccess_rules_path(){
-		return ABSPATH.'/.htaccess';
-	}
-	function get_htaccess_rules(){
-		$url=strtolower(get_site_url());
-		$siteurl=strtolower(get_bloginfo( 'wpurl'));
-		$path=str_replace($url,'',$siteurl);
-	$htaccess_rules=
-'# BEGIN PHPMVC
-	<IfModule mod_rewrite.c>
-	RewriteEngine On
-	RewriteBase /'.$path.'
-	RewriteCond %{REQUEST_METHOD} !GET
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteCond %{REQUEST_URI} /(create|delete|update) [NC]
-	RewriteRule ^(.*)/(.*)$ '.$path.'/wp-content/plugins/AoiSora/preroute.php?controller=$1&action=$2 [L]
-</IfModule>
-# END PHPMVC
-';
-		return $htaccess_rules;
-	}
+
+
+
 	function initiate_editor($id,$content){
         global $wp_version;
         if(version_compare($wp_version,'3.3','>=')){
@@ -172,6 +150,7 @@ if(is_admin()){
             return 'old';
         }
 	}
+
 	global $hooks;
 	$hooks=array('init','admin_init','admin_menu','set_plugin_has_updates'=>'update_option__transient_update_plugins','template_redirect');
 	foreach($hooks as $key => $hook)
@@ -253,29 +232,4 @@ function aois_add_global_ctr_act(){
     $ctrl=array_key_exists_v('controller',Communication::getQueryString());
 	$action=array_key_exists_v(FRONTEND_ACTIONKEY,Communication::getQueryString());
     BaseController::setUpRouting($ctrl,$action);
-}
-
-function aoisora_loaded(){
-    do_action('aoisora-loaded');
-}
-
-/**
- * Tells WP to call funtion that writes htaccess rules upon activation
- */
-register_activation_hook(sl_file('AoiSora'), 'setup_htaccess_rules');
-function setup_htaccess_rules(){
-    $htaccessrules=get_htaccess_rules();
-    $path=get_htaccess_rules_path();
-    if(is_writable($path)){
-        $temp=file_get_contents($path);
-        $fh=fopen($path,'w');
-        if(strpos($temp,'PHPMVC')!==FALSE){
-            $htaccessrules=str_replace('$1','\$1',$htaccessrules);
-            $htaccessrules=str_replace('$2','\$2',$htaccessrules);
-            $temp=preg_replace("/\# BEGIN PHPMVC.*\# END PHPMVC/s",$htaccessrules,$temp);
-        }else
-            fwrite($fh,$htaccessrules);
-        fwrite($fh,$temp);
-        fclose($fh);
-    }
 }

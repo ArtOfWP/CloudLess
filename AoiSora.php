@@ -10,11 +10,13 @@ Author URI: http://artofwp.com/
 // Configures/loads AoiSora
 namespace CLMVC;
 
+use CLMVC\Core\Container;
 use CLMVC\Core\Application\ApplicationBase;
 use CLMVC\Core\Includes\FrontInclude;
 use CLMVC\Core\Includes\ScriptIncludes;
 use CLMVC\Core\Options;
 use CLMVC\Core\Option;
+use CLMVC\Events\Hook;
 
 if(!class_exists("AoiSora")){
     function sl_file($file,$isPlugin=true){
@@ -44,16 +46,6 @@ class AoiSora extends ApplicationBase{
 	}
 
     /**
-     * Sets version and update information
-     */
-    function onInitUpdate(){
-		$this->VERSION='13.8';
-		$this->UPDATE_SITE='http://api.artofwp.com/?free_update=plugin';
-		$this->SLUG='php-mvc-for-wordpress';
-		$this->VERSION_INFO_LINK='http://api.artofwp.com/?update=plugin_information';		
-	}
-
-    /**
      * Initiates options for the plugin
      */
     function onLoadOptions(){
@@ -79,11 +71,6 @@ class AoiSora extends ApplicationBase{
         $scripts->register($jVal);
         $jUiStars = new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora','/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core','jquery-ui-widget'));
         $scripts->register($jUiStars);
-        global $wp_version;
-   		if(version_compare($wp_version,'3.1','<')){
-   			$jUiWidget = new FrontInclude('jquery-ui-widget', clmvc_app_url('AoiSora','/lib/js/ui.widget.js'),'jquery');
-            $scripts->register($jUiWidget);
-        }
   		$jUiTagIt = new FrontInclude('jquery-ui-tag-it', clmvc_app_url('AoiSora','/lib/js/jquery.ui.tag-it/ui.tag-it.js'),array('jquery','jquery-ui-core','jquery-ui-widget'));
         $scripts->register($jUiTagIt);
         $jUiStyles = new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora','/lib/js/jquery.ui.stars/ui.stars.min.css'));
@@ -92,27 +79,6 @@ class AoiSora extends ApplicationBase{
      	$wordpress= new FrontInclude('wordpress', clmvc_app_url('AoiSora','/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css'));
         $styles->register($forms);
         $styles->register($wordpress);
-    }
-
-    /**
-     * Setups routing
-     */
-    function onInit(){
-        if(PREROUTE && isset($_GET[CONTROLLERKEY]) && isset($_GET[ACTIONKEY]))
-            Hook::register('template_redirect',array($this,'preRoute'));
-    }
-
-    /**
-     * Reroutes
-     */
-    function preRoute(){
-        $success=Route::reroute();
-        if(!$success){
-            header("Status: 404");
-            header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found",true,$http_response_code= 404);
-            echo "<h1>404 Not Found</h1>";
-            exit;
-        }
     }
 
     /**
@@ -128,30 +94,9 @@ class AoiSora extends ApplicationBase{
     }
 
     /**
-     * Configures correct behavior on updates/install
-     */
-    function onUpdate(){
-	    $htaccessrules=get_htaccess_rules();
-		$path=get_htaccess_rules_path();
-		if(is_writable($path)){
-			$temp=file_get_contents($path);
-			$fh=fopen($path,'w');
-			if(strpos($temp,'PHPMVC')!==FALSE){
-				$htaccessrules=str_replace('$1','\$1',$htaccessrules);
-				$htaccessrules=str_replace('$2','\$2',$htaccessrules);				
-				$temp=preg_replace("/\# BEGIN PHPMVC.*\# END PHPMVC/s",$htaccessrules,$temp);
-			}else
-				fwrite($fh,$htaccessrules);
-			fwrite($fh,$temp);
-			fclose($fh);
-		}
-    }
-
-    /**
      * Called on plugins loaded. runs hooks. aoisora-libraries, aoisora-loaded
      */
-    function aoisoraLoaded(){
-        aoisora_loaded();
+    function loaded() {
 		Hook::run('aoisora-libraries');
 		Hook::run('aoisora-loaded');
 	}
