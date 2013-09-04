@@ -5,6 +5,7 @@ namespace CLMVC\Interfaces;
  * Class IOption
  */
 interface IOption{
+
     /**
      * @return mixed
      */

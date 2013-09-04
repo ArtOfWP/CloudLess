@@ -1,5 +1,7 @@
 <?php
 namespace CLMVC\Controllers\Filters;
+use CLMVC\Controllers\BaseController;
+use CLMVC\Core\Security\Security;
 use CLMVC\Interfaces\IFilter;
 
 /**

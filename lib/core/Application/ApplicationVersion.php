@@ -1,5 +1,12 @@
 <?php
 
+use CLMVC\Core\AoiSoraSettings;
+use CLMVC\Core\Application\ApplicationBase;
+use CLMVC\Core\Security\Security;
+use CLMVC\Events\Filter;
+use CLMVC\Events\Hook;
+use CLMVC\Helpers\Http;
+
 class ApplicationVersion {
     /**
      * @var ApplicationBase
@@ -21,8 +28,7 @@ class ApplicationVersion {
     }
 
     public function init() {
-        //TODO: replace is_admin with overridable check
-        if(is_admin()){
+        if(Security::isAdmin()){
             Filter::register('set_plugin_has_updates', array($this, 'siteTransientUpdatePlugins'));
             Hook::register('set_plugin_has_updates', array($this, 'transientUpdatePlugins'));
 
@@ -38,18 +44,6 @@ class ApplicationVersion {
                 Filter::register('http_request_args',array($this,'addUpdateUrl'),10,2);
         }
     }
-
-    /**
-     * @param $r
-     * @param $url
-     * @return mixed
-     */
-    function addUpdateUrl($r,$url){
-        //TODO: replace get_site_url with overridable configuration
-        $r['headers']['Referer']=get_site_url();
-        return $r;
-    }
-
 
     /**
      *

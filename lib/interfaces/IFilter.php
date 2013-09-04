@@ -1,5 +1,7 @@
 <?php
 namespace CLMVC\Interfaces;
+use CLMVC\Controllers\BaseController;
+
 /**
  * Class IFilter
  * Filter to be used with Controllers

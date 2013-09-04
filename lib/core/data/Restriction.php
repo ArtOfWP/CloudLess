@@ -1,11 +1,16 @@
 <?php
+namespace CLMVC\Core\Data;
+
+use ActiveRecordBase;
+use CLMVC\Core\Debug;
+
 class R{
 	var $table;
 	var $column;
-	var $foreigntable;
-	var $foreigncolumn;
+	var $foreignTable;
+	var $foreignColumn;
 	var $value;
-	var $hasvalue=false;
+	var $hasValue=false;
 	var $values=array();
 	var $parameters=array();
 	var $columns;
@@ -101,8 +106,8 @@ class R{
 		if($isProperty){
 			$p=explode('.',$value);
 			if(sizeof($p)>1){
-				$r->foreigntable=$db_prefix.strtolower($p[0]);
-				$r->foreigncolumn=strtolower($p[1]);
+				$r->foreignTable=$db_prefix.strtolower($p[0]);
+				$r->foreignColumn=strtolower($p[1]);
 			}else
 				$r->column=$p[0];
 		}else{
@@ -110,7 +115,7 @@ class R{
 				$r->value=$value->getId();
 			else
 				$r->value=$value;
-			$r->hasvalue=true;
+			$r->hasValue=true;
 			$r->setParameter(str_replace('.','',$r->column),$r->value);
 		}		
 		return $r;		
@@ -135,8 +140,8 @@ class R{
 		if($isProperty){
 			$p=explode('.',$value);
 			if(sizeof($p)>1){
-				$r->foreigntable=$db_prefix.strtolower($p[0]);
-				$r->foreigncolumn=strtolower($p[1]);
+				$r->foreignTable=$db_prefix.strtolower($p[0]);
+				$r->foreignColumn=strtolower($p[1]);
 			}else
 				$r->column=$p[0];
 		}else{
@@ -144,7 +149,7 @@ class R{
 				$r->value=$value->getId();			
 			else
 				$r->value=$value;
-			$r->hasvalue=true;
+			$r->hasValue=true;
 			$r->setParameter($r->column,$r->value);			
 		}
 		return $r;		
@@ -172,8 +177,8 @@ class R{
 		if($isProperty){
 			$p=explode('.',$value);
 			if(sizeof($p)>1){
-				$r->foreigntable=$db_prefix.strtolower($p[0]);
-				$r->foreigncolumn=strtolower($p[1]);
+				$r->foreignTable=$db_prefix.strtolower($p[0]);
+				$r->foreignColumn=strtolower($p[1]);
 			}else
 				$r->column=$p[0];
 		}else{
@@ -181,7 +186,7 @@ class R{
 				$r->value=$value->getId();			
 			else
 				$r->value=$value;
-			$r->hasvalue=true;
+			$r->hasValue=true;
 			$r->setParameter($r->column,$r->value);
 		}
 		return $r;		
@@ -238,7 +243,7 @@ class R{
 		$r->placement=$placement;
 		$r->value=$value;
 		$r->setParameter($r->column,$value);
-		$r->hasvalue=true;
+		$r->hasValue=true;
 		return $r;
 	}
 
@@ -267,7 +272,7 @@ class R{
      * @return bool
      */
     function hasValue(){
-		return $this->hasvalue;
+		return $this->hasValue;
 	}
 
     /**
@@ -323,6 +328,7 @@ class R{
     function toSQL(){
 		switch($this->method){
 			case "LIKE":
+                $front = $back = '';
 				if($this->placement==R::$LEFT)
 					$front="%";
 				else if($this->placement==R::$RIGHT)
@@ -355,10 +361,6 @@ class R{
 				$sql.='(';
 				$sql.=implode(',',array_keys($this->getParameters()));
 				$sql.=')';
-/*				if($this->hasValue())
-					$sql.=':'.$this->column;
-				else
-					$sql.=$this->addMark($this->foreigntable).'.'.$this->addMark($this->foreigncolumn);*/
 				return $sql;
 			case '>=':
 			case '>':
@@ -373,12 +375,14 @@ class R{
 				if($this->hasValue())
 					$sql.=array_pop(array_keys($this->getParameters()));
 				else
-					$sql.=$this->addMark($this->foreigntable).'.'.$this->addMark($this->foreigncolumn);
+					$sql.=$this->addMark($this->foreignTable).'.'.$this->addMark($this->foreignColumn);
 				return $sql;
 			case ' OR ':
 			case ' AND ':
 				return $this->method;
 		}
+        trigger_error("{$this->method} is not a valid restriction.", E_USER_WARNING);
+        return null;
 	}
 
     /**

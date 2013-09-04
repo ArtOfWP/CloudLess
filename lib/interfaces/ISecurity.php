@@ -40,6 +40,8 @@ interface ISecurity{
      */
     function currentUserIsInRole($role);
 
+    function isAdmin();
+
     /**
      * @return mixed
      */

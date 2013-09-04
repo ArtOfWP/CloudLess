@@ -1,4 +1,6 @@
 <?php
+use CLMVC\Interfaces\IOptions;
+
 class BIOptions implements IOptions
 {
     /**

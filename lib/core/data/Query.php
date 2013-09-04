@@ -1,4 +1,7 @@
 <?php
+namespace CLMVC\Core\Data;
+use CLMVC\Core\Debug;
+use CLMVC\Helpers\ObjectUtility;
 
 /**
  * Class Query
@@ -142,10 +145,10 @@ class Query{
     /**
      * Adds a distinct select either a string based property or a select function. New calls adds new distincts
      * @param string|SelectFunction $property
-     * @param bool $table
+     * @param string $table
      * @return $this
      */
-    public function selectDistinct($property,$table=false){
+    public function selectDistinct($property,$table=null){
 		global $db_prefix;
 		if($property instanceof SelectFunction){
 			$this->statement['select'][]='DISTINCT '.$property->toSQL(strtolower($this->addMark($property->getColumn())));
@@ -257,7 +260,7 @@ class Query{
 
     /**
      * Adds an order
-     * @param Order $order
+     * @param Order|Order[] $order
      * @return $this
      */
     public function order($order){
@@ -363,8 +366,9 @@ class Query{
 			case 'groupby':
 				if(isset($this->statement[$property]))
 					return $this->statement[$property];
-				return array();
 		}
+        trigger_error("$property is not a valid property for Query", E_USER_WARNING);
+        return array();
 	}
 
     /**

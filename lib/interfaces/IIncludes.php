@@ -1,5 +1,6 @@
 <?php
 namespace CLMVC\Interfaces;
+use CLMVC\Core\Includes\FrontInclude;
 
 /**
  * Class IIncludes
@@ -8,7 +9,7 @@ interface IIncludes
 {
     /**
      * @param FrontInclude $include
-     * @return mixed
+     * @return bool
      */
     function register( FrontInclude $include );
 

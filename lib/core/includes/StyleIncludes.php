@@ -1,5 +1,6 @@
 <?php
 namespace CLMVC\Core\Includes;
+use CLMVC\Core\Container;
 use CLMVC\Interfaces\IIncludes;
 /**
  * Class StyleIncludes
@@ -23,9 +24,10 @@ class StyleIncludes implements IIncludes
     /**
      * Register a include
      * @param FrontInclude $include
+     * @return bool|void
      */
     public function register(FrontInclude $include) {
-        $this->styleInclude->register($include);
+        return $this->styleInclude->register($include);
     }
 
     /**
@@ -41,6 +43,7 @@ class StyleIncludes implements IIncludes
      * Enqueue a resource to be loaded
      * @param string $location where it should be loaded
      * @param FrontInclude $include
+     * @return bool
      */
     function enqueue($location, FrontInclude $include) {
          return $this->styleInclude->enqueue($location,$include);

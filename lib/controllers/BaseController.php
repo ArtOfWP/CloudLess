@@ -1,13 +1,25 @@
 <?php
 namespace CLMVC\Controllers;
+use ActiveRecordBase;
+use CLMVC\Core\AoiSoraSettings;
 use CLMVC\Core\Debug;
+use CLMVC\Events\Filter;
+use CLMVC\Events\View;
+use CLMVC\Helpers\Http;
+use CLMVC\Helpers\ObjectUtility;
+use CLMVC\Helpers\Resize_Image;
+use CLMVC\Interfaces\IFilter;
 use CLMVC\Helpers\Communication;
 use CLMVC\Events\Hook;
 use ReflectionMethod;
+use Repo;
+use RuntimeException;
 
 /**
  * Class BaseController
  * The base class to use for Controllers
+ * @method onControllerPreInit
+ * @method onControllerInit
  */
 class BaseController {
     /**
@@ -95,11 +107,6 @@ class BaseController {
         $this->controller = str_replace('Controller', '', $item);
         $this->values = Communication::getQueryString();
         $this->values = array_merge($this->values, Communication::getFormValues());
-        /*$this->action = array_key_exists_v(ACTIONKEY, $this->values);
-        if (!$this->action)
-            $this->action = $this->defaultAction;
-        unset($this->values[CONTROLLERKEY]);
-        unset($this->values[ACTIONKEY]);*/
         if (method_exists($this, 'onControllerInit'))
             $this->onControllerInit();
     }
@@ -111,7 +118,7 @@ class BaseController {
         Debug::message('BaseController init');
         $this->initiate();
         if ($this->filter)
-            if (!$this->filter->perform($this, $this->values))
+        if (!$this->filter->perform($this, $this->values))
                 die("Action could not be performed.");
         if ($this->automatic)
             $this->automaticRender();
@@ -126,7 +133,7 @@ class BaseController {
     public function __construct($automatic = true, $viewPath = '') {
         $this->automatic = $automatic;
         $this->viewpath = $viewPath;
-        Debug::Message('Loaded ' . $this->controller . ' extends Basecontroller');
+        Debug::Message('Loaded ' . $this->controller . ' extends BaseController');
     }
 
     /**
@@ -155,9 +162,10 @@ class BaseController {
     /**
      * Executes an action on the controller.
      * @param string $action The name of the action to execute.
-     * @throws RuntimeException Thrown if action is not found.
+     * @param array $getParams values part of routing
+     * @throws \RuntimeException Thrown if action is not found.
      */
-    public function executeAction($action, $getParams) {
+    public function executeAction($action, $getParams = array()) {
         if (method_exists($this, $action)) {
             Debug::Message('Executed action: ' . $action);
             $reflection = new ReflectionMethod($this, $action);
@@ -171,10 +179,10 @@ class BaseController {
                     $rClass = $param->getClass();
                     if ($rClass) {
                         $pObj = $rClass->newInstance();
+                        /** @var $pObj ActiveRecordBase */
                         $paramValues[] = $this->loadFromPost($pObj,$param->getName().'_');
                     } else if (isset($getParams[$param->getName()])) {
                         $paramValues[] = $getParams[$param->getName()];
-                        //unset($this->values[$param->getName()]);
                     }
                 }
             }
@@ -362,11 +370,11 @@ class BaseController {
 
     /**
      * Loads a CRUD item from a POST request
-     * @param bool $crudItem
+     * @param ActiveRecordBase $crudItem
      * @param bool $stripPrefix
      * @return bool
      */
-    protected function loadFromPost($crudItem = false, $stripPrefix = false) {
+    protected function loadFromPost($crudItem = null, $stripPrefix = false) {
         if (!$crudItem)
             $crudItem = $this->crudItem;
         $folder = '';
@@ -397,7 +405,6 @@ class BaseController {
         }
         $values = array_map('stripslashes', $values);
         Debug::Value('Loaded properties/values for ' . get_class($crudItem), $values);
-        $arrprop = ObjectUtility::getArrayPropertiesAndValues($crudItem);
         $lists = array_search_key('_list', $arrvalues);
         Debug::Value('Loaded listvalues from post', $lists);
         $uploads = Communication::getUpload($properties);
@@ -417,7 +424,7 @@ class BaseController {
                 $values[$property] = $name;
                 if (isset($this->thumbnails[$property]) && $this->thumbnails[$property][0] == 'create') {
                     $info = getimagesize($path);
-                    $image = new Resize_Image;
+                    $image = new Resize_Image();
                     if ($info[1] > $height)
                         $image->new_height = $height;
                     else if ($info[0] > $width)
@@ -524,10 +531,13 @@ class BaseController {
                 $listValues = explode(',', trim($value, " ,."));
                 if (sizeof($listValues) == 0)
                     continue;
-                foreach ($listValues as $value) {
+                foreach ($listValues as $listValue) {
                     if ($db_relation && $field == 'text') {
+                        /**
+                         * @var ActiveRecordBase $object
+                         */
                         $object = new $db_relation;
-                        $object->setName(trim($value));
+                        $object->setName(trim($listValue));
                         $object->save();
                         $objects[] = $object;
                     }

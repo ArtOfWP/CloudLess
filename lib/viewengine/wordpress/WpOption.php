@@ -1,4 +1,6 @@
 <?php
+use CLMVC\Core\Debug;
+use CLMVC\Interfaces\IOption;
 
 /**
  * Class WpOption
@@ -21,6 +23,7 @@ class WpOption implements IOption{
      */
     function init(){
 		$this->options=get_option($this->name);
+        $this->initiated = true;
 		if($this->isEmpty())
 			$this->options=array();	
 	}

@@ -1,5 +1,6 @@
 <?php
 namespace CLMVC\Core\Includes;
+use CLMVC\Core\Container;
 use CLMVC\Interfaces\IIncludes;
 /**
  * ScriptIncludes
@@ -27,14 +28,16 @@ class ScriptIncludes implements IIncludes {
     /**
      * Register a include
      * @param FrontInclude $include
+     * @return bool
      */
     public function register(FrontInclude $include) {
-        $this->scriptInclude->register($include);
+        return $this->scriptInclude->register($include);
     }
 
     /**
      * Deregister a resource using its handle
      * @param string $handle
+     * @return bool
      */
     function deregister($handle) {
         return $this->scriptInclude->deregister($handle);

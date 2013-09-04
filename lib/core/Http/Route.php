@@ -1,23 +1,41 @@
 <?php
 namespace CLMVC\Core\Http;
 
+/**
+ * Class Route
+ * @package CLMVC\Core\Http
+ */
 class Route {
 
     private $route;
     private $params;
     private $callback;
 
+    /**
+     * @param $route
+     * @param $callback
+     * @param $params
+     */
     function __construct($route, $callback, $params) {
         $this->params = $params;
         $this->route = $this->build($route, $params);
         $this->callback = $callback;
     }
 
+    /**
+     * @param $uri
+     * @return mixed
+     */
     function match($uri) {
         preg_match($this->route, $uri, $matches);
         return $matches;
     }
 
+    /**
+     * @param $route
+     * @param $params
+     * @return string
+     */
     private function build($route, $params) {
         if (strpos($route, '*') === 0)
             $route = str_replace('*', '\/?', $route);
@@ -35,6 +53,10 @@ class Route {
         return "/$route/";
     }
 
+    /**
+     * @param $uri
+     * @return array
+     */
     function params($uri) {
         $matches = $this->match($uri);
         $params = array();

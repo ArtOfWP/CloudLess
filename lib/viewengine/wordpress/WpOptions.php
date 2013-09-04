@@ -1,4 +1,5 @@
 <?php
+use CLMVC\Interfaces\IOptions;
 
 /**
  * Class WpOptions

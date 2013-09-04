@@ -1,4 +1,8 @@
 <?php
+use CLMVC\Core\Includes\FrontInclude;
+use CLMVC\Core\Includes\ScriptIncludes;
+use CLMVC\Core\Includes\StyleIncludes;
+
 class ApplicationFrontIncludes {
     private $script, $style;
     public function __construct() {

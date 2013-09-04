@@ -1,9 +1,17 @@
 <?php
+use CLMVC\Core\Data\Delete;
+use CLMVC\Core\Data\Query;
+use CLMVC\Core\Data\R;
+use CLMVC\Core\Debug;
+use CLMVC\Events\Hook;
+use CLMVC\Helpers\ObjectUtility;
 
 /**
  * Class ActiveRecordBase
  * @method int getId()
  * @method int setId(int $id)
+ * @method setName(string $id)
+ * @method string getName()
  */
 abstract class ActiveRecordBase {
     /**
@@ -41,7 +49,6 @@ abstract class ActiveRecordBase {
 		$this->setId($id);
 		
 		$lists=ObjectUtility::getArrayPropertiesAndValues($this);
-		$voDependant=array();
 		foreach($lists as $list =>$values){
 			$settings=ObjectUtility::getCommentDecoration($this,$list.'List');
 			$table=array_key_exists_v('dbrelationname',$settings);
@@ -112,7 +119,6 @@ abstract class ActiveRecordBase {
 		$db->update($vo,R::Eq($this,$this->getId()));
 		
 		$lists=ObjectUtility::getArrayPropertiesAndValues($this);
-		$voDependant=array();
 		$col2=strtolower(get_class($this)).'_id';
 			
 		foreach($lists as $list =>$values){
@@ -164,10 +170,7 @@ abstract class ActiveRecordBase {
      * Saves anm object. Updates if existing creates if new.
      */
     function save(){
-		Debug::Message('ARB Save '.get_class($this));			
-		if(method_exists($this,'on_pre_save'))
-			if(!$this->on_pre_save())
-				return;
+		Debug::Message('ARB Save '.get_class($this));
 		if(!$this->runEventMethod(__FUNCTION__,'Pre'))
 			return;
 		if($this->getId()>0)
@@ -212,6 +215,7 @@ abstract class ActiveRecordBase {
 		if(method_exists($this,$call))
 			return $this->$call($value);
 		$this->tempProperties[$property]=$value;
+        return null;
 	}
 
     /**
@@ -287,6 +291,10 @@ abstract class ActiveRecordBase {
         }
         return array();
 	}
+
+    function getById($id) {
+        return Repo::getById($this, $id);
+    }
 
     /**
      * Runs the events connected with the method
