@@ -1,11 +1,8 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: Andreas
- * Date: 2013-08-26
- * Time: 22:00
- * To change this template use File | Settings | File Templates.
- */
+namespace CLMVC\ViewEngines\Standard;
+use CLMVC\Core\Includes\FrontInclude;
+use CLMVC\Interfaces\IIncludes;
+
 
 class CLMVCFrontIncludes implements IIncludes {
 
@@ -29,10 +26,10 @@ class CLMVCFrontIncludes implements IIncludes {
 
     /**
      * @param string $location
-     * @param FrontInclude $include
+     * @param string $handle
      * @return bool
      */
-    function enqueue($location, FrontInclude $include)
+    function enqueue($location, $handle)
     {
         // TODO: Implement enqueue() method.
     }

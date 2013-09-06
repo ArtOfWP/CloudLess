@@ -23,7 +23,7 @@ load(PACKAGEPATH.'lib/Controllers/');
 if(defined('VIEWENGINE') && VIEWENGINE=='wordpress'){
 //C:\Users\andreas\My Projects\development\aoisora\wp-content\plugins\AoiSora\tests\config.php
     include('/../../../../wp-load.php');
-	load(PACKAGEPATH.'lib/viewengine/'.VIEWENGINE.'/');//.VIEWENGINE.'.php');
+	load(PACKAGEPATH.'lib/ViewEngines/'.VIEWENGINE.'/');//.VIEWENGINE.'.php');
 }
 }
 if(LOADDATABASE){

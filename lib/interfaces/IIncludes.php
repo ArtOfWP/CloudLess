@@ -21,10 +21,10 @@ interface IIncludes
 
     /**
      * @param string $location
-     * @param FrontInclude $include
+     * @param string $handle
      * @return bool
      */
-    function enqueue($location,FrontInclude $include);
+    function enqueue($location, $handle);
 
     /**
      * @param string $location

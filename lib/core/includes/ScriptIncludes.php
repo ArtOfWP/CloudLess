@@ -12,6 +12,18 @@ class ScriptIncludes implements IIncludes {
      * @var IIncludes $scriptInclude
      */
     private $scriptInclude;
+    static $instance;
+
+    /**
+     * Instantiate a Container
+     * @static
+     * @return ScriptIncludes
+     */
+    public static function instance() {
+        if(!isset(self::$instance) && empty(self::$instance))
+            self::$instance = new ScriptIncludes();
+        return self::$instance;
+    }
 
     /**
      * Inject a script handler for includes
@@ -21,7 +33,7 @@ class ScriptIncludes implements IIncludes {
         if($iScriptInclude)
             $this->scriptInclude=$iScriptInclude;
         else
-            $this->scriptInclude=Container::instance()->fetch('IScriptInclude');
+            $this->scriptInclude=Container::instance()->fetch('CLMVC\\Interfaces\\IScriptInclude');
         $this->scriptInclude->init();
     }
 
@@ -46,11 +58,11 @@ class ScriptIncludes implements IIncludes {
     /**
      * Enqueue a resource to be loaded
      * @param string $location where it should be loaded
-     * @param FrontInclude $include
-     * @return mixed|void
+     * @param $handle
+     * @return bool
      */
-    function enqueue($location, FrontInclude $include) {
-         $this->scriptInclude->enqueue($location,$include);
+    function enqueue($location, $handle) {
+         return $this->scriptInclude->enqueue($location, $handle);
     }
 
     /**

@@ -1,5 +1,6 @@
 <?php
-namespace CLMVC\Core;
+namespace CLMVC\ViewEngines\Standard;
+
 use CLMVC\Interfaces\IOption;
 
 /**

@@ -11,7 +11,7 @@ define('DB_USER', 'root');
 define('DB_PASSWORD', '');
 define('DB_HOST', 'localhost');
 include('/../config.php');
-include('/../../lib/viewengine/standard/BIOptions.php');
+include('/../../lib/ViewEngines/Standard/BIOptions.php');
 class OptionsTests extends PHPUnit_Framework_TestCase
 {
     function testCreateOption(){

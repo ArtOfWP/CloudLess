@@ -251,6 +251,7 @@ class UniversalClassLoader
 
             return true;
         }
+        return false;
     }
 
     /**
@@ -265,6 +266,7 @@ class UniversalClassLoader
         if (false !== $pos = strrpos($class, '\\')) {
             // namespaced class name
             $namespace = substr($class, 0, $pos);
+
             $className = substr($class, $pos + 1);
             $normalizedClass = str_replace('\\', DIRECTORY_SEPARATOR, $namespace).DIRECTORY_SEPARATOR.str_replace('_', DIRECTORY_SEPARATOR, $className).'.php';
 
@@ -315,5 +317,15 @@ class UniversalClassLoader
         if ($this->useIncludePath && $file = stream_resolve_include_path($normalizedClass)) {
             return $file;
         }
+
+        return null;
+    }
+
+    static function instance() {
+        static $instance;
+        if (is_null($instance)) {
+            $instance =  new UniversalClassLoader();
+        }
+        return $instance;
     }
 }

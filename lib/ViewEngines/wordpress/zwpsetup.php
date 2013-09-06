@@ -41,7 +41,7 @@ if(is_admin()){
 	global $table_prefix;
 	global $db_prefix;
 	$db_prefix=$table_prefix.'aoisora_';
-	Debug::Message('Loaded wordpress viewengine');
+	Debug::Message('Loaded wordpress ViewEngines');
 	define('PACKAGEURL',WP_PLUGIN_URL.'/AoiSora/');
 	if(!defined('WP_PLUGIN_DIR'))
 		define('APPPATH',dirname(__FILE__).'/');
@@ -73,6 +73,7 @@ if(is_admin()){
     $container->add('IStyleInclude',new WpStyleIncludes());
     $container->add('StyleIncludes',new StyleIncludes());
     $container->add('IOptions','WpOptions','class');
+    $container->add('IOption','WpOption','class');
 
 	function register_aoisora_query_vars($public_query_vars) {
 		$public_query_vars[] = "controller";
