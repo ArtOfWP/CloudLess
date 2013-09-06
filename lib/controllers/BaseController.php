@@ -103,8 +103,10 @@ class BaseController {
         if (method_exists($this, 'onControllerPreInit'))
             $this->onControllerPreInit();
 
-        $item = get_class($this);
-        $this->controller = str_replace('Controller', '', $item);
+        $class = get_class($this);
+        $pos = strrpos($class, '\\');
+        $className = substr($class, $pos + 1);
+        $this->controller = str_replace('Controller', '', $className);
         $this->values = Communication::getQueryString();
         $this->values = array_merge($this->values, Communication::getFormValues());
         if (method_exists($this, 'onControllerInit'))
@@ -331,7 +333,7 @@ class BaseController {
      */
     private function findView($controller, $action) {
         if ($this->viewpath) {
-            return rtrim($this->viewpath, '/') . '/' . $controller . '/' . $action . '.php';
+            return rtrim($this->viewpath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.php';
         }
         $apps = AoiSoraSettings::getApplications();
         $total = sizeof($apps);
