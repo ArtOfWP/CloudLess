@@ -67,10 +67,6 @@ class BaseController {
      */
     public $values = array();
     /**
-     * @var bool If the actions should be handled automatically
-     */
-    private $automatic;
-    /**
      * @var string The current executing controller
      */
     private static $currentController;
@@ -94,6 +90,11 @@ class BaseController {
      * @var string Where thumbnails should be stored
      */
     protected $thumbnails;
+
+    /**
+     * @var Rendering
+     */
+    protected $renderer;
 
     /**
      * Setup the controller.
@@ -120,22 +121,19 @@ class BaseController {
         Debug::message('BaseController init');
         $this->initiate();
         if ($this->filter)
-        if (!$this->filter->perform($this, $this->values))
+            if (!$this->filter->perform($this, $this->values))
                 die("Action could not be performed.");
-        if ($this->automatic)
-            $this->automaticRender();
     }
 
     /**
      * Sets initial variables etc.
      *
-     * @param bool $automatic If automatic rendering should be done
      * @param string $viewPath THe path to teh views
      */
-    public function __construct($automatic = true, $viewPath = '') {
-        $this->automatic = $automatic;
+    public function __construct($viewPath = '') {
         $this->viewpath = $viewPath;
         Debug::Message('Loaded ' . $this->controller . ' extends BaseController');
+        $this->renderer = new Rendering($this);
     }
 
     /**
@@ -154,10 +152,10 @@ class BaseController {
             $this->executeAction($action);
         } catch (RuntimeException $ex) {
             $this->viewcontent = 'Could not find action: ' . $action;
-            $this->render = false;
+            $this->renderer->canRender(false);
         }
-        if ($this->render) {
-            $this->Render($this->controller,$action);
+        if ($this->renderer->canRender()) {
+            $this->renderer->Render($this->controller,$action);
         }
     }
 
@@ -169,7 +167,6 @@ class BaseController {
      */
     public function executeAction($action, $getParams = array()) {
         if (method_exists($this, $action)) {
-            Debug::Message('Executed action: ' . $action);
             $reflection = new ReflectionMethod($this, $action);
             if (!$reflection->isPublic())
                 throw new RuntimeException("The action you tried to execute is not public.");
@@ -191,83 +188,19 @@ class BaseController {
             Hook::run($this->controller . '-pre' . ucfirst($action), $this);
             call_user_func_array(array($this, $action), $paramValues);
             Hook::run($this->controller . '-post' . ucfirst($action), $this);
-            if ($this->render) {
-                $this->RenderToAction($action);
+            if ($this->renderer->canRender()) {
+                $this->renderer->RenderToAction($action);
             }
         } else
             throw new RuntimeException("The action you tried to execute does not exist. $action");
     }
 
     /**
-     * Renders the current Controllers action
-     * @param string $action The action to render
-     */
-    protected function RenderToAction($action) {
-        Debug::Message('RenderToAction: ' . $action);
-        $this->Render($this->controller, $action);
-    }
-
-    /**
-     * Renders a controller and its action.
-     * @param $controller
-     * @param $action
-     */
-    protected function Render($controller, $action) {
-        Debug::Message('Render: ' . $controller, ' ', $action);
-        $view = $this->findView($controller, $action);
-        if ($view) {
-            extract($this->getBag(), EXTR_REFS);
-            $section = View::generate($controller . '-render-pre' . ucfirst($action), $this);
-            ob_start();
-            include($view);
-            $this->viewcontent = $section . ob_get_contents();
-            ob_end_clean();
-            View::render($controller . '-render-post' . ucfirst($action), $this);
-            $this->viewcontent .= $section;
-        } else
-            $this->viewcontent = 'Could not find view: ' . $view;
-        $this->render = false;
-
-        global $viewcontent;
-        $viewcontent = $this->viewcontent;
-    }
-
-    /**
      * Retrieves the bag filled with values set by the action.
      * @return mixed
      */
-    private function getBag() {
+    public function getBag() {
         return Filter::run($this->controller . '-bag', array($this->bag, $this->controller, $this->action, $this->values));
-    }
-
-    /**
-     * Renders a file.
-     * @param string $filePath
-     */
-    protected function RenderFile($filePath) {
-        Debug::Message('RenderFile: ' . $filePath);
-        ob_start();
-        if (file_exists($filePath)) {
-            extract($this->getBag(), EXTR_REFS);
-            include($filePath);
-            $this->viewcontent = ob_get_contents();
-        } else
-            $this->viewcontent = 'Could not find view: ' . $$filePath;
-        $this->render = false;
-        ob_end_clean();
-        global $viewcontent;
-        $viewcontent = $this->viewcontent;
-    }
-
-    /**
-     * The text to render to screen.
-     * @param string $text
-     */
-    public function RenderText($text) {
-        Debug::Message('RenderText: ' . $text);
-        $this->render = false;
-        global $viewcontent;
-        $viewcontent = $text;
     }
 
     /**
@@ -277,10 +210,10 @@ class BaseController {
         $view = $this->findView($this->controller, 'NotFound');
         if ($view) {
             $this->setUpRouting($this->controller, 'NotFound');
-            $this->Render($this->controller, 'NotFound');
+            $this->renderer->Render($this->controller, 'NotFound');
         } else {
             $this->setUpRouting('default', 'NotFound');
-            $this->Render('default', 'NotFound');
+            $this->renderer->Render('default', 'NotFound');
         }
     }
 
@@ -302,15 +235,6 @@ class BaseController {
     }
 
     /**
-     * The rendered content
-     * @return mixed
-     */
-    public static function ViewContents() {
-        global $viewcontent;
-        return $viewcontent;
-    }
-
-    /**
      * The currently executing action
      * @return string
      */
@@ -324,32 +248,6 @@ class BaseController {
      */
     public static function CurrentController() {
         return self::$currentController;
-    }
-
-    /**
-     * @param string $controller
-     * @param string $action
-     * @return string Empty string if path is not found.
-     */
-    private function findView($controller, $action) {
-        if ($this->viewpath) {
-            return rtrim($this->viewpath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.php';
-        }
-        $apps = AoiSoraSettings::getApplications();
-        $total = sizeof($apps);
-        Debug::Message('Nbr of apps: ' . $total);
-        $lc_controller = strtolower($controller);
-        $lc_action = strtolower($action);
-        foreach ($apps as $app) {
-            $path = $app['path'];
-            Debug::Value('Path', $path);
-            Debug::Value('Searching', $path . VIEWS . $controller . '/' . $action . '.php');
-            if (file_exists($path . VIEWS . $controller . '/' . $action . '.php'))
-                return $path . VIEWS . $controller . '/' . $action . '.php';
-            if (file_exists($path . VIEWS . $lc_controller . '/' . $lc_action . '.php'))
-                return $path . VIEWS . $lc_controller . '/' . $lc_action . '.php';
-        }
-        return '';
     }
 
     /**
@@ -570,5 +468,9 @@ class BaseController {
      */
     private function stripPrefix($prefix, $key) {
         return str_replace($prefix, '', $key);
+    }
+
+    public function getViewPath() {
+        return $this->viewpath;
     }
 }
