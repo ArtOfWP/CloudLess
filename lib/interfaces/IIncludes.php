@@ -1,4 +1,6 @@
 <?php
+namespace CLMVC\Interfaces;
+use CLMVC\Core\Includes\FrontInclude;
 
 /**
  * Class IIncludes
@@ -7,7 +9,7 @@ interface IIncludes
 {
     /**
      * @param FrontInclude $include
-     * @return mixed
+     * @return bool
      */
     function register( FrontInclude $include );
 
@@ -19,10 +21,10 @@ interface IIncludes
 
     /**
      * @param string $location
-     * @param FrontInclude $include
+     * @param string $handle
      * @return bool
      */
-    function enqueue($location,FrontInclude $include);
+    function enqueue($location, $handle);
 
     /**
      * @param string $location

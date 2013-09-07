@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\Helpers;
 define ('PUT','put');
 define ('GET','get');
 define ('POST','post');

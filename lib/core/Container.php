@@ -1,10 +1,11 @@
 <?php
+namespace CLMVC\Core;
+
 /**
  * Class Container
  * This is a Inversion of Control Container
  */
-class Container
-{
+class Container {
     private $values;
     private static $instance;
 
@@ -20,11 +21,11 @@ class Container
      * @param string $key unique value for object
      * @param string $object
      * @param string $type
-     * @throws InvalidArgumentException thrown if key is not unique, i.e already added
+     * @throws \InvalidArgumentException thrown if key is not unique, i.e already added
      */
     public function add($key, $object, $type='object') {
         if (isset($this->values[strtolower($key)]))
-            throw new InvalidArgumentException('The key is not unique');
+            throw new \InvalidArgumentException('The key is not unique');
         $this->values[strtolower($key)] = array($object,$type);
     }
 
@@ -71,7 +72,7 @@ class Container
      * @param string $key
      * @param array $params
      * @return object
-     * @throws InvalidArgumentException throws if the key does not exist in container
+     * @throws \InvalidArgumentException throws if the key does not exist in container
      */
     public function make($key, $params=array()) {
         $class = $this->fetchTuple($key);
@@ -81,7 +82,8 @@ class Container
             $className = $class[0];
         else
             $className = $key;
-        $rclass = new ReflectionClass($className);
+
+        $rclass = new \ReflectionClass($className);
         $rclassCstr = $rclass->getConstructor();
         if ($rclassCstr) {
             if ($rclassCstr->getNumberOfParameters()) {
@@ -101,7 +103,7 @@ class Container
                     }else
                         $invokeParams[] = $pValue[0];
                 }
-                $obj = $rclass->newInstanceArgs($invokeParams);
+                $obj = $rclass->newInstanceArgs(array_merge($params,$invokeParams));
 
             } else
                 $obj = new $className();
@@ -117,7 +119,7 @@ class Container
      */
     public static function instance() {
         if(!isset(self::$instance) && empty(self::$instance))
-            self::$instance=new Container();
+            self::$instance = new Container();
         return self::$instance;
     }
 }

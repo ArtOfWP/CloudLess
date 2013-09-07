@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\Core\Data;
 /**
  * Class Delete
  * @property array from
@@ -20,10 +21,9 @@ class Delete{
     /**
      * Create a Delete query from a class
      * @param $class
-     * @param bool $lazy
      * @return Delete
      */
-    static function createFrom($class, $lazy=true){
+    static function createFrom($class){
 		if(is_object($class))
 			$class=get_class($class);
 		$maintable=strtolower($class);
@@ -128,6 +128,8 @@ class Delete{
 					return $this->statement[$property];
 				return array();
 		}
+        trigger_error("{$property} is not a valid property of DeleteQuery", E_USER_WARNING);
+        return null;
 	}
 
     /**

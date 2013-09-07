@@ -1,10 +1,16 @@
 <?php
-include_once('BaseController.php');
+namespace CLMVC\Controllers;
+use ActiveRecordBase;
+use CLMVC\Core\Data\Order;
+use CLMVC\Core\Data\R;
+use CLMVC\Core\Debug;
+use CLMVC\Helpers\Communication;
+use Repo;
 
 /**
  * Class CrudController
  * @extends BaseController
- *
+ * @method onSearchInit
  */
 abstract class CrudController extends BaseController {
     /**
@@ -139,10 +145,10 @@ abstract class CrudController extends BaseController {
 		$page=$page>0?$page-1:0;
 		$first=$page*$per_page;
 		if(array_key_exists('search',$this->values)){
-			$restrictions=$this->search_restrictions;
+			$restrictions =$this->search_restrictions;
 			if(!$restrictions){
 				if($this->search_property){
-					$restrictions=	R::LIKE($this->search_property,$this->values['search'],3);										
+					$restrictions =	R::LIKE($this->search_property,$this->values['search'],3);
 					echo $this->search_property;
 				}else if(!empty($this->search_property)){
 					$this->RenderText('You need to configure the search_restrictions property or set a search_property');
@@ -155,7 +161,7 @@ abstract class CrudController extends BaseController {
 		}
 		else{
 			Debug::Message('No search: Sliced find all');
-			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$per_page,$order,false,false,true);
+			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$per_page,$order,null,false,true);
 		}
 		$this->bag['total']=Repo::total($this->controller);
 	}
@@ -180,11 +186,11 @@ abstract class CrudController extends BaseController {
 		$this->render=false;
 		$this->loadFromPost();
 		$this->crudItem->save();
-		if($redirect)
+		if($redirect) {
 			$this->redirect('result=1');
-		else
-			return $this->crudItem;
-	}
+        }
+	    return $this->crudItem;
+    }
 
     /**
      * Update the CRUD item

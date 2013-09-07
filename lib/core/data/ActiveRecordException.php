@@ -1,4 +1,7 @@
 <?php
+namespace CLMVC\Core\Data;
+use Exception;
+
 /**
  * Class ActiveRecordException
  */

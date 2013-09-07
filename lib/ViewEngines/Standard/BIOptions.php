@@ -1,4 +1,9 @@
 <?php
+namespace CLMVC\ViewEngines\Standard;
+
+use CLMVC\Core\Option;
+use CLMVC\Interfaces\IOptions;
+
 class BIOptions implements IOptions
 {
     /**

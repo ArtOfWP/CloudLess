@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\Events;
 
 /**
  * Class Hook
@@ -40,7 +41,7 @@ class Hook{
     /**
      * Run the hook
      * @param string $hook
-     * @param array $params
+     * @param array|object $params
      * @param bool $isArray
      */
     static function run($hook,$params=array(),$isArray=false) {

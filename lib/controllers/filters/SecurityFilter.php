@@ -1,6 +1,9 @@
 <?php
-if(!interface_exists('IFilter'))
-	include('IFilter.php');
+namespace CLMVC\Controllers\Filters;
+use CLMVC\Controllers\BaseController;
+use CLMVC\Core\Security\Security;
+use CLMVC\Interfaces\IFilter;
+
 /**
  * Class SecurityFilter
  * Used together with a controller to limit access to the actions.

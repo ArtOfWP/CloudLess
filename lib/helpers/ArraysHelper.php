@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Checks if an array has a specific value
  * @param $key

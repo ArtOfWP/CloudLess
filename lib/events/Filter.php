@@ -1,5 +1,5 @@
 <?php
-
+namespace CLMVC\Events;
 /**
  * Class Filter
  */

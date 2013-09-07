@@ -14,8 +14,8 @@ define('DB_HOST', 'localhost');
 
 include('../../config.php');
 include(PACKAGEPATH.'/'.'tests/classes/wp-functions.php');
-include(PACKAGEPATH.'lib/viewengine/wordpress/WpFrontIncludes.php');
-include(PACKAGEPATH.'lib/viewengine/wordpress/WpScriptIncludes.php');
+include(PACKAGEPATH . 'lib/ViewEngines/wordpress/WpFrontIncludes.php');
+include(PACKAGEPATH . 'lib/ViewEngines/wordpress/WpScriptIncludes.php');
 class WpScriptsIncludesTest extends PHPUnit_Framework_TestCase
 {
     function testRegisterScript(){

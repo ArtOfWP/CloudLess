@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\Helpers;
 /*
  ---------------------------------------------------------------------
  Credits: Bit Repository

@@ -1,12 +1,25 @@
 <?php
-
+namespace CLMVC\Core\Includes;
+use CLMVC\Core\Container;
+use CLMVC\Interfaces\IIncludes;
 /**
  * Class StyleIncludes
  */
 class StyleIncludes implements IIncludes
 {
+    static $instance;
     private $styleInclude;
 
+    /**
+     * Instantiate a Container
+     * @static
+     * @return StyleIncludes
+     */
+    public static function instance() {
+        if(!isset(self::$instance) && empty(self::$instance))
+            self::$instance = new StyleIncludes();
+        return self::$instance;
+    }
     /**
      * Inject a style handler for includes
      * @param IIncludes $iStyleInclude
@@ -15,16 +28,17 @@ class StyleIncludes implements IIncludes
         if($iStyleInclude)
             $this->styleInclude=$iStyleInclude;
         else
-            $this->styleInclude=Container::instance()->fetch('IStyleInclude');
+            $this->styleInclude=Container::instance()->fetch('CLMVC\\Interfaces\\IStyleInclude');
         $this->styleInclude->init();
     }
 
     /**
      * Register a include
      * @param FrontInclude $include
+     * @return bool|void
      */
     public function register(FrontInclude $include) {
-        $this->styleInclude->register($include);
+        return $this->styleInclude->register($include);
     }
 
     /**
@@ -39,10 +53,11 @@ class StyleIncludes implements IIncludes
     /**
      * Enqueue a resource to be loaded
      * @param string $location where it should be loaded
-     * @param FrontInclude $include
+     * @param string $include
+     * @return bool
      */
-    function enqueue($location, FrontInclude $include) {
-         return $this->styleInclude->enqueue($location,$include);
+    function enqueue($location, $handle) {
+         return $this->styleInclude->enqueue($location,$handle);
      }
 
     /**

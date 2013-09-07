@@ -1,9 +1,47 @@
 <?php
 //TODO: Refactor and clean up
+define('CLOUDLESS_APP_DIR', WP_PLUGIN_DIR);
+if (!defined('PACKAGEPATH')) {
+    $tempPath='';
+    if(defined('WP_PLUGIN_DIR'))
+        $tempPath=WP_PLUGIN_DIR.'/AoiSora/';
+    else if(defined('WP_CONTENT_DIR'))
+        $tempPath.'/plugins/AoiSora/';
+    else
+        $tempPath=ABSPATH.'wp-content/plugins/AoiSora/';
+    define('PACKAGEPATH',$tempPath);
+}
+
+if(is_admin()){
+    add_filter('after_plugin_row','update_aoisora_load_first',10,3);
+    function update_aoisora_load_first($plugin_file,$plugin_data){
+        $plugin = plugin_basename(sl_file('AoiSora'));
+        $active = get_option('active_plugins');
+        if ( $active[0] == $plugin)
+            return;
+        $place=array_search($plugin, $active);
+        if($place===FALSE)
+            return;
+        array_splice($active, $place, 1);
+        array_unshift($active, $plugin);
+        update_option('active_plugins', $active);
+    }
+    if(!file_exists(ABSPATH.'/.htaccess') || !is_writable(ABSPATH.'/.htaccess')){
+        add_action('after_plugin_row_'.plugin_basename(sl_file('AoiSora')),'after_aoisora_plugin_htaccess_row', 10, 2 );
+        function after_aoisora_plugin_htaccess_row($plugin_file, $plugin_data){
+            echo '
+<tr class="error" style=""><td colspan="3" class="" style=""><div class="" style="padding:3px 3px 3px 3px;font-weight:bold;font-size:8pt;border:solid 1px #CC0000;background-color:#FFEBE8">AoiSora requries .htaccess with the following code before #BEGIN WORDPRESS.
+<pre>'.
+                get_htaccess_rules().'</pre>
+</div></td></tr>';
+            //deactivate_plugins(plugin_basename(__FILE__));
+        }
+    }
+}
 	global $table_prefix;
 	global $db_prefix;
 	$db_prefix=$table_prefix.'aoisora_';
-	Debug::Message('Loaded wordpress viewengine');
+	Debug::Message('Loaded wordpress ViewEngines');
 	define('PACKAGEURL',WP_PLUGIN_URL.'/AoiSora/');
 	if(!defined('WP_PLUGIN_DIR'))
 		define('APPPATH',dirname(__FILE__).'/');
@@ -35,6 +73,7 @@
     $container->add('IStyleInclude',new WpStyleIncludes());
     $container->add('StyleIncludes',new StyleIncludes());
     $container->add('IOptions','WpOptions','class');
+    $container->add('IOption','WpOption','class');
 
 	function register_aoisora_query_vars($public_query_vars) {
 		$public_query_vars[] = "controller";
@@ -61,9 +100,9 @@
 	
 	function viewcomponent($app,$component,$params=false){
 		if(strpos($app,WP_PLUGIN_DIR)!==false || strpos($app,':'))
-			include_once($app."/".strtolower("app/views/components/$component/$component.php"));		
+			include_once($app."/".strtolower("app/Views/components/$component/$component.php"));
 		else
-			include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/views/components/$component/$component.php"));
+			include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/Views/components/$component/$component.php"));
 		if(!$params)
 			$params=array();
         /**
@@ -99,31 +138,9 @@
 			return get_bloginfo('url');
 		}
 	}
-	function get_akismet_key(){
-		return akismet_get_key();
-	}
-	function get_htaccess_rules_path(){
-		return ABSPATH.'/.htaccess';
-	}
-	function get_htaccess_rules(){
-		$url=strtolower(get_site_url());
-		$siteurl=strtolower(get_bloginfo( 'wpurl'));
-		$path=str_replace($url,'',$siteurl);
-	$htaccess_rules=
-'# BEGIN PHPMVC
-	<IfModule mod_rewrite.c>
-	RewriteEngine On
-	RewriteBase /'.$path.'
-	RewriteCond %{REQUEST_METHOD} !GET
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteCond %{REQUEST_URI} /(create|delete|update) [NC]
-	RewriteRule ^(.*)/(.*)$ '.$path.'/wp-content/plugins/AoiSora/preroute.php?controller=$1&action=$2 [L]
-</IfModule>
-# END PHPMVC
-';
-		return $htaccess_rules;
-	}
+
+
+
 	function initiate_editor($id,$content){
         global $wp_version;
         if(version_compare($wp_version,'3.3','>=')){
@@ -134,6 +151,7 @@
             return 'old';
         }
 	}
+
 	global $hooks;
 	$hooks=array('init','admin_init','admin_menu','set_plugin_has_updates'=>'update_option__transient_update_plugins','template_redirect');
 	foreach($hooks as $key => $hook)
@@ -215,8 +233,4 @@ function aois_add_global_ctr_act(){
     $ctrl=array_key_exists_v('controller',Communication::getQueryString());
 	$action=array_key_exists_v(FRONTEND_ACTIONKEY,Communication::getQueryString());
     BaseController::setUpRouting($ctrl,$action);
-}
-
-function aoisora_loaded(){
-    do_action('aoisora-loaded');
 }

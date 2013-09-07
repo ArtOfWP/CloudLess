@@ -1,5 +1,6 @@
 <?php
-
+namespace CLMVC\Events;
+use CLMVC\Helpers;
 /**
  * Class View
  */
@@ -42,7 +43,7 @@ class View {
     /**
      * Generate the section
      * @param string $section
-     * @param array $params
+     * @param array|object $params
      * @param bool $isArray
      * @return string
      */
@@ -91,7 +92,7 @@ class View {
     /**
      * Render the section
      * @param string $section
-     * @param array $params
+     * @param array|object $params
      * @param bool $isArray
      */
     static function render($section, $params = array(), $isArray = false) {

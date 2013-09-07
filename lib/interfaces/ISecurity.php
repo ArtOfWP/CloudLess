@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\Interfaces;
 
 /**
  * Class ISecurity
@@ -38,6 +39,8 @@ interface ISecurity{
      * @return mixed
      */
     function currentUserIsInRole($role);
+
+    function isAdmin();
 
     /**
      * @return mixed

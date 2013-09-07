@@ -1,12 +1,18 @@
 <?php
+use CLMVC\Core\Data\R;
+
 /**
  * Class CountQuery
  * @property array select
  * @property array from
  * @property array where
  * @property array groupby
+ *
  */
 class CountQuery{
+    public $limit;
+    public $offset;
+
     /**
      * Setup a count query. Supply table to preinitate query.
      * @param string $table
@@ -25,10 +31,9 @@ class CountQuery{
     /**
      * Create a count query based on table name, classname or object
      * @param string|object $class
-     * @param bool $lazy
      * @return CountQuery
      */
-    static function createFrom($class,$lazy=true){
+    static function createFrom($class){
 		if(is_object($class))
 			$class=get_class($class);
 		$maintable=strtolower($class);
@@ -202,6 +207,8 @@ class CountQuery{
 			case 'groupby':
 				return $this->statement[$property];
 		}
+        trigger_error("{$property} is not a valid property of CountQuery", E_USER_WARNING);
+        return null;
 	}
 
     /**

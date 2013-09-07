@@ -1,5 +1,5 @@
 <?php
-
+namespace CLMVC\Views;
 /**
  * Class ShortCodeBase
  */
