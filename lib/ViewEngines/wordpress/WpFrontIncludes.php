@@ -1,4 +1,7 @@
 <?php
+use CLMVC\Core\Includes\FrontInclude;
+use CLMVC\Interfaces\IIncludes;
+
 abstract class WpFrontIncludes implements IIncludes
 {
     private $includes=array();
@@ -16,10 +19,10 @@ abstract class WpFrontIncludes implements IIncludes
         return true;
     }
 
-    function enqueue($location, FrontInclude $include) {
+    function enqueue($location, $handle) {
         if(!isset($this->queue[$location])|| empty($this->queue[$location]))
             $this->queue[$location]=array();
-        $this->queue[$location][$include->getHandle()]=$include;
+        $this->queue[$location][$handle]=$this->includes[$handle];
     }
 
     function dequeue($location, $handle) {

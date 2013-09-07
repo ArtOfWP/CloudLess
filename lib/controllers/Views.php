@@ -34,4 +34,11 @@ class Views {
         }
         return '';
     }
+
+    public function findLayout() {
+        if ($this->controller->getViewPath()) {
+            return rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Layouts' . DIRECTORY_SEPARATOR . 'default' . '.php';
+        }
+        return '';
+    }
 }

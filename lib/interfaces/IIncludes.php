@@ -48,4 +48,10 @@ interface IIncludes
     /**
      */
     function init();
+
+    /**
+     * @param $location
+     * @return FrontInclude[]
+     */
+    function getEnqueued($location);
 }

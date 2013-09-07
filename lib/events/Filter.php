@@ -50,9 +50,11 @@ class Filter {
      * @param array $params
      * @return mixed
      */
-    static function run($filter, $params = array())
-    {
-        $value = $params[0];
+    static function run($filter, $params = array()) {
+        if (isset($params[0]))
+            $value = $params[0];
+        else
+            $value = '';
         $priorities = array_key_exists_v($filter, self::$FilterSections);
         if ($priorities)
             ksort($priorities);
@@ -65,16 +67,16 @@ class Filter {
 
                 foreach ($functions as $function) {
                     if(!is_callable($function)){
-                                            if(is_array($function))
-                                                if(is_string($function[0]))
-                                                    $message=implode('::',$function);
-                                                else
-                                                    $message=get_class($function[0]).'->'.$function[1];
-                                            else
-                                                $message=$function;
-                                            trigger_error('Filter cannot call '.$message.' it does not exist.',E_USER_WARNING);
+                        if(is_array($function))
+                            if(is_string($function[0]))
+                                $message=implode('::',$function);
+                            else
+                                $message=get_class($function[0]).'->'.$function[1];
+                        else
+                            $message=$function;
+                        trigger_error('Filter cannot call '.$message.' it does not exist.',E_USER_WARNING);
                         continue;
-                                        }
+                    }
 
                     $value = call_user_func_array($function, $params);
                     $params[0] = $value;

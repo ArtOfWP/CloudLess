@@ -1,5 +1,7 @@
 <?php
 
+use CLMVC\Core\Includes\FrontInclude;
+
 class WpScriptIncludes extends WpFrontIncludes
 {
     function enqueueInclude(FrontInclude $script) {
@@ -16,5 +18,12 @@ class WpScriptIncludes extends WpFrontIncludes
 
     function deregisterInclude($includeHandle) {
         wp_deregister_script($includeHandle);
+    }
+
+    /**
+     * @param $location
+     * @return FrontInclude[]
+     */
+    function getEnqueued($location) {
     }
 }

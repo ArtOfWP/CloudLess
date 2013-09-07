@@ -100,4 +100,16 @@ class ScriptIncludes implements IIncludes {
     function init() {
         return $this->scriptInclude->init();
     }
+
+    /**
+     * @param $location
+     * @return FrontInclude[]
+     */
+    function getEnqueued($location) {
+        return $this->scriptInclude->getEnqueued($location);
+    }
+
+    function render($location) {
+
+    }
 }

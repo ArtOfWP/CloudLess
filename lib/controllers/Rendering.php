@@ -1,6 +1,9 @@
 <?php
 namespace CLMVC\Controllers;
 
+use CLMVC\Core\Includes\ScriptIncludes;
+use CLMVC\Core\Includes\StyleIncludes;
+use CLMVC\Events\Filter;
 use CLMVC\Events\View;
 
 class Rendering {
@@ -9,6 +12,9 @@ class Rendering {
      * @var bool if should render
      */
     private $render = true;
+    /**
+     * @var Views
+     */
     private $views;
     /**
      * @var BaseController
@@ -40,13 +46,26 @@ class Rendering {
         $view = $this->views->findView($controller, $action);
         if ($view) {
             extract($this->getBag(), EXTR_REFS);
-            $section = View::generate($controller . '-render-pre' . ucfirst($action), $this);
+            if (!isset($title))
+                $title = '';
+            $section = View::generate($controller . '-render-pre' . ucfirst($action), $this->controller);
             ob_start();
             include($view);
             $viewcontent = $section . ob_get_contents();
             ob_end_clean();
-            View::render($controller . '-render-post' . ucfirst($action), $this);
+            View::render($controller . '-render-post' . ucfirst($action), $this->controller);
             $viewcontent .= $section;
+            ob_start();
+            include $this->views->findLayout();
+            $layout = ob_get_contents();
+            ob_end_clean();
+            $title =Filter::run('title', array($title));
+            $layout = $this->replaceTag($layout, '{{title}}', $title);
+            $layout = $this->replaceTag($layout, '{{stylesheets}}', implode("\n", Filter::run('stylesheets-front', array(array()))));
+            $layout = $this->replaceTag($layout, '{{javascript_footer}}', implode("\n", Filter::run('javascripts-footer-front', array(array()))));
+            $layout = $this->replaceTag($layout, '{{javascript_head}}', implode("\n", Filter::run('stylesheets-head-front', array(array()))));
+            $layout = $this->replaceTag($layout, '{{view}}', $viewcontent);
+            $viewcontent = $layout;
         } else
             $viewcontent = 'Could not find view: ' . $view;
         $this->render = false;
@@ -100,5 +119,18 @@ class Rendering {
         if (!is_null($state))
             $this->render = $state;
         return $this->render;
+    }
+
+    /**
+     * @param $layout
+     * @param $tag
+     * @param $viewcontent
+     * @return string
+     */
+    public function replaceTag($layout, $tag, $viewcontent) {
+        $viewPosStart = strpos($layout, $tag);
+        $viewPosEnd = $viewPosStart + strlen($tag);
+        $layout = substr($layout, 0, $viewPosStart) . $viewcontent . substr($layout, $viewPosEnd);
+        return $layout;
     }
 }

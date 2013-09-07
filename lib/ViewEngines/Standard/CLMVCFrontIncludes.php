@@ -10,8 +10,7 @@ class CLMVCFrontIncludes implements IIncludes {
      * @param FrontInclude $include
      * @return mixed
      */
-    function register(FrontInclude $include)
-    {
+    function register(FrontInclude $include) {
         // TODO: Implement register() method.
     }
 
@@ -19,8 +18,7 @@ class CLMVCFrontIncludes implements IIncludes {
      * @param $handle
      * @return bool
      */
-    function deregister($handle)
-    {
+    function deregister($handle) {
         // TODO: Implement deregister() method.
     }
 
@@ -29,8 +27,7 @@ class CLMVCFrontIncludes implements IIncludes {
      * @param string $handle
      * @return bool
      */
-    function enqueue($location, $handle)
-    {
+    function enqueue($location, $handle) {
         // TODO: Implement enqueue() method.
     }
 
@@ -39,8 +36,7 @@ class CLMVCFrontIncludes implements IIncludes {
      * @param string $handle
      * @return bool
      */
-    function dequeue($location, $handle)
-    {
+    function dequeue($location, $handle) {
         // TODO: Implement dequeue() method.
     }
 
@@ -48,8 +44,7 @@ class CLMVCFrontIncludes implements IIncludes {
      * @param string $handle
      * @return bool
      */
-    function isRegistered($handle)
-    {
+    function isRegistered($handle) {
         // TODO: Implement isRegistered() method.
     }
 
@@ -57,15 +52,21 @@ class CLMVCFrontIncludes implements IIncludes {
      * @param string $handle
      * @return bool
      */
-    function isEnqueued($handle)
-    {
+    function isEnqueued($handle) {
         // TODO: Implement isEnqueued() method.
     }
 
     /**
      */
-    function init()
-    {
+    function init() {
         // TODO: Implement init() method.
+    }
+
+    /**
+     * @param $location
+     * @return FrontInclude[]
+     */
+    function getEnqueued($location) {
+        // TODO: Implement getEnqueued() method.
     }
 }

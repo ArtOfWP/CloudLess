@@ -5,9 +5,12 @@ use CLMVC\Interfaces\IIncludes;
 /**
  * Class StyleIncludes
  */
-class StyleIncludes implements IIncludes
-{
+class StyleIncludes implements IIncludes {
     static $instance;
+
+    /**
+     * @var IIncludes
+     */
     private $styleInclude;
 
     /**
@@ -53,7 +56,7 @@ class StyleIncludes implements IIncludes
     /**
      * Enqueue a resource to be loaded
      * @param string $location where it should be loaded
-     * @param string $include
+     * @param string $handle
      * @return bool
      */
     function enqueue($location, $handle) {
@@ -94,5 +97,17 @@ class StyleIncludes implements IIncludes
      */
     function init() {
         return $this->styleInclude->init();
+    }
+
+    function render($content, $location) {
+        $this->getEnqueued($location);
+    }
+
+    /**
+     * @param $location
+     * @return FrontInclude[]
+     */
+    function getEnqueued($location) {
+        return $this->styleInclude->getEnqueued($location);
     }
 }
