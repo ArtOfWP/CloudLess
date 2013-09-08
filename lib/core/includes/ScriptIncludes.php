@@ -1,7 +1,9 @@
 <?php
 namespace CLMVC\Core\Includes;
 use CLMVC\Core\Container;
+use CLMVC\Events\Hook;
 use CLMVC\Interfaces\IIncludes;
+
 /**
  * ScriptIncludes
  * Handler for JavaScript FrontIncludes
@@ -35,34 +37,38 @@ class ScriptIncludes implements IIncludes {
         else
             $this->scriptInclude=Container::instance()->fetch('CLMVC\\Interfaces\\IScriptInclude');
         $this->scriptInclude->init();
+        Hook::register('controller-init', array($this, 'registerIncludes'));
     }
 
     /**
      * Register a include
      * @param FrontInclude $include
-     * @return bool
+     * @return ScriptIncludes
      */
     public function register(FrontInclude $include) {
-        return $this->scriptInclude->register($include);
+        $this->scriptInclude->register($include);
+        return $this->scriptInclude;
     }
 
     /**
      * Deregister a resource using its handle
      * @param string $handle
-     * @return bool
+     * @return ScriptIncludes
      */
     function deregister($handle) {
-        return $this->scriptInclude->deregister($handle);
+        $this->scriptInclude->deregister($handle);
+        return $this->scriptInclude;
     }
 
     /**
      * Enqueue a resource to be loaded
      * @param string $location where it should be loaded
      * @param $handle
-     * @return bool
+     * @return ScriptIncludes
      */
     function enqueue($location, $handle) {
-         return $this->scriptInclude->enqueue($location, $handle);
+        $this->scriptInclude->enqueue($location, $handle);
+        return $this->scriptInclude;
     }
 
     /**
@@ -72,7 +78,8 @@ class ScriptIncludes implements IIncludes {
      * @return bool
      */
     function dequeue($location, $handle) {
-        return $this->scriptInclude->dequeue($location,$handle);
+        $this->scriptInclude->dequeue($location,$handle);
+        return $this->scriptInclude;
     }
 
     /**
@@ -95,7 +102,7 @@ class ScriptIncludes implements IIncludes {
 
     /**
      * Initiate the include handler
-     * @return bool
+     * @return ScriptIncludes
      */
     function init() {
         return $this->scriptInclude->init();
@@ -109,7 +116,11 @@ class ScriptIncludes implements IIncludes {
         return $this->scriptInclude->getEnqueued($location);
     }
 
-    function render($location) {
+    function registerIncludes() {
+        $this->scriptInclude->registerIncludes();
+    }
 
+    function getRegistered($handle = '') {
+        return $this->scriptInclude->getRegistered($handle);
     }
 }

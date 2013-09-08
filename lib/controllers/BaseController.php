@@ -100,7 +100,7 @@ class BaseController {
      * Setup the controller.
      */
     private function initiate() {
-        Debug::message('BaseController initiate');
+        Hook::run('controller-init');
         if (method_exists($this, 'onControllerPreInit'))
             $this->onControllerPreInit();
 
@@ -118,7 +118,6 @@ class BaseController {
      * Initiate the controller and execute filter and do automatic rendering if enabled.
      */
     public function init() {
-        Debug::message('BaseController init');
         $this->initiate();
         if ($this->filter)
             if (!$this->filter->perform($this, $this->values))
