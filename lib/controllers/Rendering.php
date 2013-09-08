@@ -45,6 +45,7 @@ class Rendering {
     public function Render($controller, $action) {
         $view = $this->views->findView($controller, $action);
         if ($view) {
+            $tags = Filter::run('view-tags', array(array(), $this->controller));
             extract($this->getBag(), EXTR_REFS);
             if (!isset($title))
                 $title = '';
@@ -55,17 +56,19 @@ class Rendering {
             ob_end_clean();
             View::render($controller . '-render-post' . ucfirst($action), $this->controller);
             $viewcontent .= $section;
-            ob_start();
-            include $this->views->findLayout();
-            $layout = ob_get_contents();
-            ob_end_clean();
-            $title =Filter::run('title', array($title));
-            $layout = $this->replaceTag($layout, '{{title}}', $title);
-            $layout = $this->replaceTag($layout, '{{stylesheets}}', implode("\n", Filter::run('stylesheets-frontend', array(array()))));
-            $layout = $this->replaceTag($layout, '{{javascript_footer}}', implode("\n", Filter::run('javascripts-footer-frontend', array(array()))));
-            $layout = $this->replaceTag($layout, '{{javascript_head}}', implode("\n", Filter::run('stylesheets-head-frontend', array(array()))));
-            $layout = $this->replaceTag($layout, '{{view}}', $viewcontent);
-            $viewcontent = $layout;
+            $layout = $this->views->findLayout();
+            if ($layout) {
+                ob_start();
+                include $layout;
+                $layout = ob_get_contents();
+                ob_end_clean();
+                foreach ($tags as $tagTuple) {
+                    list($tag, $content) = $tagTuple;
+                    $layout = $this->replaceTag($layout, $tag, $content);
+                }
+                $layout = $this->replaceTag($layout, '{{view}}', $viewcontent);
+                $viewcontent = $layout;
+            }
         } else
             $viewcontent = 'Could not find view: ' . $view;
         $this->render = false;
