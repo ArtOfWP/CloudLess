@@ -9,27 +9,27 @@ interface IIncludes
 {
     /**
      * @param FrontInclude $include
-     * @return bool
+     * @return IIncludes
      */
     function register( FrontInclude $include );
 
     /**
      * @param $handle
-     * @return bool
+     * @return IIncludes
      */
     function deregister($handle);
 
     /**
      * @param string $location
      * @param string $handle
-     * @return bool
+     * @return IIncludes
      */
     function enqueue($location, $handle);
 
     /**
      * @param string $location
      * @param string $handle
-     * @return bool
+     * @return IIncludes
      */
     function dequeue($location,$handle);
 
@@ -54,4 +54,8 @@ interface IIncludes
      * @return FrontInclude[]
      */
     function getEnqueued($location);
+
+    function registerIncludes();
+
+    function getRegistered($handle = '');
 }
