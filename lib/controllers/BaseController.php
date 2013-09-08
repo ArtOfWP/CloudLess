@@ -185,10 +185,8 @@ class BaseController {
     public function NotFound() {
         $view = $this->findView($this->controller, 'NotFound');
         if ($view) {
-            $this->setUpRouting($this->controller, 'NotFound');
             $this->renderer->Render($this->controller, 'NotFound');
         } else {
-            $this->setUpRouting('default', 'NotFound');
             $this->renderer->Render('default', 'NotFound');
         }
     }
@@ -232,16 +230,6 @@ class BaseController {
      */
     protected function setDefaultAction($action) {
         $this->action = $action;
-    }
-
-    /**
-     * Set up routing. That is the Controller and Action to use.
-     * @param $controller
-     * @param $action
-     */
-    public static function setUpRouting($controller, $action) {
-        self::$currentController = $controller;
-        self::$currentAction = $action;
     }
 
     /**
