@@ -61,9 +61,9 @@ class Rendering {
             ob_end_clean();
             $title =Filter::run('title', array($title));
             $layout = $this->replaceTag($layout, '{{title}}', $title);
-            $layout = $this->replaceTag($layout, '{{stylesheets}}', implode("\n", Filter::run('stylesheets-front', array(array()))));
-            $layout = $this->replaceTag($layout, '{{javascript_footer}}', implode("\n", Filter::run('javascripts-footer-front', array(array()))));
-            $layout = $this->replaceTag($layout, '{{javascript_head}}', implode("\n", Filter::run('stylesheets-head-front', array(array()))));
+            $layout = $this->replaceTag($layout, '{{stylesheets}}', implode("\n", Filter::run('stylesheets-frontend', array(array()))));
+            $layout = $this->replaceTag($layout, '{{javascript_footer}}', implode("\n", Filter::run('javascripts-footer-frontend', array(array()))));
+            $layout = $this->replaceTag($layout, '{{javascript_head}}', implode("\n", Filter::run('stylesheets-head-frontend', array(array()))));
             $layout = $this->replaceTag($layout, '{{view}}', $viewcontent);
             $viewcontent = $layout;
         } else

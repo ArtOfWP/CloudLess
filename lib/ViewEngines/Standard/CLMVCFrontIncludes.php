@@ -4,14 +4,17 @@ use CLMVC\Core\Includes\FrontInclude;
 use CLMVC\Interfaces\IIncludes;
 
 
-class CLMVCFrontIncludes implements IIncludes {
-
+abstract class CLMVCFrontIncludes implements IIncludes {
+    /**
+     * @var FrontInclude[handle]
+     */
+    private $registered;
     /**
      * @param FrontInclude $include
      * @return mixed
      */
     function register(FrontInclude $include) {
-        // TODO: Implement register() method.
+        $this->registered[$include->getHandle()] = $include;
     }
 
     /**
@@ -19,7 +22,7 @@ class CLMVCFrontIncludes implements IIncludes {
      * @return bool
      */
     function deregister($handle) {
-        // TODO: Implement deregister() method.
+        unset($this->registered[$handle]);
     }
 
     /**
@@ -27,9 +30,7 @@ class CLMVCFrontIncludes implements IIncludes {
      * @param string $handle
      * @return bool
      */
-    function enqueue($location, $handle) {
-        // TODO: Implement enqueue() method.
-    }
+    abstract function enqueue($location, $handle);
 
     /**
      * @param string $location
@@ -68,5 +69,15 @@ class CLMVCFrontIncludes implements IIncludes {
      */
     function getEnqueued($location) {
         // TODO: Implement getEnqueued() method.
+    }
+
+    function registerIncludes() {
+
+    }
+
+    function getRegistered($handle = '') {
+        if ($handle)
+            return $this->registered[$handle];
+        return $this->registered;
     }
 }

@@ -51,6 +51,7 @@ abstract class WpFrontIncludes implements IIncludes
         add_action('wp_enqueue_scripts',array($this,'wpEnqueueIncludes'));
         return true;
     }
+
     function registerIncludes(){
         /**
          * @var $include FrontInclude
@@ -82,6 +83,7 @@ abstract class WpFrontIncludes implements IIncludes
             foreach($this->dequeue[$location] as $include)
                 $this->dequeueInclude($include);
     }
+
     abstract function enqueueInclude(FrontInclude $include);
     abstract function registerInclude(FrontInclude $include);
     abstract function dequeueInclude($includeHandle);
