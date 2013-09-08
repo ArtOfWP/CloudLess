@@ -18,7 +18,6 @@ $testpost=array();
 
 class BaseControllerTest extends PHPUnit_Framework_TestCase{
 	public function correctExtendedController(){
-        setUp('test','test');
         $this->assertEquals('Test',BaseController::CurrentController());
 	}
 	public function testCorrectAction(){
@@ -98,7 +97,4 @@ class TestController extends BaseController{
             $this->person=$user;
         $this->userid=$userid;
         }
-}
-function setUp($controller,$action){
-    BaseController::setUpRouting($controller,$action);
 }
