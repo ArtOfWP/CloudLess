@@ -115,7 +115,7 @@ class BaseController {
     }
 
     /**
-     * Initiate the controller and execute filter and do automatic rendering if enabled.
+     * Initiate the controller and execute filter.
      */
     public function init() {
         $this->initiate();
@@ -133,29 +133,6 @@ class BaseController {
         $this->viewpath = $viewPath;
         Debug::Message('Loaded ' . $this->controller . ' extends BaseController');
         $this->renderer = new Rendering($this);
-    }
-
-    /**
-     * Executes action and does automatic rendering.
-     */
-    protected function automaticRender() {
-        Debug::Message('Executing automatic action');
-        $action = array_key_exists_v(ACTIONKEY, Communication::getQueryString());
-        if (!isset($action) || empty($action))
-            if ($this->action)
-                $action = $this->action;
-            else
-                $action = 'index';
-        Debug::Message('PreExecuted action: ' . $action);
-        try {
-            $this->executeAction($action);
-        } catch (RuntimeException $ex) {
-            $this->viewcontent = 'Could not find action: ' . $action;
-            $this->renderer->canRender(false);
-        }
-        if ($this->renderer->canRender()) {
-            $this->renderer->Render($this->controller,$action);
-        }
     }
 
     /**

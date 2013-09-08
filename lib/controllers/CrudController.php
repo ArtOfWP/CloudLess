@@ -43,21 +43,16 @@ abstract class CrudController extends BaseController {
     protected $search_property=false;
 
     /**
-     * @var bool If controller should be automatic.
-     */
-    private $automatic;
-    /**
      * @var array Values set on action
      */
     public $bag=array();
 
     /**
      * Construct the controller setup variables.
-     * @param bool $automatic
+     * @param string $viewpath
      */
-    public function __construct($automatic=true){
-		parent::__construct(false);
-		$this->automatic=$automatic;
+    public function __construct($viewpath=''){
+		parent::__construct($viewpath);
 		Debug::Message('Loaded '.$this->controller.' extends Crudcontroller');
 	}
 
@@ -69,28 +64,6 @@ abstract class CrudController extends BaseController {
 		$this->defaultAction='listall';
 		parent::init();
 		$this->onCrudControllerInit();
-		if($this->automatic){
-			Debug::Message('CRUD Executing automatic action ');
-			if($this->action){
-				Debug::Message('CRUD Pre Automatic Render');
-				$this->automaticRender();
-			}
-			else if($this->methodIs(GET)){
-				$id=array_key_exists_v('Id',$this->values);
-				if($id)
-					$this->executeAction('edit');					
-				else if(array_key_exists_v('_method',$this->values))
-					$this->executeAction('delete');
-				else
-					$this->executeAction('listall');
-			}
-			else if($this->methodIs(POST))
-				$this->executeAction('create');
-			else if($this->methodIs(PUT))
-				$this->executeAction('update');
-			else if($this->methodIs(DELETE))
-				$this->executeAction('delete');
-		}
 	}
 
     /**
