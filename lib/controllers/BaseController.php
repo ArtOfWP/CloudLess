@@ -21,10 +21,6 @@ use RuntimeException;
  */
 class BaseController {
     /**
-     * @var string Currently running action
-     */
-    private static $currentAction;
-    /**
      * @var string currently controller
      */
     protected $controller;
@@ -64,10 +60,7 @@ class BaseController {
      * @var array THe values retrieved by the HTTP method
      */
     public $values = array();
-    /**
-     * @var string The current executing controller
-     */
-    private static $currentController;
+
     /**
      * @var ActiveRecordBase The object to use for CRUD actions
      */
@@ -144,7 +137,7 @@ class BaseController {
             $reflection = new ReflectionMethod($this, $action);
             if (!$reflection->isPublic())
                 throw new RuntimeException("The action you tried to execute is not public.");
-            self::$currentAction = $action;
+            $this->action = $action;
             $params = $reflection->getParameters();
             $paramValues = array();
             if ($params) {
@@ -175,7 +168,10 @@ class BaseController {
      * @return mixed
      */
     public function getBag() {
-        return Filter::run($this->controller . '-bag', array($this->bag, $this->controller, $this->action, $this->values));
+        static $bag;
+        if ($bag)
+            return $bag;
+        return $bag = Filter::run($this->controller . '-bag', array($this->bag, $this->controller, $this->action, $this->values));
     }
 
     /**
@@ -205,22 +201,6 @@ class BaseController {
                 $redirect = preg_replace('/[\&|\?]result\=\d+/', '', $redirect);
             Communication::redirectTo($redirect, $query);
         }
-    }
-
-    /**
-     * The currently executing action
-     * @return string
-     */
-    public static function CurrentAction() {
-        return self::$currentAction;
-    }
-
-    /**
-     * The current running controller
-     * @return string
-     */
-    public static function CurrentController() {
-        return self::$currentController;
     }
 
     /**
