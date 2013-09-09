@@ -12,7 +12,7 @@ use CLMVC\Events\Hook;
 use ReflectionMethod;
 use Repo;
 use RuntimeException;
-
+use CLMVC\Controllers\Render\Rendering;
 /**
  * Class BaseController
  * The base class to use for Controllers

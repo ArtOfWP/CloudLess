@@ -1,5 +1,5 @@
 <?php
-namespace CLMVC\Controllers;
+namespace CLMVC\Controllers\Render;
 
 class RenderedContent {
     static $renderedContent;
