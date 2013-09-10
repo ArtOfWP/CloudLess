@@ -45,32 +45,69 @@ class Rendering {
      * @param $action
      */
     public function Render($controller, $action) {
-        $view = $this->views->findView($controller, $action);
+        $view = $this->views->findView($controller, $action, $this->getTemplate());
         if ($view) {
             $tags = Filter::run('view-tags', array(array(), $this->controller));
-            extract($this->getBag(), EXTR_REFS);
-            if (!isset($title))
-                $title = '';
             $section = View::generate($controller . '-render-pre' . ucfirst($action), $this->controller);
-            ob_start();
-            include($view);
-            $viewcontent = $section . ob_get_contents();
-            ob_end_clean();
+            if ('php' == $this->getTemplate()) {
+                extract($this->getBag(), EXTR_REFS);
+                if (!isset($title))
+                    $title = '';
+                ob_start();
+                include($view);
+                $viewcontent = $section . ob_get_contents();
+                ob_end_clean();
+            } else {
+                $engine = RenderingEngines::getEngine($this->getTemplate());
+                $content = file_get_contents($view);
+                $viewcontent = $engine->render($content, $this->getBag());
+            }
             View::render($controller . '-render-post' . ucfirst($action), $this->controller);
             $viewcontent .= $section;
-            $layout = $this->views->findLayout();
+            $layout = $this->views->findLayout($this->getTemplate());
             if ($layout) {
-                ob_start();
-                include $layout;
-                $layout = ob_get_contents();
-                ob_end_clean();
-                foreach ($tags as $tagTuple) {
-                    list($tag, $content) = $tagTuple;
-                    $layout = $this->replaceTag($layout, $tag, $content);
+                if ('php' == $this->getTemplate()) {
+                    extract($this->getBag(), EXTR_REFS);
+                    if (!isset($title))
+                        $title = '';
+                    ob_start();
+                    include $layout;
+                    $layout_content = ob_get_contents();
+                    ob_end_clean();
+                    foreach ($tags as $tagTuple) {
+                        list($tag, $content) = $tagTuple;
+                        $layout_content = $this->replaceTag($layout_content, $tag, $content);
+                    }
+                    $layout_content = $this->replaceTag($layout_content, '{{view}}', $viewcontent);
+                } else {
+                    $engine = RenderingEngines::getEngine($this->getTemplate());
+                    $content = file_get_contents($layout);
+                    $content = str_replace('block view', $viewcontent, $content);
+                    $layout_content = $engine->render($content, $this->getBag());
+                    if (!file_exists(CLMVC_CACHE_PATH  . 'Layout' . DIRECTORY_SEPARATOR ))
+                        mkdir(CLMVC_CACHE_PATH  . 'Layout', '755');
+                    $cached_layout = CLMVC_CACHE_PATH  . 'Layout' . DIRECTORY_SEPARATOR . 'default.php';
+                    if (!file_exists($cached_layout))
+                        file_put_contents($cached_layout, $layout_content);
+                    ob_start();
+                    extract($this->getBag(), EXTR_REFS);
+                    $vars = array();
+                    foreach ($tags as $tagTuple) {
+                        list($tag, $content) = $tagTuple;
+                        $vars[trim($tag, "{{}}")] = $content;
+                    }
+                    extract($vars);
+                    if (!isset($title))
+                        $title = '';
+                    include $cached_layout;
+                    $layout_content = ob_get_contents();
+                    ob_end_clean();
                 }
-                $layout = $this->replaceTag($layout, '{{view}}', $viewcontent);
-                $viewcontent = $layout;
+            } else {
+                $layout_content = '';
             }
+            $viewcontent = $layout_content;
+
         } else
             $viewcontent = 'Could not find view: ' . $view;
         $this->render = false;
@@ -134,8 +171,17 @@ class Rendering {
      */
     public function replaceTag($layout, $tag, $viewcontent) {
         $viewPosStart = strpos($layout, $tag);
-        $viewPosEnd = $viewPosStart + strlen($tag);
-        $layout = substr($layout, 0, $viewPosStart) . $viewcontent . substr($layout, $viewPosEnd);
+        if ($viewPosStart !== false) {
+            $viewPosEnd = $viewPosStart + strlen($tag);
+            $layout = substr($layout, 0, $viewPosStart) . $viewcontent . substr($layout, $viewPosEnd);
+        }
         return $layout;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTemplate() {
+        return $this->controller->getTemplateType();
     }
 }

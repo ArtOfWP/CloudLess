@@ -17,8 +17,8 @@ interface IRenderingEngine {
     /**
      * Returns the rendered content
      * @param string $content
-     * @param array $tagged_content
+     * @param array $scope
      * @return string
      */
-    public function render($content, $tagged_content = array());
+    public function render($content, $scope = array());
 }

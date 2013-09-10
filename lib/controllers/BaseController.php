@@ -87,6 +87,7 @@ class BaseController {
      */
     protected $renderer;
 
+    private $templateType = 'php';
     /**
      * Setup the controller.
      */
@@ -184,6 +185,22 @@ class BaseController {
         } else {
             $this->renderer->Render('default', 'NotFound');
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTemplateType()
+    {
+        return $this->templateType;
+    }
+
+    /**
+     * @param mixed $templateType
+     */
+    public function setTemplateType($templateType)
+    {
+        $this->templateType = $templateType;
     }
 
     /**

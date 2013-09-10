@@ -1,18 +1,28 @@
 <?php
 namespace CLMVC\Controllers\Render;
 
-
 use CLMVC\Interfaces\IRenderingEngine;
 
 class RenderingEngines {
     private static $engines = array();
+
+    /**
+     * @param string $fileType
+     * @return IRenderingEngine
+     * @throws RenderException
+     */
     static function getEngine($fileType) {
-        if (isset(self::$engines[$fileType]))
-            return self::$engines[$fileType];
-        else
+        if (isset(self::$engines[$fileType])) {
+            return new self::$engines[$fileType]();
+        } else
             throw new RenderException(sprintf('No registered engines can handle %s.', $fileType));
     }
-    static function registerEngine(IRenderingEngine $engine) {
-        self::$engines[$engine->getFileTypeSupport()]= $engine;
+
+    /**
+     * @param string $fileType
+     * @param string $classPath
+     */
+    static function registerEngine($fileType, $classPath) {
+        self::$engines[$fileType]= $classPath;
     }
 }
