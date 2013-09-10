@@ -16,9 +16,10 @@ interface IRenderingEngine {
 
     /**
      * Returns the rendered content
-     * @param string $content
+     * @param string $filePath
      * @param array $scope
+     * @param array $blocks
      * @return string
      */
-    public function render($content, $scope = array());
+    public function render($filePath, $scope = array(), $blocks = array());
 }
