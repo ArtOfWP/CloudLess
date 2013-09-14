@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\ViewEngines\WordPress;
 use CLMVC\Core\Includes\FrontInclude;
 use CLMVC\Interfaces\IIncludes;
 

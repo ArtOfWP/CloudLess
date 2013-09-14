@@ -4,11 +4,12 @@
  * @global MySqlDatabase $db
  */
 
-include(PACKAGEPATH . 'clmvc-autoloader.php');
+include(PACKAGEPATH . 'clmvc-autoloader.php');/*
 if (!defined('CLOUDLESS_CONFIG'))
-    include(PACKAGEPATH.'config.php');
+    if (file_exists(PACKAGEPATH.'config.php'))
+        include(PACKAGEPATH.'config.php');
 else
-    include CLOUDLESS_CONFIG;
+    include CLOUDLESS_CONFIG;*/
 require PACKAGEPATH . 'lib/Helpers/ArraysHelper.php';
 if (file_exists(PACKAGEPATH . 'lib/ViewEngines/' . ucfirst(VIEWENGINE) . '/setup.php'))
     require PACKAGEPATH . 'lib/ViewEngines/' . ucfirst(VIEWENGINE) . '/setup.php';

@@ -1,5 +1,5 @@
 <?php
-
+namespace CLMVC\ViewEngines\WordPress;
 /**
  * Class WpApplicationBase
  * Todo: make it independant of WordPress. Make an applciation base and then make an DI for WordPress

@@ -13,7 +13,7 @@ define('DB_HOST', 'localhost');
 
 include('../../config.php');
 include(PACKAGEPATH.'/'.'tests/classes/wp-functions.php');
-include(PACKAGEPATH . 'lib/ViewEngines/wordpress/WpOptions.php');
+include(PACKAGEPATH . 'lib/ViewEngines/WordPress/WpOptions.php');
 
 class WpOptionsTests extends PHPUnit_Framework_TestCase
 {

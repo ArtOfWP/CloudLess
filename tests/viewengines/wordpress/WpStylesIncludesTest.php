@@ -14,8 +14,8 @@ define('DB_HOST', 'localhost');
 
 include('../../config.php');
 include(PACKAGEPATH.'/'.'tests/classes/wp-functions.php');
-include(PACKAGEPATH . 'lib/ViewEngines/wordpress/WpFrontIncludes.php');
-include(PACKAGEPATH . 'lib/ViewEngines/wordpress/WpStyleIncludes.php');
+include(PACKAGEPATH . 'lib/ViewEngines/WordPress/WpFrontIncludes.php');
+include(PACKAGEPATH . 'lib/ViewEngines/WordPress/WpStyleIncludes.php');
 class WpStylesIncludesTest extends PHPUnit_Framework_TestCase
 {
     function testRegisterStyle(){

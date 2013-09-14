@@ -3,8 +3,6 @@ namespace CLMVC\Controllers\Render;
 
 use CLMVC\Controllers\BaseController;
 use CLMVC\Controllers\Views;
-use CLMVC\Core\Includes\ScriptIncludes;
-use CLMVC\Core\Includes\StyleIncludes;
 use CLMVC\Events\Filter;
 use CLMVC\Events\View;
 

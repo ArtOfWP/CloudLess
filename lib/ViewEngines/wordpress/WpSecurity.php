@@ -1,4 +1,6 @@
 <?php
+namespace CLMVC\ViewEngines\WordPress;
+use CLMVC\Interfaces\ISecurity;
 
 /**
  * Class WpSecurity
@@ -59,4 +61,9 @@ class WpSecurity implements ISecurity{
     static function instance(){
 		return new WpSecurity();
 	}
+
+    function isAdmin()
+    {
+        // TODO: Implement isAdmin() method.
+    }
 }

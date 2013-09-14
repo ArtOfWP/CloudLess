@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\ViewEngines\WordPress;
 class WpHelper{
 	static function seperatedTabbedOptionsForm($id,$optiongroups,$tabs){
 		?>
