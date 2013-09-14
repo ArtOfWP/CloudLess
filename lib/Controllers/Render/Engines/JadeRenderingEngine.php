@@ -21,10 +21,15 @@ class JadeRenderingEngine implements IRenderingEngine {
      */
     public function render($file_path, $scope = array(), $blocks = array()) {
         $template = file_get_contents($file_path);
-        file_put_contents($file_path.'old', $template);
-        foreach($blocks as $block => $content)
-            $template = str_replace('block ' . $block, $content, $template);
+        if (isset($blocks['view']))
+            $template = str_replace('include view', $blocks['view'], $template);
         $renderer = new Jade(true);
-        return $renderer->render($template , $scope);
+        $parsed = $renderer->render($template , $scope);
+        ob_start();
+        extract($scope, EXTR_REFS);
+        eval('?>' . $parsed);
+        $content = ob_get_contents();
+        ob_end_clean();
+        return $content;
     }
 }
