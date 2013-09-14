@@ -12,6 +12,7 @@ $container->add('CLMVC\\Interfaces\\IOptions','CLMVC\\ViewEngines\\Standard\\BIO
 $container->add('CLMVC\\Interfaces\\IOption','CLMVC\\ViewEngines\\Standard\\BIOption','class');
 
 RenderingEngines::registerEngine('jade', 'CLMVC\\Controllers\\Render\Engines\\JadeRenderingEngine');
+RenderingEngines::registerEngine('php', 'CLMVC\\Controllers\\Render\Engines\\PhpRenderingEngine');
 Filter::register('view-tags', 'clmvc_setup_default_tags');
 
 /**
@@ -21,10 +22,10 @@ Filter::register('view-tags', 'clmvc_setup_default_tags');
  */
 function clmvc_setup_default_tags($tags, $controller) {
     $bag = $controller->getBag();
-    $tags[] = array('{{title}}', Filter::run('title', array($bag['title'])));
-    $tags[] = array('{{stylesheets}}', implode("\n", Filter::run('stylesheets-frontend', array(array()))));
-    $tags[] = array('{{javascript_footer}}', implode("\n", Filter::run('javascripts-footer-frontend', array(array()))));
-    $tags[] = array('{{javascript_head}}', implode("\n", Filter::run('javascripts-head-frontend', array(array()))));
+    $tags['title'] = Filter::run('title', array($bag['title']));
+    $tags['stylesheets'] = implode("\n", Filter::run('stylesheets-frontend', array(array())));
+    $tags['javascript_footer'] = implode("\n", Filter::run('javascripts-footer-frontend', array(array())));
+    $tags['javascript_head'] = implode("\n", Filter::run('javascripts-head-frontend', array(array())));
     return $tags;
 }
 function clmvc_app_url($app, $url) {

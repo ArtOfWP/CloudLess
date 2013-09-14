@@ -49,57 +49,14 @@ class Rendering {
         if ($view_path) {
             $tags = Filter::run('view-tags', array(array(), $this->controller));
             $section = View::generate($controller . '-render-pre' . ucfirst($action), $this->controller);
-            if ('php' == $this->getTemplate()) {
-                extract($this->getBag(), EXTR_REFS);
-                if (!isset($title))
-                    $title = '';
-                ob_start();
-                include($view_path);
-                $viewcontent = $section . ob_get_contents();
-                ob_end_clean();
-            } else {
-                $engine = RenderingEngines::getEngine($this->getTemplate());
-                $viewcontent = $engine->render($view_path, $this->getBag());
-            }
-            View::render($controller . '-render-post' . ucfirst($action), $this->controller);
+            $engine = RenderingEngines::getEngine($this->getTemplate());
+            $viewcontent = $section . $engine->render($view_path, $this->getBag());
+            $section = View::generate($controller . '-render-post' . ucfirst($action), $this->controller);
             $viewcontent .= $section;
             $layout_path = $this->views->findLayout($this->getTemplate());
             if ($layout_path) {
-                if ('php' == $this->getTemplate()) {
-                    extract($this->getBag(), EXTR_REFS);
-                    if (!isset($title))
-                        $title = '';
-                    ob_start();
-                    include $layout_path;
-                    $layout_content = ob_get_contents();
-                    ob_end_clean();
-                    foreach ($tags as $tagTuple) {
-                        list($tag, $content) = $tagTuple;
-                        $layout_content = $this->replaceTag($layout_content, $tag, $content);
-                    }
-                    $layout_content = $this->replaceTag($layout_content, '{{view}}', $viewcontent);
-                } else {
-                    $engine = RenderingEngines::getEngine($this->getTemplate());
-                    $layout_content = $engine->render($layout_path, $this->getBag(), Filter::run("{$this->controllerName}-{$action}-blocks", array(array('view' => $viewcontent))));
-                    if (!file_exists(CLMVC_CACHE_PATH  . 'Layout' . DIRECTORY_SEPARATOR ))
-                        mkdir(CLMVC_CACHE_PATH  . 'Layout', '755');
-                    $cached_layout = CLMVC_CACHE_PATH  . 'Layout' . DIRECTORY_SEPARATOR . 'default.php';
-                    if (!file_exists($cached_layout))
-                        file_put_contents($cached_layout, $layout_content);
-                    ob_start();
-                    extract($this->getBag(), EXTR_REFS);
-                    $vars = array();
-                    foreach ($tags as $tagTuple) {
-                        list($tag, $content) = $tagTuple;
-                        $vars[trim($tag, "{{}}")] = $content;
-                    }
-                    extract($vars);
-                    if (!isset($title))
-                        $title = '';
-                    include $cached_layout;
-                    $layout_content = ob_get_contents();
-                    ob_end_clean();
-                }
+                $engine = RenderingEngines::getEngine($this->getTemplate());
+                $layout_content = $engine->render($layout_path, $this->getBag()+$tags, Filter::run("{$this->controllerName}-{$action}-blocks", array(array('view' => $viewcontent))));
             } else {
                 $layout_content = '';
             }
