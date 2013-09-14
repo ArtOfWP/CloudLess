@@ -248,7 +248,6 @@ class UniversalClassLoader
     {
         if ($file = $this->findFile($class)) {
             require $file;
-
             return true;
         }
         return false;

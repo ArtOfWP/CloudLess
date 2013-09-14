@@ -16,11 +16,12 @@ class Views {
     /**
      * @param string $controller
      * @param string $action
+     * @param string $template
      * @return string Empty string if path is not found.
      */
-    public function findView($controller, $action) {
+    public function findView($controller, $action, $template = 'php') {
         if ($this->controller->getViewPath()) {
-            return rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.php';
+            return rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.' . $template;
         }
         $apps = AoiSoraSettings::getApplications();
         $lc_controller = strtolower($controller);
@@ -35,10 +36,10 @@ class Views {
         return '';
     }
 
-    public function findLayout() {
+    public function findLayout($template = 'php') {
         if ($this->controller->getViewPath()) {
-            if (file_exists(rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Layouts' . DIRECTORY_SEPARATOR . 'default' . '.php'))
-                return rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Layouts' . DIRECTORY_SEPARATOR . 'default' . '.php';
+            if (file_exists(rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Layouts' . DIRECTORY_SEPARATOR . 'default' . '.' . $template))
+                return rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Layouts' . DIRECTORY_SEPARATOR . 'default' .  '.' . $template;
         }
         return '';
     }
