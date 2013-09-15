@@ -1,15 +1,34 @@
 <?php
 //TODO: Refactor and clean up
+use CLMVC\Core\Debug;
+use CLMVC\Core\Http\Route;
+use CLMVC\Events\Filter;
+use CLMVC\Events\Hook;
+use CLMVC\Events\View;
+use CLMVC\Helpers\Html;
+use CLMVC\Views\Shortcode;
+
 define('CLOUDLESS_APP_DIR', WP_PLUGIN_DIR);
+
+function sl_file($file,$isPlugin=true) {
+    if($isPlugin)
+        return CLOUDLESS_APP_DIR.'/'.$file.'/'.$file.'.php';
+    return CLOUDLESS_APP_DIR.'/'.$file;
+}
+
 if (!defined('PACKAGEPATH')) {
     $tempPath='';
     if(defined('WP_PLUGIN_DIR'))
         $tempPath=WP_PLUGIN_DIR.'/AoiSora/';
     else if(defined('WP_CONTENT_DIR'))
-        $tempPath.'/plugins/AoiSora/';
+        $tempPath = WP_CONTENT_DIR . '/plugins/AoiSora/';
     else
         $tempPath=ABSPATH.'wp-content/plugins/AoiSora/';
     define('PACKAGEPATH',$tempPath);
+}
+
+function clmvc_app_url($app, $url) {
+    return $url;
 }
 
 if(is_admin()){
@@ -26,22 +45,11 @@ if(is_admin()){
         array_unshift($active, $plugin);
         update_option('active_plugins', $active);
     }
-    if(!file_exists(ABSPATH.'/.htaccess') || !is_writable(ABSPATH.'/.htaccess')){
-        add_action('after_plugin_row_'.plugin_basename(sl_file('AoiSora')),'after_aoisora_plugin_htaccess_row', 10, 2 );
-        function after_aoisora_plugin_htaccess_row($plugin_file, $plugin_data){
-            echo '
-<tr class="error" style=""><td colspan="3" class="" style=""><div class="" style="padding:3px 3px 3px 3px;font-weight:bold;font-size:8pt;border:solid 1px #CC0000;background-color:#FFEBE8">AoiSora requries .htaccess with the following code before #BEGIN WORDPRESS.
-<pre>'.
-                get_htaccess_rules().'</pre>
-</div></td></tr>';
-            //deactivate_plugins(plugin_basename(__FILE__));
-        }
-    }
 }
 	global $table_prefix;
 	global $db_prefix;
 	$db_prefix=$table_prefix.'aoisora_';
-	Debug::Message('Loaded wordpress ViewEngines');
+	Debug::Message('Loaded WordPress ViewEngines');
 	define('PACKAGEURL',WP_PLUGIN_URL.'/AoiSora/');
 	if(!defined('WP_PLUGIN_DIR'))
 		define('APPPATH',dirname(__FILE__).'/');
@@ -67,13 +75,11 @@ if(is_admin()){
 	$wud=wp_upload_dir();
 	define('UPLOADS_DIR',$wud['basedir'].'/');
 	define('UPLOADS_URI',$wud['baseurl'].'/');
-    $container=Container::instance();
-    $container->add('IScriptInclude',new WpScriptIncludes());
-    $container->add('ScriptIncludes',new ScriptIncludes());
-    $container->add('IStyleInclude',new WpStyleIncludes());
-    $container->add('StyleIncludes',new StyleIncludes());
-    $container->add('IOptions','WpOptions','class');
-    $container->add('IOption','WpOption','class');
+$container = CLMVC\Core\Container::instance();
+$container->add('CLMVC\\Interfaces\\IScriptInclude',new CLMVC\ViewEngines\WordPress\WpScriptIncludes());
+$container->add('CLMVC\\Interfaces\\IStyleInclude',new CLMVC\ViewEngines\WordPress\WpStyleIncludes());
+$container->add('CLMVC\\Interfaces\\IOptions','CLMVC\\ViewEngines\\WordPress\\WpOptions','class');
+$container->add('CLMVC\\Interfaces\\IOption','CLMVC\\ViewEngines\\WordPress\\WpOption','class');
 
 	function register_aoisora_query_vars($public_query_vars) {
 		$public_query_vars[] = "controller";
@@ -111,14 +117,7 @@ if(is_admin()){
 		$c = new $component($params);
 		$c->render();
 	}
-	class ViewEngine{
-		static function createOption($name){
-			return new WpOption($name);
-		}
-		static function createSecurity(){
-			return WpSecurity::instance();
-		}
-	}
+
 	if(!is_admin())
 		add_action('wp_footer', 'aoisora_script_footer');	
 	else
@@ -126,7 +125,6 @@ if(is_admin()){
 
 	function aoisora_script_footer() {
 		$scripts=Html::getFooterScripts();
-		$scripts+=HtmlHelper::getFooterScripts();
 		if(empty($scripts))
 			return;			
 		echo "<script type=\"text/javascript\">";
@@ -142,14 +140,8 @@ if(is_admin()){
 
 
 	function initiate_editor($id,$content){
-        global $wp_version;
-        if(version_compare($wp_version,'3.3','>=')){
-            wp_editor($content,$id);
-            return 'new';
-        }else{
-    		wp_tiny_mce(false,array("editor_selector" => $id));
-            return 'old';
-        }
+        wp_editor($content,$id);
+        return 'new';
 	}
 
 	global $hooks;

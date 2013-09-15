@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\ViewEngines\WordPress;
 use CLMVC\Core\Debug;
 use CLMVC\Interfaces\IOption;
 
@@ -11,10 +12,8 @@ class WpOption implements IOption{
 	private $initiated=false;
 
     /**
-     * @param $name
      */
-    function WpOption($name){
-		$this->name=$name;
+    function WpOption(){
 		$this->init();
 	}
 

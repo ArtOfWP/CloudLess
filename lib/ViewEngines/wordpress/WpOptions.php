@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\ViewEngines\WordPress;
 use CLMVC\Interfaces\IOptions;
 
 /**

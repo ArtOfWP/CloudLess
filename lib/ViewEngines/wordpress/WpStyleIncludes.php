@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\ViewEngines\WordPress;
 use CLMVC\Core\Includes\FrontInclude;
 
 /**
@@ -29,5 +30,10 @@ class WpStyleIncludes extends WpFrontIncludes {
      */
     function getEnqueued($location) {
         // TODO: Implement getEnqueued() method.
+    }
+
+    function getRegistered($handle = '')
+    {
+        // TODO: Implement getRegistered() method.
     }
 }

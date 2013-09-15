@@ -1,29 +1,24 @@
 <?php
 /*
-Plugin Name: PHP MVC For WordPress (AoiSora)
-Plugin URI: http://artofwp.com/products/php-mvc-for-wordpress/
-Description: AoiSora is a PHP MVC Framework for WordPress.
-Version: 13.8
+Plugin Name: CloudLessMVC
+Plugin URI: http://cloudlessmvc.org
+Description: CloudLessMVC is a PHP MVC Framework (for WordPress).
+Version: 13.9
 Author: Andreas Nurbo
 Author URI: http://artofwp.com/
 */
 // Configures/loads AoiSora
 namespace CLMVC;
 
-use CLMVC\Core\Container;
 use CLMVC\Core\Application\ApplicationBase;
 use CLMVC\Core\Includes\FrontInclude;
 use CLMVC\Core\Includes\ScriptIncludes;
+use CLMVC\Core\Includes\StyleIncludes;
 use CLMVC\Core\Options;
-use CLMVC\Core\Option;
 use CLMVC\Events\Hook;
+define('VIEWENGINE', 'wordpress');
+define('PACKAGEPATH', WP_PLUGIN_DIR . '/AoiSora/');
 
-if(!class_exists("AoiSora")){
-    function sl_file($file,$isPlugin=true){
-        if($isPlugin)
-            return CLOUDLESS_APP_DIR.'/'.$file.'/'.$file.'.php';
-        return CLOUDLESS_APP_DIR.'/'.$file;
-    }
 include('init.php');
 
     /**
@@ -46,39 +41,39 @@ class AoiSora extends ApplicationBase{
 	}
 
     /**
+     * Setup the environment
+     */
+    function onInit() {
+        $this->setFrontIncludes();
+    }
+
+    /**
+     *
+     */
+    function onAfterInit() {
+        add_action('plugins_loaded', array($this, 'loaded'));
+    }
+
+    /**
      * Initiates options for the plugin
      */
     function onLoadOptions(){
-        $applications=new Option('applications',array());
-        $this->options->add($applications);
-        $installed=new Option('installed',array());
-        $this->options->add($installed);
-        $this->options->init();
     }
 
     /**
      * Configures standard JS libraries etc.
      */
     private function setFrontIncludes(){
-        $cont=Container::instance();
-        /**
-         * @var $scripts ScriptIncludes
-         * @var $styles ScriptIncludes
-         */
-        $scripts=$cont->fetch('ScriptIncludes');
-        $styles=$cont->fetch('StyleIncludes');
-        $jVal= new FrontInclude('jquery-validate',"http://ajax.microsoft.com/ajax/jquery.validate/1.5.5/jquery.validate.min.js",array('jquery'));
-        $scripts->register($jVal);
-        $jUiStars = new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora','/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core','jquery-ui-widget'));
-        $scripts->register($jUiStars);
-  		$jUiTagIt = new FrontInclude('jquery-ui-tag-it', clmvc_app_url('AoiSora','/lib/js/jquery.ui.tag-it/ui.tag-it.js'),array('jquery','jquery-ui-core','jquery-ui-widget'));
-        $scripts->register($jUiTagIt);
-        $jUiStyles = new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora','/lib/js/jquery.ui.stars/ui.stars.min.css'));
-        $styles->register($jUiStyles);
-        $forms=new FrontInclude('forms', clmvc_app_url('AoiSora','/lib/css/forms.css'));
-     	$wordpress= new FrontInclude('wordpress', clmvc_app_url('AoiSora','/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css'));
-        $styles->register($forms);
-        $styles->register($wordpress);
+        ScriptIncludes::instance()
+            ->register(new FrontInclude('jquery-validate', clmvc_app_url('site', 'test.js')))
+            ->register(new FrontInclude('test', "http://ajax.microsoft.com/ajax/jquery.validate/1.5.5/jquery.validate.min.js",array('jquery')));
+         ScriptIncludes::instance()
+            ->register(new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora','/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core','jquery-ui-widget')))
+            ->register(new FrontInclude('jquery-ui-tag-it', clmvc_app_url('AoiSora','/lib/js/jquery.ui.tag-it/ui.tag-it.js'),array('jquery','jquery-ui-core','jquery-ui-widget')));
+         ScriptIncludes::instance()->register(new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora','/lib/js/jquery.ui.stars/ui.stars.min.css')));
+        StyleIncludes::instance()
+            ->register(new FrontInclude('forms', clmvc_app_url('AoiSora','/lib/css/forms.css')))
+            ->register(new FrontInclude('wordpress', clmvc_app_url('AoiSora','/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css')));
     }
 
     /**
@@ -102,4 +97,3 @@ class AoiSora extends ApplicationBase{
 	}
 }
 AoiSora::instance();
-}

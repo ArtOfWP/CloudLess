@@ -1,5 +1,5 @@
 <?php
-
+namespace CLMVC\ViewEngines\WordPress;
 use CLMVC\Core\Includes\FrontInclude;
 
 class WpScriptIncludes extends WpFrontIncludes
@@ -25,5 +25,10 @@ class WpScriptIncludes extends WpFrontIncludes
      * @return FrontInclude[]
      */
     function getEnqueued($location) {
+    }
+
+    function getRegistered($handle = '')
+    {
+        // TODO: Implement getRegistered() method.
     }
 }

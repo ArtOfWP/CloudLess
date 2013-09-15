@@ -27,7 +27,7 @@ class Options
         if($iOptions)
             $this->ioptions=$iOptions;
         else
-            $this->ioptions=Container::instance()->make('IOptions',array($namespace));
+            $this->ioptions=Container::instance()->make('CLMVC\\Interfaces\\IOptions',array($namespace));
     }
 
     /**
