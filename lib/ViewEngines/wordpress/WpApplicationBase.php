@@ -1,10 +1,19 @@
 <?php
 namespace CLMVC\ViewEngines\WordPress;
+use CLMVC\Core\AoiSoraSettings;
+use CLMVC\Core\Debug;
+use CLMVC\Core\Option;
+use CLMVC\Core\Options;
+use CLMVC\Events\Filter;
+use CLMVC\Events\Hook;
+use CLMVC\Events\View;
+use CLMVC\Helpers\Http;
+
 /**
  * Class WpApplicationBase
  * Todo: make it independant of WordPress. Make an applciation base and then make an DI for WordPress
  */
-abstract class WpApplicationBase{
+class WpApplicationBase {
 	protected $installFromPath;
 	protected $VERSION=false;
 	protected $VERSION_INFO_LINK=false;
@@ -39,9 +48,6 @@ abstract class WpApplicationBase{
 		$this->installFromPath=dirname($file).'/app/Core/domain/';
 		$this->useInstall=$useInstall;
 		$this->useOptions=$useOptions;
-		//TODO deprecated since 11.6
-		if(method_exists($this,'on_register_query_vars'))
-			Filter::register('query_vars', array(&$this,'registerQueryVars'));
 		if(method_exists($this,'onRegisterQueryVars'))
 			Filter::register('query_vars', array(&$this,'registerQueryVars'));
 		if(method_exists($this,'on_init'))
@@ -137,13 +143,14 @@ abstract class WpApplicationBase{
      */
     function registerSettings(){
 		if(method_exists($this,'on_register_settings') || method_exists($this,'onRegisterSettings')){
-			if(method_exists($this,'onRegisterSettings'))
+			if(method_exists($this,'onRegisterSettings')) {
 				$settings = $this->onRegisterSettings();
-			foreach($settings as $option => $key)
-				if(is_array($key))
-					WpHelper::registerSettings($option,$key);
-				else
-					WpHelper::registerSettings($option,array($key));
+                foreach($settings as $option => $key)
+                    if(is_array($key))
+                        WpHelper::registerSettings($option,$key);
+                    else
+                        WpHelper::registerSettings($option,array($key));
+            }
 		}
 		if($this->useOptions)
 			WpHelper::registerSettings($this->app,array($this->app));
@@ -154,10 +161,20 @@ abstract class WpApplicationBase{
      * @param $plugin_data
      */
     function afterPluginRow($plugin_file, $plugin_data){
-		if(method_exists($this,'onPluginRowMessage'))
+		if(method_exists($this,'onPluginRowMessage')) {
 			$display=$this->onPluginRowMessage();
-		extract($display);
-		echo '<tr class="',$trclass,'" style="',$trstyle,'"><td colspan="3" class="',$tdclass,'" style="',$tdstyle,'"><div class="',$divclass,'" style="',$divstyle,'">',$message,'</div></td></tr>';
+            /**
+             * @var $trclass
+             * @var $trstyle
+             * @var $tdclass
+             * @var $tdstyle
+             * @var $divclass
+             * @var $divstyle
+             * @var $message
+             */
+            extract($display);
+            echo '<tr class="',$trclass,'" style="',$trstyle,'"><td colspan="3" class="',$tdclass,'" style="',$tdstyle,'"><div class="',$divclass,'" style="',$divstyle,'">',$message,'</div></td></tr>';
+        }
 	}
 
     /**
@@ -221,7 +238,6 @@ abstract class WpApplicationBase{
     public function install(){
 		if(method_exists($this,'onPreInstall'))
 			$this->onPreInstall();
-		Debug::Value('Install from path',$this->installFromPath);
 		$this->models=array();
 		$this->load($this->installFromPath);
 		$result=true;
@@ -356,26 +372,12 @@ abstract class WpApplicationBase{
 			}
 		}
 	}
-	//TODO: deprecated since 11.6
-    /**
-     *
-     */
-    function print_admin_styles(){
-		$this->printAdminStyles();
-	}
 
     /**
      *
      */
     function printAdminStyles(){
 		$this->loadstyles($this->on_admin_print_styles());
-	}
-	//TODO: deprecated since 11.6
-    /**
-     *
-     */
-    function print_admin_scripts(){
-		$this->printAdminScripts();
 	}
 
     /**
@@ -443,12 +445,12 @@ abstract class WpApplicationBase{
 	}
 
     /**
-     * @param bool $plugins
+     * @param $plugins
      * @return bool
-     */
-    function siteTransientUpdatePlugins($plugins=false){
+     *//*
+    function siteTransientUpdatePlugins($plugins=null){
 		if(empty($this->UPDATE_SITE) || !is_admin())
-			return;
+			return false;
 		global $wp_version;
 		$plugin=$this->pluginName;
 		$version_info = $this->getVersionInfo();
@@ -469,7 +471,7 @@ abstract class WpApplicationBase{
 			$plugins->response[$plugin] = $update_data;
 		}
 		return $plugins;
-	}
+	}*/
 
     /**
      *

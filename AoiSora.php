@@ -41,6 +41,20 @@ class AoiSora extends ApplicationBase{
 	}
 
     /**
+     * Setup the environment
+     */
+    function onInit() {
+        $this->setFrontIncludes();
+    }
+
+    /**
+     *
+     */
+    function onAfterInit() {
+        add_action('plugins_loaded', array($this, 'loaded'));
+    }
+
+    /**
      * Initiates options for the plugin
      */
     function onLoadOptions(){

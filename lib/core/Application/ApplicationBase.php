@@ -52,6 +52,8 @@ class ApplicationBase {
     //methods
     public function init(){
         $this->onLoadOptions();
+        $this->onInit();
+        $this->onAfterInit();
     }
 
     /**
@@ -60,6 +62,7 @@ class ApplicationBase {
     public function onLoadOptions(){}
     public function onInitUpdate(){}
     public function onInit(){}
+    public function onAfterInit(){}
     public function onUpdate(){}
     public function update(){}
     public function installed(){}
