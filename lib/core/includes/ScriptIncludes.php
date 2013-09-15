@@ -37,7 +37,7 @@ class ScriptIncludes implements IIncludes {
         else
             $this->scriptInclude=Container::instance()->fetch('CLMVC\\Interfaces\\IScriptInclude');
         $this->scriptInclude->init();
-        Hook::register('controller-init', array($this, 'registerIncludes'));
+        Hook::register('scripts-register', array($this, 'registerIncludes'));
     }
 
     /**

@@ -36,7 +36,7 @@ class StyleIncludes implements IIncludes {
         else
             $this->styleInclude=Container::instance()->fetch('CLMVC\\Interfaces\\IStyleInclude');
         $this->styleInclude->init();
-        Hook::register('controller-init', array($this, 'registerIncludes'));
+        Hook::register('stylesheets-register', array($this, 'registerIncludes'));
     }
 
     /**
