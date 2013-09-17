@@ -2,6 +2,7 @@
 namespace CLMVC\Controllers;
 use ActiveRecordBase;
 use CLMVC\Core\AoiSoraSettings;
+use CLMVC\Core\Container;
 use CLMVC\Core\Debug;
 use CLMVC\Events\Filter;
 use CLMVC\Events\RequestEvent;
@@ -47,15 +48,15 @@ class BaseController {
     /**
      * @var bool If Controller should render or not
      */
-    public $render = true;
+    private $render = true;
     /**
      * @var array The values loaded by the action to be used by the view.
      */
-    public $bag = array();
+    protected $bag;
     /**
      * @var string The rendered content
      */
-    public $viewcontent;
+    private $viewcontent;
     /**
      * @var array THe values retrieved by the HTTP method
      */
@@ -125,6 +126,7 @@ class BaseController {
         $this->viewpath = $viewPath;
         Debug::Message('Loaded ' . $this->controller . ' extends BaseController');
         $this->renderer = new Rendering($this);
+        $this->bag = Container::instance()->fetch('Bag');
     }
 
     /**
@@ -166,7 +168,7 @@ class BaseController {
 
     /**
      * Retrieves the bag filled with values set by the action.
-     * @return mixed
+     * @return BaggedValues
      */
     public function getBag() {
         static $bag;

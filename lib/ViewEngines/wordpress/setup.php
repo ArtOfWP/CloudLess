@@ -1,7 +1,10 @@
 <?php
 //TODO: Refactor and clean up
+use CLMVC\Controllers\BaseController;
+use CLMVC\Controllers\Render\RenderingEngines;
 use CLMVC\Core\Debug;
 use CLMVC\Core\Http\Route;
+use CLMVC\Core\Http\Routes;
 use CLMVC\Events\Filter;
 use CLMVC\Events\Hook;
 use CLMVC\Events\View;
@@ -9,6 +12,24 @@ use CLMVC\Helpers\Html;
 use CLMVC\Views\Shortcode;
 
 define('CLOUDLESS_APP_DIR', WP_PLUGIN_DIR);
+
+RenderingEngines::registerEngine('jade', 'CLMVC\\Controllers\\Render\Engines\\JadeRenderingEngine');
+RenderingEngines::registerEngine('php', 'CLMVC\\Controllers\\Render\Engines\\PhpRenderingEngine');
+//Filter::register('view-tags', 'clmvc_setup_default_tags');
+
+/**
+ * @param array $tags
+ * @param BaseController $controller
+ * @return array
+ */
+function clmvc_setup_default_tags($tags, $controller) {
+    $bag = $controller->getBag();
+    $tags['title'] = Filter::run('title', array($bag['title']));
+    $tags['stylesheets'] = implode("\n", Filter::run('stylesheets-frontend', array(array())));
+    $tags['javascript_footer'] = implode("\n", Filter::run('javascripts-footer-frontend', array(array())));
+    $tags['javascript_head'] = implode("\n", Filter::run('javascripts-head-frontend', array(array())));
+    return $tags;
+}
 
 function sl_file($file,$isPlugin=true) {
     if($isPlugin)
@@ -80,7 +101,8 @@ $container->add('CLMVC\\Interfaces\\IScriptInclude',new CLMVC\ViewEngines\WordPr
 $container->add('CLMVC\\Interfaces\\IStyleInclude',new CLMVC\ViewEngines\WordPress\WpStyleIncludes());
 $container->add('CLMVC\\Interfaces\\IOptions','CLMVC\\ViewEngines\\WordPress\\WpOptions','class');
 $container->add('CLMVC\\Interfaces\\IOption','CLMVC\\ViewEngines\\WordPress\\WpOption','class');
-
+$container->add('Routes', new Routes());
+$container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 	function register_aoisora_query_vars($public_query_vars) {
 		$public_query_vars[] = "controller";
 		$public_query_vars[] = "action";
@@ -144,6 +166,12 @@ $container->add('CLMVC\\Interfaces\\IOption','CLMVC\\ViewEngines\\WordPress\\WpO
         return 'new';
 	}
 
+    add_action('wp_register_scripts', function() {
+       Hook::run('scripts-register');
+    });
+    add_action('wp_register_style', function() {
+        Hook::run('style-register');
+    });
 	global $hooks;
 	$hooks=array('init','admin_init','admin_menu','set_plugin_has_updates'=>'update_option__transient_update_plugins','template_redirect');
 	foreach($hooks as $key => $hook)
@@ -219,3 +247,19 @@ $container->add('CLMVC\\Interfaces\\IOption','CLMVC\\ViewEngines\\WordPress\\WpO
 			$url.="&".$query;
 		return admin_url($url);
 	}
+
+Hook::register('template_redirect', function() {
+    if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
+        http_response_code(200);
+        include get_index_template();
+        exit();
+    }
+} );
+
+
+add_filter('wp_title', function($title, $sep, $seplocation) {
+    $bag = \CLMVC\Core\Container::instance()->fetch('Bag');
+    if (isset($bag->title))
+        return $bag->title . $sep;
+    return $title . $sep;
+},0, 3);

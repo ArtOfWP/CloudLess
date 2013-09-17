@@ -11,6 +11,8 @@ Author URI: http://artofwp.com/
 namespace CLMVC;
 
 use CLMVC\Core\Application\ApplicationBase;
+use CLMVC\Core\Container;
+use CLMVC\Core\Http\Routes;
 use CLMVC\Core\Includes\FrontInclude;
 use CLMVC\Core\Includes\ScriptIncludes;
 use CLMVC\Core\Includes\StyleIncludes;
@@ -94,6 +96,12 @@ class AoiSora extends ApplicationBase{
     function loaded() {
 		Hook::run('aoisora-libraries');
 		Hook::run('aoisora-loaded');
-	}
+        /**
+         * @var Routes $routes
+         */
+        $container = Container::instance();
+        $routes = $container->fetch('Routes');
+        $routes->routing();
+    }
 }
 AoiSora::instance();
