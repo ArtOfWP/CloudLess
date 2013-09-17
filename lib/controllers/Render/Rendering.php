@@ -56,7 +56,7 @@ class Rendering {
                 $engine = RenderingEngines::getEngine($this->getTemplate());
                 $layout_content = $engine->render($layout_path, $this->getBag()+$tags, Filter::run("{$this->controllerName}-{$action}-blocks", array(array('view' => $viewcontent))));
             } else {
-                $layout_content = '';
+                $layout_content = $viewcontent;
             }
             $viewcontent = $layout_content;
 
@@ -102,7 +102,7 @@ class Rendering {
     }
 
     private function getBag() {
-        return $this->controller->getBag();
+        return $this->controller->getBag()->toArray();
     }
 
     public function renderedContent() {

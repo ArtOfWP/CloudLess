@@ -102,6 +102,7 @@ $container->add('CLMVC\\Interfaces\\IStyleInclude',new CLMVC\ViewEngines\WordPre
 $container->add('CLMVC\\Interfaces\\IOptions','CLMVC\\ViewEngines\\WordPress\\WpOptions','class');
 $container->add('CLMVC\\Interfaces\\IOption','CLMVC\\ViewEngines\\WordPress\\WpOption','class');
 $container->add('Routes', new Routes());
+$container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 	function register_aoisora_query_vars($public_query_vars) {
 		$public_query_vars[] = "controller";
 		$public_query_vars[] = "action";
@@ -254,3 +255,11 @@ Hook::register('template_redirect', function() {
         exit();
     }
 } );
+
+
+add_filter('wp_title', function($title, $sep, $seplocation) {
+    $bag = \CLMVC\Core\Container::instance()->fetch('Bag');
+    if (isset($bag->title))
+        return $bag->title . $sep;
+    return $title . $sep;
+},0, 3);
