@@ -19,8 +19,12 @@ class Parser {
     protected $blocks = array();
     protected $mixins = array();
     protected $contexts = array();
+    protected $includeDirs = array();
 
-    public function __construct($str,$filename=null) {
+    public function __construct($str,$args = array()) {
+        $filename=null;
+        if (isset($args['filename']))
+            $filename = $args['filename'];
 
         if ($filename == null && file_exists($str)) {
             $this->input = file_get_contents($str);
@@ -28,6 +32,10 @@ class Parser {
         }else{
             $this->input = $str;
             $this->filename = $filename;
+        }
+        if (isset($args['includes'])) {
+            $this->includeDirs = $args['includes'];
+            $this->includeDirs[] = realpath(dirname($this->filename));
         }
 
         if(isset($this->input[0]) && $this->input[0] == "\xef" && $this->input[1] == "\xbb" && $this->input[2] == "\xbf")
@@ -248,8 +256,17 @@ class Parser {
     protected function parseExtends() {
 
         $file = $this->expect('extends')->value;
-        $dir = realpath(dirname($this->filename));
-        $path = $dir . DIRECTORY_SEPARATOR . $file . self::$extension;
+        $string = $path = false;
+
+        foreach ($this->includeDirs as $incDir) {
+            $path =  rtrim($incDir, "\\/")  . DIRECTORY_SEPARATOR . $file . self::$extension;
+            $string = @file_get_contents($path);
+            if ($string)
+                break;
+        }
+
+        if (!$string)
+            return new Nodes\Literal("Could not find extend: "  . DIRECTORY_SEPARATOR . $file . self::$extension);
 
         $string = file_get_contents($path);
         $parser = new Parser($string, $path);
@@ -299,15 +316,20 @@ class Parser {
     protected function parseInclude() {
         $token = $this->expect('include');
         $file = trim($token->value);
-        $dir = realpath(dirname($this->filename));
 
         if( strpos(basename($file), '.') === false ){
             $file = $file . '.jade';
         }
+        $str = false;
+        foreach ($this->includeDirs as $incDir) {
+            $path =  rtrim($incDir, "\\/")  . DIRECTORY_SEPARATOR . $file;
+            $str = @file_get_contents($path);
+            if ($str)
+                break;
+        }
 
-        $path = $dir . DIRECTORY_SEPARATOR . $file;
-        $str = file_get_contents($path);
-
+        if (!$str)
+            return new Nodes\Literal("Could not find include: $path");
         if ('.jade' != substr($file,-5)) {
             return new Nodes\Literal($str);
         }

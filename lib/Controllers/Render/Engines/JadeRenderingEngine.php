@@ -5,6 +5,8 @@ use CLMVC\Interfaces\IRenderingEngine;
 use Jade\Jade;
 
 class JadeRenderingEngine implements IRenderingEngine {
+    private $viewpaths;
+
     /**
      * @return string mixed
      */
@@ -16,20 +18,22 @@ class JadeRenderingEngine implements IRenderingEngine {
      * Returns the rendered content
      * @param string $file_path
      * @param array $scope
-     * @param array $blocks
      * @return string
      */
-    public function render($file_path, $scope = array(), $blocks = array()) {
+    public function render($file_path, $scope = array()) {
         $template = file_get_contents($file_path);
-        if (isset($blocks['view']))
-            $template = str_replace('include view', $blocks['view'], $template);
         $renderer = new Jade(true);
-        $parsed = $renderer->render($template , $scope);
+        $parsed = $renderer->render($template , $scope, array($this->viewpaths));
         ob_start();
         extract($scope, EXTR_REFS);
         eval('?>' . $parsed);
         $content = ob_get_contents();
         ob_end_clean();
         return $content;
+    }
+
+    public function __construct($viewpaths) {
+
+        $this->viewpaths = $viewpaths;
     }
 }

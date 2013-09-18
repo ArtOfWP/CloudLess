@@ -47,7 +47,7 @@ class Rendering {
         if ($view_path) {
             $tags = Filter::run('view-tags', array(array(), $this->controller));
             $section = View::generate($controller . '-render-pre' . ucfirst($action), $this->controller);
-            $engine = RenderingEngines::getEngine($this->getTemplate());
+            $engine = RenderingEngines::getEngine($this->getTemplate(), $this->controller->getViewPath());
             $viewcontent = $section . $engine->render($view_path, $this->getBag());
             $section = View::generate($controller . '-render-post' . ucfirst($action), $this->controller);
             $viewcontent .= $section;

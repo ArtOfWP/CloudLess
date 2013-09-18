@@ -9,6 +9,7 @@ namespace CLMVC\Interfaces;
  * @package CLMVC\Interfaces
  */
 interface IRenderingEngine {
+    public function __construct($viewpaths);
     /**
      * @return string mixed
      */
@@ -18,8 +19,7 @@ interface IRenderingEngine {
      * Returns the rendered content
      * @param string $filePath
      * @param array $scope
-     * @param array $blocks
      * @return string
      */
-    public function render($filePath, $scope = array(), $blocks = array());
+    public function render($filePath, $scope = array());
 }
