@@ -8,12 +8,13 @@ class RenderingEngines {
 
     /**
      * @param string $fileType
+     * @param string $viewPath
      * @return IRenderingEngine
      * @throws RenderException
      */
-    static function getEngine($fileType) {
+    static function getEngine($fileType,  $viewPath) {
         if (isset(self::$engines[$fileType])) {
-            return new self::$engines[$fileType]();
+            return new self::$engines[$fileType]($viewPath);
         } else
             throw new RenderException(sprintf('No registered engines can handle %s.', $fileType));
     }

@@ -5,6 +5,7 @@ namespace CLMVC\Controllers\Render\Engines;
 use CLMVC\Interfaces\IRenderingEngine;
 
 class PhpRenderingEngine implements IRenderingEngine {
+    private $viewpaths;
 
     /**
      * @return string mixed
@@ -31,5 +32,9 @@ class PhpRenderingEngine implements IRenderingEngine {
         ob_end_clean();
         return $viewcontent;
 
+    }
+
+    public function __construct($viewpaths) {
+        $this->viewpaths = $viewpaths;
     }
 }

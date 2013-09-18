@@ -9,6 +9,7 @@ namespace CLMVC\Interfaces;
  * @package CLMVC\Interfaces
  */
 interface IRenderingEngine {
+    public function __construct($viewpaths);
     /**
      * @return string mixed
      */

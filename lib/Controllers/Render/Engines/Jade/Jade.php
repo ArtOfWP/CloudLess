@@ -13,13 +13,13 @@ class Jade {
         $this->prettyprint  = $prettyprint;
     }
 
-    public function render($input, $scope=null) {
+    public function render($input, $scope=null, $includes = array()) {
 
         if ($scope !== null && is_array($scope)) {
             extract($scope);
         }
 
-        $parser = new Parser($input);
+        $parser = new Parser($input, array('includes' => $includes));
         $compiler = new Compiler($this->prettyprint);
 
         return $compiler->compile($parser->parse($input));
