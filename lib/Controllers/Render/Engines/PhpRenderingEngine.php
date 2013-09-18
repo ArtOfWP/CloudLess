@@ -18,12 +18,10 @@ class PhpRenderingEngine implements IRenderingEngine {
      * Returns the rendered content
      * @param string $filePath
      * @param array $scope
-     * @param array $blocks
      * @return string
      */
-    public function render($filePath, $scope = array(), $blocks = array()) {
+    public function render($filePath, $scope = array()) {
         extract($scope, EXTR_REFS);
-        extract($blocks, EXTR_REFS);
         if (!isset($title))
             $title = '';
         ob_start();

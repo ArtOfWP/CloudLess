@@ -18,13 +18,10 @@ class JadeRenderingEngine implements IRenderingEngine {
      * Returns the rendered content
      * @param string $file_path
      * @param array $scope
-     * @param array $blocks
      * @return string
      */
-    public function render($file_path, $scope = array(), $blocks = array()) {
+    public function render($file_path, $scope = array()) {
         $template = file_get_contents($file_path);
-        if (isset($blocks['view']))
-            $template = str_replace('include view', $blocks['view'], $template);
         $renderer = new Jade(true);
         $parsed = $renderer->render($template , $scope, array($this->viewpaths));
         ob_start();
