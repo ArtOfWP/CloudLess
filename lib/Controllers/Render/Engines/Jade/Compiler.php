@@ -162,6 +162,9 @@ class Compiler {
     }
 
     public function handleCode($input, $ns='') {
+        if (!$input)
+            return array();
+
         // needs to be public because of the closure $handle_recursion
 
         $result = array();
@@ -174,9 +177,15 @@ class Compiler {
             throw new \Exception('Expecting a string of javascript, empty string received.');
         }
 
-        if($input[0] == '"' && $input[strlen($input) - 1] == '"') {
+        if(($input[0] == '"' && $input[strlen($input) - 1] == '"') ||
+            $input[0] == '\'' && $input[strlen($input) - 1] == '\'') {
             return array($input);
         }
+        $inputs = array_map('trim', explode('+', $input));
+        $input = array_shift($inputs);
+        $after = array();
+        foreach ($inputs as $inputAfter)
+            $after[]=implode(' . ', $this->handleCode($inputAfter));
 
         preg_match_all(
             '/(?<![<>=!])=(?!>)|[\[\]{}(),;.]|(?!:):|->/', // punctuation
@@ -184,6 +193,28 @@ class Compiler {
             $separators,
             PREG_SET_ORDER | PREG_OFFSET_CAPTURE
         );
+        $restructure = function($separators) {
+        $temp = array();
+        $count = 0;
+        foreach ($separators as $sep) {
+            if ($sep[0][0] == '(') {
+                $count++;
+                if ($count==1)
+                    $temp[] = $sep;
+            }
+            if ($sep[0][0] != '=' && $count!=2 && $sep[0][0] != '(' && $sep[0][0] != ')')
+                $temp[] = $sep;
+
+            if ($sep[0][0] == ')') {
+                $count--;
+                if ($count==0)
+                    $temp[] = $sep;
+            }
+        }
+        return $temp;
+        };
+        $separators = $restructure($separators);
+
         $_separators = array();
         foreach ($separators as $sep) {
             array_push($_separators, $sep[0]);
@@ -205,9 +236,9 @@ class Compiler {
         if ($separators[0][1] == 0) {
             throw new \Exception('Expecting a variable name got: ' . $input);
         }
-
         // do not add $ if it is not like a variable
         $varname = substr($input,0,$separators[0][1]);
+
         if ($separators[0][0] != '(' && strchr('0123456789-+("\'$', $varname[0]) === FALSE) {
             $varname = '$' . $varname;
         }
@@ -322,11 +353,14 @@ class Compiler {
                 // funcall
                 case '(':
                     $arguments  = $handle_code_inbetween();
-
                     if ($varname[0] == '$')
                         $call       = $varname . '->' . $name . '(' . implode(', ', $arguments) . ')';
                     else
                         $call       = $varname . '(' . implode(', ', $arguments) . ')';
+
+                    if ($after) {
+                        $call .=' . ' . implode(' . ', $after);
+                    }
 
                     $cs = current($separators);
                     while($cs && ($cs[0] == '->' || $cs[0] == '(' || $cs[0] == ')')) {
@@ -334,7 +368,6 @@ class Compiler {
                         $cs = next($separators);
                     }
                     $varname    = $v;
-
                     array_push($result, "{$v}={$call}");
 
                     break;
@@ -429,7 +462,6 @@ class Compiler {
         $variables = array();
 
         foreach ($arguments as $arg) {
-
             // shortcut for constants
             if ($this->isConstant($arg)) {
                 if($arg === 'undefined')
@@ -437,13 +469,11 @@ class Compiler {
                 array_push($variables, $arg);
                 continue;
             }
-
             // if we have a php variable assume that the string is good php
             if (preg_match('/&?\${1,2}[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/', $arg)) {
                 array_push($variables, $arg);
                 continue;
             }
-
             if (preg_match('/^([\'"]).*?\1/', $arg, $match)) {
                 $code= $this->handleString(trim($arg));
             } else {
@@ -451,7 +481,6 @@ class Compiler {
                 $arg = preg_replace('/\bvar\b/','',$arg);
                 $code = $this->handleCode(trim($arg));
             }
-
             $statements = array_merge($statements, array_slice($code,0,-1));
             array_push($variables, array_pop($code));
         }
@@ -495,10 +524,8 @@ class Compiler {
             $arguments = func_get_args();
             array_shift($arguments); // remove $code
             $statements= $this->apply('createStatements', $arguments);
-
             return $this->createPhpBlock($code, $statements);
         }
-
         return $this->createPhpBlock($code);
     }
 
@@ -861,7 +888,7 @@ class Compiler {
         }else{
             $post_fix = '';
             if (function_exists('jade_filter'))
-                $post_fix = 'jade_filter(%2$s);';
+                $post_fix = '%2$s = jade_filter(%2$s);';
             $code = $this->createCode('foreach (%s as %s) {'.$post_fix,$node->obj,$node->value);
         }
 

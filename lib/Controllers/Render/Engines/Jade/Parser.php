@@ -485,6 +485,10 @@ class Parser {
         return $this->tag($tag);
     }
 
+    /**
+     * @param Nodes\Tag $tag
+     * @return mixed
+     */
     protected function tag($tag) {
         $tag->line = $this->line();
 
@@ -502,7 +506,6 @@ class Parser {
                 $obj = $token->attributes;
                 $escaped = $token->escaped;
                 $name_list = array_keys($obj);
-
                 if ($token->selfClosing) {
                     $tag->selfClosing = true;
                 }
