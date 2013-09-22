@@ -17,10 +17,10 @@ class Parser {
     protected $filename;
     protected $extending;
     protected $blocks = array();
-    protected $mixins = array();
+    protected static $mixins = array();
     protected $contexts = array();
-    protected $includeDirs = array();
-
+    protected static $includeDirs = array();
+    protected $args = array();
     public function __construct($str,$args = array()) {
         $filename=null;
         if (isset($args['filename']))
@@ -34,10 +34,11 @@ class Parser {
             $this->filename = $filename;
         }
         if (isset($args['includes'])) {
-            $this->includeDirs = $args['includes'];
-            $this->includeDirs[] = realpath(dirname($this->filename));
+            self::$includeDirs = $args['includes'];
+            self::$includeDirs[] = realpath(dirname($this->filename));
         }
 
+        $this->args = $args;
         if(isset($this->input[0]) && $this->input[0] == "\xef" && $this->input[1] == "\xbb" && $this->input[2] == "\xbf")
             $this->input = substr($this->input, 3);
 
@@ -87,14 +88,15 @@ class Parser {
             }
         }
 
+        /**
+         * @var Parser $parser
+         */
         if ($parser = $this->extending) {
             $this->context($parser);
-            //$parser->blocks = $this->blocks;
             $ast = $parser->parse();
             $this->context();
-
-            foreach ($this->mixins as $name => $v) {
-                $ast->unshift($this->mixins[$name]);
+            foreach (self::$mixins as $name => $v) {
+                $ast->unshift(self::$mixins[$name]);
             }
             return $ast;
         }
@@ -117,8 +119,7 @@ class Parser {
     }
 
     protected function parseExpression() {
-        $_types = array('tag','mixin','block','case','when','default','extends','include','doctype','filter','comment','text','each','code','call','interpolation');
-
+        $_types = array('tag','mixin','block','case','when','default','extends','include','doctype','filter','comment','text','each','code','call','interpolation', 'while');
         if (in_array($this->peek()->type, $_types)) {
             $_method = 'parse' . ucfirst($this->peek()->type);
             return $this->$_method();
@@ -130,7 +131,6 @@ class Parser {
             $block = new Nodes\Block();
             $block->yield = true;
             return $block;
-
         case 'id':
         case 'class':
             $token = $this->advance();
@@ -155,7 +155,6 @@ class Parser {
             $this->advance();
             return new Nodes\Block($this->parseExpression());
         }
-
         return $this->block();
     }
 
@@ -170,6 +169,11 @@ class Parser {
     protected function parseWhen() {
         $value = $this->expect('when')->value;
         return new Nodes\When($value, $this->parseBlockExpansion());
+    }
+
+    protected function parseWhile() {
+        $value = $this->expect('while')->value;
+        return new Nodes\WhileNode($value, $this->parseBlockExpansion());
     }
 
     protected function parseDefault() {
@@ -258,8 +262,9 @@ class Parser {
         $file = $this->expect('extends')->value;
         $string = $path = false;
 
-        foreach ($this->includeDirs as $incDir) {
+        foreach (self::$includeDirs as $incDir) {
             $path =  rtrim($incDir, "\\/")  . DIRECTORY_SEPARATOR . $file . self::$extension;
+
             $string = @file_get_contents($path);
             if ($string)
                 break;
@@ -268,9 +273,8 @@ class Parser {
         if (!$string)
             return new Nodes\Literal("Could not find extend: "  . DIRECTORY_SEPARATOR . $file . self::$extension);
 
-        $string = file_get_contents($path);
-        $parser = new Parser($string, $path);
-        // need to be a reference, or be seted after the parse loop
+        $parser = new Parser($string, array('filename' =>$path));
+        // need to be a reference, or be set after the parse loop
         $parser->blocks = &$this->blocks;
         $parser->contexts = $this->contexts;
         $this->extending = $parser;
@@ -282,12 +286,10 @@ class Parser {
         $block = $this->expect('block');
         $mode = $block->mode;
         $name = trim($block->value);
-
         $block = 'indent' == $this->peek()->type ? $this->block() : new Nodes\Block(new Nodes\Literal(''));
 
         if (isset($this->blocks[$name])) {
             $prev = $this->blocks[$name];
-
             switch ($prev->mode) {
             case 'append':
                 $block->nodes = array_merge($block->nodes, $prev->nodes);
@@ -310,7 +312,7 @@ class Parser {
             $this->blocks[$name] = $block;
         }
 
-        return $this->blocks[$name];
+        return $this->blocks;
     }
 
     protected function parseInclude() {
@@ -321,7 +323,7 @@ class Parser {
             $file = $file . '.jade';
         }
         $str = false;
-        foreach ($this->includeDirs as $incDir) {
+        foreach (self::$includeDirs as $incDir) {
             $path =  rtrim($incDir, "\\/")  . DIRECTORY_SEPARATOR . $file;
             $str = @file_get_contents($path);
             if ($str)
@@ -336,8 +338,7 @@ class Parser {
 
         $parser = new Parser($str, $path);
         $parser->blocks = $this->blocks;
-        $parser->mixins = $this->mixins;
-
+//        $parser->mixins = $this->mixins;
         $this->context($parser);
         $ast = $parser->parse();
         $this->context();
@@ -382,8 +383,8 @@ class Parser {
 
         // definition
         if ('indent' == $this->peek()->type) {
-            $mixin = new Nodes\Mixin($name, $arguments, $this->block(), false);
-            $this->mixins[$name] = $mixin;
+            $mixin = new Nodes\Mixin(str_replace('-','_',$name), $arguments, $this->block(), false);
+            self::$mixins[$name] = $mixin;
             return $mixin;
             // call
         }else{
@@ -436,7 +437,6 @@ class Parser {
         $this->expect('indent');
 
         while ($this->peek()->type !== 'outdent' ) {
-
             if ($this->peek()->type === 'newline') {
                 $this->lexer->advance();
             }else{

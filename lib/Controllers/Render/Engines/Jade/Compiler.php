@@ -42,9 +42,16 @@ class Compiler {
         return implode('', $this->buffer);
     }
 
-    public function visit(Nodes\Node $node) {
+    /**
+     * @param Nodes\Node[]|Nodes\Node $node
+     * @return array
+     */
+    public function visit($node) {
         // TODO: set debugging info
-        $this->visitNode($node);
+        if (!is_array($node))
+            $node = array($node);
+        foreach ($node as $n)
+            $this->visitNode($n);
         return $this->buffer;
     }
 
@@ -184,7 +191,8 @@ class Compiler {
         $separators = $_separators;
 
         if (count($separators) == 0) {
-            if (strchr('0123456789-+("\'$', $input[0]) === FALSE) {
+            if (strchr('0123456789-+("\'$', $input[0]) === FALSE &&
+                !in_array(strtolower(trim($input)), array('true', 'false'))) {
                 $input = '$' . $input;
             }
 
@@ -286,15 +294,24 @@ class Compiler {
             // $sep[0] - the separator string due to PREG_SPLIT_OFFSET_CAPTURE flag
             // $sep[1] - the offset due to PREG_SPLIT_OFFSET_CAPTURE
             $sep= current($separators);
+            $name = $get_middle_string($sep, $get_next(key($separators)));
+            next($separators);
+            $next = current($separators);
+            if ($next[0] == '(')
+                $sep = $next;
+            else {
+                prev($separators);
+                $sep = current($separators);
+            }
 
             if ($sep[0] == null) break; // end of string
 
-            $name = $get_middle_string($sep, $get_next(key($separators)));
 
             $v = "\$__{$ns}";
             switch ($sep[0]) {
                 // translate the javascript's obj.attr into php's obj->attr or obj['attr']
                 case '.':
+
                     // TODO: Move isset(->)?->:[]; to a function
                     $accessor= "{$v}=isset({$varname}->{$name}) ? {$varname}->{$name} : ((!is_object({$varname}))?({$varname}['{$name}']):'')";
                     array_push($result, $accessor);
@@ -305,13 +322,19 @@ class Compiler {
                 // funcall
                 case '(':
                     $arguments  = $handle_code_inbetween();
-                    $call       = $varname . '(' . implode(', ', $arguments) . ')';
+
+                    if ($varname[0] == '$')
+                        $call       = $varname . '->' . $name . '(' . implode(', ', $arguments) . ')';
+                    else
+                        $call       = $varname . '(' . implode(', ', $arguments) . ')';
+
                     $cs = current($separators);
                     while($cs && ($cs[0] == '->' || $cs[0] == '(' || $cs[0] == ')')) {
                         $call .= $cs[0] . $get_middle_string(current($separators), $get_next(key($separators)));
                         $cs = next($separators);
                     }
                     $varname    = $v;
+
                     array_push($result, "{$v}={$call}");
 
                     break;
@@ -836,7 +859,10 @@ class Compiler {
         if (isset($node->key) && mb_strlen($node->key) > 0) {
             $code = $this->createCode('foreach (%s as %s => %s) {',$node->obj,$node->key,$node->value);
         }else{
-            $code = $this->createCode('foreach (%s as %s) {',$node->obj,$node->value);
+            $post_fix = '';
+            if (function_exists('jade_filter'))
+                $post_fix = 'jade_filter(%2$s);';
+            $code = $this->createCode('foreach (%s as %s) {'.$post_fix,$node->obj,$node->value);
         }
 
         $this->buffer($code);

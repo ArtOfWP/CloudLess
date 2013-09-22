@@ -328,7 +328,7 @@ class Lexer {
     protected function scanMixin() {
         if ( preg_match('/^mixin +([-\w]+)(?: *\((.*)\))?/', $this->input, $matches) ) {
             $this->consume($matches[0]);
-            $token = $this->token('mixin', $matches[1]);
+            $token = $this->token('mixin', str_replace('-', '_', $matches[1]));
             $token->arguments = isset($matches[2]) ? $matches[2] : null;
             return $token;
         }
@@ -352,9 +352,12 @@ class Lexer {
     }
 
     protected function scanWhile() {
-        if ( preg_match('/^while +([^\n]+)/', $this->input, $matches) ) {
+        if ( preg_match('/^while([^\n]+)/', $this->input, $matches) ) {
             $this->consume($matches[0]);
-            $this->token('code', 'while (' . $matches[1] . '):');
+            $token =$this->token('code', 'while (' . $matches[1] . '):');
+            $token->buffer = false;
+            return $token;
+
         }
     }
 
@@ -580,6 +583,7 @@ class Lexer {
 
             if ($ok && mb_strlen($matches[1]) == 0) {
                 $re = "/^\n( *)/";
+
                 $ok = preg_match($re, $this->input, $matches);
             }
 

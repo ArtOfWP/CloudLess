@@ -21,7 +21,7 @@ class JadeRenderingEngine implements IRenderingEngine {
      * @return string
      */
     public function render($file_path, $scope = array()) {
-        $template = file_get_contents($file_path);
+        $template = file_get_contents($this->viewpaths . DIRECTORY_SEPARATOR . $file_path . '.' . $this->getFileTypeSupport());
         $renderer = new Jade(true);
         $parsed = $renderer->render($template , $scope, array($this->viewpaths));
         ob_start();
