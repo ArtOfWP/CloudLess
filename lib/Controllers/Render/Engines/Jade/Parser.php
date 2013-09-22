@@ -323,20 +323,22 @@ class Parser {
             $file = $file . '.jade';
         }
         $str = false;
+        $found = false;
         foreach (self::$includeDirs as $incDir) {
             $path =  rtrim($incDir, "\\/")  . DIRECTORY_SEPARATOR . $file;
-            $str = @file_get_contents($path);
-            if ($str)
+            if (file_exists($path)) {
+                 $found = $path;
                 break;
+            }
         }
 
-        if (!$str)
+        if (!$found)
             return new Nodes\Literal("Could not find include: $path");
         if ('.jade' != substr($file,-5)) {
             return new Nodes\Literal($str);
         }
-
-        $parser = new Parser($str, $path);
+        $str = @file_get_contents($found);
+        $parser = new Parser($str, $found);
         $parser->blocks = $this->blocks;
 //        $parser->mixins = $this->mixins;
         $this->context($parser);
