@@ -6,7 +6,6 @@ include CLMVC_FILE_PREFIX . '/Core/ClassLoader.php';
 $classLoader = Symfony\Component\ClassLoader\UniversalClassLoader::instance();
 $classLoader->registerNamespaces(array(
     'CLMVC'      => CLMVC_FILE_PREFIX,
-    'Jade'      => CLMVC_FILE_PREFIX . '/Controllers/Render/Engines/Jade'
 ));
 
 $classLoader->register();
