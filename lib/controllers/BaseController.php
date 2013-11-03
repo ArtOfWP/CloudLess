@@ -126,7 +126,7 @@ class BaseController {
         $this->viewpath = $viewPath;
         Debug::Message('Loaded ' . $this->controller . ' extends BaseController');
         $this->renderer = new Rendering($this);
-        $this->bag = Container::instance()->fetch('Bag');
+        $this->bag =  new BaggedValues();// Container::instance()->fetch('Bag');
     }
 
     /**
@@ -203,6 +203,22 @@ class BaseController {
     public function setTemplateType($templateType)
     {
         $this->templateType = $templateType;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getRender()
+    {
+        return $this->render;
+    }
+
+    /**
+     * @param boolean $render
+     */
+    public function setRender($render)
+    {
+        $this->render = $render;
     }
 
     /**

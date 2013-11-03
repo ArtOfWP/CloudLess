@@ -156,7 +156,7 @@ abstract class CrudController extends BaseController {
      * @return ActiveRecordBase
      */
     public function create($redirect=true){
-		$this->render=false;
+		$this->setRender(false);
 		$this->loadFromPost();
 		$this->crudItem->save();
 		if($redirect) {
@@ -170,7 +170,7 @@ abstract class CrudController extends BaseController {
      * @param bool $redirect
      */
     public function update($redirect=true){
-		$this->render=false;		
+        $this->setRender(false);
 		$id=array_key_exists_v('Id',$this->values);		
 		$this->crudItem=Repo::getById(get_class($this->crudItem),$id);		
 		$this->loadFromPost();
@@ -183,7 +183,7 @@ abstract class CrudController extends BaseController {
      * Delete the CRUD item.
      */
     public function delete(){
-		$this->render=false;		
+        $this->setRender(false);
 		if(is_array($_POST[strtolower(get_class($this->crudItem))])){
 			$ids=$_POST[strtolower(get_class($this->crudItem))];
 			foreach($ids as $id){
