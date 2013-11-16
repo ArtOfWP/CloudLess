@@ -25,7 +25,7 @@ include('init.php');
 
     /**
      * Class AoiSora
-     * WordPress plugin that sets up the AoiSora (CloudLessMVC framework)
+     * WordPress plugin that sets up the CloudLessMVC framework
      */
 class AoiSora extends ApplicationBase{
     /**
