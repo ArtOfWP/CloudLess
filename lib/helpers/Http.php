@@ -3,7 +3,7 @@ namespace CLMVC\Helpers;
 /**
  * Class Http
  */
-class Http{
+class Http {
     /**
      * Retrieve the user agent from request
      * @return string
