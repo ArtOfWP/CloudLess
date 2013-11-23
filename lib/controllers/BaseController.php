@@ -126,7 +126,7 @@ class BaseController {
         $this->viewpath = $viewPath;
         Debug::Message('Loaded ' . $this->controller . ' extends BaseController');
         $this->renderer = new Rendering($this);
-        $this->bag =  new BaggedValues();// Container::instance()->fetch('Bag');
+        $this->bag =  Container::instance()->fetch('Bag');
     }
 
     /**

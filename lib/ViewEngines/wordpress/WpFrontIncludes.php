@@ -11,26 +11,28 @@ abstract class WpFrontIncludes implements IIncludes
     private $unincludes=array();
     function register(FrontInclude $include) {
         $this->includes[$include->getHandle()]=$include;
+        return $this;
     }
 
     function deregister($handle) {
         if(isset($this->includes[$handle]))
             unset($this->includes[$handle]);
         $this->unincludes[]=$handle;
-        return true;
+        return $this;
     }
 
     function enqueue($location, $handle) {
         if(!isset($this->queue[$location])|| empty($this->queue[$location]))
             $this->queue[$location]=array();
         $this->queue[$location][$handle]=$this->includes[$handle];
+        return $this;
     }
 
     function dequeue($location, $handle) {
         if(isset($this->queue[$location][$handle]))
             unset($this->queue[$location][$handle]);
         $this->dequeue[$location]=$handle;
-        return true;
+        return $this;
     }
 
     function isRegistered($handle) {

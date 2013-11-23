@@ -13,7 +13,8 @@ class View {
      * @param $callback
      * @param int $priority
      */
-    static function register($section, $callback, $priority = 100) {
+    static function register($section, $callback, $priority = 100)
+    {
         if (!isset(self::$ViewSections[$section]['handler'])) {
             if (!isset(self::$ViewSections))
                 self::$ViewSections = array();
@@ -22,8 +23,11 @@ class View {
                     $id = hash('md5', $callback[0] . $callback[1] . $priority);
                 else
                     $id = hash('md5', get_class($callback[0]) . $callback[1] . $priority);
-            } else
+            } elseif (is_object($callback)) {
+                $id = spl_object_hash($callback);
+            } else {
                 $id = hash('md5', $callback . $priority);
+            }
             self::$ViewSections[$section][$priority][$id] = $callback;
         } else {
             $handler = self::$ViewSections[$section]['handler'];

@@ -68,7 +68,7 @@ class ScriptIncludes implements IIncludes {
      */
     function enqueue($location, $handle) {
         $this->scriptInclude->enqueue($location, $handle);
-        return $this->scriptInclude;
+        return $this;
     }
 
     /**

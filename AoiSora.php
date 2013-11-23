@@ -94,14 +94,8 @@ class AoiSora extends ApplicationBase{
      * Called on plugins loaded. runs hooks. aoisora-libraries, aoisora-loaded
      */
     function loaded() {
-		Hook::run('aoisora-libraries');
-		Hook::run('aoisora-loaded');
-        /**
-         * @var Routes $routes
-         */
-        $container = Container::instance();
-        $routes = $container->fetch('Routes');
-        $routes->routing();
+		Hook::run('cloudless-libraries');
+		Hook::run('cloudless-loaded');
     }
 }
 AoiSora::instance();

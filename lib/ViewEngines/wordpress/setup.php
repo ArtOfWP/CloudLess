@@ -183,7 +183,7 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 	global $viewsections;
 	$viewsections=array('print_styles'=>'wp_print_styles','print_scripts'=>'wp_print_scripts',
 					'admin_print_scripts','admin_print_styles',
-					'footer'=>'wp_footer','head'=>'wp_head','admin_head','admin_footer','wp_print_scripts','wp_footer','wp_print_styles');
+					'footer'=>'wp_footer','head'=>'wp_head','admin_head','admin_footer','wp_print_scripts','wp_footer','wp_print_styles', 'enqueue_scripts' => 'wp_enqueue_scripts');
 	foreach($viewsections as $key => $section)
 		if(is_numeric($key))
 			View::registerHandler($section,'wp_section_handler');
@@ -249,13 +249,24 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 		return admin_url($url);
 	}
 
-Hook::register('template_redirect', function() {
-    if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
-        http_response_code(200);
-        include get_index_template();
-        exit();
-    }
-} );
+    Hook::register('template_redirect', function() {
+        /**
+         * @var Routes $routes
+         */
+        $container = \CLMVC\Core\Container::instance();
+        $routes = $container->fetch('Routes');
+        $routes->routing();
+        if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
+            global $wp_query;
+            if ($wp_query->is_404) {
+                $wp_query->is_404 = false;
+            }
+            header("HTTP/1.1 200 OK");
+            http_response_code(200);
+            include clmvc_template();
+            exit();
+        }
+    });
 
 
 add_filter('wp_title', function($title, $sep, $seplocation) {
@@ -264,3 +275,7 @@ add_filter('wp_title', function($title, $sep, $seplocation) {
         return $bag->title . $sep;
     return $title . $sep;
 },0, 3);
+
+function clmvc_template() {
+    return get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'cloudless.php';
+}

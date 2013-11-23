@@ -44,6 +44,7 @@ class Rendering {
      */
     public function Render($controller, $action) {
         $view_path = $this->views->findView($controller, $action, $this->getTemplate());
+        error_log($view_path);
         if ($view_path) {
             $tags = Filter::run('view-tags', array(array(), $this->controller));
             $engine = RenderingEngines::getEngine($this->getTemplate(), $this->controller->getViewPath());
@@ -61,6 +62,7 @@ class Rendering {
             $viewcontent = 'Could not find view: ' . $view_path;
         $this->render = false;
         RenderedContent::set($viewcontent);
+        error_log('rendered');
     }
 
 
@@ -69,6 +71,7 @@ class Rendering {
      * @param string $action The action to render
      */
     public function RenderToAction($action) {
+        error_log('Render to action ' . $action);
         $this->Render($this->getControllerName(), $action);
     }
 

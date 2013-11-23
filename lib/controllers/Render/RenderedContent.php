@@ -18,6 +18,7 @@ class RenderedContent {
     }
 
     static function hasRendered() {
+        error_log('hasRendered '.self::$rendered);
         return self::$rendered;
     }
 
