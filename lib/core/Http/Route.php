@@ -18,7 +18,7 @@ class Route {
      * @param $params
      * @param $method
      */
-    function __construct($route, $callback, $params, $method = GET) {
+    function __construct($route, $callback, $params, $method = 'get') {
         $this->params = $params;
         $this->method = $method;
         $this->route = $this->build($route, $params);
