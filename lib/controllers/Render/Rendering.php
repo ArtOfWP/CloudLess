@@ -103,10 +103,6 @@ class Rendering {
      * @param $data
      */
     public function RenderJson($data) {
-        add_filter('wp_headers', function ($headers) {
-            $headers['Content-Type'] = 'application/json; charset=UTF-8';
-            return $headers;
-        });
         header('Content-Type: application/json; charset=UTF-8');
         $this->render = false;
         RenderedContent::set(json_encode($data));

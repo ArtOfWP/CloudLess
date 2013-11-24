@@ -89,6 +89,9 @@ class BaseController {
     protected $renderer;
 
     private $templateType = 'php';
+    private $headers = array();
+    private $code = 200;
+
     /**
      * Setup the controller.
      */
@@ -162,10 +165,21 @@ class BaseController {
             if ($this->renderer->canRender()) {
                 $this->renderer->RenderToAction($action);
             }
+            http_response_code($this->code);
+            if (!empty($this->headers)) {
+                foreach($this->headers as $header) {
+                    header($header);
+                }
+            }
         } else
             throw new RuntimeException("The action you tried to execute does not exist. $action");
     }
-
+    protected function setStatusCode($code) {
+        $this->code = $code;
+    }
+    protected function setHeaders($headers) {
+        $this->headers = $headers;
+    }
     /**
      * Retrieves the bag filled with values set by the action.
      * @return BaggedValues
