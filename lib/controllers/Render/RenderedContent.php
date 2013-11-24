@@ -17,8 +17,12 @@ class RenderedContent {
         echo self::get();
     }
 
+    static function endFlush() {
+        self::flush();
+        exit;
+    }
+
     static function hasRendered() {
-        error_log('hasRendered '.self::$rendered);
         return self::$rendered;
     }
 

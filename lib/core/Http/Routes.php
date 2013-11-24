@@ -8,8 +8,8 @@ class Routes {
      * @var Route[]
      */
     private $routes = array();
-    function add($route,$callback , $params = array()) {
-        $this->routes[] = new Route($route, $callback, $params);
+    function add($route,$callback , $params = array(), $method = 'get') {
+        $this->routes[] = new Route($route, $callback, $params, $method);
     }
 
     /**
