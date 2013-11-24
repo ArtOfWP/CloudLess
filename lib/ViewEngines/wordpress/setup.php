@@ -261,10 +261,17 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
             if ($wp_query->is_404) {
                 $wp_query->is_404 = false;
             }
-            header("HTTP/1.1 200 OK");
-            http_response_code(200);
-            include clmvc_template();
-            exit();
+
+            if (\CLMVC\Controllers\Render\RenderedContent::endIt()) {
+                header("HTTP/1.1 200 OK");
+                http_response_code(200);
+                \CLMVC\Controllers\Render\RenderedContent::endFlush();
+            } else {
+                header("HTTP/1.1 200 OK");
+                http_response_code(200);
+                include clmvc_template();
+                exit();
+            }
         }
     });
 

@@ -2,6 +2,7 @@
 namespace CLMVC\Controllers\Render;
 
 class RenderedContent {
+    private static $endIt;
     private static $renderedContent;
     private static $rendered = false;
     private static $renderedBlocks = array();
@@ -36,5 +37,11 @@ class RenderedContent {
 
     static function flushBlock($block) {
         echo self::$renderedBlocks[$block];
+    }
+
+    static function endIt($end = null) {
+        if (is_null($end))
+            return self::$endIt;
+        self::$endIt = $end;
     }
 }

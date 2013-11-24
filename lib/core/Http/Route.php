@@ -31,7 +31,6 @@ class Route {
      * @return mixed
      */
     function match($uri, $method ='get') {
-        echo 'match ', $method, ' ', $this->method, ' ';
         if ($this->method != $method)
             return null;
         preg_match($this->route, $uri, $matches);
