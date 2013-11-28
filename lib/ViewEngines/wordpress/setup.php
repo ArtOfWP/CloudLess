@@ -248,14 +248,15 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 			$url.="&".$query;
 		return admin_url($url);
 	}
-
-    Hook::register('template_redirect', function() {
+    add_action('init', function() {
         /**
          * @var Routes $routes
          */
         $container = \CLMVC\Core\Container::instance();
         $routes = $container->fetch('Routes');
         $routes->routing();
+    });
+    Hook::register('template_redirect', function() {
         if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
             global $wp_query;
             if ($wp_query->is_404) {

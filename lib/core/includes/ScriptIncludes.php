@@ -67,7 +67,10 @@ class ScriptIncludes implements IIncludes {
      * @return ScriptIncludes
      */
     function enqueue($location, $handle) {
-        $this->scriptInclude->enqueue($location, $handle);
+        if ($this->isRegistered($handle))
+            $this->scriptInclude->enqueue($location, $handle);
+        else
+            trigger_error(sprintf('No script with the handle %s has been registered', $handle), E_USER_WARNING);
         return $this;
     }
 

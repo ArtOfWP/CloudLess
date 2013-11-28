@@ -51,7 +51,7 @@ class Communication{
      * @param string $key
      * @return bool|mixed
      */
-    static function getQueryString($key=null){
+    static function getQueryString($key=null, $default = null){
 		if(defined('TESTING')){
 			global $testquery;
 			$qs=$testquery;	
@@ -63,7 +63,7 @@ class Communication{
 				$qs= $_GET;
 		}
 		if($key)
-			$qs=array_key_exists_v($key,$qs);
+			$qs=array_key_exists_v($key,$qs, $default);
 		return $qs;
 	}
 

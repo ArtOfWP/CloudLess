@@ -15,7 +15,7 @@ class Rendering {
     /**
      * @var Views
      */
-    private $views;
+    public $views;
     /**
      * @var BaseController
      */

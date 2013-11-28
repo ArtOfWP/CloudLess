@@ -141,8 +141,10 @@ class BaseController {
     public function executeAction($action, $getParams = array()) {
         if (method_exists($this, $action)) {
             $reflection = new ReflectionMethod($this, $action);
-            if (!$reflection->isPublic())
-                throw new RuntimeException("The action you tried to execute is not public.");
+            if (!$reflection->isPublic()) {
+                trigger_error(sprintf("The action you tried to execute is not public: %s", $action));
+                $this->NotFound();
+            }
             $this->action = $action;
             $params = $reflection->getParameters();
             $paramValues = array();
@@ -171,8 +173,8 @@ class BaseController {
                     header($header);
                 }
             }
-        } else
-            throw new RuntimeException("The action you tried to execute does not exist. $action");
+        } elseif (method_exists($this, 'notFound'))
+            $this->notFound();
     }
     protected function setStatusCode($code) {
         $this->code = $code;
@@ -189,18 +191,6 @@ class BaseController {
         if ($bag)
             return $bag;
         return $bag = Filter::run($this->controller . '-bag', array($this->bag, $this->controller, $this->action, $this->values));
-    }
-
-    /**
-     * Default Not Found action. Executed when action etc cannot be found.
-     */
-    public function NotFound() {
-        $view = $this->findView($this->controller, 'NotFound');
-        if ($view) {
-            $this->renderer->Render($this->controller, 'NotFound');
-        } else {
-            $this->renderer->Render('default', 'NotFound');
-        }
     }
 
     /**
