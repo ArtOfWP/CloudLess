@@ -1,9 +1,5 @@
 <?php
 namespace CLMVC\Helpers;
-define ('PUT','put');
-define ('GET','get');
-define ('POST','post');
-define ('DELETE','delete');
 /**
  * Class Communication
  */
@@ -24,20 +20,20 @@ class Communication{
      */
     static function getMethod(){
 		$tempMethod=$_SERVER['REQUEST_METHOD'];
-		if(strcasecmp($tempMethod,PUT)==0)
-			return PUT;
-		else if(strcasecmp($tempMethod,POST)==0){
+		if(strcasecmp($tempMethod,'put')==0)
+			return 'put';
+		else if(strcasecmp($tempMethod,'post')==0){
 			if(isset($_POST['_method'])){
-			if(strcasecmp($_POST['_method'],PUT)==0)
-				return PUT;
-			if(strcasecmp($_POST['_method'],DELETE)==0)
-				return DELETE;
+			if(strcasecmp($_POST['_method'],'put')==0)
+				return 'put';
+			if(strcasecmp($_POST['_method'],'delete')==0)
+				return 'delete';
 			}
-			return POST;
-		}else if(strcasecmp($tempMethod,GET)==0)
-			return GET;
-		else if(strcasecmp($tempMethod,DELETE)==0)
-			return DELETE;
+			return 'post';
+		}else if(strcasecmp($tempMethod,'get')==0)
+			return 'get';
+		else if(strcasecmp($tempMethod,'delete')==0)
+			return 'delete';
 	}
 
     /**
@@ -55,7 +51,7 @@ class Communication{
      * @param string $key
      * @return bool|mixed
      */
-    static function getQueryString($key=null){
+    static function getQueryString($key=null, $default = null){
 		if(defined('TESTING')){
 			global $testquery;
 			$qs=$testquery;	
@@ -67,7 +63,7 @@ class Communication{
 				$qs= $_GET;
 		}
 		if($key)
-			$qs=array_key_exists_v($key,$qs);
+			$qs=array_key_exists_v($key,$qs, $default);
 		return $qs;
 	}
 

@@ -25,7 +25,7 @@ include('init.php');
 
     /**
      * Class AoiSora
-     * WordPress plugin that sets up the AoiSora (CloudLessMVC framework)
+     * WordPress plugin that sets up the CloudLessMVC framework
      */
 class AoiSora extends ApplicationBase{
     /**
@@ -94,14 +94,8 @@ class AoiSora extends ApplicationBase{
      * Called on plugins loaded. runs hooks. aoisora-libraries, aoisora-loaded
      */
     function loaded() {
-		Hook::run('aoisora-libraries');
-		Hook::run('aoisora-loaded');
-        /**
-         * @var Routes $routes
-         */
-        $container = Container::instance();
-        $routes = $container->fetch('Routes');
-        $routes->routing();
+		Hook::run('cloudless-libraries');
+		Hook::run('cloudless-loaded');
     }
 }
 AoiSora::instance();

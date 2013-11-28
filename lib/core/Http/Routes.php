@@ -1,14 +1,15 @@
 <?php
 namespace CLMVC\Core\Http;
 use CLMVC\Controllers\BaseController;
+use CLMVC\Helpers\Communication;
 
 class Routes {
     /**
      * @var Route[]
      */
     private $routes = array();
-    function add($route,$callback , $params = array()) {
-        $this->routes[] = new Route($route, $callback, $params);
+    function add($route,$callback , $params = array(), $method = 'get') {
+        $this->routes[] = new Route($route, $callback, $params, $method);
     }
 
     /**
@@ -16,8 +17,9 @@ class Routes {
      */
     function routing() {
         $uri = $_SERVER['REQUEST_URI'];
+        $method = Communication::getMethod();
         foreach ($this->routes as $route) {
-            if ($matches = $route->match($uri)) {
+            if ($matches = $route->match($uri, $method)) {
                 $params = $route->params($uri);
                 $array = $route->getCallback();
                 $controller = str_replace('/', '\\', $array[0]);

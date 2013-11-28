@@ -8,6 +8,7 @@ namespace CLMVC\Core\Http;
 class Route {
 
     private $route;
+    private $method;
     private $params;
     private $callback;
 
@@ -15,18 +16,23 @@ class Route {
      * @param $route
      * @param $callback
      * @param $params
+     * @param $method
      */
-    function __construct($route, $callback, $params) {
+    function __construct($route, $callback, $params, $method = 'get') {
         $this->params = $params;
+        $this->method = $method;
         $this->route = $this->build($route, $params);
         $this->callback = $callback;
     }
 
     /**
      * @param $uri
+     * @param $method
      * @return mixed
      */
-    function match($uri) {
+    function match($uri, $method ='get') {
+        if ($this->method != $method)
+            return null;
         preg_match($this->route, $uri, $matches);
         return $matches;
     }

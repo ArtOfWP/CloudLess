@@ -15,7 +15,7 @@ class Rendering {
     /**
      * @var Views
      */
-    private $views;
+    public $views;
     /**
      * @var BaseController
      */
@@ -46,14 +46,11 @@ class Rendering {
         $view_path = $this->views->findView($controller, $action, $this->getTemplate());
         if ($view_path) {
             $tags = Filter::run('view-tags', array(array(), $this->controller));
-            $section = View::generate($controller . '-render-pre' . ucfirst($action), $this->controller);
             $engine = RenderingEngines::getEngine($this->getTemplate(), $this->controller->getViewPath());
-            $viewcontent = $section . $engine->render($view_path, $this->getBag());
-            $section = View::generate($controller . '-render-post' . ucfirst($action), $this->controller);
-            $viewcontent .= $section;
+            $viewcontent = $engine->render($view_path, $this->getBag());
             $layout_path = $this->views->findLayout($this->getTemplate());
             if ($layout_path) {
-                $engine = RenderingEngines::getEngine($this->getTemplate());
+                $engine = RenderingEngines::getEngine($this->getTemplate(), $view_path);
                 $layout_content = $engine->render($layout_path, $this->getBag()+$tags, Filter::run("{$this->controllerName}-{$action}-blocks", array(array('view' => $viewcontent))));
             } else {
                 $layout_content = $viewcontent;
@@ -99,6 +96,17 @@ class Rendering {
     public function RenderText($text) {
         $this->render = false;
         RenderedContent::set($text);
+    }
+
+    /**
+     * Encodes $data as JSON and flushes it and exists request.
+     * @param $data
+     */
+    public function RenderJson($data) {
+        header('Content-Type: application/json; charset=UTF-8');
+        $this->render = false;
+        RenderedContent::set(json_encode($data));
+        RenderedContent::endIt(true);
     }
 
     private function getBag() {

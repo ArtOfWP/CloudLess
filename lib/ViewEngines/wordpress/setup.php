@@ -9,11 +9,11 @@ use CLMVC\Events\Filter;
 use CLMVC\Events\Hook;
 use CLMVC\Events\View;
 use CLMVC\Helpers\Html;
+use CLMVC\Helpers\Http;
 use CLMVC\Views\Shortcode;
 
 define('CLOUDLESS_APP_DIR', WP_PLUGIN_DIR);
 
-RenderingEngines::registerEngine('jade', 'CLMVC\\Controllers\\Render\Engines\\JadeRenderingEngine');
 RenderingEngines::registerEngine('php', 'CLMVC\\Controllers\\Render\Engines\\PhpRenderingEngine');
 //Filter::register('view-tags', 'clmvc_setup_default_tags');
 
@@ -101,6 +101,7 @@ $container->add('CLMVC\\Interfaces\\IScriptInclude',new CLMVC\ViewEngines\WordPr
 $container->add('CLMVC\\Interfaces\\IStyleInclude',new CLMVC\ViewEngines\WordPress\WpStyleIncludes());
 $container->add('CLMVC\\Interfaces\\IOptions','CLMVC\\ViewEngines\\WordPress\\WpOptions','class');
 $container->add('CLMVC\\Interfaces\\IOption','CLMVC\\ViewEngines\\WordPress\\WpOption','class');
+$container->add('CLMVC\\Interfaces\\IPost','CLMVC\\ViewEngines\\WordPress\\WpPost','class');
 $container->add('Routes', new Routes());
 $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 	function register_aoisora_query_vars($public_query_vars) {
@@ -182,7 +183,7 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 	global $viewsections;
 	$viewsections=array('print_styles'=>'wp_print_styles','print_scripts'=>'wp_print_scripts',
 					'admin_print_scripts','admin_print_styles',
-					'footer'=>'wp_footer','head'=>'wp_head','admin_head','admin_footer','wp_print_scripts','wp_footer','wp_print_styles');
+					'footer'=>'wp_footer','head'=>'wp_head','admin_head','admin_footer','wp_print_scripts','wp_footer','wp_print_styles', 'enqueue_scripts' => 'wp_enqueue_scripts');
 	foreach($viewsections as $key => $section)
 		if(is_numeric($key))
 			View::registerHandler($section,'wp_section_handler');
@@ -247,14 +248,29 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 			$url.="&".$query;
 		return admin_url($url);
 	}
+    add_action('init', function() {
+        /**
+         * @var Routes $routes
+         */
+        $container = \CLMVC\Core\Container::instance();
+        $routes = $container->fetch('Routes');
+        $routes->routing();
+    });
+    Hook::register('template_redirect', function() {
+        if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
+            global $wp_query;
+            if ($wp_query->is_404) {
+                $wp_query->is_404 = false;
+            }
 
-Hook::register('template_redirect', function() {
-    if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
-        http_response_code(200);
-        include get_index_template();
-        exit();
-    }
-} );
+            if (\CLMVC\Controllers\Render\RenderedContent::endIt()) {
+                \CLMVC\Controllers\Render\RenderedContent::endFlush();
+            } else {
+                include clmvc_template();
+                exit();
+            }
+        }
+    });
 
 
 add_filter('wp_title', function($title, $sep, $seplocation) {
@@ -263,3 +279,7 @@ add_filter('wp_title', function($title, $sep, $seplocation) {
         return $bag->title . $sep;
     return $title . $sep;
 },0, 3);
+
+function clmvc_template() {
+    return get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'cloudless.php';
+}

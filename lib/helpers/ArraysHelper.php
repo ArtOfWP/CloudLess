@@ -22,12 +22,12 @@ function array_key_has_value($key,$value,$haystack){
  * @param array $haystack
  * @return bool|mixed
  */
-function array_key_exists_v($needle,$haystack){
+function array_key_exists_v($needle,$haystack, $default = false){
     if($haystack)
         foreach($haystack as $key => $value)
             if($needle===$key)
                 return $value;
-    return false;
+    return $default;
 }
 
 /**

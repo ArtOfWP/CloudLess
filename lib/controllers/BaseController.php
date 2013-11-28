@@ -89,6 +89,9 @@ class BaseController {
     protected $renderer;
 
     private $templateType = 'php';
+    private $headers = array();
+    private $code = 200;
+
     /**
      * Setup the controller.
      */
@@ -126,7 +129,7 @@ class BaseController {
         $this->viewpath = $viewPath;
         Debug::Message('Loaded ' . $this->controller . ' extends BaseController');
         $this->renderer = new Rendering($this);
-        $this->bag = Container::instance()->fetch('Bag');
+        $this->bag =  Container::instance()->fetch('Bag');
     }
 
     /**
@@ -138,8 +141,10 @@ class BaseController {
     public function executeAction($action, $getParams = array()) {
         if (method_exists($this, $action)) {
             $reflection = new ReflectionMethod($this, $action);
-            if (!$reflection->isPublic())
-                throw new RuntimeException("The action you tried to execute is not public.");
+            if (!$reflection->isPublic()) {
+                trigger_error(sprintf("The action you tried to execute is not public: %s", $action));
+                $this->NotFound();
+            }
             $this->action = $action;
             $params = $reflection->getParameters();
             $paramValues = array();
@@ -162,10 +167,21 @@ class BaseController {
             if ($this->renderer->canRender()) {
                 $this->renderer->RenderToAction($action);
             }
-        } else
-            throw new RuntimeException("The action you tried to execute does not exist. $action");
+            http_response_code($this->code);
+            if (!empty($this->headers)) {
+                foreach($this->headers as $header) {
+                    header($header);
+                }
+            }
+        } elseif (method_exists($this, 'notFound'))
+            $this->notFound();
     }
-
+    protected function setStatusCode($code) {
+        $this->code = $code;
+    }
+    protected function setHeaders($headers) {
+        $this->headers = $headers;
+    }
     /**
      * Retrieves the bag filled with values set by the action.
      * @return BaggedValues
@@ -175,18 +191,6 @@ class BaseController {
         if ($bag)
             return $bag;
         return $bag = Filter::run($this->controller . '-bag', array($this->bag, $this->controller, $this->action, $this->values));
-    }
-
-    /**
-     * Default Not Found action. Executed when action etc cannot be found.
-     */
-    public function NotFound() {
-        $view = $this->findView($this->controller, 'NotFound');
-        if ($view) {
-            $this->renderer->Render($this->controller, 'NotFound');
-        } else {
-            $this->renderer->Render('default', 'NotFound');
-        }
     }
 
     /**
@@ -203,6 +207,22 @@ class BaseController {
     public function setTemplateType($templateType)
     {
         $this->templateType = $templateType;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getRender()
+    {
+        return $this->render;
+    }
+
+    /**
+     * @param boolean $render
+     */
+    public function setRender($render)
+    {
+        $this->render = $render;
     }
 
     /**
