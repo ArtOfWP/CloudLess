@@ -82,13 +82,47 @@ class WpOption implements IOption{
      * @return array
      */
     public function getArray(){
-		return $this->options;
+		return (array)$this->options;
 	}
 
     /**
      * @return string
      */
-    public function __ToString(){
+    public function __toString(){
 		return "Options for $this->name";
 	}
+
+    /**
+     * @param $key
+     */
+    public function setKey($key)
+    {
+        $this->name=$key;
+    }
+
+    /**
+     * @param $defaultValue
+     */
+    public function setDefaultValue($defaultValue)
+    {
+        if(!isset($this->value))
+            $this->value=$defaultValue;
+        $this->defaultValue=$defaultValue;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getKey()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param $value
+     */
+    public function setValue($value)
+    {
+        $this->options=$value;
+    }
 }

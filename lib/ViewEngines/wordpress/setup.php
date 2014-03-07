@@ -262,7 +262,8 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
             if ($wp_query->is_404) {
                 $wp_query->is_404 = false;
             }
-
+            global $clmvc_http_code;
+            http_response_code($clmvc_http_code);
             if (\CLMVC\Controllers\Render\RenderedContent::endIt()) {
                 \CLMVC\Controllers\Render\RenderedContent::endFlush();
             } else {

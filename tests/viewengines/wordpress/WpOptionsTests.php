@@ -1,4 +1,7 @@
 <?php
+use CLMVC\Core\Options;
+use CLMVC\ViewEngines\WordPress\WpOptions;
+
 /**
  * User: andreas
  * Date: 2011-12-30
