@@ -3,7 +3,7 @@
 Plugin Name: CloudLessMVC
 Plugin URI: http://cloudlessmvc.org
 Description: CloudLessMVC is a PHP MVC Framework (for WordPress).
-Version: 13.9
+Version: 14.3
 Author: Andreas Nurbo
 Author URI: http://artofwp.com/
 */
@@ -11,8 +11,6 @@ Author URI: http://artofwp.com/
 namespace CLMVC;
 
 use CLMVC\Core\Application\ApplicationBase;
-use CLMVC\Core\Container;
-use CLMVC\Core\Http\Routes;
 use CLMVC\Core\Includes\FrontInclude;
 use CLMVC\Core\Includes\ScriptIncludes;
 use CLMVC\Core\Includes\StyleIncludes;

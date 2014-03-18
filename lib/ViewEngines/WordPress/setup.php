@@ -9,7 +9,6 @@ use CLMVC\Events\Filter;
 use CLMVC\Events\Hook;
 use CLMVC\Events\View;
 use CLMVC\Helpers\Html;
-use CLMVC\Helpers\Http;
 use CLMVC\Views\Shortcode;
 
 define('CLOUDLESS_APP_DIR', WP_PLUGIN_DIR);
