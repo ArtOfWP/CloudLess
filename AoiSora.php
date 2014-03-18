@@ -18,7 +18,7 @@ use CLMVC\Core\Includes\ScriptIncludes;
 use CLMVC\Core\Includes\StyleIncludes;
 use CLMVC\Core\Options;
 use CLMVC\Events\Hook;
-define('VIEWENGINE', 'wordpress');
+define('VIEWENGINE', 'WordPress');
 define('PACKAGEPATH', WP_PLUGIN_DIR . '/AoiSora/');
 
 include('init.php');

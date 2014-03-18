@@ -20,7 +20,7 @@ load(PACKAGEPATH.'lib/Helpers/');
 //include(PACKAGEPATH.'lib/Controllers/Filters/IFilter.php');
 //include(PACKAGEPATH.'lib/Controllers/Filters/SecurityFilter.php');
 load(PACKAGEPATH.'lib/Controllers/');
-if(defined('VIEWENGINE') && VIEWENGINE=='wordpress'){
+if(defined('VIEWENGINE') && VIEWENGINE=='WordPress'){
 //C:\Users\andreas\My Projects\development\aoisora\wp-content\plugins\AoiSora\tests\config.php
     include('/../../../../wp-load.php');
 	load(PACKAGEPATH.'lib/ViewEngines/'.VIEWENGINE.'/');//.VIEWENGINE.'.php');
