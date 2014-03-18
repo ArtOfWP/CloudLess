@@ -168,6 +168,8 @@ class BaseController {
                 $this->renderer->RenderToAction($action);
             }
             http_response_code($this->code);
+            global $clmvc_http_code;
+            $clmvc_http_code = $this->code;
             if (!empty($this->headers)) {
                 foreach($this->headers as $header) {
                     header($header);

@@ -20,14 +20,14 @@ class Communication{
      */
     static function getMethod(){
 		$tempMethod=$_SERVER['REQUEST_METHOD'];
-		if(strcasecmp($tempMethod,'put')==0)
+        if(strcasecmp($tempMethod,'put')==0)
 			return 'put';
 		else if(strcasecmp($tempMethod,'post')==0){
 			if(isset($_POST['_method'])){
-			if(strcasecmp($_POST['_method'],'put')==0)
-				return 'put';
-			if(strcasecmp($_POST['_method'],'delete')==0)
-				return 'delete';
+			    if(strcasecmp($_POST['_method'],'put')==0)
+				    return 'put';
+			    if(strcasecmp($_POST['_method'],'delete')==0)
+				    return 'delete';
 			}
 			return 'post';
 		}else if(strcasecmp($tempMethod,'get')==0)

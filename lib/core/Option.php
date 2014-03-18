@@ -15,7 +15,7 @@ class Option implements IOption {
      * @param string $key
      * @param string $defaultValue
      * @param string $type
-     * @return IOption
+     * @return Option
      */
     static function create($key = '',$defaultValue='' ,$type='string'){
         $option = new Option();

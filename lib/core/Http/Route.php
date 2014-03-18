@@ -61,10 +61,11 @@ class Route {
 
     /**
      * @param $uri
+     * @param string $method
      * @return array
      */
-    function params($uri) {
-        $matches = $this->match($uri);
+    function params($uri, $method = 'get') {
+        $matches = $this->match($uri, $method);
         $params = array();
         foreach ($this->params as $param => $condition) {
             if (is_numeric($param)) {

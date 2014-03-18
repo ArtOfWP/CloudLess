@@ -101,4 +101,8 @@ class Http {
 	    curl_close($ch); 	
 	}
 
+    static function get_current_page($root = true) {
+        $files = explode('/',trim($_SERVER['REQUEST_URI'], '/'));
+        return array_shift($files);
+    }
 }

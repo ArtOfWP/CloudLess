@@ -17,10 +17,14 @@ class Routes {
      */
     function routing() {
         $uri = $_SERVER['REQUEST_URI'];
+        /*if (isset($_SERVER["CONTENT_TYPE"]) && $_SERVER["CONTENT_TYPE"] == 'application/json') {
+            $request_body = file_get_contents('php://input');
+            $_POST = json_decode($request_body, true);
+        }*/
         $method = Communication::getMethod();
         foreach ($this->routes as $route) {
             if ($matches = $route->match($uri, $method)) {
-                $params = $route->params($uri);
+                $params = $route->params($uri, $method);
                 $array = $route->getCallback();
                 $controller = str_replace('/', '\\', $array[0]);
                 /**
