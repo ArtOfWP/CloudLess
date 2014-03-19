@@ -3,7 +3,6 @@
 use CLMVC\Controllers\BaseController;
 use CLMVC\Controllers\Render\RenderingEngines;
 use CLMVC\Core\Debug;
-use CLMVC\Core\Http\Route;
 use CLMVC\Core\Http\Routes;
 use CLMVC\Events\Filter;
 use CLMVC\Events\Hook;
@@ -47,13 +46,15 @@ if (!defined('PACKAGEPATH')) {
     define('PACKAGEPATH',$tempPath);
 }
 
-function clmvc_app_url($app, $url) {
+function clmvc_app_url(/** @noinspection PhpUnusedParameterInspection */
+    $app, $url) {
     return $url;
 }
 
 if(is_admin()){
     add_filter('after_plugin_row','update_aoisora_load_first',10,3);
-    function update_aoisora_load_first($plugin_file,$plugin_data){
+    function update_aoisora_load_first(/** @noinspection PhpUnusedParameterInspection */
+        $plugin_file, $plugin_data){
         $plugin = plugin_basename(sl_file('AoiSora'));
         $active = get_option('active_plugins');
         if ( $active[0] == $plugin)
@@ -110,35 +111,7 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 		$public_query_vars[] = "result";
 		return $public_query_vars;
 	}
-	function render_views(){
-		global $wp_query;
-		if( !isset($wp_query->query_vars[CONTROLLERKEY]) )
-			return;
-		$controller=array_key_exists_v(CONTROLLERKEY,$wp_query->query_vars);
-		$action=array_key_exists_v(ACTIONKEY,$wp_query->query_vars);
-		if($controller && $action)
-			Route::rerouteToAction($controller,$action);
-		else if($controller)
-			Route::rerouteToController($controller);
-		else{
-			die("Controller: <strong>" . $wp_query->query_vars[CONTROLLERKEY] . "</strong> page: <strong>" . $wp_query->query_vars[ACTIONKEY] . "</strong>");
-		}
-	}
 	add_filter('query_vars', 'register_aoisora_query_vars');
-	
-	function viewcomponent($app,$component,$params=false){
-		if(strpos($app,WP_PLUGIN_DIR)!==false || strpos($app,':'))
-			include_once($app."/".strtolower("app/Views/components/$component/$component.php"));
-		else
-			include_once(WP_PLUGIN_DIR."/$app/".strtolower("app/Views/components/$component/$component.php"));
-		if(!$params)
-			$params=array();
-        /**
-         * $c ViewComponent
-         */
-		$c = new $component($params);
-		$c->render();
-	}
 
 	if(!is_admin())
 		add_action('wp_footer', 'aoisora_script_footer');	
@@ -190,7 +163,7 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 			View::registerHandler($key,'wp_section_handler');
 	
 	global $filters;
-	$filters=array('query_vars','http_request_args','rewrite_rules_array','list_pages','rewrite_rules_array','rewrite_rules_array','set_plugin_has_updates'=>'pre_set_site_transient_update_plugins');
+	$filters=array('query_vars','http_request_args','rewrite_rules_array','list_pages','rewrite_rules_array','rewrite_rules_array','set_plugin_has_updates'=>'pre_set_site_transient_update_plugins','template_include');
 	foreach($filters as $key => $filter)
 		if(is_numeric($key))
 			Filter::registerHandler($filter,'wp_filter_handler');
@@ -203,9 +176,9 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 		global $hooks;
 		$newhook=array_key_exists_v($hook,$hooks);
 		if($newhook)
-			add_action($newhook,$callback,$priority);
+			add_action($newhook,$callback,$priority,$params);
 		else
-			add_action($hook,$callback,$priority);
+			add_action($hook,$callback,$priority,$params);
 	}
 	
 	function wp_filter_handler($filter,$callback,$priority=100,$params=1){
@@ -255,24 +228,35 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
         $routes = $container->fetch('Routes');
         $routes->routing();
     });
-    Hook::register('template_redirect', function() {
+    Filter::register('template_include', function($original_template) {
         if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
             global $wp_query;
             if ($wp_query->is_404) {
                 $wp_query->is_404 = false;
             }
-            global $clmvc_http_code;
-            http_response_code($clmvc_http_code);
+
             if (\CLMVC\Controllers\Render\RenderedContent::endIt()) {
                 \CLMVC\Controllers\Render\RenderedContent::endFlush();
+                return '';
             } else {
-                include clmvc_template();
-                exit();
+                return clmvc_template();
             }
+        } else {
+            return $original_template;
         }
     });
+add_filter( 'status_header', 'add_header_so_fo' );
+function add_header_so_fo($status_header) {
+    global $clmvc_http_code;
+    if ($clmvc_http_code) {
+        $description = get_status_header_desc( $clmvc_http_code );
+        $protocol = 'HTTP/1.0';
+        $status_header = "$protocol $clmvc_http_code $description";
+    }
+    return $status_header;
+}
 
-
+/** @noinspection PhpUnusedParameterInspection */
 add_filter('wp_title', function($title, $sep, $seplocation) {
     $bag = \CLMVC\Core\Container::instance()->fetch('Bag');
     if (isset($bag->title))
