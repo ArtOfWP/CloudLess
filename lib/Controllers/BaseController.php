@@ -105,7 +105,12 @@ class BaseController {
         $className = substr($class, $pos + 1);
         $this->controller = str_replace('Controller', '', $className);
         $this->values = Communication::getQueryString();
+        if (isset($_SERVER["CONTENT_TYPE"]) && $_SERVER["CONTENT_TYPE"] == 'application/json') {
+            $request_body = file_get_contents('php://input');
+            $_POST = json_decode($request_body, true);
+        }
         $this->values = array_merge($this->values, Communication::getFormValues());
+
         if (method_exists($this, 'onControllerInit'))
             $this->onControllerInit();
     }
