@@ -123,6 +123,10 @@ class ScriptIncludes implements IIncludes {
         $this->scriptInclude->registerIncludes();
     }
 
+    /**
+     * @param string $handle
+     * @return FrontInclude
+     */
     function getRegistered($handle = '') {
         return $this->scriptInclude->getRegistered($handle);
     }

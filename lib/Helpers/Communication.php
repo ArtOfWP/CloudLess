@@ -281,4 +281,14 @@ class Communication{
 		}
 		return $crudItem;		
 	}
+
+    /**
+     * See if a query string is in array
+     * @param $string
+     * @param $array
+     * @return bool
+     */
+    public static function queryStringIn($string, $array) {
+        return in_array(self::getQueryString($string), $array);
+    }
 }
