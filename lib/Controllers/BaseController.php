@@ -107,7 +107,7 @@ class BaseController {
         $this->values = Communication::getQueryString();
         if (isset($_SERVER["CONTENT_TYPE"]) && $_SERVER["CONTENT_TYPE"] == 'application/json') {
             $request_body = file_get_contents('php://input');
-            $_POST = json_decode($request_body, true);
+            $_POST = array_merge($_POST, json_decode($request_body, true));
         }
         $this->values = array_merge($this->values, Communication::getFormValues());
 
