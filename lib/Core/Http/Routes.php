@@ -8,23 +8,32 @@ class Routes {
      * @var Route[]
      */
     private $routes = array();
-    function add($route,$callback , $params = array(), $method = 'get') {
-        $this->routes[] = new Route($route, $callback, $params, $method);
+    private $priorityRoutes = array();
+    function add($route,$callback , $params = array(), $method = 'get', $priority = false) {
+        $theRoute = new Route($route, $callback, $params, $method);
+        if ($priority)
+            array_unshift($this->priorityRoutes, $theRoute);
+        else
+            $this->routes[] = $theRoute;
     }
 
     /**
      * Takes request uri and routes to controller.
      */
     function routing() {
+        $this->routes = $this->priorityRoutes + $this->routes;
         $uri = $_SERVER['REQUEST_URI'];
         $method = Communication::getMethod();
+        /**
+         * @var Route $route
+         */
         foreach ($this->routes as $route) {
             if ($matches = $route->match($uri, $method)) {
                 $params = $route->params($uri, $method);
                 $array = $route->getCallback();
                 $controller = str_replace('/', '\\', $array[0]);
                 /**
-                 * @var BaseController $controller
+                 * @var BaseController $ctrl
                  */
                 $ctrl = new $controller(false);
                 $ctrl->init();

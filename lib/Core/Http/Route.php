@@ -26,11 +26,19 @@ class Route {
     }
 
     /**
+     * @return string
+     */
+    public function getRoute()
+    {
+        return $this->route;
+    }
+
+    /**
      * @param $uri
      * @param $method
      * @return mixed
      */
-    function match($uri, $method ='get') {
+    public function match($uri, $method ='get') {
         if ($this->method != $method)
             return null;
         preg_match($this->route, $uri, $matches);
@@ -45,10 +53,10 @@ class Route {
     private function build($route, $params) {
         if (strpos($route, '*') === 0)
             $route = str_replace('*', '\/?', $route);
-        $route = str_replace(':action', '(?<action>[a-zA-Z0-9_\+\-%]+)', $route);
+        $route = str_replace(':action', '(?<action>[a-zA-Z0-9_\+\-%\$]+)', $route);
         foreach ($params as $param => $condition) {
             if (is_numeric($param)) {
-                $route = str_replace(":$condition", '(?<'.$condition.'>[a-zA-Z0-9_\+\-%]+)', $route);
+                $route = str_replace(":$condition", '(?<'.$condition.'>[a-zA-Z0-9_\+\-%\$]+)', $route);
             } else {
                 $route = str_replace(":$param", "(?<$param>$condition)", $route);
             }
