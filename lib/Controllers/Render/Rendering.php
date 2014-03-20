@@ -93,9 +93,12 @@ class Rendering {
      * The text to render to screen.
      * @param string $text
      */
-    public function RenderText($text) {
+    public function RenderText($text, $end = false) {
         $this->render = false;
         RenderedContent::set($text);
+        if ($end) {
+            RenderedContent::endIt(true);
+        }
     }
 
     /**
