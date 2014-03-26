@@ -72,11 +72,13 @@ class Communication{
      * @param array $keys
      * @return array
      */
-    static function getFormValues($keys=array()){
+    static function getFormValues($keys=array(), $data = null){
         if(defined('TESTING')){
         	global $testpost;
             $qs=$testpost;
-        }else{
+        }elseif($data) {
+            $qs = $data;
+        }else {
             $qs= $_POST;
         }
 		if(is_array($keys)){
