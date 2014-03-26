@@ -79,10 +79,18 @@ class Communication{
         }else{
             $qs= $_POST;
         }
-		if($keys){
+		if(is_array($keys)){
     		$values=array_intersect_key($qs,$keys);
 	    	return $values;
-		}
+		} elseif(is_string($keys)) {
+            $data = array();
+            foreach($qs as $key => $value) {
+                if (substr($key,0, strlen($keys)) === $keys) {
+                    $data[substr($key,strlen($keys))] = $value;
+                }
+            }
+            return $data;
+        }
 		return $qs;
 	}
 

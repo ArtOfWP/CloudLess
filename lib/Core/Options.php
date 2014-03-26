@@ -51,8 +51,11 @@ class Options
         /**
         * @var Option $option
         */
-        if(!isset($this->pairs[$key]))
-            return new Option();
+        if(!isset($this->pairs[$key])) {
+            $new = new Option();
+            $this->pairs[$key] = $new;
+            return $new;
+        }
         return $this->pairs[$key];
     }
 
@@ -89,11 +92,9 @@ class Options
      * @return bool
      */
     public function updateValue($key, $value) {
-        if(isset($this->pairs[$key])){
-            $this->pairs[$key]->setValue($value);
-            return true;
-        }
-         return false;
+        $option = $this->get($key);
+        $this->pairs[$key]->setValue($value);
+        return $option;
     }
 
     /**
@@ -145,13 +146,10 @@ class Options
      */
     public function save() {
         $this->init();
-        $options=array();
         /**
          * @var Option $option
          */
-        foreach($this->pairs as $option)
-            $options[$option->getKey()]=$option->getValue();
-        $this->ioptions->save($this->namespace,$options);
+        $this->ioptions->save($this->namespace, $this->getArray());
     }
 
     /**
@@ -162,9 +160,7 @@ class Options
             $options=$this->ioptions->load($this->namespace);
             if(!empty($options))
             foreach($options as $key => $value){
-                if(isset($this->pairs[$key]))
-                    $this->pairs[$key]->setValue($value);
-                else
+                if(!isset($this->pairs[$key]))
                     $this->pairs[$key]=new Option($key,$value);
             }
             $this->initialized=true;
