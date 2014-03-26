@@ -52,7 +52,7 @@ class Options
         * @var Option $option
         */
         if(!isset($this->pairs[$key]))
-            return null;
+            return new Option();
         return $this->pairs[$key];
     }
 

@@ -6,11 +6,16 @@ use CLMVC\Interfaces\IOption;
  * Class Option
  *
  */
-class Option implements IOption {
+class Option {
     /**
      * @var IOption
      */
     private $iOption;
+    private $key;
+    private $defaultValue;
+    private $value;
+    private $type;
+
     /**
      * @param string $key
      * @param string $defaultValue
@@ -23,19 +28,8 @@ class Option implements IOption {
             $option->setKey($key);
             $option->setDefaultValue($defaultValue);
             $option->setType($type);
-            $option->init();
         }
         return $option;
-    }
-
-    /**
-     * @param IOption $iOption
-     */
-    public function __construct(IOption $iOption=NULL) {
-        if($iOption)
-            $this->iOption=$iOption;
-        else
-            $this->iOption=Container::instance()->make('CLMVC\\Interfaces\\IOption');
     }
 
     /**
@@ -43,7 +37,7 @@ class Option implements IOption {
      * @param $key
      */
     public function setKey($key) {
-        $this->iOption->setKey($key);
+        $this->key=$key;
     }
 
     /**
@@ -52,8 +46,8 @@ class Option implements IOption {
      */
     public function setDefaultValue($defaultValue) {
         if(!isset($this->value))
-            $this->iOption->setValue($defaultValue);
-        $this->iOption->setDefaultValue($defaultValue);
+            $this->value=$defaultValue;
+        $this->defaultValue=$defaultValue;
     }
 
     /**
@@ -61,7 +55,7 @@ class Option implements IOption {
      * @return mixed
      */
     public function getKey() {
-        return $this->iOption->getKey();
+        return $this->key;
     }
 
     /**
@@ -69,7 +63,7 @@ class Option implements IOption {
      * @return mixed
      */
     public function getValue() {
-        return $this->iOption->getValue();
+        return $this->value;
     }
 
     /**
@@ -77,7 +71,7 @@ class Option implements IOption {
      * @return mixed
      */
     public function getDefaultValue() {
-        return $this->iOption->getDefaultValue();
+        return $this->defaultValue;
     }
 
     /**
@@ -85,32 +79,15 @@ class Option implements IOption {
      * @param $value
      */
     public function setValue($value) {
-        $this->iOption->setValue($value);
+        $this->value = $value;
     }
 
-    /**
-     * Sets an option property
-     * @param $property
-     * @param $value
-     */
-    function __set($property,$value){
-        $this->iOption->$property=$value;
-    }
-
-    /**
-     * Returns a option property
-     * @param $property
-     * @return mixed
-     */
-    function __get($property) {
-        return $this->iOption->$property;
-    }
 
     /**
      * Resets the value for option.
      */
     function reset() {
-        return $this->iOption->setValue($this->getDefaultValue());
+        return $this->value = $this->getDefaultValue();
     }
 
     /**
@@ -118,7 +95,7 @@ class Option implements IOption {
      * @return string
      */
     public function getType() {
-        return $this->iOption->getType();
+        return $this->type;
     }
 
     /**
@@ -126,14 +103,7 @@ class Option implements IOption {
      * @param $type
      */
     public function setType($type) {
-        $this->iOption->setType($type);
-    }
-
-    /**
-     * Initialize option
-     */
-    function init() {
-        $this->iOption->init();
+        $this->type = $type;
     }
 
     /**
@@ -141,20 +111,6 @@ class Option implements IOption {
      * @return bool
      */
     function isEmpty() {
-        return $this->iOption->isEmpty();
-    }
-
-    /**
-     * Saves option
-     */
-    function save() {
-        $this->iOption->save();
-    }
-
-    /**
-     * Deletes option
-     */
-    function delete() {
-        $this->iOption->delete();
+        return empty($this->value);
     }
 }

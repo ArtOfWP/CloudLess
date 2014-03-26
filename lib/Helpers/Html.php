@@ -370,11 +370,11 @@ class Html {
      * @param bool $dont_print
      * @return string
      */
-    static function label($id, $class='', $dont_print=false){
+    static function label($id, $text, $class='', $dont_print=false){
 		$class=$class?"class='$class' ":'';
 		if($dont_print)
-			return "<label for='$id' $class >$id:</label>";
-		echo "<label for='$id' $class >$id:</label>";
+			return "<label for='$id' $class >$text:</label>";
+		echo "<label for='$id' $class >$text:</label>";
 	}
 
     /**
