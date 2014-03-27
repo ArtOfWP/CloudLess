@@ -12,7 +12,7 @@ class Routes {
     function add($route,$callback , $params = array(), $method = 'get', $priority = false) {
         $theRoute = new Route($route, $callback, $params, $method);
         if ($priority)
-            array_unshift($this->priorityRoutes, $theRoute);
+            $this->priorityRoutes[] = $theRoute;
         else
             $this->routes[] = $theRoute;
     }
@@ -21,13 +21,13 @@ class Routes {
      * Takes request uri and routes to controller.
      */
     function routing() {
-        $this->routes = $this->priorityRoutes + $this->routes;
+        $routes = array_merge($this->priorityRoutes, $this->routes);
         $uri = $_SERVER['REQUEST_URI'];
         $method = Communication::getMethod();
         /**
          * @var Route $route
          */
-        foreach ($this->routes as $route) {
+        foreach ($routes as $route) {
             if ($matches = $route->match($uri, $method)) {
                 $params = $route->params($uri, $method);
                 $array = $route->getCallback();

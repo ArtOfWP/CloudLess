@@ -28,6 +28,7 @@ class Options
             $this->ioptions=$iOptions;
         else
             $this->ioptions=Container::instance()->make('CLMVC\\Interfaces\\IOptions',array($namespace));
+        $this->init();
     }
 
     /**
@@ -63,15 +64,13 @@ class Options
      * Set value for key
      * @param string $key
      * @param mixed $value
-     * @return bool
      */
     public function setValue($key, $value) {
-        $exists=false;
         if(!isset($this->pairs[$key])){
-            $this->pairs[$key]=new Option($key,$value);
-            $exists= true;
+            $new =new Option($key);
+            $this->pairs[$key] = $new;
         }
-        return $exists;
+        $this->pairs[$key]->setValue($value);
     }
 
     /**
@@ -154,17 +153,26 @@ class Options
 
     /**
      * Initiate Options by loading them
+     * @return Options
      */
     public function init() {
         if(!$this->initialized){
             $options=$this->ioptions->load($this->namespace);
-            if(!empty($options))
-            foreach($options as $key => $value){
-                if(!isset($this->pairs[$key]))
-                    $this->pairs[$key]=new Option($key,$value);
+            if(!empty($options)) {
+                foreach ($options as $key => $value) {
+                    if (!isset($this->pairs[$key])) {
+                        $new = new Option();
+                        $this->pairs[$key] = $new;
+                        $this->pairs[$key]->setValue($value);
+                        $this->pairs[$key]->setKey($key);
+                    } elseif($this->pairs[$key]->getValue() == null) {
+                        $this->pairs[$key]->setValue($value);
+                    }
+                }
             }
             $this->initialized=true;
         }
+        return $this;
     }
 
     /**

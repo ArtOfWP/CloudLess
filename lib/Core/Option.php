@@ -7,13 +7,9 @@ use CLMVC\Interfaces\IOption;
  *
  */
 class Option {
-    /**
-     * @var IOption
-     */
-    private $iOption;
     private $key;
     private $defaultValue;
-    private $value;
+    private $value = null;
     private $type;
 
     /**
