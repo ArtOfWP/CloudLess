@@ -1,5 +1,8 @@
 <?php
 namespace CLMVC\Helpers;
+use CLMVC\Core\Debug;
+use Repo;
+
 /**
  * Class Communication
  */
@@ -34,6 +37,7 @@ class Communication{
 			return 'get';
 		else if(strcasecmp($tempMethod,'delete')==0)
 			return 'delete';
+        return $tempMethod;
 	}
 
     /**
@@ -49,6 +53,7 @@ class Communication{
     /**
      * Returns the query string
      * @param string $key
+     * @param null $default
      * @return bool|mixed
      */
     static function getQueryString($key=null, $default = null){
@@ -70,6 +75,7 @@ class Communication{
     /**
      * Returns form values matching keys
      * @param array $keys
+     * @param null $data
      * @return array
      */
     static function getFormValues($keys=array(), $data = null){
@@ -81,7 +87,7 @@ class Communication{
         }else {
             $qs= $_POST;
         }
-		if(is_array($keys)){
+		if($keys && is_array($keys)){
     		$values=array_intersect_key($qs,$keys);
 	    	return $values;
 		} elseif(is_string($keys)) {
@@ -170,7 +176,6 @@ class Communication{
 		$propertyFormValues=Communication::getFormValues($properties);
 		$propertyFormValues=array_map('stripslashes',$propertyFormValues);
 		Debug::Value('Loaded properties/values for '.get_class($crudItem),$propertyFormValues);		
-		$arrprop=ObjectUtility::getArrayPropertiesAndValues($crudItem);
 		$lists=array_search_key('_list',$propertyFormValues);
 		Debug::Value('Loaded listvalues from post',$lists);
 		$uploads=Communication::getUpload($properties);
@@ -178,10 +183,10 @@ class Communication{
 			Debug::Message('CHECKING UPLOADS');
 			if(strlen($upload["name"])>0){
 				Debug::Message('FOUND UPLOAD');
-				if(isset($thumbnails[$property]) && $thumbnails[$property]=='thumb')
+				/*if(isset($thumbnails[$property]) && $thumbnails[$property]=='thumb')
 					$path=UPLOADS_DIR.$folder.'thumbs/'.$upload["name"];
 				else
-					$path=UPLOADS_DIR.$folder.$upload["name"];
+					$path=UPLOADS_DIR.$folder.$upload["name"];*/
 				
 				$path=UPLOADS_DIR.$folder.$upload["name"];
 				move_uploaded_file($upload["tmp_name"],$path);
@@ -266,10 +271,10 @@ class Communication{
 				$propertyFormValues=explode(',',trim($value," ,."));
 				if(sizeof($propertyFormValues)==0)
 					continue;
-				foreach($propertyFormValues as $value){
+				foreach($propertyFormValues as $value2){
 					if($dbrelation && $field=='text'){
 						$object= new $dbrelation;
-						$object->setName(trim($value));
+						$object->setName(trim($value2));
 						$object->save();
 						$objects[]=$object;
 					}
