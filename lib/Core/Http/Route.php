@@ -51,6 +51,7 @@ class Route {
      * @return string
      */
     private function build($route, $params) {
+        $route = preg_quote($route);
         if (strpos($route, '*') === 0)
             $route = str_replace('*', '\/?', $route);
         $route = str_replace(':action', '(?<action>[a-zA-Z0-9_\+\-%\$]+)', $route);
@@ -62,7 +63,6 @@ class Route {
             }
         }
         $route = str_replace('\\\\', '\\', $route);
-        $route = preg_quote($route);
         $route = rtrim($route, "\\/") . '\/?';
         return "#$route#";
     }
