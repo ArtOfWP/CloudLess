@@ -92,6 +92,7 @@ class Rendering {
     /**
      * The text to render to screen.
      * @param string $text
+     * @param bool $end
      */
     public function RenderText($text, $end = false) {
         $this->render = false;
@@ -108,7 +109,7 @@ class Rendering {
     public function RenderJson($data) {
         header('Content-Type: application/json; charset=UTF-8');
         $this->render = false;
-        RenderedContent::set(json_encode($data));
+        RenderedContent::set(json_encode($data, JSON_UNESCAPED_UNICODE));
         RenderedContent::endIt(true);
     }
 
