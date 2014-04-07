@@ -33,10 +33,7 @@ class BaseController {
      * @var string the default action to run if $action is empty
      */
     protected $defaultAction = 'index';
-    /**
-     * @var IFilter The filter to perform before actions
-     */
-    protected $filter;
+
     /**
      * @var bool If there should be a redirect
      */
@@ -93,6 +90,11 @@ class BaseController {
     private $code = 200;
 
     /**
+     * @var [string][IFilter]
+     */
+    private $filters;
+
+    /**
      * Setup the controller.
      */
     private function initiate() {
@@ -120,8 +122,8 @@ class BaseController {
      */
     public function init() {
         $this->initiate();
-        if ($this->filter)
-            $this->filter->perform($this, $this->values);
+        foreach($this->filters['init'] as $filter)
+            $filter->perform($this, $this->values);
     }
 
     /**
@@ -149,7 +151,17 @@ class BaseController {
                 trigger_error(sprintf("The action you tried to execute is not public: %s", $action));
                 $this->NotFound();
             }
+
             $this->action = $action;
+            $terminate = false;
+            if (isset($this->filters['beforeAction'])) {
+                foreach ($this->filters['beforeAction'] as $filter) {
+                    if ($filter->perform($this, $this->values, $action))
+                        $terminate = true;
+                }
+            }
+            if ($terminate)
+                return;
             $params = $reflection->getParameters();
             $paramValues = array();
             if ($params) {
@@ -168,6 +180,11 @@ class BaseController {
             Hook::run($this->controller . '-pre' . ucfirst($action), $this);
             call_user_func_array(array($this, $action), $paramValues);
             Hook::run($this->controller . '-post' . ucfirst($action), $this);
+            if (isset($this->filters['afterAction'])) {
+                foreach ($this->filters['afterAction'] as $filter) {
+                    $filter->perform($this, $this->values, $action);
+                }
+            }
             if ($this->renderer->canRender()) {
                 $this->renderer->RenderToAction($action);
             }
@@ -269,5 +286,18 @@ class BaseController {
      */
     public function getViewPath() {
         return $this->viewpath;
+    }
+
+    /**
+     * @param $when
+     * @param $filter
+     * @throws \InvalidArgumentException
+     */
+    public function addFilter($when, $filter) {
+        if (!method_exists($filter, 'perform'))
+            throw new \InvalidArgumentException('Supplied filter does not implement the required perform method.');
+        if (!isset($this->filters[$when]))
+            $this->filters[$when] = [];
+        $this->filters[$when][] = $filter;
     }
 }
