@@ -121,8 +121,7 @@ class BaseController {
     public function init() {
         $this->initiate();
         if ($this->filter)
-            if (!$this->filter->perform($this, $this->values))
-                die("Action could not be performed.");
+            $this->filter->perform($this, $this->values);
     }
 
     /**
@@ -183,10 +182,10 @@ class BaseController {
         } elseif (method_exists($this, 'notFound'))
             $this->notFound();
     }
-    protected function setStatusCode($code) {
+    public function setStatusCode($code) {
         $this->code = $code;
     }
-    protected function setHeaders($headers) {
+    public function setHeaders($headers) {
         $this->headers = $headers;
     }
     /**
@@ -214,6 +213,13 @@ class BaseController {
     public function setTemplateType($templateType)
     {
         $this->templateType = $templateType;
+    }
+
+    /**
+     * @return Rendering
+     */
+    public function getRenderer() {
+        return $this->renderer;
     }
 
     /**

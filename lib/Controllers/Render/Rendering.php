@@ -4,7 +4,6 @@ namespace CLMVC\Controllers\Render;
 use CLMVC\Controllers\BaseController;
 use CLMVC\Controllers\Views;
 use CLMVC\Events\Filter;
-use CLMVC\Events\View;
 
 class Rendering {
 
@@ -41,6 +40,7 @@ class Rendering {
      * Renders a controller and its action.
      * @param $controller
      * @param $action
+     * @throws RenderException
      */
     public function Render($controller, $action) {
         $view_path = $this->views->findView($controller, $action, $this->getTemplate());
@@ -67,6 +67,7 @@ class Rendering {
     /**
      * Renders the current Controllers action
      * @param string $action The action to render
+     * @throws RenderException
      */
     public function RenderToAction($action) {
         $this->Render($this->getControllerName(), $action);
