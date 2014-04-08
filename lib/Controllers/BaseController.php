@@ -122,8 +122,9 @@ class BaseController {
      */
     public function init() {
         $this->initiate();
-        foreach($this->filters['init'] as $filter)
-            $filter->perform($this, $this->values);
+        if(isset($this->filters['init']) && is_array($this->filters['init']))
+            foreach($this->filters['init'] as $filter)
+                $filter->perform($this, $this->values);
     }
 
     /**
