@@ -21,7 +21,10 @@ class Views {
      */
     public function findView($controller, $action, $template = 'php') {
         if ($this->controller->getViewPath()) {
-            return rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.' . $template;
+            if (file_exists(rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.' . $template))
+                return rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.' . $template;
+            if (file_exists(rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . '-'. $action . '.' . $template))
+                return rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . '-' . $action . '.' . $template;
         }
         $apps = AoiSoraSettings::getApplications();
         $lc_controller = strtolower($controller);
