@@ -102,6 +102,20 @@ class Communication{
 		return $qs;
 	}
 
+    static function getFormValue($key, $data = null) {
+        if(defined('TESTING')){
+            global $testpost;
+            $qs=$testpost;
+        }elseif($data) {
+            $qs = $data;
+        }else {
+            $qs= $_POST;
+        }
+        if(isset($qs[$key]))
+            return $qs[$key];
+        return null;
+    }
+
     /**
      * Get upload contents from $_FILES matching keys
      * @param $keys
