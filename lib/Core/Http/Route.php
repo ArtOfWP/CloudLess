@@ -63,7 +63,7 @@ class Route {
         }
         $route = str_replace('\\\\', '\\', $route);
         $route = rtrim($route, "\\/") . '\/?';
-        return "#$route#";
+        return "#^$route#";
     }
 
     /**
