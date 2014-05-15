@@ -24,7 +24,8 @@ abstract class WpFrontIncludes implements IIncludes
     function enqueue($location, $handle) {
         if(!isset($this->queue[$location])|| empty($this->queue[$location]))
             $this->queue[$location]=array();
-        $this->queue[$location][$handle]=$this->includes[$handle];
+        if(isset($this->includes[$handle]))
+            $this->queue[$location][$handle]=$this->includes[$handle];
         return $this;
     }
 

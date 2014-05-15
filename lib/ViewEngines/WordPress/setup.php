@@ -226,7 +226,14 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
         $container = \CLMVC\Core\Container::instance();
         $routes = $container->fetch('Routes');
         $routes->routing();
-    });
+        if(defined('DOING_AJAX') && DOING_AJAX) {
+            if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
+                if (\CLMVC\Controllers\Render\RenderedContent::endIt()) {
+                    \CLMVC\Controllers\Render\RenderedContent::endFlush();
+                }
+            }
+        }
+    },10000);
     Filter::register('template_include', function($original_template) {
         if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
             global $wp_query;
