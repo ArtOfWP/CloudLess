@@ -82,10 +82,12 @@ abstract class WpFrontIncludes implements IIncludes
         */
         if(isset($this->queue[$location] ))
             foreach($this->queue[$location] as $include)
-                $this->enqueueInclude($include);
+                if ($include)
+                    $this->enqueueInclude($include);
         if(isset($this->dequeue[$location] ))
             foreach($this->dequeue[$location] as $include)
-                $this->dequeueInclude($include);
+                if ($include)
+                    $this->dequeueInclude($include);
     }
 
     abstract function enqueueInclude(FrontInclude $include);
