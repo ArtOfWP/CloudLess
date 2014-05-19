@@ -52,7 +52,7 @@ class Hook{
 		if($priorities)
 			ksort($priorities);
 		if(is_array($priorities)){
-			if(!$isArray && !is_array($params))
+			if($isArray || !is_array($params))
 				$params=array($params);
 			foreach($priorities as $functions){
 				foreach($functions as $function){
