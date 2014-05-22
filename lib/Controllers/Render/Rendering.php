@@ -108,7 +108,10 @@ class Rendering {
      * @param $data
      */
     public function RenderJson($data) {
-        header('Content-Type: application/json; charset=UTF-8');
+        global $aoisora_headers;
+        if(!is_array($aoisora_headers))
+            $aoisora_headers=[];
+        $aoisora_headers[] = 'Content-Type: application/json; charset=UTF-8';
         $this->render = false;
         RenderedContent::set(json_encode($data, JSON_UNESCAPED_UNICODE));
         RenderedContent::endIt(true);

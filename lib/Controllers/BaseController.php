@@ -192,11 +192,11 @@ class BaseController {
             http_response_code($this->code);
             global $clmvc_http_code;
             $clmvc_http_code = $this->code;
-            if (!empty($this->headers)) {
-                foreach($this->headers as $header) {
-                    header($header);
-                }
-            }
+            global $aoisora_headers;
+            if($aoisora_headers)
+                $aoisora_headers = array_merge($aoisora_headers, $this->headers);
+            else
+                $aoisora_headers = $this->headers;
         } elseif (method_exists($this, 'notFound'))
             $this->notFound();
     }

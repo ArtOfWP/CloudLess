@@ -242,6 +242,15 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
             }
 
             if (\CLMVC\Controllers\Render\RenderedContent::endIt()) {
+                header_remove ('X-Powered-By');
+                header_remove ('X-Pingback');
+                header_remove ('Pragma');
+                global $aoisora_headers;
+                if (!empty($aoisora_headers)) {
+                    foreach($aoisora_headers as $header) {
+                        header($header);
+                    }
+                }
                 \CLMVC\Controllers\Render\RenderedContent::endFlush();
                 return '';
             } else {
