@@ -442,6 +442,7 @@ class simple_html_dom_node {
             $this->_[HDOM_INFO_QUOTE][] = HDOM_QUOTE_DOUBLE;
         }
         $this->attr[$name] = $value;
+        return $value;
     }
 
     function __isset($name) {
@@ -923,6 +924,7 @@ class simple_html_dom {
             $this->pos = $pos;
             return substr($this->doc, $pos_old, $pos-$pos_old);
         }
+        return '';
     }
 
     // remove noise from html content
@@ -961,6 +963,7 @@ class simple_html_dom {
             case 'innertext': return $this->root->innertext();
             case 'plaintext': return $this->root->text();
         }
+        return null;
     }
 
     // camel naming conventions

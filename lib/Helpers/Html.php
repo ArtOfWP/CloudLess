@@ -1,5 +1,10 @@
 <?php
 namespace CLMVC\Helpers;
+use CLMVC\Core\Security\Security;
+use CLMVC\Events\Filter;
+use CLMVC\Events\View;
+use Repo;
+
 /**
  * Class Html
  * Contains helper methods to generate HTML code
@@ -219,6 +224,7 @@ class Html {
 					$seperator=array_key_exists_v('seperator',$settings);
 					if(!$seperator)
 						$seperator=',';
+                    $list = '';
 					if($value)
 						$list=implode($seperator,$value);
 					$values=$value;
@@ -226,9 +232,9 @@ class Html {
 					$theForm.="<input id=\"".$id."_add\" name=\"".$id."_add\" value=\"Tag it\" class=\"button-secondary\" type=\"button\" onclick=\"tagit('".$id."_input','".$id."','".$id."_list')\">";
 					$theForm.="<ul id=\"$id\">";
 					if(is_array($values))
-						foreach($values as $value){
-							$itemid=str_replace(' ','-',$value);
-							$theForm.="<li id=\"tag_$itemid\" class=\"ui-corner-all\"><span>$value<a href=\"javascript:detagit('#$id"."_list','#tag_$itemid','$value')\">x</span></a></li>";
+						foreach($values as $value2){
+							$itemid=str_replace(' ','-',$value2);
+							$theForm.="<li id=\"tag_$itemid\" class=\"ui-corner-all\"><span>$value2<a href=\"javascript:detagit('#$id"."_list','#tag_$itemid','$value2')\">x</span></a></li>";
 						}
 					$theForm.="</ul>";
 					$theForm.=self::input($id.'_list','hidden',$list,false,true);
@@ -270,7 +276,6 @@ class Html {
 		else
 		$theForm.=self::input('submit','submit',$submit,"button-primary",true);
 		$theForm.='</p></form>';
-		$script='';
 		if(sizeof($validation)>0){
 			$rules=array();
 			$script='
@@ -371,11 +376,11 @@ class Html {
      * @return string
      */
     static function label($id, $text, $class='', $dont_print=false){
-		$class=$class?"class='$class' ":'';
-		if($dont_print)
-			return "<label for='$id' $class >$text:</label>";
-		echo "<label for='$id' $class >$text:</label>";
-	}
+		$class=$class?" class='$class' ":'';
+		if(!$dont_print)
+            echo "<label for='$id' $class >$text:</label>";
+        return "<label for='$id' $class >$text:</label>";
+    }
 
     /**
      * Return or print a checkbox
@@ -390,9 +395,9 @@ class Html {
 		$class=$class?"class=\"$class\" ":'';
 		$value=htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		$checked=$checked?" checked='checked'":'';
-		if($dont_print)
-			return "<input id=\"$id\" name=\"$id\" type=\"checkbox\" value=\"$value\" $checked $class />";
-		echo  "<input id=\"$id\" name=\"$id\" type=\"checkbox\" value=\"$value\" $checked $class />";
+		if(!$dont_print)
+            echo  "<input id=\"$id\" name=\"$id\" type=\"checkbox\" value=\"$value\" $checked $class />";
+        return "<input id=\"$id\" name=\"$id\" type=\"checkbox\" value=\"$value\" $checked $class />";
 	}
 
     /**
@@ -407,9 +412,9 @@ class Html {
     static function input($id, $type, $value, $class='',$dont_print=false){
 		$class=$class?"class=\"$class\" ":'';
 		$value=htmlspecialchars(strip_tags($value), ENT_QUOTES);
-		if($dont_print)
-			return "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
-		echo  "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
+		if(!$dont_print)
+            echo  "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
+        return "<input id=\"$id\" name=\"$id\" type=\"$type\" value=\"$value\"  $class />";
 	}
 
     /**
@@ -423,10 +428,10 @@ class Html {
     static function textarea($id, $value, $class='', $dont_print=false){
 		$class=$class?"class='$class' ":'';
 		$value=htmlspecialchars($value, ENT_QUOTES);		
-		if($dont_print)
-		return "<textarea id=\"$id\" name=\"$id\" rows=\"14\" cols=\"40\" $class>$value</textarea>";
-		echo "<textarea id=\"$id\" name=\"$id\" rows=\"14\" cols=\"40\" $class>$value</textarea>";
-			
+		if(!$dont_print)
+            echo "<textarea id=\"$id\" name=\"$id\" rows=\"14\" cols=\"40\" $class>$value</textarea>";
+        return "<textarea id=\"$id\" name=\"$id\" rows=\"14\" cols=\"40\" $class>$value</textarea>";
+
 	}
 
     /**
@@ -446,9 +451,9 @@ class Html {
 		foreach($currency as $key => $element)
 			$select.=self::option(str_replace('"','',$key),$element,strtolower($selectedCurrency)==strtolower($key),true);
 		$select.='</select>';
-		if($dont_print)
-			return $select;
-		echo $select;
+		if(!$dont_print)
+            echo $select;
+        return $select;
 	}
 
     /**
@@ -484,11 +489,14 @@ class Html {
 				break;
 			case 'chf':
 				$price='Fr'.str_replace('.',',',$value);
-			case 'krw':
+                break;
+            case 'krw':
 				$price="&#8361;".$value;
+                break;
 			case 'cny':
 			case 'jpy':
 				$price="&yen;".$value;
+            break;
 			default:
 				$price=$value.' '.$currency;
 		}
@@ -531,9 +539,9 @@ class Html {
 			}
 		}		
 		$select.='</select>';
-		if($dont_print)
-			return $select;
-		echo $select;		
+		if(!$dont_print)
+            echo $select;
+        return $select;
 	}
 
     /**
@@ -557,9 +565,9 @@ class Html {
 					$select.=self::option($element->getId(),$element,$selectedValues==$element.'',true );
 			}
 		$select.='</select>';
-		if($dont_print)
-			return $select;
-		echo $select;		
+		if(!$dont_print)
+            echo $select;
+        return $select;
 	}
 
     /**
@@ -602,9 +610,9 @@ class Html {
 				}
 			}
 		$select.='</select>';
-		if($dont_print)
-			return $select;
-		echo $select;
+		if(!$dont_print)
+            echo $select;
+        return $select;
 	}
 
     /**
@@ -622,9 +630,9 @@ class Html {
 		if($selected)
 			$text.=' selected="selected"';
 		$text.=' value="'.$value.'">'.$display.'</option>';
-		if($dont_print)
-			return $text;
-		echo $text;
+		if(!$dont_print)
+            echo $text;
+        return $text;
 
 	}
 	/*
@@ -656,9 +664,9 @@ class Html {
 		$theForm.=self::input('Id','hidden',$id,false,true);
 		$theForm.=str_replace('/>'," onclick=\"return confirm('Are you sure you want to delete?')\" />",self::input('delete'.$id,'submit',$text,'button-secondary',true));
 		$theForm.='</form>';
-		if($dont_print)
-			return $theForm;
-		echo $theForm;
+		if(!$dont_print)
+            echo $theForm;
+        return $theForm;
 	}
 
     /**
@@ -672,9 +680,9 @@ class Html {
      */
     static function editLink($uri,$text,$id,$nonce,$dont_print=false){
 		$nonce=Security::create()->create_nonce($nonce);
-		if($dont_print)
-			return "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"edit-link\" >$text</a>";
-		echo "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"edit-link\" >$text</a>";
+		if(!$dont_print)
+            echo "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"edit-link\" >$text</a>";
+        return "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"edit-link\" >$text</a>";
 	}
 
     /**
@@ -688,9 +696,9 @@ class Html {
      */
     static function editButton($uri,$text,$id,$nonce,$dont_print=false){
 		$nonce=Security::create()->create_nonce($nonce);
-		if($dont_print)
-			return "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"button-secondary edit-button\" >$text</a>";
-		echo "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"button-secondary edit-button\" >$text</a>";
+		if(!$dont_print)
+            echo "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"button-secondary edit-button\" >$text</a>";
+        return "<a href=\"$uri&amp;Id=$id&amp;_asnonce=$nonce\" class=\"button-secondary edit-button\" >$text</a>";
 	}
 
     /**
@@ -702,9 +710,9 @@ class Html {
      * @return string
      */
     static function viewLink($uri,$text,$id,$dont_print=false){
-		if($dont_print)
-			return "<a href=\"$uri&amp;Id=$id\" class=\"button-secondary\" >$text</a>";
-		echo "<a href=\"$uri&amp;Id=$id\" class=\"button-secondary\" >$text</a>";
+		if(!$dont_print)
+            echo "<a href=\"$uri&amp;Id=$id\" class=\"button-secondary\" >$text</a>";
+        return "<a href=\"$uri&amp;Id=$id\" class=\"button-secondary\" >$text</a>";
 	}
 
     /**
@@ -723,9 +731,9 @@ class Html {
 		$onclick=$onclick?" onclick=\"$onclick\" ":'';
 		$text=stripslashes($text);
 		$text=htmlspecialchars($text, ENT_QUOTES);
-		if($dont_print)
-    		return "<a href=\"$href\" $class $target $onclick>$text</a>";
-		echo "<a href=\"$href\" $class $target $onclick>$text</a>";
+		if(!$dont_print)
+            echo "<a href=\"$href\" $class $target $onclick>$text</a>";
+        return "<a href=\"$href\" $class $target $onclick>$text</a>";
 	}
 
     /**
@@ -740,9 +748,9 @@ class Html {
 		$class=$class?" class=\"$class\" ":'';
 		$text=stripslashes($text);
 		$text=htmlspecialchars($text, ENT_QUOTES);
-		if($dont_print)
-		    return "<a href=\"$href\" $class>$text</a>";
-		echo "<a href=\"$href\" $class>$text</a>";
+		if(!$dont_print)
+            echo "<a href=\"$href\" $class>$text</a>";
+        return "<a href=\"$href\" $class>$text</a>";
 	}
 
     /**
@@ -756,9 +764,9 @@ class Html {
     static function img($src,$alt='',$class='',$dont_print=false){
 		$class=$class?" class='$class'":'';
 		$alt=$alt?" alt='".htmlspecialchars(strip_tags($alt), ENT_QUOTES)."'":'';
-		if($dont_print)
-            return 	"<img $class src='$src' $alt />";
-		echo "<img $class src='$src' $alt />";
+		if(!$dont_print)
+            echo "<img $class src='$src' $alt />";
+        return 	"<img $class src='$src' $alt />";
 	}
 
     /**
@@ -775,9 +783,9 @@ class Html {
 		$class=$class?' class=\''.$class.'\' ':'';
 		$alt=$alt?" alt='".htmlspecialchars($alt, ENT_QUOTES)."'":'';
 		$id=$id?" id=\"$id\" ":'';
-		if($dont_print)
-			return "<a href='$href' $class><img src='$src' $alt /></a>";
-		echo "<a href='$href' $class><img src='$src' $alt /></a>";
+		if(!$dont_print)
+            echo "<a $id href='$href' $class><img src='$src' $alt /></a>";
+        return "<a $id href='$href' $class><img src='$src' $alt /></a>";
 	}
 
     /**
@@ -796,9 +804,9 @@ class Html {
 		$theForm.=self::input('_method','hidden','delete',false,true);
 		$theForm.=str_replace('>'," onclick=\"return confirm('Are you sure you want to delete selected?')\" >",self::input('delete'.$id,'submit',$text,'button-secondary',true));		
 //		$theForm.='</form>';
-		if($dont_print)
-			return $theForm;
-		echo $theForm;		
+		if(!$dont_print)
+            echo $theForm;
+        return $theForm;
 	}
 
     /**
@@ -807,9 +815,9 @@ class Html {
      * @return string
      */
     static function endForm($dont_print=false){
-		if($dont_print)
-			return "</form>";
-		echo "</form>";		
+		if(!$dont_print)
+            echo "</form>";
+        return "</form>";
 	}
 
     /**
@@ -955,9 +963,9 @@ class Html {
 		if($pages>$listPages && ($currentpage-1)<$pages)
 			$paging.=' <a href="'.$href.$current.intval($page).'" class="next page-numbers">'.$next."</a> ";
 		$paging.="</div></div>";
-		if($dont_print)
-			return $paging;
-		echo $paging;	
+		if(!$dont_print)
+            echo $paging;
+        return $paging;
 	}
 
     /**

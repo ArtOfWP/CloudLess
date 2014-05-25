@@ -184,6 +184,7 @@ class Options
             return $this->pairs[$key]->getValue();
         else
             trigger_error("$key key does not exist",E_USER_WARNING );
+        return null;
     }
 
     /**

@@ -261,8 +261,8 @@ class WpHelper{
 		if($title)
 			$list.=$title;
 		foreach($listitems as $listitem){
-			$link;
-			$text;
+			$link='';
+			$text='';
 			if($linkmethod)
 				$link=$listitem->$linkmethod();
 			if($textmethod)

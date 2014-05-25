@@ -55,19 +55,15 @@ div.form select{
 	
 }
 div.form .submit{
-	margin:0;padding:0;
-	padding-left:7em;
-	padding-bottom:10px;
+	margin:0;
+    padding: 0 0 10px 7em;
 }
 div.form .submit input{
 	width:100px;
-	padding:0;
-	padding-left:0;
-	padding-right:0;
-	font-size:12pt;	
+    padding: 0;
+    font-size:12pt;
 }
 .form-table label.error{
-color:#000;background-color:#FFEBE8;margin:5px; padding:3px; text-align:left;border:1px solid #FF0000;
-padding:3px 3px 3px 3px;
-color:fff;
+    background-color:#FFEBE8;margin:5px; padding:3px; text-align:left;border:1px solid #FF0000;
+    color:#fff;
 }

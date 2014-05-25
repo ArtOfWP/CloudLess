@@ -148,10 +148,10 @@ class Resize_Image {
 	{
 		$string = trim($filename);
 		$string = strtolower($string);
-		$string = trim(ereg_replace("[^ A-Za-z0-9_]", " ", $string));
-		$string = ereg_replace("[ tnr]+", "_", $string);
+		$string = trim(preg_replace("[^ A-Za-z0-9_]", " ", $string));
+		$string = preg_replace("[ tnr]+", "_", $string);
 		$string = str_replace(" ", '_', $string);
-		$string = ereg_replace("[ _]+", "_", $string);
+		$string = preg_replace("[ _]+", "_", $string);
 
 		return $string;
 	}

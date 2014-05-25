@@ -43,5 +43,6 @@ class RenderedContent {
         if (is_null($end))
             return self::$endIt;
         self::$endIt = $end;
+        return $end;
     }
 }

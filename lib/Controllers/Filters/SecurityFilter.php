@@ -25,9 +25,10 @@ class SecurityFilter implements IFilter{
      * Performs the security check, verify nonce and if user can perform action.
      * @param BaseController $controller
      * @param $data
+     * @param string $action
      * @return bool
      */
-    function perform($controller,$data){
+    function perform($controller,$data, $action = ''){
 		$s = Security::create();
 		if($this->nonce_base){
 			$nonce=array_key_exists_v('_asnonce',$controller->values);

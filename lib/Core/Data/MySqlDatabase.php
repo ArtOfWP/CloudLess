@@ -1,4 +1,5 @@
 <?php
+use CLMVC\Core\Debug;
 
 /**
  * Class MySqlDatabase
@@ -185,7 +186,6 @@ class MySqlDatabase{
     function insert($row){
 		if(is_array($row)){
 			global $db_prefix;
-			$params=array();
 			$columns=array();
 			$params=array();	
 			$prepared='INSERT INTO `'.$db_prefix.strtolower($row['table']).'`';
@@ -358,7 +358,6 @@ class MySqlDatabase{
     function delete($d){
 		$from=implode(',',$d->from);
 	    $where='';
-		$columns=array();
 		$params=array();
 		if($d->hasWhere()){
 			foreach($d->where as $clause){		
@@ -449,8 +448,6 @@ class MySqlDatabase{
      *
      */
     function createStoredIndexes(){
-		global $db_prefix;
-
 		foreach($this->indexes as $table => $data){
 			foreach($data as $indexname => $columns){	
 				$indextype=$this->indextype[$table][$indexname];
