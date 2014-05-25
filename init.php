@@ -1,8 +1,6 @@
 <?php
-/**
- * Loads and initiates AoiSora and mysql db layer.
- * @global MySqlDatabase $db
- */
+define('VIEWENGINE', 'WordPress');
+define('PACKAGEPATH', WP_PLUGIN_DIR . '/AoiSora/');
 
 include(PACKAGEPATH . '/clmvc-autoloader.php');
 if (!defined('CLOUDLESS_CONFIG')) {
@@ -16,6 +14,3 @@ if (file_exists(PACKAGEPATH . '/lib/ViewEngines/' . ucfirst(VIEWENGINE) . '/setu
 else {
     trigger_error(sprintf('Cannot find viewengine file %s', PACKAGEPATH . '/lib/ViewEngines/' . ucfirst(VIEWENGINE) . '/setup.php'), E_USER_ERROR);
 }
-/*
-global $db;
-$db = new MySqlDatabase();*/
