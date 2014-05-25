@@ -26,7 +26,7 @@ class Filter {
                 else
                     $id = hash('md5', get_class($callback[0]) . $callback[1] . $priority);
             } else
-                $id = hash('md5', $callback . $priority);
+                $id = hash('md5', spl_object_hash($callback).time());
             self::$FilterSections[$filter][$priority][$id] = $callback;
         } else {
             $handler = self::$FilterSections[$filter]['handler'];

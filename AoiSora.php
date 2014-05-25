@@ -68,6 +68,7 @@ class AoiSora extends ApplicationBase{
             ->register(new FrontInclude('jquery-validate', clmvc_app_url('site', 'test.js')))
             ->register(new FrontInclude('test', "http://ajax.microsoft.com/ajax/jquery.validate/1.5.5/jquery.validate.min.js",array('jquery')));
          ScriptIncludes::instance()
+            ->register(new FrontInclude('superagent', clmvc_app_url('AoiSora','/lib/js/superagent/superagent.js')))
             ->register(new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora','/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core','jquery-ui-widget')))
             ->register(new FrontInclude('jquery-ui-tag-it', clmvc_app_url('AoiSora','/lib/js/jquery.ui.tag-it/ui.tag-it.js'),array('jquery','jquery-ui-core','jquery-ui-widget')));
          ScriptIncludes::instance()->register(new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora','/lib/js/jquery.ui.stars/ui.stars.min.css')));

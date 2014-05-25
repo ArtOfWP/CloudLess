@@ -1,5 +1,4 @@
 <?php
-//TODO: Refactor and clean up
 use CLMVC\Controllers\BaseController;
 use CLMVC\Controllers\Render\RenderingEngines;
 use CLMVC\Core\Debug;
@@ -13,7 +12,6 @@ use CLMVC\Views\Shortcode;
 define('CLOUDLESS_APP_DIR', WP_PLUGIN_DIR);
 
 RenderingEngines::registerEngine('php', 'CLMVC\\Controllers\\Render\Engines\\PhpRenderingEngine');
-//Filter::register('view-tags', 'clmvc_setup_default_tags');
 
 /**
  * @param array $tags
@@ -46,9 +44,8 @@ if (!defined('PACKAGEPATH')) {
     define('PACKAGEPATH',$tempPath);
 }
 
-function clmvc_app_url(/** @noinspection PhpUnusedParameterInspection */
-    $app, $url) {
-    return $url;
+function clmvc_app_url($app, $url) {
+    return plugins_url($app.'/'.$url);
 }
 
 if(is_admin()){
