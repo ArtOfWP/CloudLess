@@ -72,6 +72,12 @@ class AoiSora extends Core\Application\ApplicationBase {
         StyleIncludes::instance()
             ->register(new FrontInclude('forms', clmvc_app_url('AoiSora','/lib/css/forms.css')))
             ->register(new FrontInclude('wordpress', clmvc_app_url('AoiSora','/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css')));
+        add_action('wp_print_scripts', function() {?>
+            <script>
+                var includesUrl = '<?php echo includes_url() ?>';
+            </script>
+        <?php
+        });
     }
 
     /**
