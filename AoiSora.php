@@ -39,7 +39,6 @@ class AoiSora extends Core\Application\ApplicationBase {
      * Setup the environment
      */
     function onInit() {
-        $this->setFrontIncludes();
     }
 
     /**
@@ -59,9 +58,6 @@ class AoiSora extends Core\Application\ApplicationBase {
      * Configures standard JS libraries etc.
      */
     private function setFrontIncludes(){
-        ScriptIncludes::instance()
-            ->register(new FrontInclude('jquery-validate', clmvc_app_url('site', 'test.js')))
-            ->register(new FrontInclude('test', "http://ajax.microsoft.com/ajax/jquery.validate/1.5.5/jquery.validate.min.js",array('jquery')));
         ScriptIncludes::instance()
             ->register(new FrontInclude('react', clmvc_app_url('AoiSora','/lib/js/react/react.js')))
             ->register(new FrontInclude('jsxtransformer', clmvc_app_url('AoiSora','/lib/js/react/JSXTransformer.js')))
