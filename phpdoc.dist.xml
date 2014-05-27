@@ -2,7 +2,7 @@
 <phpdoc>
     <title>CloudlessMVC</title>
     <parser>
-        <target>output</target>
+        <target>data/docs</target>
         <markers>
             <item>TODO</item>
             <item>FIXME</item>
@@ -15,17 +15,17 @@
         <visibility></visibility>
     </parser>
     <transformer>
-        <target>output</target>
+        <target>data/docs</target>
     </transformer>
     <logging>
         <level>warn</level>
         <paths>
-            <default>{APP_ROOT}/data/log/{DATE}.log</default>
-            <errors>{APP_ROOT}/data/log/{DATE}.errors.log</errors>
+            <default>data/log/{DATE}.log</default>
+            <errors>data/log/{DATE}.errors.log</errors>
         </paths>
     </logging>
     <transformations>
-        <template name="clea " />
+        <template name="clean" />
     </transformations>
     <files>
         <file>AoiSora.php</file>

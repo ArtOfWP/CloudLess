@@ -1,4 +1,6 @@
 <?php
+namespace CLMVC\Core\Application;
+
 use CLMVC\Core\Includes\FrontInclude;
 use CLMVC\Core\Includes\ScriptIncludes;
 use CLMVC\Core\Includes\StyleIncludes;

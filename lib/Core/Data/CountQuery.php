@@ -1,4 +1,6 @@
 <?php
+namespace CLMVC\Core\Data;
+
 use CLMVC\Core\Data\R;
 
 /**

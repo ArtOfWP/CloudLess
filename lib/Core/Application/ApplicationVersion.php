@@ -1,4 +1,5 @@
 <?php
+namespace CLMVC\Core\Application;
 
 use CLMVC\Core\AoiSoraSettings;
 use CLMVC\Core\Application\ApplicationBase;

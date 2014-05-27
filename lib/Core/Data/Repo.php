@@ -1,4 +1,6 @@
 <?php
+namespace CLMVC\Core\Data;
+
 use CLMVC\Core\Data\Order;
 use CLMVC\Core\Data\Query;
 use CLMVC\Core\Debug;
