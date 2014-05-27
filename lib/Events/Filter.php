@@ -29,7 +29,7 @@ class Filter {
             else
                 $id = spl_object_hash($callback).time();
             self::$FilterSections[$filter][$priority][$id] = $callback;
-
+            return;
         }
         $handler = self::$FilterSections[$filter]['handler'];
         call_user_func($handler, $filter, $callback, $priority);

@@ -109,19 +109,6 @@ $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 	}
 	add_filter('query_vars', 'register_aoisora_query_vars');
 
-	if(!is_admin())
-		add_action('wp_footer', 'aoisora_script_footer');	
-	else
-		add_action('admin_footer', 'aoisora_script_footer');
-
-	function aoisora_script_footer() {
-		$scripts=Html::getFooterScripts();
-		if(empty($scripts))
-			return;			
-		echo "<script type=\"text/javascript\">";
-		echo implode(' ',$scripts);
-		echo "</script>";
-	}
 	if(!function_exists('get_site_url')){
 		function get_site_url(){
 			return get_bloginfo('url');
