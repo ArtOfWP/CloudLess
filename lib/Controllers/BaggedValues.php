@@ -73,9 +73,9 @@ class BaggedValues implements ArrayAccess  {
     public function offsetSet($offset, $value) {
         if (is_null($offset)) {
             $this->data[] = $value;
-        } else {
-            $this->data[$offset] = $value;
+            return;
         }
+        $this->data[$offset] = $value;
     }
 
     /**

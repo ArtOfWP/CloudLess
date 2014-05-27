@@ -47,20 +47,18 @@ class Rendering {
         if ($view_path) {
             $tags = Filter::run('view-tags', array(array(), $this->controller));
             $engine = RenderingEngines::getEngine($this->getTemplate(), $this->controller->getViewPath());
-            $viewcontent = $engine->render($view_path, $this->getBag());
+            $view_content = $engine->render($view_path, $this->getBag());
             $layout_path = $this->views->findLayout($this->getTemplate());
             if ($layout_path) {
                 $engine = RenderingEngines::getEngine($this->getTemplate(), $view_path);
-                $layout_content = $engine->render($layout_path, $this->getBag()+$tags, Filter::run("{$this->controllerName}-{$action}-blocks", array(array('view' => $viewcontent))));
-            } else {
-                $layout_content = $viewcontent;
+                $view_content = $engine->render($layout_path, $this->getBag()+$tags, Filter::run("{$this->controllerName}-{$action}-blocks", array(array('view' => $viewcontent))));
             }
-            $viewcontent = $layout_content;
-
-        } else
-            $viewcontent = 'Could not find view: ' . $view_path;
-        $this->render = false;
-        RenderedContent::set($viewcontent);
+            $this->render = false;
+            RenderedContent::set($view_content);
+            return;
+        }
+        $view_content = 'Could not find view: ' . $view_path;
+        trigger_error($view_content,E_USER_WARNING);
     }
 
 

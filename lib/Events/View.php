@@ -18,21 +18,12 @@ class View {
         if (!isset(self::$ViewSections[$section]['handler'])) {
             if (!isset(self::$ViewSections))
                 self::$ViewSections = array();
-            if (is_array($callback)) {
-                if (is_string($callback[0]))
-                    $id = hash('md5', $callback[0] . $callback[1] . $priority);
-                else
-                    $id = hash('md5', get_class($callback[0]) . $callback[1] . $priority);
-            } elseif (is_object($callback)) {
-                $id = spl_object_hash($callback);
-            } else {
-                $id = hash('md5', $callback . $priority);
-            }
+            $id = spl_object_hash($callback).time();
             self::$ViewSections[$section][$priority][$id] = $callback;
-        } else {
-            $handler = self::$ViewSections[$section]['handler'];
-            call_user_func($handler, $section, $callback);
+            return;
         }
+        $handler = self::$ViewSections[$section]['handler'];
+        call_user_func($handler, $section, $callback);
     }
 
     /**

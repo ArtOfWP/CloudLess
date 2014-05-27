@@ -125,18 +125,18 @@ class ApplicationVersion {
         if(!$version_info["has_access"] || version_compare($this->version, $version_info["version"], '>=')){
             if(isset($plugins->response[$plugin]))
                 unset($plugins->response[$plugin]);
-        }else{
-            $package=$version_info['url'];
-            if($this->update_site_extra)
-                foreach($this->update_site_extra as $key => $value)
-                    $package=str_replace('{'.$key.'}',urlencode($value),$package);
-            $update_data = new stdClass();
-            $update_data->slug = $this->application->getName();
-            $update_data->new_version = $version_info['version'];
-            $update_data->url = $version_info['site'];
-            $update_data->package = $package;
-            $plugins->response[$plugin] = $update_data;
+            return $plugins;
         }
+        $package=$version_info['url'];
+        if($this->update_site_extra)
+            foreach($this->update_site_extra as $key => $value)
+                $package=str_replace('{'.$key.'}',urlencode($value),$package);
+        $update_data = new \stdClass();
+        $update_data->slug = $this->application->getName();
+        $update_data->new_version = $version_info['version'];
+        $update_data->url = $version_info['site'];
+        $update_data->package = $package;
+        $plugins->response[$plugin] = $update_data;
         return $plugins;
     }
 }

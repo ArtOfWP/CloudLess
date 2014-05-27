@@ -34,16 +34,15 @@ abstract class ActiveRecordBase {
 		$vo['values']=array();
 		foreach($properties as $key =>$value){
 			if(isset($value)){
-				if($value instanceof ActiveRecordBase){
+				if($value instanceof ActiveRecordBase) {
                     /**
                      * @var ActiveRecordBase $value
                      */
                     if($value->getId()===false)
 						$value->create();
-					$vo['values'][$key]=$value->getId();										
-				}else{
-					$vo['values'][$key]=$value;
+					$value=$value->getId();
 				}
+                $vo['values'][$key]=$value;
 			}
 		}
 		global $db;
@@ -111,10 +110,9 @@ abstract class ActiveRecordBase {
 			if($key!='Id' && isset($value)){
 				if($value instanceof ActiveRecordBase){					
 					Debug::Message($key.' instanceof ARB');
-					$vo['values'][$key]=$value->getId();
-				}else{
-					$vo['values'][$key]=$value;
+                    $value = $vo['values'][$key]=$value->getId();
 				}
+                $vo['values'][$key]=$value;
 			}
 		}
 		global $db;
@@ -278,14 +276,12 @@ abstract class ActiveRecordBase {
 					}
 					return $list;
 					
-				}else{
-					$temp= $temp->getById($this->$method());
-					$method=str_replace('get','set',$method);
-					$this->$method($temp);
-					return $temp;
 				}
-			}else{
-            }
+                $temp= $temp->getById($this->$method());
+                $method=str_replace('get','set',$method);
+                $this->$method($temp);
+                return $temp;
+			}
 		}
         if(strpos($method,'set')!==false){
             $method=str_replace('set','',$method);

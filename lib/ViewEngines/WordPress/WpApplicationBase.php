@@ -80,18 +80,17 @@ class WpApplicationBase {
 				Filter::register('rewrite_rules_array',array(&$this,'onRewriteRulesArray'));
 			if(isset($_GET['plugin']) && $_GET['plugin']==$appName)
 				Hook::register('install_plugins_pre_plugin-information',array(&$this,'versionInformation'));
-		}else{
-			if(method_exists($this,'onPrintStyles'))
-				View::register('print_styles',array(&$this,'printStyles'));
-			if(method_exists($this,'onPrintScripts'))
-				View::register('print_scripts',array(&$this,'printScripts'));
-			if(method_exists($this,'onAddPageLinks'))
-				Filter::register('list_pages', array(&$this,'onAddPageLinks'));
-			if(method_exists($this,'onRewriteRulesArray'))
-				Filter::register('rewrite_rules_array',array(&$this,'onRewriteRulesArray'));
-			if(method_exists($this,'onRenderFooter'))
-				View::register('footer',array(&$this,'onRenderFooter'));
 		}
+        if(method_exists($this,'onPrintStyles'))
+            View::register('print_styles',array(&$this,'printStyles'));
+        if(method_exists($this,'onPrintScripts'))
+            View::register('print_scripts',array(&$this,'printScripts'));
+        if(method_exists($this,'onAddPageLinks'))
+            Filter::register('list_pages', array(&$this,'onAddPageLinks'));
+        if(method_exists($this,'onRewriteRulesArray'))
+            Filter::register('rewrite_rules_array',array(&$this,'onRewriteRulesArray'));
+        if(method_exists($this,'onRenderFooter'))
+            View::register('footer',array(&$this,'onRenderFooter'));
 		Filter::register('set_plugin_has_updates', array(&$this, 'siteTransientUpdatePlugins'));
         Hook::register('set_plugin_has_updates', array(&$this, 'transientUpdatePlugins'));
 	}
@@ -324,12 +323,12 @@ class WpApplicationBase {
 		$handle = opendir($dir);
 		while(false !== ($resource = readdir($handle))) {
 			if($resource!='.' && $resource!='..'){
-				if(is_dir($dir.$resource))
-					$this->load($dir.$resource.'/');
-				else{
-					$this->models[]=str_replace('.php','',$resource);
-					Debug::Value('Loaded',$resource);
-				}
+				if(is_dir($dir.$resource)) {
+                    $this->load($dir . $resource . '/');
+                    continue;
+                }
+                $this->models[]=str_replace('.php','',$resource);
+                Debug::Value('Loaded',$resource);
 			}
 		}
 		closedir($handle);

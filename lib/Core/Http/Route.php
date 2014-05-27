@@ -57,9 +57,9 @@ class Route {
         foreach ($params as $param => $condition) {
             if (is_numeric($param)) {
                 $route = str_replace(":$condition", '(?<'.$condition.'>[a-zA-Z0-9_\+\-%\$]+)', $route);
-            } else {
-                $route = str_replace(":$param", "(?<$param>$condition)", $route);
+                continue;
             }
+            $route = str_replace(":$param", "(?<$param>$condition)", $route);
         }
         $route = str_replace('\\\\', '\\', $route);
         $route = rtrim($route, "\\/") . '\/?';
@@ -77,9 +77,9 @@ class Route {
         foreach ($this->params as $param => $condition) {
             if (is_numeric($param)) {
                 $params[$condition] = $matches[$condition];
-            } else {
-                $params[$param] = $matches[$param];
+                continue;
             }
+            $params[$param] = $matches[$param];
         }
         return $params;
     }

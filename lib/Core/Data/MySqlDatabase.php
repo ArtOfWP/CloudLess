@@ -2,6 +2,9 @@
 namespace CLMVC\Core\Data;
 
 use CLMVC\Core\Debug;
+use CLMVC\Helpers\ObjectUtility;
+use Exception;
+use PDO;
 
 /**
  * Class MySqlDatabase
@@ -44,7 +47,7 @@ class MySqlDatabase{
 		try {
 			$this->db = new PDO('mysql:host='.$host.';dbname='.$database, $username, $password);
 		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT); 			
-		} catch (PDOException $e) {
+		} catch (\PDOException $e) {
     		print "Error!: " . $e->getMessage() . "<br/>";
     		die();
 		}
@@ -88,49 +91,51 @@ class MySqlDatabase{
 			$table.=' `'.$column.'` ';
 			if($column=='id')
 				$table.='INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,';
-			else{				
-				if(!isset($value)){
-					$dbfield=strtolower(array_key_exists_v('dbfield',$settings));					
-					if($dbfield=='char'){
-						$length=array_key_exists_v('dblength',$settings);
-						if($length)
-							$table.='VARCHAR('.$length.') NOT NULL default \'\',';
-						else{
-							$table.='VARCHAR(45) NOT NULL default \'\',';
-						}						
-					}else if($dbfield=='boolean'){
-						$table.="tinyint(1) NOT NULL default 0,";						
-					}
-					else if($dbfield=='text')
-						$table.='TEXT NOT NULL,';
-					else if(stristr($dbfield,'int'))
-						$table.="$dbfield NOT NULL default 0,";					
-					else if(stristr($dbfield,'decimal')){
-						$table.=str_replace('|',',',$dbfield)." NOT NULL default 0,";						
-					}
-					else{
-						$table.='VARCHAR(45) NOT NULL default \'\',';
-					}
-				}
-				else if(is_int($value)){
-					$table.='INTEGER NOT NULL default '.$value.',';
-				}
-				else if(is_string($value)){
-					$dbfield=array_key_exists_v('dbfield',$settings);
-					if($dbfield=='text')
-						$table.='TEXT NOT NULL,';
-					else if($dbfield=='datetime')
-						$table.='DATETIME NOT NULL,';
-					else{
-						$length=array_key_exists_v('dblength',$settings);
-						if($length)
-							$table.='VARCHAR('.$length.') NOT NULL default \''.$value.'\',';
-						else{
-							$table.='VARCHAR(45) NOT NULL default \''.$value.'\',';
-						}
-					}
-				}
-			}
+			else if(!isset($value)){
+                $dbfield=strtolower(array_key_exists_v('dbfield',$settings));
+
+                switch ($dbfield) {
+                    case 'char':
+                        $length = array_key_exists_v('dblength', $settings);
+                        $length = $length ? $length : 45;
+                        $column_sql = 'VARCHAR('.$length.') NOT NULL default \'\',';
+                        break;
+                    case 'boolean':
+                        $column_sql = "tinyint(1) NOT NULL default 0,";
+                        break;
+                    case 'text':
+                        $column_sql = 'TEXT NOT NULL,';
+                        break;
+                    case stristr($dbfield, 'int'):
+                        $column_sql = "$dbfield NOT NULL default 0,";
+                    break;
+                    case stristr($dbfield, 'decimal'):
+                        $column_sql = str_replace('|', ',', $dbfield) . " NOT NULL default 0,";
+                        break;
+                    default:
+                        $column_sql = 'VARCHAR(45) NOT NULL default \'\',';
+                        break;
+                }
+                $table.= $column_sql;
+            } else if(is_int($value)){
+                $table.='INTEGER NOT NULL default '.$value.',';
+            } else if(is_string($value)){
+                $dbfield=array_key_exists_v('dbfield',$settings);
+                switch($dbfield) {
+                    case 'text':
+                        $column_sql = 'TEXT NOT NULL,';
+                        break;
+                    case 'datetime':
+                      $column_sql = 'DATETIME NOT NULL,';
+                        break;
+                    default:
+                        $length = array_key_exists_v('dblength', $settings);
+                        $length = $length ? $length : 45;
+                        $column_sql = 'VARCHAR('.$length.') NOT NULL default \''.$value.'\',';
+                        break;
+                }
+                $table .= $column_sql;
+            }
 			$dbindexkind=array_key_exists_v('dbindexkind',$settings);
 			$dbindexorder=array_key_exists_v('dbindexorder',$settings);
             $dbindexname=array_key_exists_v('dbindexname',$settings);

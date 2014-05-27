@@ -152,10 +152,10 @@ class Query{
 		global $db_prefix;
 		if($property instanceof SelectFunction){
 			$this->statement['select'][]='DISTINCT '.$property->toSQL(strtolower($this->addMark($property->getColumn())));
-		}else{
-			$property=$this->addMark(strtolower($property));
-			$this->statement['select'][]=strtolower($table?'DISTINCT '.$this->addMark($db_prefix.$table).'.'.$property:'DISTTINCT '.$property);
+            return $this;
 		}
+        $property=$this->addMark(strtolower($property));
+        $this->statement['select'][]=strtolower($table?'DISTINCT '.$this->addMark($db_prefix.$table).'.'.$property:'DISTTINCT '.$property);
 		return $this;
 	}
 
@@ -178,10 +178,10 @@ class Query{
 		global $db_prefix;
 		if($property instanceof SelectFunction){
 			$this->statement['select'][]=$property->toSQL($this->addMark($property->getColumn()));
-		}else{
-			$property=$this->addMark(strtolower($property));
-			$this->statement['select'][]=strtolower($table?$this->addMark($db_prefix.$table).'.'.$property:$property);
-		}
+            return $this;
+        }
+        $property=$this->addMark(strtolower($property));
+		$this->statement['select'][]=strtolower($table?$this->addMark($db_prefix.$table).'.'.$property:$property);
 		return $this;
 	}
 
@@ -193,24 +193,22 @@ class Query{
     public function where($restriction){
 		if(is_array($restriction)){
 			$this->statement['where']=array_merge(((array)$this->statement['where']),$restriction);
-		}else
-			$this->statement['where'][]=$restriction;
+            return $this;
+        }
+        $this->statement['where'][]=$restriction;
 		return $this;
 	}
 
     /**
      * Offset and limit query
      * @param int $offset
-     * @param int|bool $limit
+     * @param int $limit
      * @return $this
      */
-    public function limit($offset,$limit=false){
-        if($limit===false){
-            $this->limit=$offset;
-        }else{
-	    	$this->limit=$limit;
-    		$this->offset=$offset;
-        }
+    public function limit($offset,$limit=0){
+        if($limit)
+            $this->limit=$limit;
+        $this->offset=$offset;
 		return $this;
 	}
 
@@ -264,10 +262,11 @@ class Query{
      * @return $this
      */
     public function order($order){
-		if(is_array($order))
-			$this->statement['order']=((array)$this->statement['order'])+$order;
-		else
-			$this->statement['order'][]=$order;
+		if(is_array($order)) {
+            $this->statement['order'] = ((array)$this->statement['order']) + $order;
+            return $this;
+        }
+    	$this->statement['order'][]=$order;
 		return $this;
 	}
 
@@ -317,11 +316,12 @@ class Query{
      * @return $this
      */
     public function groupBy($property){
-		if(is_array($property))
-			foreach($property as $p)
-				$this->statement['groupby'][]=$this->splitAndMark($p);
-		else
-			$this->statement['groupby'][]=$this->splitAndMark($property);
+		if(is_array($property)) {
+            foreach ($property as $p)
+                $this->statement['groupby'][] = $this->splitAndMark($p);
+            return $this;
+        }
+    	$this->statement['groupby'][]=$this->splitAndMark($property);
 		return $this;
 	}
 

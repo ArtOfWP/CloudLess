@@ -1,7 +1,7 @@
 <?php
 namespace CLMVC\Core\Data;
 
-use ActiveRecordBase;
+use CLMVC\Core\Data\ActiveRecordBase;
 use CLMVC\Core\Debug;
 
 class R{
@@ -110,15 +110,15 @@ class R{
 				$r->foreignColumn=strtolower($p[1]);
 			}else
 				$r->column=$p[0];
-		}else{
-			if($value instanceof ActiveRecordBase)
-				$r->value=$value->getId();
-			else
-				$r->value=$value;
-			$r->hasValue=true;
-			$r->setParameter(str_replace('.','',$r->column),$r->value);
-		}		
-		return $r;		
+            return $r;
+        }
+        if($value instanceof ActiveRecordBase)
+            $r->value=$value->getId();
+        else
+            $r->value=$value;
+        $r->hasValue=true;
+        $r->setParameter(str_replace('.','',$r->column),$r->value);
+        return $r;
 	}
 
     /**
@@ -144,15 +144,16 @@ class R{
 				$r->foreignColumn=strtolower($p[1]);
 			}else
 				$r->column=$p[0];
-		}else{
-			if($value instanceof ActiveRecordBase)
-				$r->value=$value->getId();			
-			else
-				$r->value=$value;
-			$r->hasValue=true;
-			$r->setParameter($r->column,$r->value);			
-		}
-		return $r;		
+            return $r;
+        }
+
+        if($value instanceof ActiveRecordBase)
+            $r->value=$value->getId();
+        else
+            $r->value=$value;
+        $r->hasValue=true;
+        $r->setParameter($r->column,$r->value);
+		return $r;
 	}
 
     /**
@@ -166,14 +167,11 @@ class R{
     static function EqP($class,$property,$value,$isProperty=false){
 		global $db_prefix;
 		$r = new R();
-		if($class instanceof ActiveRecordBase){
-			$r->table=$db_prefix.strtolower(get_class($class));
-			$r->column=$property;
-		}else{
-			$r->table=$db_prefix.strtolower($class);
-			$r->column=$property;
-		}
-		$r->method='=';
+		if($class instanceof ActiveRecordBase)
+            $class=get_class($class);
+    	$r->table=$db_prefix.strtolower($class);
+        $r->column=$property;
+        $r->method='=';
 		if($isProperty){
 			$p=explode('.',$value);
 			if(sizeof($p)>1){
@@ -181,15 +179,15 @@ class R{
 				$r->foreignColumn=strtolower($p[1]);
 			}else
 				$r->column=$p[0];
-		}else{
-			if($value instanceof ActiveRecordBase)
-				$r->value=$value->getId();			
-			else
-				$r->value=$value;
-			$r->hasValue=true;
-			$r->setParameter($r->column,$r->value);
-		}
-		return $r;		
+            return $r;
+        }
+        if($value instanceof ActiveRecordBase)
+            $r->value=$value->getId();
+        else
+            $r->value=$value;
+        $r->hasValue=true;
+        $r->setParameter($r->column,$r->value);
+		return $r;
 	}
 
     /**
@@ -328,15 +326,12 @@ class R{
     function toSQL(){
 		switch($this->method){
 			case "LIKE":
-                $front = $back = '';
+                $front="%";
+                $back="%";
 				if($this->placement==R::$LEFT)
 					$front="%";
 				else if($this->placement==R::$RIGHT)
 					$back="%";
-				else{
-					$front="%";					
-					$back="%";
-				}
 				$param=array_pop(array_keys($this->getParameters()));
 				$sql=$this->addMark($this->column).' LIKE '."concat('$front',".$param.",'$back')";
 				return $sql;

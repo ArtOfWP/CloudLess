@@ -33,19 +33,18 @@ class Debug{
      * @param $value
      */
     static function Value($message,$value){
-		if(Debug::IsActive())			
-			if(defined('WRITE_TO_FILE') && WRITE_TO_FILE){
-				$value=is_array($value)|| is_object($value)?"\n".print_r($value,true):"\t".$value;
-				file_put_contents(LOG_FILE,time()."\t".$message.$value."\n",FILE_APPEND);				
-			}else{
-			if(is_array($value) || is_object($value)){
-				Debug::Message('<p><strong>'.$message.'</strong></p>');
-				echo '<pre>';
-				print_r($value);
-				echo '</pre>';
-			}else
-				echo '<p><strong>'.$message.':</strong>  '.$value.'</p>';
-			}
+		if(!Debug::IsActive())
+            return;
+        if(defined('WRITE_TO_FILE') && WRITE_TO_FILE){
+            $value=is_array($value)|| is_object($value)?"\n".print_r($value,true):"\t".$value;
+            file_put_contents(LOG_FILE,time()."\t".$message.$value."\n",FILE_APPEND);
+        } else if(is_array($value) || is_object($value)){
+            Debug::Message('<p><strong>'.$message.'</strong></p>');
+            echo '<pre>';
+            print_r($value);
+            echo '</pre>';
+        } else
+            echo '<p><strong>'.$message.':</strong>  '.$value.'</p>';
 	}
 
     /**
@@ -55,11 +54,11 @@ class Debug{
 		if(Debug::IsActive()){		
 			$thisfile = debug_backtrace();
 			if(defined('WRITE_TO_FILE') && WRITE_TO_FILE){
-				file_put_contents(LOG_FILE,time()."\tYou got here from ".$thisfile[0]['file']." on ".$thisfile[0]['line']."\n before that you were in ".$thisfile[1]['file']." on ".$thisfile[1]['line']."\n",FILE_APPEND);			
-			}else{
-				echo "<p>you got here from ".$thisfile[0]['file']." on ".$thisfile[0]['line'].'<br />';
-				echo "before that you were in ".$thisfile[1]['file']." on ".$thisfile[1]['line'].'</p>';  
+				file_put_contents(LOG_FILE,time()."\tYou got here from ".$thisfile[0]['file']." on ".$thisfile[0]['line']."\n before that you were in ".$thisfile[1]['file']." on ".$thisfile[1]['line']."\n",FILE_APPEND);
+                return;
 			}
+            echo "<p>you got here from ".$thisfile[0]['file']." on ".$thisfile[0]['line'].'<br />';
+            echo "before that you were in ".$thisfile[1]['file']." on ".$thisfile[1]['line'].'</p>';
 		}
 	}
 

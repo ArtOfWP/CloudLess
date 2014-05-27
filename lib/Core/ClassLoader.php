@@ -288,28 +288,27 @@ class UniversalClassLoader
                     return $file;
                 }
             }
-
-        } else {
-            // PEAR-like class name
-            $normalizedClass = str_replace('_', DIRECTORY_SEPARATOR, $class).'.php';
-            foreach ($this->prefixes as $prefix => $dirs) {
-                if (0 !== strpos($class, $prefix)) {
-                    continue;
-                }
-
-                foreach ($dirs as $dir) {
-                    $file = $dir.DIRECTORY_SEPARATOR.$normalizedClass;
-                    if (is_file($file)) {
-                        return $file;
-                    }
-                }
+            return null;
+        }
+        // PEAR-like class name
+        $normalizedClass = str_replace('_', DIRECTORY_SEPARATOR, $class).'.php';
+        foreach ($this->prefixes as $prefix => $dirs) {
+            if (0 !== strpos($class, $prefix)) {
+                continue;
             }
 
-            foreach ($this->prefixFallbacks as $dir) {
+            foreach ($dirs as $dir) {
                 $file = $dir.DIRECTORY_SEPARATOR.$normalizedClass;
                 if (is_file($file)) {
                     return $file;
                 }
+            }
+        }
+
+        foreach ($this->prefixFallbacks as $dir) {
+            $file = $dir.DIRECTORY_SEPARATOR.$normalizedClass;
+            if (is_file($file)) {
+                return $file;
             }
         }
 

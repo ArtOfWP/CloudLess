@@ -1,11 +1,11 @@
 <?php
 namespace CLMVC\Controllers;
-use ActiveRecordBase;
+use CLMVC\Core\Data\ActiveRecordBase;
 use CLMVC\Core\Data\Order;
 use CLMVC\Core\Data\R;
+use CLMVC\Core\Data\Repo;
 use CLMVC\Core\Debug;
 use CLMVC\Helpers\Communication;
-use Repo;
 
 /**
  * Class CrudController
@@ -95,7 +95,8 @@ abstract class CrudController extends BaseController {
 		$per_page=array_key_exists_v('perpage',$this->values);
 		$per_page=$per_page?$per_page:$this->per_page;
 		$order=$this->order;
-		
+        $restrictions = null;
+        $message = 'No search: Sliced find all';
 		if(!$order){
 			$order_property=array_key_exists_v('property',$this->values);
 			$order_property=$order_property?$order_property:$this->order_property;
@@ -128,15 +129,12 @@ abstract class CrudController extends BaseController {
 					return;
 				}
 			}
-			Debug::Message('Search: Sliced find all');
-			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$per_page,$order,$restrictions,false,true);
+			$message='Search: Sliced find all';
 			$this->bag['searchResultTotal']=Repo::total($this->controller,$restrictions);
-		}
-		else{
-			Debug::Message('No search: Sliced find all');
-			$this->bag['all']=Repo::slicedFindAll($this->controller,$first,$per_page,$order,null,false,true);
-		}
-		$this->bag['total']=Repo::total($this->controller);
+        }
+        Debug::Message($message);
+        $this->bag['all']=Repo::slicedFindAll($this->controller,$first,$per_page,$order,$restrictions,false,true);
+        $this->bag['total']=Repo::total($this->controller);
 	}
 
     /**
@@ -153,7 +151,7 @@ abstract class CrudController extends BaseController {
     /**
      * Create the CRUD item
      * @param bool $redirect
-     * @return ActiveRecordBase
+     * @return \CLMVC\Core\Data\ActiveRecordBase
      */
     public function create($redirect=true){
 		$this->setRender(false);
@@ -191,10 +189,11 @@ abstract class CrudController extends BaseController {
 				if($item)
 					$item->delete();
 			}
-		}else{
-			$this->loadFromPost();
-			$this->crudItem->delete();
-		}
+            $this->redirect('delete=1');
+            return;
+        }
+        $this->loadFromPost();
+        $this->crudItem->delete();
 		$this->redirect('delete=1');
 	}
 

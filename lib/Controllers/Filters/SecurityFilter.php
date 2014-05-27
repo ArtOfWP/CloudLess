@@ -13,10 +13,10 @@ class SecurityFilter implements IFilter{
 	private $nonce_base;
 
     /**
-     * @param bool $useraction The action to verify
-     * @param bool $nonce_base The base of the nonce, usually name ot the project, plugin etc.
+     * @param string $useraction The action to verify
+     * @param string $nonce_base The base of the nonce, usually name ot the project, plugin etc.
      */
-    function __construct($useraction=false,$nonce_base=false) {
+    function __construct($useraction='',$nonce_base='') {
 		$this->useraction=$useraction;
 		$this->nonce_base=$nonce_base;
 	}
@@ -36,16 +36,14 @@ class SecurityFilter implements IFilter{
 				$verified_nonce=$s->verifyNonce($nonce,$this->nonce_base);
 				if(!$verified_nonce)
 					return false;
-			}
-			else
+			} else
 				return false;
 		}
-		if($s->currentUserIsLoggedIn())
-			if(!$this->useraction || $s->currentUserCan($this->useraction))
-				return true;
-			else{
-				$controller->RenderText('You cannot perform this action');
-			}
+		if($s->currentUserIsLoggedIn()) {
+            if (!$this->useraction || $s->currentUserCan($this->useraction))
+                return true;
+        }
+        $controller->RenderText('You cannot perform this action');
 		return false;
 	}
 }

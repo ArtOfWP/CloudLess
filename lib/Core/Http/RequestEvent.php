@@ -1,12 +1,12 @@
 <?php
 namespace CLMVC\Events;
 
-use ActiveRecordBase;
+use CLMVC\Core\Data\ActiveRecordBase;
 use CLMVC\Helpers\Communication;
 use CLMVC\Helpers\Http;
 use CLMVC\Helpers\ObjectUtility;
 use CLMVC\Helpers\Resize_Image;
-use Repo;
+use CLMVC\Core\Data\Repo;
 
 class RequestEvent {
     public $thumbnails;
@@ -52,14 +52,12 @@ class RequestEvent {
             $height = $this->height;
         $properties = ObjectUtility::getPropertiesAndValues($crudItem);
 
+        $values = $this->getPostRequest();
         if ($stripPrefix){
-            $temp=array();
-            $values=array_search_key($stripPrefix,$this->getPostRequest());
-            foreach($values as $key => $value)
-                $temp[$this->stripPrefix($stripPrefix,$key)]=$value;
-            $values=$temp;
-        }else{
-            $values = Communication::getFormValues($properties);
+            $temp=array_search_key($stripPrefix,$values);
+            $values=array();
+            foreach($temp as $key => $value)
+                $values[$this->stripPrefix($stripPrefix,$key)]=$value;
         }
         $values = array_map('stripslashes', $values);
         $lists = array_search_key('_list', $this->getPostRequest());
@@ -79,14 +77,8 @@ class RequestEvent {
                 if (isset($this->thumbnails[$property]) && $this->thumbnails[$property][0] == 'create') {
                     $info = getimagesize($path);
                     $image = new Resize_Image();
-                    if ($info[1] > $height)
-                        $image->new_height = $height;
-                    else if ($info[0] > $width)
-                        $image->new_width = $width;
-                    else {
-                        $image->new_height = $info[1];
-                        $image->new_width = $info[0];
-                    }
+                    $image->new_height = $info[1] > $height ? $height: $info[1];
+                    $image->new_width = $info[0] > $width ? $width: $info[0];
                     $image->image_to_resize = $path;
                     $image->ratio = true;
                     $info = pathinfo($name);
@@ -97,73 +89,54 @@ class RequestEvent {
                     $process = $image->resize();
                     chmod($process['new_file_path'], octdec(644));
                 }
-            } else {
-                if (is_null($this->getPostRequest($property . '_hasimage')) && empty($values[$property])) {
-                    $values[$property] = '';
-                }
-                else {
-                    if (strpos($this->getPostRequest($property . '_hasimage'), 'ttp') == 1) {
-                        $url = $this->getPostRequest($property . '_hasimage');
-                        $name = str_replace(' ', '-', urldecode(basename($url)));
-                        $name = str_replace('+', '-', $name);
-                        if (isset($this->thumbnails[$property]) && $this->thumbnails[$property] == 'thumb')
-                            $path = UPLOADS_DIR . $folder . 'thumbs/' . $name;
-                        else
-                            $path = UPLOADS_DIR . $folder . $name;
-                        $values[$property] = $name;
+            } else if (is_null($this->getPostRequest($property . '_hasimage')) && empty($values[$property])) {
+                $values[$property] = '';
+            } else if (strpos($this->getPostRequest($property . '_hasimage'), 'ttp') == 1) {
+                $url = $this->getPostRequest($property . '_hasimage');
+                $name = str_replace(' ', '-', urldecode(basename($url)));
+                $name = str_replace('+', '-', $name);
+                if (isset($this->thumbnails[$property]) && $this->thumbnails[$property] == 'thumb')
+                    $path = UPLOADS_DIR . $folder . 'thumbs/' . $name;
+                else
+                    $path = UPLOADS_DIR . $folder . $name;
+                $values[$property] = $name;
 
-                        Http::save_image($url, $path);
-                        if (isset($this->thumbnails[$property]) && $this->thumbnails[$property][0] == 'create') {
-                            $info = getimagesize($path);
-                            $image = new Resize_Image;
-                            if ($info[1] > $height)
-                                $image->new_height = $height;
-                            else if ($info[0] > $width)
-                                $image->new_width = $width;
-                            else {
-                                $image->new_height = $info[1];
-                                $image->new_width = $info[0];
-                            }
-                            $image->image_to_resize = $path; // Full Path to the file
-                            $image->ratio = true; // Keep Aspect Ratio?
-                            $info = pathinfo($name);
-                            $file_name = basename($name, '.' . $info['extension']);
-                            $image->new_image_name = $file_name;
-                            $image->save_folder = UPLOADS_DIR . $folder . 'thumbs/';
-                            $values[$this->thumbnails[$property][1]] = 'thumbs/' . $name;
-                            $process = $image->resize();
-                            chmod($process['new_file_path'], octdec(644));
-                        }
-                    } else {
-                        if (isset($this->thumbnails[$property]) && $this->thumbnails[$property][0] == 'create') {
-                            $url = $this->getPostRequest($property . '_hasimage');
-                            $name = str_replace(' ', '-', urldecode(basename($url)));
-                            $name = str_replace('+', '-', $name);
-                            $path = UPLOADS_DIR . $folder . $name;
-                            $info = getimagesize($path);
-                            $image = new Resize_Image;
-                            if ($info[1] > $height)
-                                $image->new_height = $height;
-                            else if ($info[0] > $width)
-                                $image->new_width = $width;
-                            else {
-                                $image->new_height = $info[1];
-                                $image->new_width = $info[0];
-                            }
-                            $image->image_to_resize = $path; // Full Path to the file
-                            $image->ratio = true; // Keep Aspect Ratio?
-                            // Name of the new image (optional) - If it's not set a new will be added automatically
-                            $info = pathinfo($name);
-                            $file_name = basename($name, '.' . $info['extension']);
-                            $image->new_image_name = $file_name;
-                            // Path where the new image should be saved. If it's not set the script will output the image without saving it
-                            $image->save_folder = UPLOADS_DIR . $folder . 'thumbs/';
-                            $values[$this->thumbnails[$property][1]] = 'thumbs/' . $name;
-                            $process = $image->resize();
-                            chmod($process['new_file_path'], octdec(644));
-                        }
-                    }
+                Http::save_image($url, $path);
+                if (isset($this->thumbnails[$property]) && $this->thumbnails[$property][0] == 'create') {
+                    $info = getimagesize($path);
+                    $image = new Resize_Image;
+                    $image->new_height = $info[1] > $height ? $height: $info[1];
+                    $image->new_width = $info[0] > $width ? $width: $info[0];
+                    $image->image_to_resize = $path; // Full Path to the file
+                    $image->ratio = true; // Keep Aspect Ratio?
+                    $info = pathinfo($name);
+                    $file_name = basename($name, '.' . $info['extension']);
+                    $image->new_image_name = $file_name;
+                    $image->save_folder = UPLOADS_DIR . $folder . 'thumbs/';
+                    $values[$this->thumbnails[$property][1]] = 'thumbs/' . $name;
+                    $process = $image->resize();
+                    chmod($process['new_file_path'], octdec(644));
                 }
+            } else if (isset($this->thumbnails[$property]) && $this->thumbnails[$property][0] == 'create') {
+                $url = $this->getPostRequest($property . '_hasimage');
+                $name = str_replace(' ', '-', urldecode(basename($url)));
+                $name = str_replace('+', '-', $name);
+                $path = UPLOADS_DIR . $folder . $name;
+                $info = getimagesize($path);
+                $image = new Resize_Image;
+                $image->new_height = $info[1] > $height ? $height: $info[1];
+                $image->new_width = $info[0] > $width ? $width: $info[0];
+                $image->image_to_resize = $path; // Full Path to the file
+                $image->ratio = true; // Keep Aspect Ratio?
+                // Name of the new image (optional) - If it's not set a new will be added automatically
+                $info = pathinfo($name);
+                $file_name = basename($name, '.' . $info['extension']);
+                $image->new_image_name = $file_name;
+                // Path where the new image should be saved. If it's not set the script will output the image without saving it
+                $image->save_folder = UPLOADS_DIR . $folder . 'thumbs/';
+                $values[$this->thumbnails[$property][1]] = 'thumbs/' . $name;
+                $process = $image->resize();
+                chmod($process['new_file_path'], octdec(644));
             }
         }
         ObjectUtility::setProperties($crudItem, $values);
@@ -191,15 +164,12 @@ class RequestEvent {
                 }
             }
             else if ($db_relation) {
-                if (is_array($value))
-                    foreach ($value as $val) {
-                        $object = Repo::getById($db_relation, $val);
-                        $objects[] = $object;
-                    }
-                else {
-                    $object = Repo::getById($db_relation, $value);
+                $value = is_array($value) ? $value: array($value);
+                foreach ($value as $val) {
+                    $object = Repo::getById($db_relation, $val);
                     $objects[] = $object;
                 }
+
             }
 
             ObjectUtility::addToArray($crudItem, str_ireplace("_list", "", $method), $objects);
