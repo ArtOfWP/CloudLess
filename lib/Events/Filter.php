@@ -20,9 +20,16 @@ class Filter {
         if (!isset(self::$FilterSections[$filter]['handler'])) {
             if (!isset(self::$FilterSections))
                 self::$FilterSections = array();
-            $id = spl_object_hash($callback).time();
+            if (is_array($callback)) {
+                $id  = is_string($callback[0])?
+                    hash('md5', $callback[0] . $callback[1]):
+                    hash('md5', get_class($callback[0]) . $callback[1]);
+            } elseif (is_string($callback))
+                $id = hash('md5', $callback);
+            else
+                $id = spl_object_hash($callback).time();
             self::$FilterSections[$filter][$priority][$id] = $callback;
-            return;
+
         }
         $handler = self::$FilterSections[$filter]['handler'];
         call_user_func($handler, $filter, $callback, $priority);
