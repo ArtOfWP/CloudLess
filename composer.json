@@ -10,6 +10,8 @@
   ],
   "require-dev": {
     "phpspec/phpspec": "2.0.x-dev",
-    "phpmd/phpmd" : "1.4.*"
+    "phpmd/phpmd" : "2.0.*",
+    "sebastian/phpcpd": "*",
+    "phploc/phploc": "*"
   }
 }
