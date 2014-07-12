@@ -9,6 +9,7 @@ if (!defined('CLOUDLESS_CONFIG')) {
 } else
     include CLOUDLESS_CONFIG;
 require PACKAGEPATH . '/lib/Helpers/ArraysHelper.php';
+require PACKAGEPATH . '/lib/Core/Security/SecurityHelpers.php';
 if (file_exists(PACKAGEPATH . '/lib/ViewEngines/' . ucfirst(VIEWENGINE) . '/setup.php'))
     require PACKAGEPATH . '/lib/ViewEngines/' . ucfirst(VIEWENGINE) . '/setup.php';
 else {
