@@ -44,7 +44,22 @@ function array_search_key($search,$haystack){
 				$array[$key]=$value;
 		}
 		return $array;
-	}
+}
+
+/**
+ * Searches an array to see if prefix matching the search string exists if so returns all matching key value pairs with the prefix removed
+ * @param string $prefix
+ * @param array $haystack
+ * @return array
+ */
+function array_search_prefix($prefix,$haystack){
+    $array= array();
+    foreach($haystack as $key => $value){
+        if(substr($key,0,strlen($prefix)) === $prefix)
+            $array[substr($key,strlen($prefix))]=$value;
+    }
+    return $array;
+}
 
 /**
  * Searches an array to see if values matching the search string exists if so returns all matching keys
