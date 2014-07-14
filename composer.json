@@ -13,5 +13,11 @@
     "phpmd/phpmd" : "2.0.*",
     "sebastian/phpcpd": "*",
     "phploc/phploc": "*"
+  },
+  "config": {
+    "bin-dir": "bin"
+  },
+  "autoload": {
+    "psr-0": { "AoiSora": "lib/" }
   }
 }
