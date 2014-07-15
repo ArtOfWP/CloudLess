@@ -100,6 +100,8 @@ $container->add('CLMVC\\Interfaces\\IOptions','CLMVC\\ViewEngines\\WordPress\\Wp
 $container->add('CLMVC\\Interfaces\\IPost','CLMVC\\ViewEngines\\WordPress\\WpPost','class');
 $container->add('Routes', new Routes());
 $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
+global $wpdb;
+$container->add('wpdb', $wpdb);
 	function register_aoisora_query_vars($public_query_vars) {
 		$public_query_vars[] = "controller";
 		$public_query_vars[] = "action";

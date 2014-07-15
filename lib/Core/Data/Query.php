@@ -58,8 +58,12 @@ class Query{
 			$class=get_class($class);
 		$main_table=strtolower($class);
 		$query = new Query($main_table);
-		$query->returnType=$class;
-		$object = new $class();
+        if(class_exists($class)) {
+            $query->returnType = $class;
+            $object = new $class();
+        } else {
+            $object = null;
+        }
 		Debug::Value('createFrom',$class);
 		Debug::Backtrace();
         self::setup_one_to_one_dependencies($lazy, $object, $query, $main_table);
