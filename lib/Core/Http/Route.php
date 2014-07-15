@@ -62,8 +62,8 @@ class Route {
             $route = str_replace(":$param", "(?<$param>$condition)", $route);
         }
         $route = str_replace('\\\\', '\\', $route);
-        $route = rtrim($route, "\\/") . '\/?';
-        return "#^$route#";
+        $route = "^".rtrim($route, "\\/") . '\/?([\#\?].*)?$';
+        return "#$route#";
     }
 
     /**
