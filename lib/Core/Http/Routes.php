@@ -9,6 +9,8 @@ class Routes {
      */
     private $routes = array();
     private $priorityRoutes = array();
+    private $routed = null;
+
     function add($route,$callback , $params = array(), $method = 'get', $priority = false) {
         $theRoute = new Route($route, $callback, $params, $method);
         if ($priority)
@@ -41,8 +43,16 @@ class Routes {
                 if ($action == ':action')
                     $action = str_replace(':action', $matches['action'], $action);
                 $ctrl->executeAction($action, $params);
-                break;
+                $this->routed = true;
             }
         }
+        $this->routed = false;
+    }
+
+    /**
+     * @return null|bool
+     */
+    public function isRouted() {
+        return $this->routed;
     }
 }

@@ -220,6 +220,19 @@ $container->add('wpdb', $wpdb);
             }
         }
     },10000);
+    function remove_redirect_guess_404_permalink( $redirect_url ) {
+        /**
+         * @var Routes $routes
+         */
+        $container = \CLMVC\Core\Container::instance();
+        $routes = $container->fetch('Routes');
+        if($routes->isRouted())
+            return false;
+        return $redirect_url;
+    }
+
+    add_filter( 'redirect_canonical', 'remove_redirect_guess_404_permalink' );
+
     Filter::register('template_include', function($original_template) {
         if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
             global $wp_query;
