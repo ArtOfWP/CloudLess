@@ -44,6 +44,7 @@ class Routes {
                     $action = str_replace(':action', $matches['action'], $action);
                 $ctrl->executeAction($action, $params);
                 $this->routed = true;
+                break;
             }
         }
         $this->routed = false;
