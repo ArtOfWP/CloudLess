@@ -301,4 +301,14 @@ class BaseController {
             $this->filters[$when] = [];
         $this->filters[$when][] = $filter;
     }
+
+    /**
+     * Retrieves value from the POST/GET etc array
+     * @param $key
+     * @param null $default
+     * @return null
+     */
+    public function getValue($key, $default = null) {
+        return isset($this->values[$key]) ? $this->values[$key]: $default;
+    }
 }
