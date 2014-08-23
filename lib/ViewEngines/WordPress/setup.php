@@ -226,8 +226,9 @@ $container->add('wpdb', $wpdb);
          */
         $container = \CLMVC\Core\Container::instance();
         $routes = $container->fetch('Routes');
-        if($routes->isRouted())
+        if($routes->isRouted()) {
             return false;
+        }
         return $redirect_url;
     }
 
@@ -241,9 +242,6 @@ $container->add('wpdb', $wpdb);
             }
 
             if (\CLMVC\Controllers\Render\RenderedContent::endIt()) {
-                header_remove ('X-Powered-By');
-                header_remove ('X-Pingback');
-                header_remove ('Pragma');
                 global $aoisora_headers;
                 if (!empty($aoisora_headers)) {
                     foreach($aoisora_headers as $header) {
@@ -262,6 +260,9 @@ $container->add('wpdb', $wpdb);
 add_filter( 'status_header', 'add_header_so_fo' );
 function add_header_so_fo($status_header) {
     global $clmvc_http_code;
+    header_remove ('X-Powered-By');
+    header_remove ('X-Pingback');
+    header_remove ('Pragma');
     if ($clmvc_http_code) {
         $description = get_status_header_desc( $clmvc_http_code );
         $protocol = 'HTTP/1.0';
