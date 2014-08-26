@@ -3,6 +3,7 @@ namespace CLMVC\Controllers;
 
 
 use CLMVC\Core\AoiSoraSettings;
+use CLMVC\Events\Filter;
 
 class Views {
     private $controller;
@@ -20,11 +21,13 @@ class Views {
      * @return string Empty string if path is not found.
      */
     public function findView($controller, $action, $template = 'php') {
-        if ($this->controller->getViewPath()) {
-            if (file_exists(rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.' . $template))
-                return rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.' . $template;
-            if (file_exists(rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . '-'. $action . '.' . $template))
-                return rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . '-' . $action . '.' . $template;
+        $viewPath = Filter::run("cl-view-path", [$this->controller->getViewPath(), $this->controller, $controller, $action]);
+        $viewPath = Filter::run("cl-view-path-{$controller}", [$viewPath, $this->controller, $controller, $action]);
+        if ($viewPath) {
+            if (file_exists(rtrim($viewPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.' . $template))
+                return rtrim($viewPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.' . $template;
+            if (file_exists(rtrim($viewPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . '-'. $action . '.' . $template))
+                return rtrim($viewPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . '-' . $action . '.' . $template;
         }
         $apps = AoiSoraSettings::getApplications();
         $lc_controller = strtolower($controller);
