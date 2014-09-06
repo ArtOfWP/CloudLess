@@ -51,7 +51,7 @@ class Rendering {
             $layout_path = $this->views->findLayout($this->getTemplate());
             if ($layout_path) {
                 $engine = RenderingEngines::getEngine($this->getTemplate(), $view_path);
-                $view_content = $engine->render($layout_path, $this->getBag()+$tags, Filter::run("{$this->controllerName}-{$action}-blocks", array(array('view' => $viewcontent))));
+                $view_content = $engine->render($layout_path, $this->getBag()+$tags, Filter::run("{$this->controllerName}-{$action}-blocks", array(array('view' => $view_content))));
             }
             $this->render = false;
             RenderedContent::set($view_content);
@@ -82,7 +82,7 @@ class Rendering {
             include($filePath);
             $viewcontent = ob_get_contents();
         } else
-            $viewcontent = 'Could not find view: ' . $$filePath;
+            $viewcontent = 'Could not find view: ' . $filePath;
         $this->render = false;
         ob_end_clean();
         RenderedContent::set($viewcontent);
