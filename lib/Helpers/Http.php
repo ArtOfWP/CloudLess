@@ -103,6 +103,8 @@ class Http {
 
     static function get_current_page($root = true) {
         $files = explode('/',trim(Communication::cleanUrl($_SERVER['REQUEST_URI']), '/'));
+        if($root)
+            return array_shift($files);
         return array_pop($files);
     }
 }
