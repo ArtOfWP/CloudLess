@@ -57,7 +57,7 @@ class Rendering {
             RenderedContent::set($view_content);
             return;
         }
-        $view_content = 'Could not find view: ' . $view_path;
+        $view_content = "Could not find view for $controller, $action in: " . $view_path;
         trigger_error($view_content,E_USER_WARNING);
     }
 
