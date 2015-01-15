@@ -32,7 +32,7 @@ abstract class WpFrontIncludes implements IIncludes
     function dequeue($location, $handle) {
         if(isset($this->queue[$location][$handle]))
             unset($this->queue[$location][$handle]);
-        $this->dequeue[$location]=$handle;
+        $this->dequeue[$location][]=$handle;
         return $this;
     }
 
