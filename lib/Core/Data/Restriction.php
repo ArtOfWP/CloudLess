@@ -89,7 +89,7 @@ class R{
 
     /**
      * Equal too
-     * @param string $property column to check against
+     * @param string|object $property column to check against
      * @param mixed $value value to compare against
      * @param bool $isProperty
      * @return R
@@ -332,7 +332,8 @@ class R{
 					$front="%";
 				else if($this->placement==R::$RIGHT)
 					$back="%";
-				$param=array_pop(array_keys($this->getParameters()));
+                $param_keys= array_keys($this->getParameters());
+				$param=array_pop($param_keys);
 				$sql=$this->addMark($this->column).' LIKE '."concat('$front',".$param.",'$back')";
 				return $sql;
 			case 'MATCH':
@@ -344,7 +345,8 @@ class R{
 				
 					$sql.=implode(',',$columns);
 				$sql.=') AGAINST(';
-				$param=array_pop(array_keys($this->getParameters()));				
+                $param_keys= array_keys($this->getParameters());
+                $param=array_pop($param_keys);
 				$sql.=$param;
 				$sql.=' IN BOOLEAN MODE)';
 				return $sql;

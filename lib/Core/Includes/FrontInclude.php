@@ -5,7 +5,7 @@ namespace CLMVC\Core\Includes;
  * Stylesheet or JavaScript file that should be registered and loaded.
  */
 class FrontInclude {
-    private $handle, $src, $dependency = array(), $version = false, $inFooter = false;
+    private $handle, $src, $dependency = array(), $version = '', $inFooter = false;
 
     /**
      * @param string $handle name of the resource
@@ -116,6 +116,6 @@ class FrontInclude {
      */
     public function enqueue($location) {
         $si = new ScriptIncludes();
-        $si->enqueue($location,$this);
+        $si->enqueue($location,$this->getHandle());
     }
 }

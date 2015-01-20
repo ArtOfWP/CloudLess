@@ -42,13 +42,13 @@ class ApplicationVersion {
                 $this->application->update();
             }
             if($this->update_site && isset($_REQUEST['action']) && 'upgrade-plugin'==$_REQUEST['action'] && isset($_REQUEST['plugin']) && urldecode($_REQUEST['plugin'])==$this->application->getInstallName())
-                Filter::register('http_request_args',array($this,'addUpdateUrl'),10,2);
+                Filter::register('http_request_args',array($this,'addUpdateUrl'),10);
         }
     }
 
     /**
      *
-     */
+
     private function update(){
         $this->application->onUpdate();
         $updatePath=trim($this->application->dir,'/').'/app/updates/'.$this->version.'.php';
@@ -57,7 +57,7 @@ class ApplicationVersion {
         else if(file_exists($updatePath))
             include($updatePath);
     }
-
+     */
 
     /**
      *

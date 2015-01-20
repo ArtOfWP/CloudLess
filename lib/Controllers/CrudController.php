@@ -5,7 +5,9 @@ use CLMVC\Core\Data\Order;
 use CLMVC\Core\Data\R;
 use CLMVC\Core\Data\Repo;
 use CLMVC\Core\Debug;
+use CLMVC\Events\RequestEvent;
 use CLMVC\Helpers\Communication;
+use CLMVC\Helpers\Http;
 
 /**
  * Class CrudController
@@ -125,7 +127,7 @@ abstract class CrudController extends BaseController {
 					$restrictions =	R::LIKE($this->search_property,$this->values['search'],3);
 					echo $this->search_property;
 				}else if(!empty($this->search_property)){
-					$this->RenderText('You need to configure the search_restrictions property or set a search_property');
+					$this->getRenderer()->RenderText('You need to configure the search_restrictions property or set a search_property');
 					return;
 				}
 			}
@@ -133,7 +135,7 @@ abstract class CrudController extends BaseController {
 			$this->bag['searchResultTotal']=Repo::total($this->controller,$restrictions);
         }
         Debug::Message($message);
-        $this->bag['all']=Repo::slicedFindAll($this->controller,$first,$per_page,$order,$restrictions,false,true);
+        $this->bag['all']=Repo::slicedFindAll($this->controller,$first,$per_page,$order,$restrictions,null,true);
         $this->bag['total']=Repo::total($this->controller);
 	}
 
@@ -155,7 +157,8 @@ abstract class CrudController extends BaseController {
      */
     public function create($redirect=true){
 		$this->setRender(false);
-		$this->loadFromPost();
+        $request = new RequestEvent($_REQUEST);
+        $request->loadFromPost($this->crudItem);
 		$this->crudItem->save();
 		if($redirect) {
 			$this->redirect('result=1');
@@ -170,8 +173,9 @@ abstract class CrudController extends BaseController {
     public function update($redirect=true){
         $this->setRender(false);
 		$id=array_key_exists_v('Id',$this->values);		
-		$this->crudItem=Repo::getById(get_class($this->crudItem),$id);		
-		$this->loadFromPost();
+		$this->crudItem=Repo::getById(get_class($this->crudItem),$id);
+        $request = new RequestEvent($_REQUEST);
+        $request->loadFromPost($this->crudItem);
 		$this->crudItem->save();
 		if($redirect)
 			$this->redirect('result=2');
@@ -192,7 +196,8 @@ abstract class CrudController extends BaseController {
             $this->redirect('delete=1');
             return;
         }
-        $this->loadFromPost();
+        $request = new RequestEvent($_REQUEST);
+        $request->loadFromPost($this->crudItem);
         $this->crudItem->delete();
 		$this->redirect('delete=1');
 	}

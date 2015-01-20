@@ -8,6 +8,7 @@ class ApplicationBase {
     public $app, $dir, $appName;
     private $name;
     private $file;
+    protected  $options;
     /**
      * @var
      */

@@ -57,6 +57,7 @@ class AoiSoraSettings {
      * Install an application
      * @param string $app
      */
+    //TODO: add installation process
     static function installApplication($app) {
 	}
 
@@ -64,6 +65,7 @@ class AoiSoraSettings {
      * Uninstall an application
      * @param string $app
      */
+    //TODO: add uninstallation process
     static function uninstallApplication($app) {
 	}
 

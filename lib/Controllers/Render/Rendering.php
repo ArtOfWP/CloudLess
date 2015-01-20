@@ -51,7 +51,7 @@ class Rendering {
             $layout_path = $this->views->findLayout($this->getTemplate());
             if ($layout_path) {
                 $engine = RenderingEngines::getEngine($this->getTemplate(), $view_path);
-                $view_content = $engine->render($layout_path, array_merge($this->getBag(),$tags,['bag'=>$this->getBag()+$tags]), Filter::run("{$this->controllerName}-{$action}-blocks", array(array('view' => $view_content))));
+                $view_content = $engine->render($layout_path, array_merge($this->getBag(),$tags,['bag'=>$this->getBag()+$tags], Filter::run("{$this->controllerName}-{$action}-blocks", array(array('view' => $view_content)))));
             }
             $this->render = false;
             RenderedContent::set($view_content);
@@ -79,7 +79,8 @@ class Rendering {
     public function RenderFile($filePath) {
         ob_start();
         if (file_exists($filePath)) {
-            extract($this->getBag(), EXTR_REFS);
+            $bag = $this->getBag();
+            extract($bag, EXTR_REFS);
             include($filePath);
             $viewcontent = ob_get_contents();
         } else

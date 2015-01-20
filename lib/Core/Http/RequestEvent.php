@@ -27,6 +27,10 @@ class RequestEvent {
      * @var array
      */
     private $postRequest;
+
+    /**
+     * @param array|null $request
+     */
     public function __construct($request = null) {
         if (!is_null($request))
             $this->postRequest = $_REQUEST;
@@ -37,10 +41,10 @@ class RequestEvent {
     /**
      * Loads a CRUD item from a POST request
      * @param ActiveRecordBase $crudItem
-     * @param bool $stripPrefix
+     * @param string $stripPrefix
      * @return ActiveRecordBase|null
      */
-    public function loadFromPost($crudItem = null, $stripPrefix = false) {
+    public function loadFromPost($crudItem = null, $stripPrefix = '') {
         $folder = '';
         $width = 100;
         $height = 100;

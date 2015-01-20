@@ -57,6 +57,7 @@ abstract class ActiveRecordBase {
 				foreach($values as $value){
 					if($table && is_subclass_of($value,'ActiveRecordBase')){
 						$value->save();
+                        $row=array();
 						if($value->getId()){
 							$col1=strtolower(get_class($value)).'_id';
 							$col2=strtolower(get_class($this)).'_id';
@@ -65,8 +66,7 @@ abstract class ActiveRecordBase {
 							$row['values'][$col2]=$this->getId();
 							$db->insert($row);
 						}
-						$row=array();
-					}	
+					}
 				}
 		}
 		$this->runEventMethod(__FUNCTION__,'Post');		
@@ -147,19 +147,20 @@ abstract class ActiveRecordBase {
 							}
 						}
 						if($insert){
+                            $row=array();
 							$row['table']=$table;
 							$row['values'][$col1]=$value->getId();
 							$row['values'][$col2]=$this->getId();
 							$newRows[]=array($value->getId(),$this->getId());
 							$db->insert($row);
 						}
-						$row=array();
 					}
 				}
 			}
 			foreach($existRows as $existRow)
 				if(!in_array($existRow,$newRows)){
-					$col1=array_shift(array_keys($existRow));
+                    $rowKeys= array_keys($existRow);
+					$col1=array_shift($rowKeys);
 					Delete::create($table)->whereAnd(R::Eq($col1,$existRow[$col1]))->where(R::Eq($col2,$existRow[$col2]))->execute();
 				}
 		}

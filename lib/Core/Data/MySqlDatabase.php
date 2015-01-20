@@ -313,7 +313,8 @@ class MySqlDatabase{
 					$params=array_merge($params,$clause->getParameter());
 				else if($clause->hasValue()){
 					$param=$clause->getParameter();
-					$paramKey=array_pop(array_keys($param));
+                    $param_keys = array_keys($param);
+					$paramKey=array_pop($param_keys);
 					if(array_key_exists($paramKey,$params)){
 						$paramCount++;
 						$clause->removeParameter($paramKey);
@@ -403,15 +404,6 @@ class MySqlDatabase{
 		Debug::Message("SQL command is run: $sql");
 		$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);		
 		$this->db->exec($sql);
-	}
-
-    /**
-     * @param $stmt
-     * @param $param
-     * @param $value
-     */
-    private function bindValues(&$stmt,$param,$value){
-		$stmt->bindValue($param,$value);
 	}
 
     /**

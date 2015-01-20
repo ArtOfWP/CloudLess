@@ -6,11 +6,11 @@ namespace CLMVC\Interfaces;
  */
 interface ISecurity{
     /**
-     * @param $nonce
-     * @param bool $action
+     * @param string $nonce
+     * @param string $action
      * @return mixed
      */
-    function verifyNonce($nonce,$action=false);
+    function verifyNonce($nonce,$action='');
 
     /**
      * @param bool $action

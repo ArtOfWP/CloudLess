@@ -6,7 +6,6 @@ namespace CLMVC\Core\Data;
 use CLMVC\Helpers\ObjectUtility;
 
 abstract class IUserMetas {
-    protected $user_id;
     public abstract function install();
 
     public function save() {
@@ -14,14 +13,9 @@ abstract class IUserMetas {
 
     }
 
-    public function delete() {
-    }
+    public abstract function delete();
 
-    public function getOne($user_id) {
+    public abstract function getOne($user_id);
 
-    }
-
-    public function find($params, $limit) {
-
-    }
-} 
+    public abstract  function find($params, $limit);
+}

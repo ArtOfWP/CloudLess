@@ -19,7 +19,7 @@ class CountQuery{
      * Setup a count query. Supply table to preinitate query.
      * @param string $table
      */
-    function CountQuery($table=''){
+    function __construct($table=''){
 		$this->statement['from']=array();
 		$this->statement['order']=array();
 		$this->statement['groupby']=array();

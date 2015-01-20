@@ -10,7 +10,7 @@ class Delete{
      * Delete query constructor
      * @param bool $table db table to connect query to
      */
-    function Delete($table=false){
+    function __construct($table=false){
 		$this->statement['from']=array();	
 		$this->statement['where']=array();			
 		if($table){

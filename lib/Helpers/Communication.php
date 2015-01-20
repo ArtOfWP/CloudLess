@@ -58,8 +58,8 @@ class Communication
     /**
      * Returns the query string
      * @param string $key
-     * @param null $default
-     * @return bool|mixed
+     * @param string $default
+     * @return array
      */
     static function getQueryString($key = null, $default = null)
     {

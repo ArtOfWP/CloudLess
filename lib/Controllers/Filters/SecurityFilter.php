@@ -43,7 +43,7 @@ class SecurityFilter implements IFilter{
             if (!$this->useraction || $s->currentUserCan($this->useraction))
                 return true;
         }
-        $controller->RenderText('You cannot perform this action');
+        $controller->getRenderer()->RenderText('You cannot perform this action');
 		return false;
 	}
 }

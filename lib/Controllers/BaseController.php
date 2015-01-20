@@ -1,11 +1,10 @@
 <?php
 namespace CLMVC\Controllers;
-use ActiveRecordBase;
 use CLMVC\Core\Container;
+use CLMVC\Core\Data\ActiveRecordBase;
 use CLMVC\Core\Debug;
 use CLMVC\Events\Filter;
 use CLMVC\Events\RequestEvent;
-use CLMVC\Interfaces\IFilter;
 use CLMVC\Helpers\Communication;
 use CLMVC\Events\Hook;
 use ReflectionMethod;
@@ -255,7 +254,7 @@ class BaseController {
 
     /**
      * Redirect request with query
-     * @param array $query
+     * @param string|array $query
      */
     protected function redirect($query = array()) {
         if (defined('NO_REDIRECT') && NO_REDIRECT)
@@ -263,10 +262,10 @@ class BaseController {
         $redirect = Communication::useRedirect();
         if ($redirect) {
             if (strtolower($redirect) == 'referer')
-                $redirect = preg_replace('/[\&|\?]result\=\d+/', '', Communication::getReferer());
+                $redirectTo = preg_replace('/[\&|\?]result\=\d+/', '', Communication::getReferer());
             else
-                $redirect = preg_replace('/[\&|\?]result\=\d+/', '', $redirect);
-            Communication::redirectTo($redirect, $query);
+                $redirectTo = preg_replace('/[\&|\?]result\=\d+/', '', $redirect);
+            Communication::redirectTo($redirectTo, $query);
         }
     }
 

@@ -12,6 +12,13 @@ class Option {
     private $value = null;
     private $type;
 
+    public function __construct($key = '',$defaultValue='' ,$type='string'){
+        if ($key) {
+            $this->setKey($key);
+            $this->setDefaultValue($defaultValue);
+            $this->setType($type);
+        }
+    }
     /**
      * @param string $key
      * @param string $defaultValue
@@ -19,12 +26,7 @@ class Option {
      * @return Option
      */
     static function create($key = '',$defaultValue='' ,$type='string'){
-        $option = new Option();
-        if ($key) {
-            $option->setKey($key);
-            $option->setDefaultValue($defaultValue);
-            $option->setType($type);
-        }
+        $option = new Option($key, $defaultValue, $type);
         return $option;
     }
 

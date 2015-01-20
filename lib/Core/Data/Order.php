@@ -37,7 +37,7 @@ class Order{
      * @param string $property property of the class or table
      * @param string $order ASC, DESC
      */
-    public function Order($property,$order='DESC'){
+    public function __construct($property,$order='DESC'){
 		$this->property=$property;
 		$this->order=$order;
 	}

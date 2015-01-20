@@ -34,9 +34,9 @@ class Query{
 
     /**
      * Create a query
-     * @param bool $table
+     * @param string $table
      */
-    function Query($table=false){
+    function __construct($table=''){
 		$this->statement['from']=array();
 		$this->statement['order']=array();
 		$this->statement['groupby']=array();
@@ -49,8 +49,9 @@ class Query{
 
     /**
      * Create a query based on a class or an instantiated class, i.e object. Lazy preloads the return object.
-     * @param $class
+     * @param object|string $class
      * @param bool $lazy
+     * @throws \InvalidArgumentException
      * @return Query
      */
     static function createFrom($class,$lazy=false){
@@ -62,7 +63,7 @@ class Query{
             $query->returnType = $class;
             $object = new $class();
         } else {
-            $object = null;
+            throw new \InvalidArgumentException('Provided class is not an object or a class that can be instantiated');
         }
 		Debug::Value('createFrom',$class);
 		Debug::Backtrace();
@@ -73,10 +74,10 @@ class Query{
 
     /**
      * Create query based on table.
-     * @param bool $table
+     * @param string $table
      * @return Query
      */
-    static function create($table=false){
+    static function create($table=''){
 		Debug::Value('Query create', $table);
 		Debug::Backtrace();
 		return new Query($table);
@@ -138,9 +139,6 @@ class Query{
                     $qList->from($dbrelationname);
                     $qList->whereAnd(R::Eq($temp, $dbrelationname . '.' . $dependson . '_id', true));
                     $query->dependslist[$array] = $qList;
-                    $qList = null;
-                    $array = null;
-                    $temp = null;
                 }
             }
         }
