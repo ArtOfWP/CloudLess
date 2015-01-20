@@ -316,7 +316,7 @@ class WpApplicationBase {
 	}
 
     /**
-     * @param $dir
+     * @param string $dir
      */
     private function load($dir){
 		Debug::Value('Loading directory',$dir);

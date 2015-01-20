@@ -38,7 +38,7 @@ class RequestEvent {
      * Loads a CRUD item from a POST request
      * @param ActiveRecordBase $crudItem
      * @param bool $stripPrefix
-     * @return bool
+     * @return ActiveRecordBase|null
      */
     public function loadFromPost($crudItem = null, $stripPrefix = false) {
         $folder = '';

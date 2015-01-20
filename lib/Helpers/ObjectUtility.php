@@ -45,7 +45,7 @@ class ObjectUtility{
 
     /**
      * Retrive the array properties and their values
-     * @param $object
+     * @param \CLMVC\Core\Data\ActiveRecordBase $object
      * @return array
      */
     static function getArrayPropertiesAndValues($object){

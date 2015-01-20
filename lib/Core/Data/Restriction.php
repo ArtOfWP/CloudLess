@@ -192,7 +192,7 @@ class R{
 
     /**
      * column value in list of values
-     * @param $property
+     * @param string $property
      * @param $values
      * @return R
      */
@@ -283,7 +283,7 @@ class R{
 
     /**
      * Set parameter
-     * @param $param
+     * @param string $param
      * @param $value
      */
     function setParameter($param,$value){

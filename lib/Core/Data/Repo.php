@@ -141,7 +141,7 @@ class Repo{
 
     /**
      * Get total number of entries matching $restrictions
-     * @param $class
+     * @param string $class
      * @param R|R[] $restrictions list of restrictions to limit the total
      * @param string|string[] $groupby group by property
      * @return int number of entries matching restrictions

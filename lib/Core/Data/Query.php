@@ -436,7 +436,7 @@ class Query{
 
     /**
      * Setups one to many object
-     * @param $class
+     * @param string $class
      * @param $object
      */
     private function setup_one_to_many_return_object($class, $object) {

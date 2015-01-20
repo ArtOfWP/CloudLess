@@ -45,7 +45,7 @@ class Options
 
     /**
      * Return Option
-     * @param $key
+     * @param string $key
      * @return null|Option
      */
     public function get($key) {
@@ -88,7 +88,7 @@ class Options
      * Update an option
      * @param string $key
      * @param mixed $value
-     * @return bool
+     * @return null|Option
      */
     public function updateValue($key, $value) {
         $option = $this->get($key);
