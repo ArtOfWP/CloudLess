@@ -12,7 +12,7 @@ class Communication
     /**
      * Remove query string and other stuff from an url
      * @param $dirty_url
-     * @return mixed
+     * @return string
      */
     static function cleanUrl($dirty_url)
     {

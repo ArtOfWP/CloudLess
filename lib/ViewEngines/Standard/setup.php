@@ -27,6 +27,12 @@ function clmvc_setup_default_tags($tags, $controller) {
     $tags['javascript_head'] = implode("\n", Filter::run('javascripts-head-frontend', array(array())));
     return $tags;
 }
+/**
+ * @param string $app
+ * @param string $url
+ *
+ * @return string
+ */
 function clmvc_app_url($app, $url) {
     return $url;
 }

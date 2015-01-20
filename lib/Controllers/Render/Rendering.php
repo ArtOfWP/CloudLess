@@ -30,7 +30,7 @@ class Rendering {
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     private function getControllerName() {
         return $this->controllerName;
@@ -38,8 +38,8 @@ class Rendering {
 
     /**
      * Renders a controller and its action.
-     * @param $controller
-     * @param $action
+     * @param string $controller
+     * @param string $action
      * @throws RenderException
      */
     public function Render($controller, $action) {
@@ -146,7 +146,7 @@ class Rendering {
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getTemplate() {
         return $this->controller->getTemplateType();

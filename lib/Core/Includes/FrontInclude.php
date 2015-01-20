@@ -32,7 +32,7 @@ class FrontInclude {
 
     /**
      * Get the name for the resource
-     * @return bool
+     * @return string
      */
     public function getHandle() {
         return $this->handle;
@@ -80,7 +80,7 @@ class FrontInclude {
 
     /**
      * Get the path to the resource
-     * @return bool
+     * @return string
      */
     public function getSrc() {
         return $this->src;

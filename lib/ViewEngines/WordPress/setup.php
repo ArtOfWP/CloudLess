@@ -26,6 +26,9 @@ function clmvc_setup_default_tags($tags, $controller) {
     return $tags;
 }
 
+/**
+ * @param string $file
+ */
 function sl_file($file,$isPlugin=true) {
     if($isPlugin)
         return CLOUDLESS_APP_DIR.'/'.$file.'/'.$file.'.php';
@@ -43,6 +46,12 @@ if (!defined('PACKAGEPATH')) {
     define('PACKAGEPATH',$tempPath);
 }
 
+/**
+ * @param string $app
+ * @param string $url
+ *
+ * @return string
+ */
 function clmvc_app_url($app, $url) {
     return plugins_url($app.'/'.$url);
 }

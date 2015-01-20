@@ -1,17 +1,14 @@
 <?php
 namespace CLMVC\Controllers;
 use ActiveRecordBase;
-use CLMVC\Core\AoiSoraSettings;
 use CLMVC\Core\Container;
 use CLMVC\Core\Debug;
 use CLMVC\Events\Filter;
 use CLMVC\Events\RequestEvent;
-use CLMVC\Events\View;
 use CLMVC\Interfaces\IFilter;
 use CLMVC\Helpers\Communication;
 use CLMVC\Events\Hook;
 use ReflectionMethod;
-use Repo;
 use RuntimeException;
 use CLMVC\Controllers\Render\Rendering;
 /**
@@ -218,7 +215,7 @@ class BaseController {
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getTemplateType()
     {

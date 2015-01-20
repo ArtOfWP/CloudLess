@@ -1,6 +1,5 @@
 <?php
 namespace CLMVC\Core;
-use CLMVC\AoiSora;
 
 /**
  * Class AoiSoraSettings

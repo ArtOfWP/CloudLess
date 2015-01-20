@@ -1,7 +1,7 @@
 <?php
 /**
  * Checks if an array has a specific value
- * @param $key
+ * @param string $key
  * @param $value
  * @param $haystack
  * @return bool

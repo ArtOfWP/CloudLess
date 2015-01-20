@@ -35,7 +35,7 @@ class ApplicationBase {
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getName() {
         return $this->name;

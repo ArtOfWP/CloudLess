@@ -71,7 +71,7 @@ class CountQuery{
 
     /**
      * Use query from
-     * @param $table
+     * @param string $table
      * @return $this
      */
     public function from($table){

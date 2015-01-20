@@ -1,7 +1,6 @@
 <?php
 namespace CLMVC\Core\Includes;
 use CLMVC\Core\Container;
-use CLMVC\Events\Filter;
 use CLMVC\Events\Hook;
 use CLMVC\Interfaces\IIncludes;
 

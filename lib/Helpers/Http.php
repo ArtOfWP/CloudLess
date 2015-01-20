@@ -60,9 +60,9 @@ class Http {
 
     /**
      * Retrives a page
-     * @param $url
+     * @param string $url
      * @param bool $referer
-     * @return mixed
+     * @return string
      */
     static function getPage($url,$referer=false){
 		$ch=curl_init();

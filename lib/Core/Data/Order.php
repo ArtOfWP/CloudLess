@@ -44,7 +44,7 @@ class Order{
 
     /**
      * Surround property with MySQL marks
-     * @param $ct
+     * @param string $ct
      * @return string
      */
     private function addMark($ct){
