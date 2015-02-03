@@ -14,6 +14,7 @@ class Views {
     public function __construct($controller) {
         $this->controller = $controller;
     }
+
     /**
      * @param string $controller
      * @param string $action
@@ -21,13 +22,17 @@ class Views {
      * @return string Empty string if path is not found.
      */
     public function findView($controller, $action, $template = 'php') {
-        $viewPath = Filter::run("cl-view-path", [$this->controller->getViewPath(), $this->controller, $controller, $action]);
+        $viewPath = $this->controller->getViewPath();
+        if(!is_array($viewPath))
+            $viewPath = [$viewPath];
+        $viewPath = Filter::run("cl-view-path", [$viewPath, $this->controller, $controller, $action]);
         $viewPath = Filter::run("cl-view-path-{$controller}", [$viewPath, $this->controller, $controller, $action]);
+
         if ($viewPath) {
-            if (file_exists(rtrim($viewPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.' . $template))
-                return rtrim($viewPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . '.' . $template;
-            if (file_exists(rtrim($viewPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . '-'. $action . '.' . $template))
-                return rtrim($viewPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $controller . '-' . $action . '.' . $template;
+            if ($path = $this->viewPaths($viewPath, $controller . DIRECTORY_SEPARATOR . $action . '.' . $template))
+                return $path;
+            if ($path = $this->viewPaths($viewPath, $controller . '-'. $action . '.' . $template))
+                return $path;
         }
         $apps = AoiSoraSettings::getApplications();
         $lc_controller = strtolower($controller);
@@ -42,10 +47,19 @@ class Views {
         return '';
     }
 
+    private function viewPaths($paths, $view) {
+        foreach($paths as $path) {
+            if(file_exists($path . DIRECTORY_SEPARATOR . trim($view ,"/"))) {
+                return $path . DIRECTORY_SEPARATOR . trim($view ,"/");
+            }
+        }
+        return false;
+    }
+
     public function findLayout($template = 'php') {
         if ($this->controller->getViewPath()) {
-            if (file_exists(rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Layouts' . DIRECTORY_SEPARATOR . 'default' . '.' . $template))
-                return rtrim($this->controller->getViewPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Layouts' . DIRECTORY_SEPARATOR . 'default' .  '.' . $template;
+            if ($path = $this->viewPaths($this->controller->getViewPath(), 'Layouts' . DIRECTORY_SEPARATOR . 'default' . '.' . $template))
+                return $path;
         }
         return '';
     }
