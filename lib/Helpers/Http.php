@@ -101,8 +101,21 @@ class Http {
 	    curl_close($ch); 	
 	}
 
+	static function requestPath() {
+		return parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);
+	}
+
+	static function requestPathMatchesPath($path, $root=false) {
+		$test = trim(stripslashes(self::requestPath())," /");
+		if($root) {
+			$pages=explode("/",$test);
+			$test = array_shift( $pages );
+		}
+		return trim(stripslashes($path)," /") == $test;
+	}
+
     static function get_current_page($root = true) {
-        $files = explode('/',trim(Communication::cleanUrl($_SERVER['REQUEST_URI']), '/'));
+        $files = explode('/',trim(stripslashes(self::requestPath())," /"));
         if($root)
             return array_shift($files);
         return array_pop($files);
