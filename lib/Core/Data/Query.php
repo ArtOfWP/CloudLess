@@ -107,7 +107,7 @@ class Query{
             if ($depends_on && $lazy) {
                 Debug::Value('dbrelation', $depends_on);
                 $temp = new $depends_on();
-                $gProperty = Query::createFrom($temp)->where(R::Eq($temp, 'Id'));
+                $gProperty = Query::createFrom($temp)->where(Restriction::Eq($temp, 'Id'));
                 $query->depends[$property] = $gProperty;
             }
             $query->select($property, $main_table);
@@ -137,7 +137,7 @@ class Query{
                     Debug::Value('Relationname', $dbrelationname);
                     $qList = Query::createFrom($temp);
                     $qList->from($dbrelationname);
-                    $qList->whereAnd(R::Eq($temp, $dbrelationname . '.' . $dependson . '_id', true));
+                    $qList->whereAnd(Restriction::Eq($temp, $dbrelationname . '.' . $dependson . '_id', true));
                     $query->dependslist[$array] = $qList;
                 }
             }
@@ -189,8 +189,10 @@ class Query{
 
     /**
      * Add where clause
-     * @param R|R[]$restriction
-     * @return $this
+     *
+*@param Restriction|Restriction[]$restriction
+     *
+*@return $this
      */
     public function where($restriction){
 		if(is_array($restriction)){
@@ -216,45 +218,53 @@ class Query{
 
     /**
      * Adds an R::_And() restriction before adding restriction
-     * @param R|R[] $restriction
-     * @return $this
+     *
+*@param Restriction|Restriction[] $restriction
+     *
+*@return $this
      */
     public function And_($restriction){
-		$this->statement['where'][]=R::_And();
+		$this->statement['where'][] = Restriction::_And();
 		$this->where($restriction);
 		return $this;
 	}
 
     /**
      * Adds an R::_Or() restriction before adding provided restriction
-     * @param R|R[] $restriction
-     * @return $this
+     *
+     * @param Restriction|Restriction[] $restriction
+     *
+*@return $this
      */
     public function Or_($restriction){
-		$this->statement['where'][]=R::_Or();
+		$this->statement['where'][]=Restriction::_Or();
 		$this->where($restriction);
 		return $this;
 	}
 
     /**
      * Adds an R::_And() restriction after adding restriction
-     * @param R|R[] $restriction
-     * @return $this
+     *
+     * @param Restriction|Restriction[] $restriction
+     *
+*@return $this
      */
     public function whereAnd($restriction){
 		$this->where($restriction);
-		$this->statement['where'][]=R::_And();
+		$this->statement['where'][]=Restriction::_And();
 		return $this;
 	}
 
     /**
      * Adds an R::_Or() restriction after adding provided restriction
-     * @param R|R[] $restriction
-     * @return $this
+     *
+     * @param Restriction|Restriction[] $restriction
+     *
+*@return $this
      */
     public function whereOr($restriction){
 		$this->where($restriction);
-		$this->statement['where'][]=R::_Or();
+		$this->statement['where'][]=Restriction::_Or();
 		return $this;
 	}
 
@@ -334,7 +344,7 @@ class Query{
      */
     public function setParameter($param,$value){
         /**
-         * @var R $restriction
+         * @var Restriction $restriction
          */
         foreach($this->statement['where'] as $restriction){
 			$restriction->setParameter($param,$value);
@@ -448,7 +458,7 @@ class Query{
         foreach ($dependslist as $property => $query) {
             Debug::Value('Property', $property);
             $query = clone $query;
-            $query->where(R::Eq(strtolower($class) . '_id', $object));
+	        $query->where(Restriction::Eq(strtolower($class) . '_id', $object));
             Debug::Value('Query', $query);
             $values = $query->execute();
             $query = null;

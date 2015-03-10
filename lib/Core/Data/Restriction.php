@@ -1,10 +1,9 @@
 <?php
 namespace CLMVC\Core\Data;
 
-use CLMVC\Core\Data\ActiveRecordBase;
 use CLMVC\Core\Debug;
 
-class R{
+class Restriction {
 	var $table;
 	var $column;
 	var $foreignTable;
@@ -23,12 +22,14 @@ class R{
 
     /**
      * Match keywords against columns
-     * @param $columns
+     *
+*@param $columns
      * @param $keywords
-     * @return R
+     *
+*@return Restriction
      */
     static function Match($columns, $keywords){
-		$r = new R();
+		$r = new Restriction();
 		$r->method='MATCH';
 		$r->columns=$columns;
 		$r->setParameter('matchParams'.sizeof($columns),trim($keywords));
@@ -37,66 +38,76 @@ class R{
 
     /**
      * Greater than or equal to
-     * @param string $property column to check against
+     *
+*@param string $property column to check against
      * @param mixed $value value to compare against
      * @param bool $isProperty value is an ActiveRecordBase object use property
-     * @return R
+     *
+*@return Restriction
      */
-    static function Ge($property, $value, $isProperty=false){
-		$r=R::Eq($property, $value, $isProperty);
+    static function Ge($property, $value, $isProperty=false) {
+	    $r = Restriction::Eq($property, $value, $isProperty);
 		$r->method='>=';
 		return $r;
 	}
 
     /**
      * Less than or equal too
-     * @param string $property column to check against
+     *
+*@param string $property column to check against
      * @param mixed $value value to compare against
      * @param bool $isProperty
-     * @return R
+     *
+     * @return Restriction
      */
-    static function Le($property, $value, $isProperty=false){
-		$r=R::Ge($property, $value, $isProperty);
+    static function Le($property, $value, $isProperty=false ) {
+	    $r=Restriction::Ge($property, $value, $isProperty);
 		$r->method='<=';
 		return $r;
 	}
 
     /**
      * Less than
-     * @param string $property column to check against
+     *
+*@param string $property column to check against
      * @param mixed $value value to compare against
      * @param bool $isProperty
-     * @return R
+     *
+     * @return Restriction
      */
-    static function Lt($property, $value, $isProperty=false){
-		$r=R::Eq($property,$value,$isProperty);
+    static function Lt($property, $value, $isProperty = false ) {
+	    $r=Restriction::Eq($property,$value,$isProperty);
 		$r->method='<';
 		return $r;
 	}
 
     /**
      * Greater than
-     * @param string $property column to check against
+     *
+*@param string $property column to check against
      * @param mixed $value value to compare against
      * @param bool $isProperty
-     * @return R
+     *
+     * @return Restriction
      */
-    static function Gt($property, $value, $isProperty=false){
-		$r=R::Eq($property,$value,$isProperty);
+    static function Gt($property, $value, $isProperty = false){
+		$r=Restriction::Eq($property,$value,$isProperty);
 		$r->method='>';
 		return $r;
 	}
 
     /**
      * Equal too
-     * @param string|object $property column to check against
+     *
+*@param string|object $property column to check against
      * @param mixed $value value to compare against
      * @param bool $isProperty
-     * @return R
+     *
+     *@return Restriction
      */
     static function Eq($property,$value, $isProperty=false){
 		global $db_prefix;
-		$r = new R();
+		$r = new Restriction();
 		if($property instanceof ActiveRecordBase){
 			$r->table=$db_prefix.strtolower(get_class($property));
 			$r->column='Id';
@@ -123,14 +134,16 @@ class R{
 
     /**
      * Not equal too
-     * @param string $property column to check against
+     *
+*@param string $property column to check against
      * @param mixed $value value to compare against
      * @param bool $isProperty
-     * @return R
+     *
+*@return Restriction
      */
     static function NotEq($property,$value,$isProperty=false){
 		global $db_prefix;
-		$r = new R();
+		$r = new Restriction();
 		if($property instanceof ActiveRecordBase){
 			$r->table=$db_prefix.strtolower(get_class($property));
 			$r->column='id';
@@ -158,15 +171,17 @@ class R{
 
     /**
      * Equal too compares ActiveRecordBase
-     * @param $class
+     *
+*@param $class
      * @param string $property column to check against
      * @param mixed $value value to compare against
      * @param bool $isProperty
-     * @return R
+     *
+*@return Restriction
      */
     static function EqP($class,$property,$value,$isProperty=false){
-		global $db_prefix;
-		$r = new R();
+	    global $db_prefix;
+		$r = new Restriction();
 		if($class instanceof ActiveRecordBase)
             $class=get_class($class);
     	$r->table=$db_prefix.strtolower($class);
@@ -192,13 +207,15 @@ class R{
 
     /**
      * column value in list of values
-     * @param string $property
+     *
+*@param string $property
      * @param $values
-     * @return R
+     *
+*@return Restriction
      */
-    static function In($property,$values){
-		global $db_prefix;
-		$r = new R();
+    static function In($property,$values ) {
+	    global $db_prefix;
+		$r = new Restriction();
 		if($property instanceof ActiveRecordBase){
 			$r->table=$db_prefix.strtolower(get_class($property));
 			$r->column='id';
@@ -229,13 +246,15 @@ class R{
 
     /**
      * Like
-     * @param $property
+     *
+*@param $property
      * @param $value
      * @param int $placement
-     * @return R
+     *
+*@return Restriction
      */
-    static function Like($property,$value,$placement=0){
-		$r = new R();
+    static function Like($property, $value,$placement=0){
+		$r = new Restriction();
 		$r->column=strtolower($property);
 		$r->method='LIKE';
 		$r->placement=$placement;
@@ -247,20 +266,20 @@ class R{
 
     /**
      * AND restriction
-     * @return R
+     * @return Restriction
      */
-    static function _And(){
-		$r = new R();
+	static function _And(){
+		$r = new Restriction();
 		$r->method=' AND ';
 		return $r;
 	}
 
     /**
      * OR restriction
-     * @return R
+     * @return Restriction
      */
-    static function _Or(){
-		$r = new R();
+	static function _Or(){
+		$r = new Restriction();
 		$r->method=' OR ';
 		return $r;
 	}
@@ -327,10 +346,9 @@ class R{
 		switch($this->method){
 			case "LIKE":
                 $front="%";
-                $back="%";
-				if($this->placement==R::$LEFT)
-					$front="%";
-				else if($this->placement==R::$RIGHT)
+				$back = "%";
+				if($this->placement==Restriction::$LEFT)
+					$front = "%"; else if($this->placement==Restriction::$RIGHT)
 					$back="%";
                 $param_keys= array_keys($this->getParameters());
 				$param=array_pop($param_keys);

@@ -4,7 +4,7 @@ namespace CLMVC\Core\Data;
 use CLMVC\Core\Data\Order;
 use CLMVC\Core\Data\Query;
 use CLMVC\Core\Debug;
-use CLMVC\Core\Data\R;
+use CLMVC\Core\Data\Restriction;
 
 /**
  * Class Repo
@@ -38,7 +38,7 @@ class Repo{
 		Debug::Value('Id=',$id);
 		Debug::Backtrace();		
 		$objects= Query::createFrom($class,$lazy)
-				  ->where(R::Eq(new $class,$id))
+				  ->where(Restriction::Eq(new $class,$id))
 				  ->limit(0,1)
 				  ->execute();
 		return sizeof($objects) == 1 ? array_shift($objects) : false;
@@ -46,12 +46,14 @@ class Repo{
 
     /**
      * Finds all entries of type $class that matches the restrictions
-     * @param string|object $class name of class or instance of object
+     *
+*@param string|object $class name of class or instance of object
      * @param bool $lazy if object should be preloaded
-     * @param R|R[] $restrictions list of restrictions to limit the find
+     * @param Restriction|Restriction[] $restrictions list of restrictions to limit the find
      * @param string $groupBy group by property
      * @param Order|Order[] $order
-     * @return array
+     *
+*@return array
      */
     static function find($class, $lazy=false, $restrictions=null, $groupBy=null, $order=null){
 		Debug::Value('Repo find ', $class);
@@ -86,23 +88,25 @@ class Repo{
 		Debug::Backtrace();
 		$q=Query::createFrom($class,$lazy);
 		if(is_array($value))
-			$q->where(R::In($property,$value));		
+			$q->where( Restriction::In($property,$value));
 		else 
-			$q->where(R::Eq($property,$value));
+			$q->where( Restriction::Eq($property,$value));
 		if($order)
 			$q->order($order);
 		return $q->execute();
 	}
     /**
      * Find a offset and limited list of entries
-     * @param string|object $class name of class or instance of object
+     *
+*@param string|object $class name of class or instance of object
      * @param int $firstResult from which entry that return should begin
      * @param int $maxResult limit the number of entries
      * @param Order|Order[] $order order the result
-     * @param R|R[] $restrictions list of restrictions to limit the find
+     * @param Restriction|Restriction[] $restrictions list of restrictions to limit the find
      * @param string|string[] $groupby group by property
      * @param bool $lazy if object should be preloaded
-     * @return array
+     *
+*@return array
      */
 	static function slicedFindAll($class, $firstResult, $maxResult, $order=null, $restrictions=null, $groupby=null,$lazy=false){
 		Debug::Value('Repo slicedFindAll ', $class);
@@ -124,10 +128,12 @@ class Repo{
 
     /**
      * Find one entry matching
-     * @param $class
-     * @param R|R[] $restrictions list of restrictions to limit the find
+     *
+*@param $class
+     * @param Restriction|Restriction[] $restrictions list of restrictions to limit the find
      * @param bool $lazy if object should be preloaded
-     * @return null|mixed
+     *
+*@return null|mixed
      */
     static function findOne($class, $restrictions,$lazy=false){
 		Debug::Value('Repo findOne', $class);
@@ -141,10 +147,12 @@ class Repo{
 
     /**
      * Get total number of entries matching $restrictions
-     * @param string $class
-     * @param R|R[] $restrictions list of restrictions to limit the total
+     *
+*@param string $class
+     * @param Restriction|Restriction[] $restrictions list of restrictions to limit the total
      * @param string|string[] $groupby group by property
-     * @return int number of entries matching restrictions
+     *
+*@return int number of entries matching restrictions
      */
     static function total($class, $restrictions=null, $groupby=null){
 		Debug::Value('Repo total ', $class);

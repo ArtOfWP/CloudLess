@@ -3,7 +3,7 @@ namespace CLMVC\Core\Data;
 
 use CLMVC\Core\Data\Delete;
 use CLMVC\Core\Data\Query;
-use CLMVC\Core\Data\R;
+use CLMVC\Core\Data\Restriction;
 use CLMVC\Core\Debug;
 use CLMVC\Events\Hook;
 use CLMVC\Helpers\ObjectUtility;
@@ -85,10 +85,10 @@ abstract class ActiveRecordBase {
 			$settings=ObjectUtility::getCommentDecoration($this,$list.'List');
 			$table=array_key_exists_v('dbrelationname',$settings);
 			if($table)
-				Delete::createFrom($table)->where(R::Eq($column,$this))->execute();
+				Delete::createFrom($table)->where(Restriction::Eq($column,$this))->execute();
 		}
 		Delete::createFrom($this)
-		->where(R::Eq($this,$this->getId()))
+		->where(Restriction::Eq($this,$this->getId()))
 		->execute();
 		$this->runEventMethod(__FUNCTION__,'Post');		
 	}
@@ -116,7 +116,7 @@ abstract class ActiveRecordBase {
 			}
 		}
 		global $db;
-		$db->update($vo,R::Eq($this,$this->getId()));
+		$db->update($vo,Restriction::Eq($this,$this->getId()));
 		
 		$lists=ObjectUtility::getArrayPropertiesAndValues($this);
 		$col2=strtolower(get_class($this)).'_id';
@@ -124,7 +124,7 @@ abstract class ActiveRecordBase {
 		foreach($lists as $list =>$values){
 			$settings=ObjectUtility::getCommentDecoration($this,$list.'List');
 			$table=array_key_exists_v('dbrelationname',$settings);
-			$existRows=Query::create($table)->selectAll()->where(R::Eq($col2,$this->getId()))->execute();
+			$existRows=Query::create($table)->selectAll()->where(Restriction::Eq($col2,$this->getId()))->execute();
 			$newRows=array();
 			Debug::Value('List values',$values);
 			if(sizeof($values)>0){
@@ -161,7 +161,7 @@ abstract class ActiveRecordBase {
 				if(!in_array($existRow,$newRows)){
                     $rowKeys= array_keys($existRow);
 					$col1=array_shift($rowKeys);
-					Delete::create($table)->whereAnd(R::Eq($col1,$existRow[$col1]))->where(R::Eq($col2,$existRow[$col2]))->execute();
+					Delete::create($table)->whereAnd(Restriction::Eq($col1,$existRow[$col1]))->where(Restriction::Eq($col2,$existRow[$col2]))->execute();
 				}
 		}
 		$this->runEventMethod(__FUNCTION__,'Post');		
@@ -268,8 +268,8 @@ abstract class ActiveRecordBase {
 
 					$q=Query::createFrom($temp);
 					$q->from($settings['dbrelationname']);
-					$q->whereAnd(R::Eq($temp,$settings['dbrelationname'].'.'.$foreign.'_id',true));
-					$q->where(R::Eq($table.'_id',$this));
+					$q->whereAnd(Restriction::Eq($temp,$settings['dbrelationname'].'.'.$foreign.'_id',true));
+					$q->where(Restriction::Eq($table.'_id',$this));
 					$list=$q->execute();
 					$method='add'.str_replace('List','',$method);
 					foreach($list as $li){

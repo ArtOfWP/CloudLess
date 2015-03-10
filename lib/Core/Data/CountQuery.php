@@ -1,7 +1,7 @@
 <?php
 namespace CLMVC\Core\Data;
 
-use CLMVC\Core\Data\R;
+use CLMVC\Core\Data\Restriction;
 
 /**
  * Class CountQuery
@@ -108,8 +108,10 @@ class CountQuery{
 
     /**
      * Restrict the count query
-     * @param R|R[] $restriction
-     * @return $this
+     *
+*@param Restriction|Restriction[] $restriction
+     *
+*@return $this
      */
     public function where($restriction){
 		if(is_array($restriction)){
@@ -126,7 +128,7 @@ class CountQuery{
      */
     public function whereAnd($restriction){
 		$this->where($restriction);
-		$this->statement['where'][]=R::_And();
+		$this->statement['where'][] = Restriction::_And();
 		return $this;
 	}
 
@@ -171,7 +173,7 @@ class CountQuery{
      */
     public function setParameter($param, $value){
         /**
-         * @var R $restriction
+         * @var Restriction $restriction
          */
         foreach($this->statement['where'] as $restriction){
 			$restriction->setParameter($param,$value);

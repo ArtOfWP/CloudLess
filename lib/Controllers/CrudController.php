@@ -2,7 +2,7 @@
 namespace CLMVC\Controllers;
 use CLMVC\Core\Data\ActiveRecordBase;
 use CLMVC\Core\Data\Order;
-use CLMVC\Core\Data\R;
+use CLMVC\Core\Data\Restriction;
 use CLMVC\Core\Data\Repo;
 use CLMVC\Core\Debug;
 use CLMVC\Events\RequestEvent;
@@ -36,7 +36,7 @@ abstract class CrudController extends BaseController {
      */
     protected $crudClass;
     /**
-     * @var bool|R[] Restrictions that should limit the search.
+     * @var bool|Restriction[] Restrictions that should limit the search.
      */
     protected $search_restrictions=false;
     /**
@@ -124,7 +124,7 @@ abstract class CrudController extends BaseController {
 			$restrictions =$this->search_restrictions;
 			if(!$restrictions){
 				if($this->search_property){
-					$restrictions =	R::LIKE($this->search_property,$this->values['search'],3);
+					$restrictions =	Restriction::LIKE($this->search_property,$this->values['search'],3);
 					echo $this->search_property;
 				}else if(!empty($this->search_property)){
 					$this->getRenderer()->RenderText('You need to configure the search_restrictions property or set a search_property');

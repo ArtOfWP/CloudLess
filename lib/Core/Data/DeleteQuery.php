@@ -41,7 +41,7 @@ class Delete{
 	}
 
     /**
-     * @var R[] collection of statements
+     * @var Restriction[] collection of statements
      */
     private $statement=array();
 
@@ -58,8 +58,10 @@ class Delete{
 
     /**
      * Where restriction
-     * @param R[]|R $restriction
-     * @return $this
+     *
+*@param Restriction[]|Restriction $restriction
+     *
+*@return $this
      */
     public function where($restriction){
         if(is_array($restriction)){
@@ -71,12 +73,14 @@ class Delete{
 
     /**
      * Add restriction and append an And restriction.
-     * @param R[]|R $restriction
-     * @return $this
+     *
+*@param Restriction[]|Restriction $restriction
+     *
+*@return $this
      */
     public function whereAnd($restriction){
 		$this->where($restriction);
-		$this->statement['where'][]=R::_And();
+		$this->statement['where'][] = Restriction::_And();
 		return $this;
 	}
 
@@ -117,8 +121,10 @@ class Delete{
 
     /**
      * Gets the statements.
-     * @param $property
-     * @return R[]
+     *
+*@param $property
+     *
+     * @return Restriction[]
      */
     function __get($property){
 		switch($property){
