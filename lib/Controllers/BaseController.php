@@ -89,6 +89,8 @@ class BaseController {
      * @var [string][IFilter]
      */
     private $filters;
+    private $params;
+    private $actionRan;
 
     /**
      * Setup the controller.
@@ -150,17 +152,9 @@ class BaseController {
             }
 
             $this->action = $action;
-            $terminate = false;
-            if (isset($this->filters['beforeAction'])) {
-                foreach ($this->filters['beforeAction'] as $filter) {
-                    if ($filter->perform($this, $this->values, $action))
-                        $terminate = true;
-                }
-            }
-            if ($terminate)
-                return;
             $params = $reflection->getParameters();
             $paramValues = array();
+            $paramStore=array();
             if ($params) {
                 foreach ($params as $param) {
                     $rClass = $param->getClass();
@@ -171,17 +165,35 @@ class BaseController {
                         $paramValues[] = $request->loadFromPost($pObj,$param->getName().'_');
                     } else if (isset($getParams[$param->getName()])) {
                         $paramValues[] = $getParams[$param->getName()];
+                        $paramStore[$param->getName()] = $getParams[$param->getName()];
                     }
                 }
             }
-            Hook::run($this->controller . '-pre' . ucfirst($action), $this);
-            call_user_func_array(array($this, $action), $paramValues);
-            Hook::run($this->controller . '-post' . ucfirst($action), $this);
+            $this->params= $paramStore;
+            $perform = true;
+            if (isset($this->filters['beforeAction'])) {
+                foreach ($this->filters['beforeAction'] as $filter) {
+                    $perform=$filter->perform($this, $this->values, $action);
+                }
+            }
+            if ($perform) {
+                Hook::run($this->controller . '-pre' . ucfirst($action), $this);
+                call_user_func_array(array($this, $action), $paramValues);
+                $this->actionRan=true;
+                Hook::run($this->controller . '-post' . ucfirst($action), $this);
+            }
+            if ($this->actionHasRun() && isset($this->filters['afterActionHasRun'])) {
+                foreach ($this->filters['afterActionHasRun'] as $filter) {
+                    $filter->perform($this, $this->values, $action);
+                }
+            }
+
             if (isset($this->filters['afterAction'])) {
                 foreach ($this->filters['afterAction'] as $filter) {
                     $filter->perform($this, $this->values, $action);
                 }
             }
+
             if ($this->renderer->canRender()) {
                 $this->renderer->RenderToAction($action);
             }
@@ -253,6 +265,14 @@ class BaseController {
     }
 
     /**
+     * @return mixed
+     */
+    public function actionHasRun()
+    {
+        return $this->actionRan;
+    }
+
+    /**
      * Redirect request with query
      * @param string|array $query
      */
@@ -306,5 +326,17 @@ class BaseController {
      */
     public function getValue($key, $default = null) {
         return isset($this->values[$key]) ? $this->values[$key]: $default;
+    }
+
+    public function getParams() {
+        return $this->params;
+    }
+
+    /**
+     * @param $param
+     * @return mixed|null
+     */
+    public function getActionParam($param) {
+        return isset($this->params[$param])?$this->params[$param]:null;
     }
 }
