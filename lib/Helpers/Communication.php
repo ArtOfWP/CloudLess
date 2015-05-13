@@ -26,7 +26,7 @@ class Communication
      */
     static function getMethod()
     {
-        $tempMethod = $_SERVER['REQUEST_METHOD'];
+        $tempMethod = isset($_SERVER['REQUEST_METHOD'])?$_SERVER['REQUEST_METHOD']:'get';
         if (strcasecmp($tempMethod, 'put') == 0)
             return 'put';
         else if (strcasecmp($tempMethod, 'post') == 0) {
