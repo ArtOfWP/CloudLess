@@ -29,7 +29,7 @@ function array_key_has_value($key, $value, $haystack)
  *
  * @param string $needle
  * @param array $haystack
- * @param bool $default
+ * @param mixed $default
  *
  * @return bool|mixed
  */

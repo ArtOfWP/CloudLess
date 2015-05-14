@@ -20,7 +20,7 @@ class QueuedScripts extends QueuedIncludes
     }
 
     /**
-     * @return FrontInclude[handle]
+     * @return FrontInclude[]
      */
     public function getRegisteredIncludes()
     {

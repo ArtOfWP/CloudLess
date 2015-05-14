@@ -23,7 +23,7 @@ class Container
      * Add an object to be handle by container.
      *
      * @param string $key    unique value for object
-     * @param string $object
+     * @param mixed $object
      * @param string $type
      *
      * @throws \InvalidArgumentException thrown if key is not unique, i.e already added

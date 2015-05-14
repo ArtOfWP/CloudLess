@@ -5,7 +5,6 @@ namespace CLMVC\Core\Includes;
 /**
  * Base class for including styles and scripts. Only for internal consumption.
  *
- * @internal
  */
 abstract class QueuedIncludes
 {
@@ -33,7 +32,7 @@ abstract class QueuedIncludes
     }
 
     /**
-     * @return FrontInclude[handle]
+     * @return FrontInclude[]
      */
     abstract public function getRegisteredIncludes();
     abstract public function render($array);
