@@ -18,8 +18,9 @@ class Http {
      */
     public static function get_request_domain(){
 		if(isset($_SERVER['HTTP_REFERER'])){
-   		$parseUrl = parse_url(trim($_SERVER['HTTP_REFERER']));
-		$domain=trim($parseUrl['host'] ? $parseUrl['host'] : array_shift(explode('/', $parseUrl['path'], 2)));
+	   		$parseUrl = parse_url(trim($_SERVER['HTTP_REFERER']));
+			$temp=explode('/', $parseUrl['path'], 2);
+			$domain=trim($parseUrl['host'] ? $parseUrl['host'] : array_shift($temp));
 		}
    		if(empty($domain))
    			$domain=trim($_SERVER['HTTP_HOST']);
