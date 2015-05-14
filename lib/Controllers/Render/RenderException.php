@@ -1,7 +1,7 @@
 <?php
+
 namespace CLMVC\Controllers\Render;
 
-
-class RenderException extends \Exception{
-
+class RenderException extends \Exception
+{
 }

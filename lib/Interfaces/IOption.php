@@ -1,28 +1,29 @@
 <?php
+
 namespace CLMVC\Interfaces;
 
 /**
- * Class IOption
+ * Class IOption.
  */
-interface IOption{
+interface IOption
+{
+    /**
+     * @return mixed
+     */
+    public function init();
 
     /**
      * @return mixed
      */
-    function init();
+    public function isEmpty();
 
     /**
      * @return mixed
      */
-    function isEmpty();
+    public function save();
 
     /**
      * @return mixed
      */
-    function save();
-
-    /**
-     * @return mixed
-     */
-    function delete();
+    public function delete();
 }

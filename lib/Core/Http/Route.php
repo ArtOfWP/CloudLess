@@ -1,12 +1,12 @@
 <?php
+
 namespace CLMVC\Core\Http;
 
 /**
- * Class Route
- * @package CLMVC\Core\Http
+ * Class Route.
  */
-class Route {
-
+class Route
+{
     private $route;
     private $method;
     private $params;
@@ -18,7 +18,8 @@ class Route {
      * @param $params
      * @param $method
      */
-    function __construct($route, $callback, $params, $method = 'get') {
+    public function __construct($route, $callback, $params, $method = 'get')
+    {
         $this->params = $params;
         $this->method = $method;
         $this->route = $this->build($route, $params);
@@ -36,23 +37,30 @@ class Route {
     /**
      * @param $uri
      * @param $method
+     *
      * @return mixed
      */
-    public function match($uri, $method ='get') {
-        if ($this->method != $method)
-            return null;
+    public function match($uri, $method = 'get')
+    {
+        if ($this->method != $method) {
+            return;
+        }
         preg_match($this->route, $uri, $matches);
+
         return $matches;
     }
 
     /**
      * @param $route
      * @param $params
+     *
      * @return string
      */
-    private function build($route, $params) {
-        if (strpos($route, '*') === 0)
+    private function build($route, $params)
+    {
+        if (strpos($route, '*') === 0) {
             $route = str_replace('*', '\/?', $route);
+        }
         $route = str_replace(':action', '(?<action>[a-zA-Z0-9_\+\-%\$\.]+)', $route);
         foreach ($params as $param => $condition) {
             if (is_numeric($param)) {
@@ -62,16 +70,19 @@ class Route {
             $route = str_replace(":$param", "(?<$param>$condition)", $route);
         }
         $route = str_replace('\\\\', '\\', $route);
-        $route = "^".rtrim($route, "\\/") . '\/?([\#\?].*)?$';
+        $route = '^'.rtrim($route, '\\/').'\/?([\#\?].*)?$';
+
         return "#$route#";
     }
 
     /**
      * @param $uri
      * @param string $method
+     *
      * @return array
      */
-    function params($uri, $method = 'get') {
+    public function params($uri, $method = 'get')
+    {
         $matches = $this->match($uri, $method);
         $params = array();
         foreach ($this->params as $param => $condition) {
@@ -81,6 +92,7 @@ class Route {
             }
             $params[$param] = $matches[$param];
         }
+
         return $params;
     }
 

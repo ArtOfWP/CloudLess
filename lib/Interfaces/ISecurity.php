@@ -1,49 +1,55 @@
 <?php
+
 namespace CLMVC\Interfaces;
 
 /**
- * Class ISecurity
+ * Class ISecurity.
  */
-interface ISecurity{
+interface ISecurity
+{
     /**
      * @param string $nonce
      * @param string $action
+     *
      * @return mixed
      */
-    function verifyNonce($nonce,$action='');
+    public function verifyNonce($nonce, $action = '');
 
     /**
      * @param bool $action
+     *
      * @return mixed
      */
-    function createNonce($action=false);
+    public function createNonce($action = false);
 
     /**
      * @return mixed
      */
-    function getCurrentUser();
+    public function getCurrentUser();
 
     /**
      * @param $action
+     *
      * @return mixed
      */
-    function currentUserCan($action);
+    public function currentUserCan($action);
 
     /**
      * @return mixed
      */
-    function currentUserIsLoggedIn();
+    public function currentUserIsLoggedIn();
 
     /**
      * @param $role
+     *
      * @return mixed
      */
-    function currentUserIsInRole($role);
+    public function currentUserIsInRole($role);
 
-    function isAdmin();
+    public function isAdmin();
 
     /**
      * @return mixed
      */
-    static function instance();
+    public static function instance();
 }

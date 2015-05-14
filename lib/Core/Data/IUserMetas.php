@@ -2,20 +2,20 @@
 
 namespace CLMVC\Core\Data;
 
-
 use CLMVC\Helpers\ObjectUtility;
 
-abstract class IUserMetas {
-    public abstract function install();
+abstract class IUserMetas
+{
+    abstract public function install();
 
-    public function save() {
+    public function save()
+    {
         ObjectUtility::getPropertiesAndValues($this);
-
     }
 
-    public abstract function delete();
+    abstract public function delete();
 
-    public abstract function getOne($user_id);
+    abstract public function getOne($user_id);
 
-    public abstract  function find($params, $limit);
+    abstract public function find($params, $limit);
 }

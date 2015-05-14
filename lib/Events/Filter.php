@@ -1,34 +1,41 @@
 <?php
+
 namespace CLMVC\Events;
+
 /**
- * Class Filter
+ * Class Filter.
  */
-class Filter {
+class Filter
+{
     /**
      * @var array
      */
     public static $FilterSections = array();
 
     /**
-     * Register callback for and filter
+     * Register callback for and filter.
+     *
      * @param $filter
      * @param $callback
      * @param int $priority
      */
-    static function register($filter, $callback, $priority = 100)
+    public static function register($filter, $callback, $priority = 100)
     {
         if (!isset(self::$FilterSections[$filter]['handler'])) {
-            if (!isset(self::$FilterSections))
+            if (!isset(self::$FilterSections)) {
                 self::$FilterSections = array();
+            }
             if (is_array($callback)) {
-                $id  = is_string($callback[0])?
-                    hash('md5', $callback[0] . $callback[1]):
-                    hash('md5', get_class($callback[0]) . $callback[1]);
-            } elseif (is_string($callback))
+                $id = is_string($callback[0]) ?
+                    hash('md5', $callback[0].$callback[1]) :
+                    hash('md5', get_class($callback[0]).$callback[1]);
+            } elseif (is_string($callback)) {
                 $id = hash('md5', $callback);
-            else
+            } else {
                 $id = spl_object_hash($callback).time();
+            }
             self::$FilterSections[$filter][$priority][$id] = $callback;
+
             return;
         }
         $handler = self::$FilterSections[$filter]['handler'];
@@ -36,71 +43,88 @@ class Filter {
     }
 
     /**
-     * Register an handler for filter
+     * Register an handler for filter.
+     *
      * @param $filter
      * @param $callback
      */
-    static function registerHandler($filter, $callback)
+    public static function registerHandler($filter, $callback)
     {
         self::$FilterSections[$filter]['handler'] = $callback;
     }
 
     /**
-     * Run the filter
+     * Run the filter.
+     *
      * @param $filter
      * @param array $params
+     *
      * @return mixed
      */
-    static function run($filter, $params = array()) {
-        if (isset($params[0]))
+    public static function run($filter, $params = array())
+    {
+        if (isset($params[0])) {
             $value = $params[0];
-        else
+        } else {
             $value = '';
+        }
         $priorities = array_key_exists_v($filter, self::$FilterSections);
-        if ($priorities)
+        if ($priorities) {
             ksort($priorities);
-        if ($priorities)
+        }
+        if ($priorities) {
             ksort($priorities);
+        }
         if (is_array($priorities)) {
-            if (!is_array($params))
+            if (!is_array($params)) {
                 $params = array($params);
-            foreach ($priorities as $functions)
-
+            }
+            foreach ($priorities as $functions) {
                 foreach ($functions as $function) {
-                    if(!is_callable($function)){
-                        if(is_array($function))
-                            if(is_string($function[0]))
-                                $message=implode('::',$function);
-                            else
-                                $message=get_class($function[0]).'->'.$function[1];
-                        else
-                            $message=$function;
-                        trigger_error('Filter cannot call '.$message.' it does not exist.',E_USER_WARNING);
+                    if (!is_callable($function)) {
+                        if (is_array($function)) {
+                            if (is_string($function[0])) {
+                                $message = implode('::', $function);
+                            } else {
+                                $message = get_class($function[0]).'->'.$function[1];
+                            }
+                        } else {
+                            $message = $function;
+                        }
+                        trigger_error('Filter cannot call '.$message.' it does not exist.', E_USER_WARNING);
                         continue;
                     }
 
                     $value = call_user_func_array($function, $params);
                     $params[0] = $value;
                 }
+            }
         }
+
         return $value;
     }
 
     /**
-     * Check if filter has been registered
+     * Check if filter has been registered.
+     *
      * @param $filter
+     *
      * @return bool
      */
-    static function isRegistered($filter) {
+    public static function isRegistered($filter)
+    {
         return array_key_exists($filter, self::$FilterSections);
     }
 
     /**
-     * Check if an filter has an handler
+     * Check if an filter has an handler.
+     *
      * @param $filter
+     *
      * @return bool
      */
-    static function hasCustomHandler($filter) {
+    public static function hasCustomHandler($filter)
+    {
         return isset(self::$FilterSections[$filter]['handler']);
     }
 }

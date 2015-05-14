@@ -1,29 +1,37 @@
 <?php
+
 namespace CLMVC\Views;
+
 /**
- * Class Shortcode
+ * Class Shortcode.
  */
-class Shortcode{
-	private static $shortCodeCallback;
-	private static $shortCodes=array();
+class Shortcode
+{
+    private static $shortCodeCallback;
+    private static $shortCodes = array();
 
     /**
-     * Register shortcode handler
+     * Register shortcode handler.
+     *
      * @param $callback
      */
-    static function registerHandler($callback){
-		self::$shortCodeCallback=$callback;
-	}
+    public static function registerHandler($callback)
+    {
+        self::$shortCodeCallback = $callback;
+    }
 
     /**
-     * Register a shortcode
+     * Register a shortcode.
+     *
      * @param $id
      * @param $callback
      */
-    static function register($id,$callback){
-		if(self::$shortCodeCallback)
-			call_user_func(self::$shortCodeCallback,$id,$callback);
-		else
-			self::$shortCodes[$id]=$callback;
-	}
+    public static function register($id, $callback)
+    {
+        if (self::$shortCodeCallback) {
+            call_user_func(self::$shortCodeCallback, $id, $callback);
+        } else {
+            self::$shortCodes[$id] = $callback;
+        }
+    }
 }

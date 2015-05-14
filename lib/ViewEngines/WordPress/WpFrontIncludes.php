@@ -1,97 +1,130 @@
 <?php
+
 namespace CLMVC\ViewEngines\WordPress;
+
 use CLMVC\Core\Includes\FrontInclude;
 use CLMVC\Interfaces\IIncludes;
 
 abstract class WpFrontIncludes implements IIncludes
 {
-    private $includes=array();
-    private $queue=array();
-    private $dequeue=array();
-    private $unincludes=array();
-    function register(FrontInclude $include) {
-        $this->includes[$include->getHandle()]=$include;
+    private $includes = array();
+    private $queue = array();
+    private $dequeue = array();
+    private $unincludes = array();
+    public function register(FrontInclude $include)
+    {
+        $this->includes[$include->getHandle()] = $include;
+
         return $this;
     }
 
-    function deregister($handle) {
-        if(isset($this->includes[$handle]))
+    public function deregister($handle)
+    {
+        if (isset($this->includes[$handle])) {
             unset($this->includes[$handle]);
-        $this->unincludes[]=$handle;
+        }
+        $this->unincludes[] = $handle;
+
         return $this;
     }
 
-    function enqueue($location, $handle) {
-        if(!isset($this->queue[$location])|| empty($this->queue[$location]))
-            $this->queue[$location]=array();
-        if(isset($this->includes[$handle]))
-            $this->queue[$location][$handle]=$this->includes[$handle];
+    public function enqueue($location, $handle)
+    {
+        if (!isset($this->queue[$location]) || empty($this->queue[$location])) {
+            $this->queue[$location] = array();
+        }
+        if (isset($this->includes[$handle])) {
+            $this->queue[$location][$handle] = $this->includes[$handle];
+        }
+
         return $this;
     }
 
-    function dequeue($location, $handle) {
-        if(isset($this->queue[$location][$handle]))
+    public function dequeue($location, $handle)
+    {
+        if (isset($this->queue[$location][$handle])) {
             unset($this->queue[$location][$handle]);
-        $this->dequeue[$location][]=$handle;
+        }
+        $this->dequeue[$location][] = $handle;
+
         return $this;
     }
 
-    function isRegistered($handle) {
-       return isset($this->includes[$handle]) && !empty($this->includes[$handle]);
+    public function isRegistered($handle)
+    {
+        return isset($this->includes[$handle]) && !empty($this->includes[$handle]);
     }
 
-    function isEnqueued($handle) {
-        foreach($this->queue as $includes)
-            foreach($includes as $qHandle => $include)
-                if($handle==$qHandle)
+    public function isEnqueued($handle)
+    {
+        foreach ($this->queue as $includes) {
+            foreach ($includes as $qHandle => $include) {
+                if ($handle == $qHandle) {
                     return true;
+                }
+            }
+        }
+
         return false;
     }
 
-    function init() {
-        add_action('init',array($this,'registerIncludes'));
-        add_action('login_enqueue_scripts',array($this,'loginEnqueueIncludes'));
-        add_action('admin_enqueue_scripts',array($this,'adminEnqueueIncludes'));
-        add_action('wp_enqueue_scripts',array($this,'wpEnqueueIncludes'));
+    public function init()
+    {
+        add_action('init', array($this, 'registerIncludes'));
+        add_action('login_enqueue_scripts', array($this, 'loginEnqueueIncludes'));
+        add_action('admin_enqueue_scripts', array($this, 'adminEnqueueIncludes'));
+        add_action('wp_enqueue_scripts', array($this, 'wpEnqueueIncludes'));
+
         return true;
     }
 
-    function registerIncludes(){
+    public function registerIncludes()
+    {
         /**
-         * @var $include FrontInclude
+         * @var FrontInclude
          */
-        foreach($this->includes as $include){
+        foreach ($this->includes as $include) {
             $this->registerInclude($include);
         }
-        foreach($this->unincludes as $include){
+        foreach ($this->unincludes as $include) {
             $this->deregisterInclude($include);
         }
     }
-    function loginEnqueueIncludes() {
+    public function loginEnqueueIncludes()
+    {
         $this->enqueueLocation('login');
     }
-    function adminEnqueueIncludes() {
+    public function adminEnqueueIncludes()
+    {
         $this->enqueueLocation('administration');
     }
-    function wpEnqueueIncludes() {
+    public function wpEnqueueIncludes()
+    {
         $this->enqueueLocation('frontend');
     }
-    private function enqueueLocation($location) {
-        /**
+    private function enqueueLocation($location)
+    {
+        /*
         * @var $include FrontInclude
         */
-        if(isset($this->queue[$location] ))
-            foreach($this->queue[$location] as $include)
-                if ($include)
+        if (isset($this->queue[$location])) {
+            foreach ($this->queue[$location] as $include) {
+                if ($include) {
                     $this->enqueueInclude($include);
-        if(isset($this->dequeue[$location] ))
-            foreach($this->dequeue[$location] as $include)
-                if ($include)
+                }
+            }
+        }
+        if (isset($this->dequeue[$location])) {
+            foreach ($this->dequeue[$location] as $include) {
+                if ($include) {
                     $this->dequeueInclude($include);
+                }
+            }
+        }
     }
 
-    abstract function enqueueInclude(FrontInclude $include);
-    abstract function registerInclude(FrontInclude $include);
-    abstract function dequeueInclude($includeHandle);
-    abstract function deregisterInclude($includeHandle);
+    abstract public function enqueueInclude(FrontInclude $include);
+    abstract public function registerInclude(FrontInclude $include);
+    abstract public function dequeueInclude($includeHandle);
+    abstract public function deregisterInclude($includeHandle);
 }

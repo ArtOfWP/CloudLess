@@ -1,15 +1,20 @@
 <?php
+
 namespace CLMVC\Core\Includes;
 
 use CLMVC\Events\Filter;
+
 /**
- * Class for queueing scripts. Only for internal consumption
+ * Class for queueing scripts. Only for internal consumption.
+ *
  * @internal
  */
-class QueuedScripts extends QueuedIncludes {
+class QueuedScripts extends QueuedIncludes
+{
     private static $instance;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         Filter::register('stylesheets-frontend', array($this, 'render'));
     }
@@ -17,24 +22,30 @@ class QueuedScripts extends QueuedIncludes {
     /**
      * @return FrontInclude[handle]
      */
-    function getRegisteredIncludes() {
+    public function getRegisteredIncludes()
+    {
         return ScriptIncludes::instance()->getRegistered();
     }
 
-    function render($array) {
+    public function render($array)
+    {
         /**
-         * @var FrontInclude[] $queue
+         * @var FrontInclude[]
          */
         $queue = $this->getQueue('frontend');
-        foreach ($queue as $include)
+        foreach ($queue as $include) {
             $array[] = sprintf('<script src="%s"></script>', $include->getSrc());
+        }
 
         return $array;
     }
 
-    public static function instance() {
-        if(!isset(self::$instance) && empty(self::$instance))
-            self::$instance = new QueuedScripts();
+    public static function instance()
+    {
+        if (!isset(self::$instance) && empty(self::$instance)) {
+            self::$instance = new self();
+        }
+
         return self::$instance;
     }
 }

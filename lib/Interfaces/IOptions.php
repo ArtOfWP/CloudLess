@@ -1,18 +1,22 @@
 <?php
+
 namespace CLMVC\Interfaces;
 
 /**
- * Class IOptions
+ * Class IOptions.
  */
-interface IOptions {
+interface IOptions
+{
     /**
      * @param $namespace
+     *
      * @return mixed
      */
     public function delete($namespace);
 
     /**
      * @param $namespace
+     *
      * @return mixed
      */
     public function load($namespace);
@@ -20,7 +24,8 @@ interface IOptions {
     /**
      * @param $namespace
      * @param $options
+     *
      * @return mixed
      */
-    public function save($namespace,$options);
+    public function save($namespace, $options);
 }

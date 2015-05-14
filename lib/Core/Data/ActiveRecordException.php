@@ -1,25 +1,32 @@
 <?php
+
 namespace CLMVC\Core\Data;
+
 use Exception;
 
 /**
- * Class ActiveRecordException
+ * Class ActiveRecordException.
  */
-class ActiveRecordException extends Exception{
+class ActiveRecordException extends Exception
+{
     /**
-     * Instantiates an exception
+     * Instantiates an exception.
+     *
      * @param string $message
-     * @param int $code
+     * @param int    $code
      */
-    public function __construct($message, $code = 0) {
+    public function __construct($message, $code = 0)
+    {
         parent::__construct($message, $code);
     }
 
     /**
-     * Convert message to log string
+     * Convert message to log string.
+     *
      * @return string
      */
-    public function __toString() {
-        return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+    public function __toString()
+    {
+        return __CLASS__.": [{$this->code}]: {$this->message}\n";
     }
 }

@@ -1,9 +1,12 @@
 <?php
+
 namespace CLMVC\Core\Http;
+
 use CLMVC\Controllers\BaseController;
 use CLMVC\Helpers\Communication;
 
-class Routes {
+class Routes
+{
     /**
      * @var Route[]
      */
@@ -11,23 +14,26 @@ class Routes {
     private $priorityRoutes = array();
     private $routed = null;
 
-    function add($route,$callback , $params = array(), $method = 'get', $priority = false) {
+    public function add($route, $callback, $params = array(), $method = 'get', $priority = false)
+    {
         $theRoute = new Route($route, $callback, $params, $method);
-        if ($priority)
+        if ($priority) {
             $this->priorityRoutes[] = $theRoute;
-        else
+        } else {
             $this->routes[] = $theRoute;
+        }
     }
 
     /**
      * Takes request uri and routes to controller.
      */
-    function routing() {
+    public function routing()
+    {
         $routes = array_merge($this->priorityRoutes, $this->routes);
         $uri = $_SERVER['REQUEST_URI'];
         $method = Communication::getMethod();
         /**
-         * @var Route $route
+         * @var Route
          */
         foreach ($routes as $route) {
             if ($matches = $route->match($uri, $method)) {
@@ -35,26 +41,30 @@ class Routes {
                 $array = $route->getCallback();
                 $controller = str_replace('/', '\\', $array[0]);
                 /**
-                 * @var BaseController $ctrl
+                 * @var BaseController
                  */
                 $ctrl = new $controller(false);
                 $ctrl->init();
                 $action = $array[1];
-                if ($action == ':action')
+                if ($action == ':action') {
                     $action = str_replace(':action', $matches['action'], $action);
+                }
                 $ctrl->executeAction($action, $params);
                 $this->routed = true;
+
                 return $this->routed;
             }
         }
         $this->routed = false;
+
         return $this->routed;
     }
 
     /**
      * @return null|bool
      */
-    public function isRouted() {
+    public function isRouted()
+    {
         return $this->routed;
     }
 }

@@ -1,18 +1,19 @@
 <?php
+
 namespace CLMVC\Core;
-use CLMVC\Interfaces\IOption;
 
 /**
- * Class Option
- *
+ * Class Option.
  */
-class Option {
+class Option
+{
     private $key;
     private $defaultValue;
     private $value = null;
     private $type;
 
-    public function __construct($key = '',$defaultValue='' ,$type='string'){
+    public function __construct($key = '', $defaultValue = '', $type = 'string')
+    {
         if ($key) {
             $this->setKey($key);
             $this->setDefaultValue($defaultValue);
@@ -23,92 +24,114 @@ class Option {
      * @param string $key
      * @param string $defaultValue
      * @param string $type
+     *
      * @return Option
      */
-    static function create($key = '',$defaultValue='' ,$type='string'){
-        $option = new Option($key, $defaultValue, $type);
+    public static function create($key = '', $defaultValue = '', $type = 'string')
+    {
+        $option = new self($key, $defaultValue, $type);
+
         return $option;
     }
 
     /**
-     * Set the option key
+     * Set the option key.
+     *
      * @param $key
      */
-    public function setKey($key) {
-        $this->key=$key;
+    public function setKey($key)
+    {
+        $this->key = $key;
     }
 
     /**
-     * Set the options default value
+     * Set the options default value.
+     *
      * @param $defaultValue
      */
-    public function setDefaultValue($defaultValue) {
-        if(!isset($this->value))
-            $this->value=$defaultValue;
-        $this->defaultValue=$defaultValue;
+    public function setDefaultValue($defaultValue)
+    {
+        if (!isset($this->value)) {
+            $this->value = $defaultValue;
+        }
+        $this->defaultValue = $defaultValue;
     }
 
     /**
-     * Returns the option key
+     * Returns the option key.
+     *
      * @return mixed
      */
-    public function getKey() {
+    public function getKey()
+    {
         return $this->key;
     }
 
     /**
-     * Returns the option value
+     * Returns the option value.
+     *
      * @return mixed
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
     /**
-     * Returns the options default value
+     * Returns the options default value.
+     *
      * @return mixed
      */
-    public function getDefaultValue() {
+    public function getDefaultValue()
+    {
         return $this->defaultValue;
     }
 
     /**
-     * Set the option value
+     * Set the option value.
+     *
      * @param $value
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
     }
-
 
     /**
      * Resets the value for option.
      */
-    function reset() {
+    public function reset()
+    {
         return $this->value = $this->getDefaultValue();
     }
 
     /**
-     * Get the option type
+     * Get the option type.
+     *
      * @return string
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
     /**
-     * Set the option type
+     * Set the option type.
+     *
      * @param $type
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
     }
 
     /**
-     * Checks if option is empty
+     * Checks if option is empty.
+     *
      * @return bool
      */
-    function isEmpty() {
+    public function isEmpty()
+    {
         return empty($this->value);
     }
 }

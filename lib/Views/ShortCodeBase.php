@@ -1,23 +1,29 @@
 <?php
+
 namespace CLMVC\Views;
+
 /**
- * Class ShortCodeBase
+ * Class ShortCodeBase.
  */
-abstract class ShortCodeBase{
+abstract class ShortCodeBase
+{
     /**
-     * Initiate shortcode
+     * Initiate shortcode.
      */
-    function init(){
-		$name=get_class($this);
-		$sc=str_replace('shortcode','',strtolower($name));
-		Shortcode::register($sc, array(&$this,'render'));
-	}
+    public function init()
+    {
+        $name = get_class($this);
+        $sc = str_replace('shortcode', '', strtolower($name));
+        Shortcode::register($sc, array(&$this, 'render'));
+    }
 
     /**
-     * Render shortcode
-     * @param array $atts
+     * Render shortcode.
+     *
+     * @param array  $atts
      * @param string $content
+     *
      * @return mixed
      */
-    abstract function render($atts, $content = '');
+    abstract public function render($atts, $content = '');
 }

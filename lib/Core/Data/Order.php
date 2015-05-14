@@ -1,79 +1,103 @@
 <?php
+
 namespace CLMVC\Core\Data;
+
 /**
- * Class Order
+ * Class Order.
  */
-class Order{
-    /**
+class Order
+{
+    /*
      * @var string property of the class or table
      */
-    var $property;
-    /**
+    public $property;
+    /*
      * @var string ASC,DESC order of the class or table
      */
-    var $order;
+    public $order;
 
     /**
-     * Create an ASC order
+     * Create an ASC order.
+     *
      * @param string $property property of the class or table
+     *
      * @return Order
      */
-    public static function ASC($property){
-		$o = new Order($property,'ASC');
-		return $o;
-	}
+    public static function ASC($property)
+    {
+        $o = new self($property, 'ASC');
+
+        return $o;
+    }
 
     /**
-     * Create an DESC order
+     * Create an DESC order.
+     *
      * @param string $property property of the class or table
+     *
      * @return Order
      */
-	public static function DESC($property){
-		$o = new Order($property);
-		return $o;
-	}
+    public static function DESC($property)
+    {
+        $o = new self($property);
+
+        return $o;
+    }
     /**
-     * Create an order
+     * Create an order.
+     *
      * @param string $property property of the class or table
-     * @param string $order ASC, DESC
+     * @param string $order    ASC, DESC
      */
-    public function __construct($property,$order='DESC'){
-		$this->property=$property;
-		$this->order=$order;
-	}
+    public function __construct($property, $order = 'DESC')
+    {
+        $this->property = $property;
+        $this->order = $order;
+    }
 
     /**
-     * Surround property with MySQL marks
+     * Surround property with MySQL marks.
+     *
      * @param string $ct
+     *
      * @return string
      */
-    private function addMark($ct){
-		return '`'.$ct.'`';
-	}
+    private function addMark($ct)
+    {
+        return '`'.$ct.'`';
+    }
 
     /**
-     * Convert to string
+     * Convert to string.
+     *
      * @return string
      */
-    function __toString(){
-		global $db_prefix;
-		$temp='';
-		$p=explode('.',$this->property);
-		if(sizeof($p)>1){
-			$temp=$this->addMark($db_prefix.strtolower($p[0]));
-			$temp.=$this->addMark(strtolower($p[1]));
-		}elseif($this->property)
-			$temp=$this->addMark(strtolower($this->property));
-		return $temp.' '.$this->order;
-	}
+    public function __toString()
+    {
+        global $db_prefix;
+        $temp = '';
+        $p = explode('.', $this->property);
+        if (sizeof($p) > 1) {
+            $temp = $this->addMark($db_prefix.strtolower($p[0]));
+            $temp .= $this->addMark(strtolower($p[1]));
+        } elseif ($this->property) {
+            $temp = $this->addMark(strtolower($this->property));
+        }
+
+        return $temp.' '.$this->order;
+    }
 
     /**
-     * Create random order
+     * Create random order.
+     *
      * @param string $number
+     *
      * @return Order
      */
-    public static function Random($number='') {
-        $o= new Order(false,'RAND('.$number.')');
+    public static function Random($number = '')
+    {
+        $o = new self(false, 'RAND('.$number.')');
+
         return $o;
     }
 }

@@ -1,28 +1,30 @@
 <?php
+
 namespace CLMVC\ViewEngines\Standard;
 
 use CLMVC\Interfaces\IOption;
 
 /**
- * Class BIOption
- *
+ * Class BIOption.
  */
-class BIOption implements IOption {
+class BIOption implements IOption
+{
     private $key;
     private $value;
     private $defaultValue;
     private $type;
 
     /**
-     * @param bool $key
-     * @param bool $value
+     * @param bool   $key
+     * @param bool   $value
      * @param string $type
      */
-    public function __construct($key=false,$value=false, $type='string') {
-        if($key){
+    public function __construct($key = false, $value = false, $type = 'string')
+    {
+        if ($key) {
             $this->setKey($key);
             $this->setDefaultValue($value);
-            $this->type=$type;
+            $this->type = $type;
         }
     }
 
@@ -31,7 +33,7 @@ class BIOption implements IOption {
      */
     public function setKey($key)
     {
-        $this->key=$key;
+        $this->key = $key;
     }
 
     /**
@@ -39,9 +41,10 @@ class BIOption implements IOption {
      */
     public function setDefaultValue($defaultValue)
     {
-        if(!isset($this->value))
-            $this->value=$defaultValue;
-        $this->defaultValue=$defaultValue;
+        if (!isset($this->value)) {
+            $this->value = $defaultValue;
+        }
+        $this->defaultValue = $defaultValue;
     }
 
     /**
@@ -73,51 +76,58 @@ class BIOption implements IOption {
      */
     public function setValue($value)
     {
-        $this->value=$value;
+        $this->value = $value;
     }
 
     /**
      * @param $property
      * @param $value
      */
-    function __set($property,$value){
-        $this->$property=$value;
+    public function __set($property, $value)
+    {
+        $this->$property = $value;
     }
 
     /**
      * @param $property
+     *
      * @return mixed
      */
-    function __get($property) {
+    public function __get($property)
+    {
         return $this->$property;
     }
 
     /**
      * @return $this
      */
-    function reset() {
+    public function reset()
+    {
         $this->setValue($this->getDefaultValue());
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
     /**
      * @param $type
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
     }
 
     /**
      * @return mixed
      */
-    function init()
+    public function init()
     {
         // TODO: Implement init() method.
     }
@@ -125,7 +135,7 @@ class BIOption implements IOption {
     /**
      * @return mixed
      */
-    function isEmpty()
+    public function isEmpty()
     {
         // TODO: Implement isEmpty() method.
     }
@@ -133,7 +143,7 @@ class BIOption implements IOption {
     /**
      * @return mixed
      */
-    function save()
+    public function save()
     {
         // TODO: Implement save() method.
     }
@@ -141,7 +151,7 @@ class BIOption implements IOption {
     /**
      * @return mixed
      */
-    function delete()
+    public function delete()
     {
         // TODO: Implement delete() method.
     }

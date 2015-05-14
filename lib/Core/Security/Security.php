@@ -1,22 +1,26 @@
 <?php
+
 namespace CLMVC\Core\Security;
+
 use CLMVC\Interfaces\ISecurity;
 use ViewEngine;
 
 /**
  * Class Security
- * SHorthand Factory for creating ISecurity implementation for current view engine
+ * SHorthand Factory for creating ISecurity implementation for current view engine.
  */
-class Security {
+class Security
+{
     /**
      * @return ISecurity
      */
-    static function create() {
-		return ViewEngine::createSecurity();
-	}
-
-    static function isAdmin() {
-        return self::create()->isAdmin();
+    public static function create()
+    {
+        return ViewEngine::createSecurity();
     }
 
+    public static function isAdmin()
+    {
+        return self::create()->isAdmin();
+    }
 }

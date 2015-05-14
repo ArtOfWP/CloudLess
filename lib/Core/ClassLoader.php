@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Symfony package.
  *
@@ -57,7 +58,7 @@ namespace Symfony\Component\ClassLoader;
  *
  * @api
  */
-class UniversalClassLoader
+class ClassLoader
 {
     private $namespaces = array();
     private $prefixes = array();
@@ -67,7 +68,7 @@ class UniversalClassLoader
 
     /**
      * Turns on searching the include for class files. Allows easy loading
-     * of installed PEAR packages
+     * of installed PEAR packages.
      *
      * @param Boolean $useIncludePath
      */
@@ -172,7 +173,7 @@ class UniversalClassLoader
     }
 
     /**
-     * Registers an array of namespaces
+     * Registers an array of namespaces.
      *
      * @param array $namespaces An array of namespaces (namespaces as keys and locations as values)
      *
@@ -248,8 +249,10 @@ class UniversalClassLoader
     {
         if ($file = $this->findFile($class)) {
             require $file;
+
             return true;
         }
+
         return false;
     }
 
@@ -273,7 +276,7 @@ class UniversalClassLoader
                 if (0 !== strpos($namespace, $ns)) {
                     continue;
                 }
-                $normalizedClass = substr($normalizedClass, strpos($normalizedClass,'/')+1);
+                $normalizedClass = substr($normalizedClass, strpos($normalizedClass, '/') + 1);
                 foreach ($dirs as $dir) {
                     $file = $dir.DIRECTORY_SEPARATOR.$normalizedClass;
                     if (is_file($file)) {
@@ -288,7 +291,8 @@ class UniversalClassLoader
                     return $file;
                 }
             }
-            return null;
+
+            return;
         }
         // PEAR-like class name
         $normalizedClass = str_replace('_', DIRECTORY_SEPARATOR, $class).'.php';
@@ -316,14 +320,16 @@ class UniversalClassLoader
             return $file;
         }
 
-        return null;
+        return;
     }
 
-    static function instance() {
+    public static function instance()
+    {
         static $instance;
         if (is_null($instance)) {
-            $instance =  new UniversalClassLoader();
+            $instance = new self();
         }
+
         return $instance;
     }
 }
