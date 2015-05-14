@@ -80,7 +80,7 @@ class Communication
         } else {
             $qs = $_GET;
         }
-        if ($key) {
+        if ($key !== null && !empty($key)) {
             $qs = array_key_exists_v($key, $qs, $default);
         }
 
