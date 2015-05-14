@@ -24,7 +24,7 @@ class RequestEvent
     private $postRequest;
 
     /**
-     * @param array|null $request
+     * @param array $request
      */
     public function __construct($request = null)
     {
@@ -66,7 +66,7 @@ class RequestEvent
      */
     public function getPostRequest($key = null)
     {
-        if ($key) {
+        if ($key !== null && !empty($key)) {
             return isset($this->postRequest[$key]) ? $this->postRequest[$key] : null;
         }
 
