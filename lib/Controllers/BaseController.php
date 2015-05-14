@@ -160,54 +160,28 @@ class BaseController
             }
 
             $this->action = $action;
-            $params = $reflection->getParameters();
-            $paramValues = array();
-            $paramStore = array();
-            if (!empty($params)) {
-                foreach ($params as $param) {
-                    if (isset($getParams[$param->name])) {
-                        $paramValues[] = $getParams[$param->name];
-                        $paramStore[$param->name] = $getParams[$param->name];
-                    }
-                }
-            }
-            $this->params = $paramStore;
             $perform = true;
-            if (isset($this->filters['beforeAction'])) {
-                foreach ($this->filters['beforeAction'] as $filter) {
-                    $perform = $filter->perform($this, $this->values, $action);
-                }
-            }
+            $this->performFilter('beforeAction', $action, $perform);
+            $action_params = $reflection->getParameters();
+            $paramValues = $this->getParameters($getParams, $action_params);
+
             if ($perform) {
                 Hook::run($this->controller.'-pre'.ucfirst($action), $this);
                 call_user_func_array(array($this, $action), $paramValues);
                 $this->actionRan = true;
                 Hook::run($this->controller.'-post'.ucfirst($action), $this);
             }
-            if ($this->actionHasRun() && isset($this->filters['afterActionHasRun'])) {
-                foreach ($this->filters['afterActionHasRun'] as $filter) {
-                    $filter->perform($this, $this->values, $action);
-                }
+
+            if ($this->actionHasRun()) {
+                $this->performFilter('afterActionHasRun',$action);
             }
 
-            if (isset($this->filters['afterAction'])) {
-                foreach ($this->filters['afterAction'] as $filter) {
-                    $filter->perform($this, $this->values, $action);
-                }
-            }
+            $this->performFilter('afterAction',$action);
 
             if ($this->renderer->canRender()) {
                 $this->renderer->RenderToAction($action);
             }
-            http_response_code($this->code);
-            global $clmvc_http_code;
-            $clmvc_http_code = $this->code;
-            global $aoisora_headers;
-            if ($aoisora_headers) {
-                $aoisora_headers = array_merge($aoisora_headers, $this->headers);
-            } else {
-                $aoisora_headers = $this->headers;
-            }
+            $this->setupHeadersAndResponseCode();
         } elseif (method_exists($this, 'notFound')) {
             $this->notFound();
         }
@@ -367,5 +341,53 @@ class BaseController
     public function getActionParam($param)
     {
         return isset($this->params[$param]) ? $this->params[$param] : null;
+    }
+
+    /**
+     * @param $getParams
+     * @param $params
+     * @return array
+     */
+    private function getParameters($getParams, $params)
+    {
+        $paramValues = array();
+        if (!empty($params)) {
+            foreach ($params as $param) {
+                if (isset($getParams[$param->name])) {
+                    $paramValues[] = $getParams[$param->name];
+                    $this->params[$param->name] = $getParams[$param->name];
+                }
+            }
+        }
+        return $paramValues;
+    }
+
+    /**
+     * @param $filter_name
+     * @param $action
+     * @param $result
+     * @return mixed
+     */
+    private function performFilter($filter_name, $action, &$result=null)
+    {
+        if(isset($this->filters[$filter_name])) {
+            foreach ($this->filters[$filter_name] as $filter) {
+                $result=$filter->perform($this, $this->values, $action);
+            }
+        }
+    }
+
+    /**
+     */
+    private function setupHeadersAndResponseCode()
+    {
+        global $clmvc_http_code, $aoisora_headers;
+        http_response_code($this->code);
+        $clmvc_http_code = $this->code;
+        if ($aoisora_headers) {
+            $aoisora_headers = array_merge($aoisora_headers, $this->headers);
+        } else {
+            $aoisora_headers = $this->headers;
+        }
     }
 }
