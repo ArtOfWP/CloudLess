@@ -14,7 +14,7 @@ class Communication
      * @param $dirty_url
      * @return string
      */
-    static function cleanUrl($dirty_url)
+    public static function cleanUrl($dirty_url)
     {
         list($clean_url) = explode('?', htmlspecialchars(strip_tags($dirty_url), ENT_NOQUOTES));
         return $clean_url;
@@ -24,7 +24,7 @@ class Communication
      * Retrieves the request method. Checks for post key '_method'
      * @return string
      */
-    static function getMethod()
+    public static function getMethod()
     {
         $tempMethod = isset($_SERVER['REQUEST_METHOD'])?$_SERVER['REQUEST_METHOD']:'get';
         if (strcasecmp($tempMethod, 'put') == 0)
@@ -50,7 +50,7 @@ class Communication
      * @param string|int $value
      * @return bool
      */
-    static function QueryStringEquals($key, $value)
+    public static function QueryStringEquals($key, $value)
     {
         return array_key_has_value($key, $value, self::getQueryString());
     }
@@ -61,7 +61,7 @@ class Communication
      * @param string $default
      * @return array
      */
-    static function getQueryString($key = null, $default = null)
+    public static function getQueryString($key = null, $default = null)
     {
         global $wp_query;
         if (isset($wp_query) && !empty($wp_query->query_vars))
@@ -79,7 +79,7 @@ class Communication
      * @param null $data
      * @return array
      */
-    static function getFormValues($keys = array(), $data = null)
+    public static function getFormValues($keys = array(), $data = null)
     {
         $qs = $data ? $data : $_POST;
         if ($keys && is_array($keys)) {
@@ -97,7 +97,7 @@ class Communication
         return $qs;
     }
 
-    static function getFormValue($key, $data = null)
+    public static function getFormValue($key, $data = null)
     {
         $qs = $data ? $data : $_POST;
         if (isset($qs[$key]))
@@ -110,7 +110,7 @@ class Communication
      * @param $keys
      * @return array
      */
-    static function getUpload($keys)
+    public static function getUpload($keys)
     {
         $files = array_intersect_key($_FILES, $keys);
         return $files;
@@ -120,7 +120,7 @@ class Communication
      * Retrieve the referrer
      * @return mixed
      */
-    static function getReferer()
+    public static function getReferer()
     {
         if (function_exists('wp_get_referer'))
             return wp_get_referer();
@@ -133,7 +133,7 @@ class Communication
      * @param string $url
      * @param string|array|bool $data
      */
-    static function redirectTo($url, $data = null)
+    public static function redirectTo($url, $data = null)
     {
         $data = ltrim($data, "&");
         if (is_array($data))
@@ -154,7 +154,7 @@ class Communication
      * Check if redirect should be used and if so return the redirect url
      * @return bool|mixed
      */
-    static function useRedirect()
+    public static function useRedirect()
     {
         return array_key_exists_v('_redirect', $_POST);
     }
@@ -168,7 +168,7 @@ class Communication
      * @param int $height
      * @return mixed
      */
-    static function loadFromPost($class, $uploadSubFolder = false, $thumbnails, $width = 100, $height = 100)
+    public static function loadFromPost($class, $uploadSubFolder = false, $thumbnails, $width = 100, $height = 100)
     {
         if (is_string($class))
             $crudItem = new $class();
