@@ -8,7 +8,7 @@ class Http {
      * Retrieve the user agent from request
      * @return string
      */
-    static function get_useragent(){
+    public static function get_useragent(){
 		return htmlspecialchars(strip_tags($_SERVER['HTTP_USER_AGENT']));
 	}
 
@@ -16,7 +16,7 @@ class Http {
      * Retrieve the requesting domain
      * @return string
      */
-    static function get_request_domain(){
+    public static function get_request_domain(){
 		if(isset($_SERVER['HTTP_REFERER'])){
    		$parseUrl = parse_url(trim($_SERVER['HTTP_REFERER']));
 		$domain=trim($parseUrl['host'] ? $parseUrl['host'] : array_shift(explode('/', $parseUrl['path'], 2)));
@@ -30,7 +30,7 @@ class Http {
     /**
      * @return string
      */
-    static function get_IP(){
+    public static function get_IP(){
 		return htmlspecialchars(strip_tags($_SERVER['REMOTE_ADDR']));
 	}
 
@@ -39,7 +39,7 @@ class Http {
      * @param string $img
      * @param string $fullpath
      */
-    static function save_image($img, $fullpath='basename'){
+    public static function save_image($img, $fullpath='basename'){
 
 		if($fullpath=='basename'){
 			$fullpath = basename($img);
@@ -64,7 +64,7 @@ class Http {
      * @param bool $referer
      * @return string
      */
-    static function getPage($url,$referer=false){
+    public static function getPage($url,$referer=false){
 		$ch=curl_init();
 
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -82,7 +82,7 @@ class Http {
      * @param $url
      * @param $fullpath
      */
-    static function save_file($url,$fullpath){
+    public static function save_file($url,$fullpath){
 	    $out = fopen($fullpath, "wb");
 	    if ($out == FALSE){
 	      print "File not opened<br>";
@@ -101,11 +101,11 @@ class Http {
 	    curl_close($ch); 	
 	}
 
-	static function requestPath() {
+	public static function requestPath() {
 		return parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);
 	}
 
-	static function requestPathMatchesPath($path, $root=false) {
+	public static function requestPathMatchesPath($path, $root=false) {
 		$test = trim(stripslashes(self::requestPath())," /");
 		if($root) {
 			$pages=explode("/",$test);
@@ -114,7 +114,7 @@ class Http {
 		return trim(stripslashes($path)," /") == $test;
 	}
 
-    static function get_current_page($root = true) {
+    public static function get_current_page($root = true) {
         $files = explode('/',trim(stripslashes(self::requestPath())," /"));
         if($root)
             return array_shift($files);
