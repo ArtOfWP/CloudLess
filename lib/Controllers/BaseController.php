@@ -18,6 +18,7 @@ use CLMVC\Controllers\Render\Rendering;
  *
  * @method onControllerPreInit
  * @method onControllerInit
+ * @method notFound
  */
 class BaseController
 {
@@ -162,7 +163,9 @@ class BaseController
             $reflection = new ReflectionMethod($this, $action);
             if (!$reflection->isPublic()) {
                 trigger_error(sprintf('The action you tried to execute is not public: %s', $action));
-                $this->NotFound();
+                if (method_exists($this, 'notFound')) {
+                    $this->notFound();
+                }
             }
 
             $this->action = $action;
@@ -355,7 +358,8 @@ class BaseController
      * Retrieves value from the POST/GET etc array.
      *
      * @param $key
-     * @param null $default
+     * @param mixed $default
+     * @return mixed
      */
     public function getValue($key, $default = null)
     {
