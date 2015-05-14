@@ -26,9 +26,9 @@ class RequestEvent
     /**
      * @param array $request
      */
-    public function __construct($request = null)
+    public function __construct($request = [])
     {
-        if (!is_null($request)) {
+        if (empty($request)) {
             $this->postRequest = $_REQUEST;
         } else {
             $this->postRequest = $request;

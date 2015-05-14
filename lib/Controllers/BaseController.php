@@ -47,13 +47,9 @@ class BaseController
      */
     private $render = true;
     /**
-     * @var array The values loaded by the action to be used by the view.
+     * @var BaggedValues The values loaded by the action to be used by the view.
      */
     protected $bag;
-    /**
-     * @var string The rendered content
-     */
-    private $viewcontent;
     /**
      * @var array THe values retrieved by the HTTP method
      */

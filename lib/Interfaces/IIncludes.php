@@ -66,5 +66,9 @@ interface IIncludes
 
     public function registerIncludes();
 
+    /**
+     * @param string $handle
+     * @return FrontInclude[]|FrontInclude
+     */
     public function getRegistered($handle = '');
 }

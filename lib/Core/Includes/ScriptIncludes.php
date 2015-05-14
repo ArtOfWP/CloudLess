@@ -163,8 +163,7 @@ class ScriptIncludes implements IIncludes
 
     /**
      * @param string $handle
-     *
-     * @return FrontInclude
+     * @return FrontInclude[]
      */
     public function getRegistered($handle = '')
     {
