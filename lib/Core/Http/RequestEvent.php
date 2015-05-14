@@ -104,15 +104,4 @@ class RequestEvent
     {
         return $this->uploadSubFolder;
     }
-
-    /**
-     * @param $prefix
-     * @param $key
-     *
-     * @return mixed
-     */
-    private function stripPrefix($prefix, $key)
-    {
-        return str_replace($prefix, '', $key);
-    }
 }
