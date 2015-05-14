@@ -59,8 +59,6 @@ class AoiSora extends Core\Application\ApplicationBase {
      */
     private function setFrontIncludes(){
         ScriptIncludes::instance()
-            ->register(new FrontInclude('react', clmvc_app_url('AoiSora','/lib/js/react/react.js')))
-            ->register(new FrontInclude('jsxtransformer', clmvc_app_url('AoiSora','/lib/js/react/JSXTransformer.js')))
             ->register(new FrontInclude('superagent', clmvc_app_url('AoiSora','/lib/js/superagent/superagent.js')))
             ->register(new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora','/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core','jquery-ui-widget')))
             ->register(new FrontInclude('jquery-ui-tag-it', clmvc_app_url('AoiSora','/lib/js/jquery.ui.tag-it/ui.tag-it.js'),array('jquery','jquery-ui-core','jquery-ui-widget')));
