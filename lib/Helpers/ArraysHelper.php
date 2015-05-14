@@ -20,10 +20,11 @@ function array_key_has_value($key,$value,$haystack){
  * Checks if an array has a needle and if so returns its value.
  * @param string $needle
  * @param array $haystack
+ * @param bool $default
  * @return bool|mixed
  */
 function array_key_exists_v($needle,$haystack, $default = false){
-    if($haystack)
+    if(!empty($haystack))
         foreach($haystack as $key => $value)
             if($needle===$key)
                 return $value;
@@ -64,7 +65,7 @@ function array_search_prefix($prefix,$haystack){
 /**
  * Searches an array to see if values matching the search string exists if so returns all matching keys
  * @param string $search
- * @param string $haystack
+ * @param array $haystack
  * @return array
  */
 function array_search_keys_value($search,$haystack){
