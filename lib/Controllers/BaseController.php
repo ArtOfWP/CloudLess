@@ -3,7 +3,6 @@
 namespace CLMVC\Controllers;
 
 use CLMVC\Core\Container;
-use CLMVC\Core\Data\ActiveRecordBase;
 use CLMVC\Core\Debug;
 use CLMVC\Events\Filter;
 use CLMVC\Events\RequestEvent;
@@ -60,10 +59,6 @@ class BaseController
      */
     public $values = array();
 
-    /**
-     * @var ActiveRecordBase The object to use for CRUD actions
-     */
-    protected $crudItem;
     /**
      * @var string The folder to upload files too
      */
@@ -174,13 +169,7 @@ class BaseController
             $paramStore = array();
             if ($params) {
                 foreach ($params as $param) {
-                    $rClass = $param->getClass();
-                    if ($rClass) {
-                        $pObj = $rClass->newInstance();
-                        /* @var $pObj ActiveRecordBase */
-                        $request = new RequestEvent();
-                        $paramValues[] = $request->loadFromPost($pObj, $param->getName().'_');
-                    } elseif (isset($getParams[$param->getName()])) {
+                    if (isset($getParams[$param->getName()])) {
                         $paramValues[] = $getParams[$param->getName()];
                         $paramStore[$param->getName()] = $getParams[$param->getName()];
                     }

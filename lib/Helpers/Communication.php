@@ -2,9 +2,6 @@
 
 namespace CLMVC\Helpers;
 
-use CLMVC\Core\Data\Repo;
-use CLMVC\Core\Debug;
-
 /**
  * Class Communication.
  */
@@ -191,72 +188,6 @@ class Communication
     public static function useRedirect()
     {
         return array_key_exists_v('_redirect', $_POST);
-    }
-    //TODO work in progress
-    /**
-     * Loads an object with properties matching the $_POST data.
-     *
-     * @param $class
-     * @param bool $uploadSubFolder
-     * @param $thumbnails
-     * @param int  $width
-     * @param int  $height
-     *
-     * @return mixed
-     */
-    public static function loadFromPost($class, $uploadSubFolder = false, $thumbnails, $width = 100, $height = 100)
-    {
-        if (is_string($class)) {
-            $crudItem = new $class();
-        } else {
-            $crudItem = $class;
-        }
-        $folder = '';
-        if ($uploadSubFolder) {
-            $folder = stripslashes($uploadSubFolder).'/';
-        }
-
-        $properties = ObjectUtility::getPropertiesAndValues($crudItem);
-        Debug::Message('LoadFromPost');
-        //		Debug::Value('Uploaded',Communication::getUpload($properties));
-        $propertyFormValues = self::getFormValues($properties);
-        $propertyFormValues = array_map('stripslashes', $propertyFormValues);
-        Debug::Value('Loaded properties/values for '.get_class($crudItem), $propertyFormValues);
-        $lists = array_search_key('_list', $propertyFormValues);
-        Debug::Value('Loaded listvalues from post', $lists);
-        ObjectUtility::setProperties($crudItem, $propertyFormValues);
-        foreach ($lists as $method => $value) {
-            Debug::Value($method, $value);
-            $settings = ObjectUtility::getCommentDecoration($crudItem, str_ireplace('_list', '', $method).'List');
-            $dbrelation = array_key_exists_v('dbrelation', $settings);
-            Debug::Value($method, $dbrelation);
-            $field = array_key_exists_v('field', $settings);
-            $objects = array();
-            if ($field == 'text') {
-                $propertyFormValues = explode(',', trim($value, ' ,.'));
-                if (sizeof($propertyFormValues) == 0) {
-                    continue;
-                }
-                foreach ($propertyFormValues as $value2) {
-                    if ($dbrelation && $field == 'text') {
-                        $object = new $dbrelation();
-                        $object->setName(trim($value2));
-                        $object->save();
-                        $objects[] = $object;
-                    }
-                }
-            } elseif ($dbrelation) {
-                $value = is_array($value) ? $value : array($value);
-                foreach ($value as $val) {
-                    $object = Repo::getById($dbrelation, $val);
-                    $objects[] = $object;
-                }
-            }
-
-            ObjectUtility::addToArray($crudItem, str_ireplace('_list', '', $method), $objects);
-        }
-
-        return $crudItem;
     }
 
     /**

@@ -32,6 +32,7 @@ function clmvc_setup_default_tags($tags, $controller)
 
 /**
  * @param string $file
+ * @return string
  */
 function sl_file($file, $isPlugin = true)
 {
@@ -321,7 +322,6 @@ function add_header_so_fo($status_header)
     return $status_header;
 }
 
-/* @noinspection PhpUnusedParameterInspection */
 add_filter('wp_title', function ($title, $sep, $seplocation) {
     $bag = \CLMVC\Core\Container::instance()->fetch('Bag');
     if (isset($bag->title)) {

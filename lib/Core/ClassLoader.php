@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\ClassLoader;
+namespace CLMVC\Core;
 
 /**
  * UniversalClassLoader implements a "universal" autoloader for PHP 5.3.
@@ -58,7 +58,7 @@ namespace Symfony\Component\ClassLoader;
  *
  * @api
  */
-class ClassLoader
+class UniversalClassLoader
 {
     private $namespaces = array();
     private $prefixes = array();

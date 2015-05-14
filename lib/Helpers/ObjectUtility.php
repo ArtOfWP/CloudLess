@@ -60,7 +60,7 @@ class ObjectUtility
     /**
      * Retrive the array properties and their values.
      *
-     * @param \CLMVC\Core\Data\ActiveRecordBase $object
+     * @param $object
      *
      * @return array
      */
