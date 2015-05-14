@@ -67,26 +67,6 @@ class AoiSoraSettings
         return self::$applications;
     }
 
-/**
- * Install an application.
- *
- * @param string $app
- */
-    //TODO: add installation process
-    public static function installApplication($app)
-    {
-    }
-
-/**
- * Uninstall an application.
- *
- * @param string $app
- */
-    //TODO: add uninstallation process
-    public static function uninstallApplication($app)
-    {
-    }
-
     /**
      * Check if application is installed.
      *

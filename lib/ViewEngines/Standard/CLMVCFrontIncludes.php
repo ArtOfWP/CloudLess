@@ -8,7 +8,7 @@ use CLMVC\Interfaces\IIncludes;
 abstract class CLMVCFrontIncludes implements IIncludes
 {
     /**
-     * @var FrontInclude[handle]
+     * @var FrontInclude[]
      */
     private $registered;
     /**
@@ -91,6 +91,10 @@ abstract class CLMVCFrontIncludes implements IIncludes
     {
     }
 
+    /**
+     * @param string $handle
+     * @return FrontInclude[]
+     */
     public function getRegistered($handle = '')
     {
         if ($handle) {

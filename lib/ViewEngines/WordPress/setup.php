@@ -19,6 +19,7 @@ RenderingEngines::registerEngine('php', 'CLMVC\\Controllers\\Render\Engines\\Php
  *
  * @return array
  */
+if(!function_exists('clmvc_setup_default_tags')) {
 function clmvc_setup_default_tags($tags, $controller)
 {
     $bag = $controller->getBag();
@@ -28,6 +29,7 @@ function clmvc_setup_default_tags($tags, $controller)
     $tags['javascript_head'] = implode("\n", Filter::run('javascripts-head-frontend', array(array())));
 
     return $tags;
+}
 }
 
 /**
@@ -61,15 +63,15 @@ if (!defined('PACKAGEPATH')) {
  *
  * @return string
  */
-function clmvc_app_url($app, $url)
-{
-    return plugins_url($app.'/'.$url);
+if(!function_exists('clmvc_app_url')) {
+    function clmvc_app_url($app, $url)
+    {
+        return plugins_url($app . '/' . $url);
+    }
 }
-
 if (is_admin()) {
-    add_filter('after_plugin_row', 'update_aoisora_load_first', 10, 3);
-    function update_aoisora_load_first(/* @noinspection PhpUnusedParameterInspection */
-        $plugin_file, $plugin_data)
+    add_filter('after_plugin_row', 'update_aoisora_load_first', 10, 0);
+    function update_aoisora_load_first()
     {
         $plugin = plugin_basename(sl_file('AoiSora'));
         $active = get_option('active_plugins');
@@ -322,14 +324,14 @@ function add_header_so_fo($status_header)
     return $status_header;
 }
 
-add_filter('wp_title', function ($title, $sep, $seplocation) {
+add_filter('wp_title', function ($title, $sep) {
     $bag = \CLMVC\Core\Container::instance()->fetch('Bag');
     if (isset($bag->title)) {
         return $bag->title.$sep;
     }
 
     return $title.$sep;
-}, 0, 3);
+}, 0, 2);
 
 function clmvc_template()
 {

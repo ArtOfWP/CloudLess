@@ -14,6 +14,7 @@ $container->add('CLMVC\\Interfaces\\IStyleInclude', new CLMVC\ViewEngines\Standa
 $container->add('CLMVC\\Interfaces\\IOptions', 'CLMVC\\ViewEngines\\Standard\\BIOptions', 'class');
 $container->add('CLMVC\\Interfaces\\IOption', 'CLMVC\\ViewEngines\\Standard\\BIOption', 'class');
 
+
 RenderingEngines::registerEngine('php', 'CLMVC\\Controllers\\Render\Engines\\PhpRenderingEngine');
 Filter::register('view-tags', 'clmvc_setup_default_tags');
 

@@ -157,7 +157,7 @@ class Communication
     /**
      * Redirect to url with data.
      *
-     * @param string            $url
+     * @param string $url
      * @param string|array|bool $data
      */
     public static function redirectTo($url, $data = null)

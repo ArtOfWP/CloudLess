@@ -165,9 +165,9 @@ class BaseController
             $paramStore = array();
             if (!empty($params)) {
                 foreach ($params as $param) {
-                    if (isset($getParams[$param->getName()])) {
-                        $paramValues[] = $getParams[$param->getName()];
-                        $paramStore[$param->getName()] = $getParams[$param->getName()];
+                    if (isset($getParams[$param->name])) {
+                        $paramValues[] = $getParams[$param->name];
+                        $paramStore[$param->name] = $getParams[$param->name];
                     }
                 }
             }
@@ -295,6 +295,9 @@ class BaseController
         }
         $redirect = Communication::useRedirect();
         if ($redirect) {
+            /**
+             * @var string $redirectTo
+             */
             if (strtolower($redirect) == 'referer') {
                 $redirectTo = preg_replace('/[\&|\?]result\=\d+/', '', Communication::getReferer());
             } else {

@@ -156,8 +156,10 @@ class StyleIncludes implements IIncludes
         $this->styleInclude->registerIncludes();
     }
 
-    public function enqueueIncludes($styles)
+    public function enqueueIncludes($location,$styles)
     {
+        foreach($styles as $style)
+            $this->styleInclude->enqueue($location, $style);
     }
 
     public function getRegistered($handle = '')
