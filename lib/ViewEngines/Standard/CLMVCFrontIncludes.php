@@ -24,7 +24,7 @@ abstract class CLMVCFrontIncludes implements IIncludes
     /**
      * @param $handle
      *
-     * @return bool
+     * @return boolean|null
      */
     public function deregister($handle)
     {
@@ -43,7 +43,7 @@ abstract class CLMVCFrontIncludes implements IIncludes
      * @param string $location
      * @param string $handle
      *
-     * @return bool
+     * @return boolean|null
      */
     public function dequeue($location, $handle)
     {
@@ -53,7 +53,7 @@ abstract class CLMVCFrontIncludes implements IIncludes
     /**
      * @param string $handle
      *
-     * @return bool
+     * @return boolean|null
      */
     public function isRegistered($handle)
     {
@@ -63,7 +63,7 @@ abstract class CLMVCFrontIncludes implements IIncludes
     /**
      * @param string $handle
      *
-     * @return bool
+     * @return boolean|null
      */
     public function isEnqueued($handle)
     {
