@@ -64,6 +64,10 @@ if (!defined('PACKAGEPATH')) {
  * @return string
  */
 if(!function_exists('clmvc_app_url')) {
+
+    /**
+     * @return string
+     */
     function clmvc_app_url($app, $url)
     {
         return plugins_url($app . '/' . $url);
