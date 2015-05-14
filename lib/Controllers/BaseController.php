@@ -250,7 +250,7 @@ class BaseController
     }
 
     /**
-     * @return mixed
+     * @return boolean
      */
     public function actionHasRun()
     {
@@ -345,7 +345,7 @@ class BaseController
 
     /**
      * @param $getParams
-     * @param $params
+     * @param \ReflectionParameter[] $params
      * @return array
      */
     private function getParameters($getParams, $params)
@@ -363,9 +363,9 @@ class BaseController
     }
 
     /**
-     * @param $filter_name
-     * @param $action
-     * @param $result
+     * @param string $filter_name
+     * @param string $action
+     * @param boolean $result
      * @return mixed
      */
     private function performFilter($filter_name, $action, &$result=null)
