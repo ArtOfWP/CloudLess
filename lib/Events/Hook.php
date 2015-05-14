@@ -19,15 +19,7 @@ class Hook
     public static function register($hook, $callback, $priority = 100)
     {
         if (!isset(self::$Hooks[$hook]['handler'])) {
-            if (is_array($callback)) {
-                $id = is_string($callback[0]) ?
-                    hash('md5', $callback[0].$callback[1]) :
-                    hash('md5', get_class($callback[0]).$callback[1]);
-            } elseif (is_string($callback)) {
-                $id = hash('md5', $callback);
-            } else {
-                $id = spl_object_hash($callback).time();
-            }
+            $id=generate_hash_for_array($callback);
             self::$Hooks[$hook][$priority][$id] = $callback;
 
             return;
@@ -57,34 +49,19 @@ class Hook
     public static function run($hook, $params = array(), $isArray = false)
     {
         $priorities = array_key_exists_v($hook, self::$Hooks);
-        if ($priorities) {
-            ksort($priorities);
-        }
         if (is_array($priorities)) {
+            ksort($priorities);
             if ($isArray || !is_array($params)) {
                 $params = array($params);
             }
             foreach ($priorities as $functions) {
                 foreach ($functions as $function) {
-                    if (!is_callable($function)) {
-                        if (is_array($function)) {
-                            if (is_string($function[0])) {
-                                $message = implode('::', $function);
-                            } else {
-                                $message = get_class($function[0]).'->'.$function[1];
-                            }
-                        } else {
-                            $message = $function;
-                        }
-                        trigger_error('Hook cannot call '.$message.' it does not exist.', E_USER_WARNING);
-                        continue;
-                    }
-
                     call_user_func_array($function, $params);
                 }
             }
         }
     }
+
 
     /**
      * Check if hook is registered.

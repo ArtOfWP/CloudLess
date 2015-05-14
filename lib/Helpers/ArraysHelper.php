@@ -1,6 +1,23 @@
 <?php
 
 /**
+ * Takes a callback and tries to generate a hash based on it.
+ * @param mixed $callback
+ * @return string
+ */
+function generate_hash_for_array($callback) {
+    if (is_array($callback)) {
+        $id = is_string($callback[0]) ?
+            hash('md5', $callback[0].$callback[1]) :
+            hash('md5', get_class($callback[0]).$callback[1]);
+    } elseif (is_string($callback)) {
+        $id = hash('md5', $callback);
+    } else {
+        $id = spl_object_hash($callback).time();
+    }
+    return $id;
+}
+/**
  * Checks if an array has a specific value.
  *
  * @param string $key

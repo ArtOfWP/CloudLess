@@ -22,15 +22,7 @@ class View
             if (!isset(self::$ViewSections)) {
                 self::$ViewSections = array();
             }
-            if (is_array($callback)) {
-                $id = is_string($callback[0]) ?
-                    hash('md5', $callback[0].$callback[1]) :
-                    hash('md5', get_class($callback[0]).$callback[1]);
-            } elseif (is_string($callback)) {
-                $id = hash('md5', $callback);
-            } else {
-                $id = spl_object_hash($callback).time();
-            }
+            $id=generate_hash_for_array($callback);
             self::$ViewSections[$section][$priority][$id] = $callback;
 
             return;
@@ -74,10 +66,8 @@ class View
             return $sections;
         }
 
-        if ($priorities) {
-            ksort($priorities);
-        }
         if (is_array($priorities)) {
+            ksort($priorities);
             ob_start();
             if (!$isArray && !is_array($params)) {
                 $params = array($params);
@@ -85,19 +75,6 @@ class View
             foreach ($priorities as $functions) {
                 if (is_array($functions)) {
                     foreach ($functions as $function) {
-                        if (!is_callable($function)) {
-                            if (is_array($function)) {
-                                if (is_string($function[0])) {
-                                    $message = implode('::', $function);
-                                } else {
-                                    $message = get_class($function[0]).'->'.$function[1];
-                                }
-                            } else {
-                                $message = $function;
-                            }
-                            trigger_error('View cannot call '.$message.' it does not exist.', E_USER_WARNING);
-                            continue;
-                        }
                         call_user_func_array($function, $params);
                     }
                 }
