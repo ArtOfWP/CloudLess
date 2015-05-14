@@ -98,7 +98,7 @@ class Communication
     public static function getFormValues($keys = array(), $data = null)
     {
         $qs = $data ? $data : $_POST;
-        if ($keys && is_array($keys)) {
+        if (!empty($keys) && is_array($keys)) {
             $values = array_intersect_key($qs, $keys);
 
             return $values;

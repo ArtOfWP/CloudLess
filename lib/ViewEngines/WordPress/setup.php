@@ -223,7 +223,7 @@ $container->add('wpdb', $wpdb);
     {
         global $viewsections;
         $section = ($newsection = array_key_exists_v($section, $viewsections)) ? $newsection : $section;
-        if ($params) {
+        if (!empty($params)) {
             call_user_func_array('do_action', array($section, $params));
         } else {
             call_user_func_array('do_action', array($section));

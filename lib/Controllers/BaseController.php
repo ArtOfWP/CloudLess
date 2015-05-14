@@ -167,7 +167,7 @@ class BaseController
             $params = $reflection->getParameters();
             $paramValues = array();
             $paramStore = array();
-            if ($params) {
+            if (!empty($params)) {
                 foreach ($params as $param) {
                     if (isset($getParams[$param->getName()])) {
                         $paramValues[] = $getParams[$param->getName()];
