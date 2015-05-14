@@ -26,7 +26,7 @@ class ObjectUtility
         $properties = array();
         Debug::Value('Class', get_class($object));
         foreach ($methods as $method) {
-            $name = $method->getName();
+            $name = $method->name;
             if (strpos($name, '__') === false && strpos($name, 'get') !== false && !$method->isStatic()) {
                 $properties[] = substr($name, 3);
             }
@@ -48,8 +48,8 @@ class ObjectUtility
         $methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
         $properties = array();
         foreach ($methods as $method) {
-            if (strpos($method->getName(), 'List') !== false && !$method->isStatic()) {
-                $property = str_replace('List', '', $method->getName());
+            if (strpos($method->name, 'List') !== false && !$method->isStatic()) {
+                $property = str_replace('List', '', $method->name);
                 $properties[] = $property;
             }
         }
@@ -70,8 +70,8 @@ class ObjectUtility
         $methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
         $properties = array();
         foreach ($methods as $method) {
-            if (strpos($method->getName(), 'List') !== false) {
-                $properties[str_replace('List', '', $method->getName())] = $method->invoke($object);
+            if (strpos($method->name, 'List') !== false) {
+                $properties[str_replace('List', '', $method->name)] = $method->invoke($object);
             }
         }
 
@@ -108,7 +108,7 @@ class ObjectUtility
         $methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
         $properties = array();
         foreach ($methods as $method) {
-            $name = $method->getName();
+            $name = $method->name;
             if (strpos($name, '__') === false && strpos($name, 'get') !== false && !$method->isStatic()) {
                 $properties[substr($name, 3)] = $method->invoke($object);
             }
