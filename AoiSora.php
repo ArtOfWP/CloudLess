@@ -30,7 +30,7 @@ class AoiSora extends Core\Application\ApplicationBase {
     /**
      * Sets up aoisoraLoaded hook, calls parent class. Setups up standard libraries
      */
-    function __construct(){
+    public function __construct(){
 		parent::__construct('AoiSora',sl_file('AoiSora'),true, true);
         $this->setFrontIncludes();
 	}
@@ -38,20 +38,20 @@ class AoiSora extends Core\Application\ApplicationBase {
     /**
      * Setup the environment
      */
-    function onInit() {
+    public function onInit() {
     }
 
     /**
      *
      */
-    function onAfterInit() {
+    public function onAfterInit() {
         add_action('plugins_loaded', array($this, 'loaded'));
     }
 
     /**
      * Initiates options for the plugin
      */
-    function onLoadOptions(){
+    public function onLoadOptions(){
     }
 
     /**
@@ -78,7 +78,7 @@ class AoiSora extends Core\Application\ApplicationBase {
      * Instantiates the class
      * @return AoiSora
      */
-    static function instance(){
+    public static function instance(){
     	if(self::$instance)
     		return self::$instance;
     	self::$instance=new AoiSora();
@@ -89,7 +89,7 @@ class AoiSora extends Core\Application\ApplicationBase {
     /**
      * Called on plugins loaded. runs hooks. aoisora-libraries, aoisora-loaded
      */
-    function loaded() {
+    public function loaded() {
         Events\Hook::run('cloudless-libraries');
         Events\Hook::run('cloudless-loaded');
     }
