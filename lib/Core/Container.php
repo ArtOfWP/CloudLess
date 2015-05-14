@@ -100,20 +100,7 @@ class Container
         $class = new \ReflectionClass($className);
         $class_constructor = $class->getConstructor();
         if ($class_constructor && $class_constructor->getNumberOfParameters()) {
-            $methodParams = $class_constructor->getParameters();
-            $invokeParams = array();
-            foreach ($methodParams as $mParam) {
-                $pValue = $this->fetchTuple($mParam->getName());
-                if (!$pValue) {
-                    $param_class = $mParam->getClass();
-                    if ($param_class) {
-                        $pValue = $this->fetchTuple($param_class->getName());
-                    } else {
-                        continue;
-                    }
-                }
-                $invokeParams[] = $this->getInvokeParams($pValue);
-            }
+            $invokeParams = $this->getInvokeParameters($class_constructor);
             $obj = $class->newInstanceArgs(array_merge($params, $invokeParams));
         } else {
             $obj = new $className();
@@ -156,18 +143,40 @@ class Container
     }
 
     /**
+     * @param $class_constructor
+     * @return array
+     */
+    private function getInvokeParameters($class_constructor)
+    {
+        $methodParams = $class_constructor->getParameters();
+        $invokeParams = array();
+        foreach ($methodParams as $mParam) {
+            $pValue = $this->fetchTuple($mParam->getName());
+            if (!$pValue) {
+                $param_class = $mParam->getClass();
+                if ($param_class) {
+                    $pValue = $this->fetchTuple($param_class->getName());
+                } else {
+                    continue;
+                }
+            }
+            $invokeParams[] = $this->getInvokeParam($pValue);
+        }
+        return $invokeParams;
+    }
+
+    /**
      * @param $pValue
      * @return array
      */
-    private function getInvokeParams($pValue)
+    private function getInvokeParam($pValue)
     {
-        if ($pValue[1] == 'object') {
-            $value = $pValue[0];
-        } elseif ($pValue[1] == 'class') {
+        if ('class' == $pValue[1]) {
             $value = $this->make($pValue[0]);
         } else {
             $value = $pValue[0];
         }
         return $value;
     }
+
 }
