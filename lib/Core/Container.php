@@ -96,42 +96,25 @@ class Container
      */
     public function make($key, $params = array())
     {
-        $class = $this->fetchTuple($key);
-        if ('object' == $class[1]) {
-            $className = get_class($class[0]);
-        } elseif ('class' == $class[1]) {
-            $className = $class[0];
-        } else {
-            $className = $key;
-        }
-
-        $rclass = new \ReflectionClass($className);
-        $rclassCstr = $rclass->getConstructor();
-        if ($rclassCstr) {
-            if ($rclassCstr->getNumberOfParameters()) {
-                $methodParams = $rclassCstr->getParameters();
-                $invokeParams = array();
-                foreach ($methodParams as $mParam) {
-                    $pValue = $this->fetchTuple($mParam->getName());
-                    if (!$pValue) {
-                        if ($mParam->getClass()) {
-                            $pValue = $this->fetchTuple($mParam->getClass()->getName());
-                        } else {
-                            continue;
-                        }
-                    }
-                    if ($pValue[1] == 'object') {
-                        $invokeParams[] = $pValue[0];
-                    } elseif ($pValue[1] == 'class') {
-                        $invokeParams[] = $this->make($pValue[0]);
+        $className = $this->getClassName($key);
+        $class = new \ReflectionClass($className);
+        $class_constructor = $class->getConstructor();
+        if ($class_constructor && $class_constructor->getNumberOfParameters()) {
+            $methodParams = $class_constructor->getParameters();
+            $invokeParams = array();
+            foreach ($methodParams as $mParam) {
+                $pValue = $this->fetchTuple($mParam->getName());
+                if (!$pValue) {
+                    $param_class = $mParam->getClass();
+                    if ($param_class) {
+                        $pValue = $this->fetchTuple($param_class->getName());
                     } else {
-                        $invokeParams[] = $pValue[0];
+                        continue;
                     }
                 }
-                $obj = $rclass->newInstanceArgs(array_merge($params, $invokeParams));
-            } else {
-                $obj = new $className();
+                $invokeParams[] = $this->getInvokeParams($pValue);
             }
+            $obj = $class->newInstanceArgs(array_merge($params, $invokeParams));
         } else {
             $obj = new $className();
         }
@@ -153,5 +136,38 @@ class Container
         }
 
         return self::$instance;
+    }
+
+    /**
+     * @param $key
+     * @return string
+     */
+    private function getClassName($key)
+    {
+        $class = $this->fetchTuple($key);
+        if ('object' == $class[1]) {
+            $className = get_class($class[0]);
+        } elseif ('class' == $class[1]) {
+            $className = $class[0];
+        } else {
+            $className = $key;
+        }
+        return $className;
+    }
+
+    /**
+     * @param $pValue
+     * @return array
+     */
+    private function getInvokeParams($pValue)
+    {
+        if ($pValue[1] == 'object') {
+            $value = $pValue[0];
+        } elseif ($pValue[1] == 'class') {
+            $value = $this->make($pValue[0]);
+        } else {
+            $value = $pValue[0];
+        }
+        return $value;
     }
 }
