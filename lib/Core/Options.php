@@ -58,17 +58,7 @@ class Options
      */
     public function get($key)
     {
-        /*
-        * @var Option $option
-        */
-        if (!isset($this->pairs[$key])) {
-            $new = new Option();
-            $this->pairs[$key] = $new;
-
-            return $new;
-        }
-
-        return $this->pairs[$key];
+        return isset($this->pairs[$key])?$this->pairs[$key]:$this->setNewOption($key);;
     }
 
     /**
@@ -80,8 +70,7 @@ class Options
     public function setValue($key, $value)
     {
         if (!isset($this->pairs[$key])) {
-            $new = new Option($key);
-            $this->pairs[$key] = $new;
+            $this->setNewOption($key);
         }
         $this->pairs[$key]->setValue($value);
     }
@@ -95,10 +84,6 @@ class Options
      */
     public function getValue($key)
     {
-        if (!isset($this->pairs[$key])) {
-            return;
-        }
-
         return $this->pairs[$key]->getValue();
     }
 
@@ -253,5 +238,17 @@ class Options
         }
 
         return $options;
+    }
+
+    /**
+     * @param $key
+     * @return Option
+     */
+    private function setNewOption($key)
+    {
+        $new = new Option();
+        $this->pairs[$key] = $new;
+
+        return $new;
     }
 }
