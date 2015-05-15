@@ -163,10 +163,18 @@ class ScriptIncludes implements IIncludes
 
     /**
      * @param string $handle
-     * @return FrontInclude[]
+     * @return FrontInclude
      */
-    public function getRegistered($handle = '')
+    public function getRegistered($handle)
     {
         return $this->scriptInclude->getRegistered($handle);
+    }
+
+    /**
+     * @return FrontInclude[]
+     */
+    public function getAllRegistered()
+    {
+        return $this->scriptInclude->getAllRegistered();
     }
 }

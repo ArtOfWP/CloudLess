@@ -84,6 +84,8 @@ class Options
      */
     public function getValue($key)
     {
+        if(!isset($this->pairs[$key]))
+            return $this->setNewOption($key)->getValue();
         return $this->pairs[$key]->getValue();
     }
 

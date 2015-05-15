@@ -93,14 +93,18 @@ abstract class CLMVCFrontIncludes implements IIncludes
 
     /**
      * @param string $handle
+     * @return FrontInclude
+     */
+    public function getRegistered($handle)
+    {
+            return $this->registered[$handle];
+    }
+
+    /**
      * @return FrontInclude[]
      */
-    public function getRegistered($handle = '')
+    public function getAllRegistered()
     {
-        if ($handle) {
-            return $this->registered[$handle];
-        }
-
         return $this->registered;
     }
 }

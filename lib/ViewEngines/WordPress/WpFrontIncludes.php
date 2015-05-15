@@ -123,6 +123,30 @@ abstract class WpFrontIncludes implements IIncludes
         }
     }
 
+    /**
+     * @param string $handle
+     * @return FrontInclude
+     */
+    public function getRegistered($handle){
+        return $this->includes[$handle];
+    }
+
+    /**
+     * @return FrontInclude[]
+     */
+    public function getAllRegistered(){
+        return $this->includes;
+    }
+
+    /**
+     * @param $location
+     *
+     * @return FrontInclude[]
+     */
+    public function getEnqueued($location)
+    {
+        return $this->queue[$location];
+    }
     abstract public function enqueueInclude(FrontInclude $include);
     abstract public function registerInclude(FrontInclude $include);
     abstract public function dequeueInclude($includeHandle);

@@ -30,19 +30,4 @@ class WpStyleIncludes extends WpFrontIncludes
     {
         wp_deregister_style($styleHandle);
     }
-
-    /**
-     * @param $location
-     *
-     * @return FrontInclude[]
-     */
-    public function getEnqueued($location)
-    {
-        // TODO: Implement getEnqueued() method.
-    }
-
-    public function getRegistered($handle = '')
-    {
-        // TODO: Implement getRegistered() method.
-    }
 }

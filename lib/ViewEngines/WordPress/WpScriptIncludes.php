@@ -25,18 +25,4 @@ class WpScriptIncludes extends WpFrontIncludes
     {
         wp_deregister_script($includeHandle);
     }
-
-    /**
-     * @param $location
-     *
-     * @return FrontInclude[]
-     */
-    public function getEnqueued($location)
-    {
-    }
-
-    public function getRegistered($handle = '')
-    {
-        // TODO: Implement getRegistered() method.
-    }
 }

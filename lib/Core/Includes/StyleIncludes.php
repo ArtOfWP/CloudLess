@@ -162,8 +162,21 @@ class StyleIncludes implements IIncludes
             $this->styleInclude->enqueue($location, $style);
     }
 
-    public function getRegistered($handle = '')
+
+    /**
+     * @param string $handle
+     * @return FrontInclude
+     */
+    public function getRegistered($handle)
     {
         return $this->styleInclude->getRegistered($handle);
+    }
+
+    /**
+     * @return FrontInclude[]
+     */
+    public function getAllRegistered()
+    {
+        return $this->styleInclude->getAllRegistered();
     }
 }
