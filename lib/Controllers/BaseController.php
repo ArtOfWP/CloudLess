@@ -5,7 +5,6 @@ namespace CLMVC\Controllers;
 use CLMVC\Core\Container;
 use CLMVC\Core\Debug;
 use CLMVC\Events\Filter;
-use CLMVC\Events\RequestEvent;
 use CLMVC\Helpers\Communication;
 use CLMVC\Events\Hook;
 use ReflectionMethod;
