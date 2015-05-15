@@ -24,7 +24,7 @@ class QueuedStyles extends QueuedIncludes
      */
     public function getRegisteredIncludes()
     {
-        return StyleIncludes::instance()->getRegistered();
+        return StyleIncludes::instance()->getAllRegistered();
     }
 
     public function render($array)

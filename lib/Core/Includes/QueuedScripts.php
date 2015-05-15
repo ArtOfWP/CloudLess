@@ -24,7 +24,7 @@ class QueuedScripts extends QueuedIncludes
      */
     public function getRegisteredIncludes()
     {
-        return ScriptIncludes::instance()->getRegistered();
+        return ScriptIncludes::instance()->getAllRegistered();
     }
 
     public function render($array)
