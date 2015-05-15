@@ -53,39 +53,18 @@ class View
      */
     public static function generate($section, $params = array(), $isArray = false)
     {
-        $priorities = array_key_exists_v($section, self::$ViewSections);
+        $priorities = array_key_exists_v($section, self::$ViewSections,array());
+        if (!$isArray && !is_array($params)) {
+            $params = array($params);
+        }
+
+        $ob = self::runObStart($section, $priorities);
         if (self::hasCustomHandler($section)) {
-            ob_start();
-            if (!$isArray && !is_array($params)) {
-                $params = array($params);
-            }
             call_user_func_array($priorities['handler'].'_run', array($section, $params));
-            $sections = ob_get_contents();
-            ob_end_clean();
-
-            return $sections;
+        } else {
+            self::runFunctions($params, $priorities);
         }
-
-        if (is_array($priorities)) {
-            ksort($priorities);
-            ob_start();
-            if (!$isArray && !is_array($params)) {
-                $params = array($params);
-            }
-            foreach ($priorities as $functions) {
-                if (is_array($functions)) {
-                    foreach ($functions as $function) {
-                        call_user_func_array($function, $params);
-                    }
-                }
-            }
-            $sections = ob_get_contents();
-            ob_end_clean();
-
-            return $sections;
-        }
-
-        return '';
+        return self::getObContents($ob);
     }
 
     /**
@@ -125,5 +104,44 @@ class View
     public static function hasCustomHandler($section)
     {
         return isset(self::$ViewSections[$section]['handler']);
+    }
+
+    /**
+     * @param $section
+     * @param $priorities
+     * @return bool
+     */
+    private static function runObStart($section, $priorities)
+    {
+        if (self::hasCustomHandler($section) || is_array($priorities)) {
+            ob_start();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param $ob
+     * @return string
+     */
+    private static function getObContents($ob)
+    {
+        return $ob?ob_get_clean():'';
+    }
+
+    /**
+     * @param $params
+     * @param $priorities
+     */
+    private static function runFunctions($params, $priorities)
+    {
+        ksort($priorities);
+        foreach ($priorities as $functions) {
+            if (is_array($functions)) {
+                foreach ($functions as $function) {
+                    call_user_func_array($function, $params);
+                }
+            }
+        }
     }
 }
