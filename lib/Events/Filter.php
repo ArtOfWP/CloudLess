@@ -62,9 +62,7 @@ class Filter
         }
         $priorities = array_key_exists_v($filter, self::$FilterSections);
         if (is_array($priorities)) {
-            if ($priorities) {
-                ksort($priorities);
-            }
+            ksort($priorities);
             if (!is_array($params)) {
                 $params = array($params);
             }
