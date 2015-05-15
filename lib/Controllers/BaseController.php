@@ -160,9 +160,9 @@ class BaseController
 
             $this->action = $action;
             $perform = true;
-            $this->performFilter('beforeAction', $action, $perform);
             $action_params = $reflection->getParameters();
             $paramValues = $this->getParameters($getParams, $action_params);
+            $this->performFilter('beforeAction', $action, $perform);
 
             if ($perform) {
                 Hook::run($this->controller.'-pre'.ucfirst($action), $this);
