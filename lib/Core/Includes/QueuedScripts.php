@@ -29,15 +29,7 @@ class QueuedScripts extends QueuedIncludes
 
     public function render($array)
     {
-        /**
-         * @var FrontInclude[]
-         */
-        $queue = $this->getQueue('frontend');
-        foreach ($queue as $include) {
-            $array[] = sprintf('<script src="%s"></script>', $include->getSrc());
-        }
-
-        return $array;
+        return $this->renderIncludeTag('<script src="%s"></script>');
     }
 
     public static function instance()

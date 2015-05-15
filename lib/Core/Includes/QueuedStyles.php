@@ -29,15 +29,7 @@ class QueuedStyles extends QueuedIncludes
 
     public function render($array)
     {
-        /**
-         * @var FrontInclude[]
-         */
-        $queue = $this->getQueue('frontend');
-        foreach ($queue as $include) {
-            $array[] = sprintf('<link href="%s" rel="stylesheet" type="text/css">', $include->getSrc());
-        }
-
-        return $array;
+        return $this->renderIncludeTag('<link href="%s" rel="stylesheet" type="text/css">');
     }
 
     public static function instance()
