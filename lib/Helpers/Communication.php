@@ -91,46 +91,54 @@ class Communication
      * Returns form values matching keys.
      *
      * @param array $keys
-     * @param null  $data
-     *
+     * @param array $defaults
+     * @param null $haystack
      * @return array
      */
-    public static function getFormValues($keys = array(), $data = null)
+    public static function getFormValues($keys = array(), $defaults=[], $haystack = null)
     {
-        $qs = $data ? $data : $_POST;
+        $qs = $haystack ? $haystack : $_POST;
         if (!empty($keys) && is_array($keys)) {
-            $values = array_intersect_key($qs, $keys);
-
+            $values = array();
+            foreach($keys as $key)
+                if(isset($qs[$key]))
+                    $values[$key] = $qs[$key];
+                elseif(isset($defaults[$key]))
+                    $values[$key] = $defaults[$key];
             return $values;
-        } elseif (is_string($keys)) {
-            $data = array();
-            foreach ($qs as $key => $value) {
-                if (substr($key, 0, strlen($keys)) === $keys) {
-                    $data[substr($key, strlen($keys))] = $value;
-                }
-            }
-
-            return $data;
         }
 
         return $qs;
     }
 
-    public static function getFormValue($key, $data = null)
-    {
-        $qs = $data ? $data : $_POST;
-        if (isset($qs[$key])) {
-            return $qs[$key];
-        }
+    /**
+     * @param string $needle
+     * @param array $haystack
+     * @return array
+     */
+    public static function searchKeys($needle, $haystack=[]) {
+        $haystack  = $haystack ? $haystack : $_POST;
+        return array_search_key($needle, $haystack);
+    }
 
-        return;
+    /**
+     * Find key in array
+     *
+     * @param string $key
+     * @param mixed $default
+     * @param array $haystack
+     * @return mixed
+     */
+    public static function getFormValue($key, $default=null, $haystack = array())
+    {
+        $haystack = $haystack ? $haystack : $_POST;
+        return array_key_exists_v($key, $haystack, $default);
     }
 
     /**
      * Get upload contents from $_FILES matching keys.
      *
      * @param $keys
-     *
      * @return array
      */
     public static function getUpload($keys)

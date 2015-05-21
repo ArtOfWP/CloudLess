@@ -42,7 +42,7 @@ function array_key_has_value($key, $value, $haystack)
 }
 
 /**
- * Checks if an array has a needle and if so returns its value.
+ * Checks if an array has a key and if so returns its value.
  *
  * @param string $needle
  * @param array $haystack
