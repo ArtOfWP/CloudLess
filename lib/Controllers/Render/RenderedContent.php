@@ -54,10 +54,11 @@ class RenderedContent
 
     /**
      * @param boolean $end
+     * @return bool
      */
-    public static function endIt($end = null)
+    public static function endIt($end = false)
     {
-        if (is_null($end)) {
+        if (!$end) {
             return self::$endIt;
         }
         self::$endIt = $end;

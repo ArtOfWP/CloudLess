@@ -53,6 +53,9 @@ class Rendering
      */
     public function Render($controller, $action)
     {
+        if(!$this->canRender())
+            return;
+
         $view_path = $this->views->findView($controller, $action, $this->getTemplate());
         if ($view_path) {
             $tags = Filter::run('view-tags', array(array(), $this->controller));
@@ -82,6 +85,9 @@ class Rendering
      */
     public function RenderToAction($action)
     {
+        if(!$this->canRender())
+            return;
+
         $this->Render($this->getControllerName(), $action);
     }
 
@@ -92,6 +98,9 @@ class Rendering
      */
     public function RenderFile($filePath)
     {
+        if(!$this->canRender())
+            return;
+
         ob_start();
         if (file_exists($filePath)) {
             $bag = $this->getBag();
@@ -114,6 +123,9 @@ class Rendering
      */
     public function RenderText($text, $end = false)
     {
+        if(!$this->canRender())
+            return;
+
         $this->render = false;
         RenderedContent::set($text);
         if ($end) {
@@ -128,6 +140,9 @@ class Rendering
      */
     public function RenderJson($data)
     {
+        if(!$this->canRender())
+            return;
+
         global $aoisora_headers;
         if (!is_array($aoisora_headers)) {
             $aoisora_headers = [];
