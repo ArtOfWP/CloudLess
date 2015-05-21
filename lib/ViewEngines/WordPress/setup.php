@@ -19,7 +19,7 @@ RenderingEngines::registerEngine('php', 'CLMVC\\Controllers\\Render\Engines\\Php
  *
  * @return array
  */
-if(!function_exists('clmvc_setup_default_tags')) {
+if (!function_exists('clmvc_setup_default_tags')) {
 function clmvc_setup_default_tags($tags, $controller)
 {
     $bag = $controller->getBag();
@@ -63,14 +63,14 @@ if (!defined('PACKAGEPATH')) {
  *
  * @return string
  */
-if(!function_exists('clmvc_app_url')) {
+if (!function_exists('clmvc_app_url')) {
 
     /**
      * @return string
      */
     function clmvc_app_url($app, $url)
     {
-        return plugins_url($app . '/' . $url);
+        return plugins_url($app.'/'.$url);
     }
 }
 if (is_admin()) {
@@ -156,7 +156,7 @@ $container->add('wpdb', $wpdb);
     }
 
     add_action('wp_register_scripts', function () {
-       Hook::run('scripts-register');
+        Hook::run('scripts-register');
     });
     add_action('wp_register_style', function () {
         Hook::run('style-register');
@@ -171,9 +171,9 @@ $container->add('wpdb', $wpdb);
         }
     }
     global $viewsections;
-    $viewsections = array('print_styles' => 'wp_print_styles','print_scripts' => 'wp_print_scripts',
-                    'admin_print_scripts','admin_print_styles',
-                    'footer' => 'wp_footer','head' => 'wp_head','admin_head','admin_footer','wp_print_scripts','wp_footer','wp_print_styles', 'enqueue_scripts' => 'wp_enqueue_scripts', );
+    $viewsections = array('print_styles' => 'wp_print_styles', 'print_scripts' => 'wp_print_scripts',
+                    'admin_print_scripts', 'admin_print_styles',
+                    'footer' => 'wp_footer', 'head' => 'wp_head', 'admin_head', 'admin_footer', 'wp_print_scripts', 'wp_footer', 'wp_print_styles', 'enqueue_scripts' => 'wp_enqueue_scripts',);
     foreach ($viewsections as $key => $section) {
         if (is_numeric($key)) {
             View::registerHandler($section, 'wp_section_handler');
@@ -183,7 +183,7 @@ $container->add('wpdb', $wpdb);
     }
 
     global $filters;
-    $filters = array('query_vars','http_request_args','rewrite_rules_array','list_pages','rewrite_rules_array','rewrite_rules_array','set_plugin_has_updates' => 'pre_set_site_transient_update_plugins','template_include');
+    $filters = array('query_vars', 'http_request_args', 'rewrite_rules_array', 'list_pages', 'rewrite_rules_array', 'rewrite_rules_array', 'set_plugin_has_updates' => 'pre_set_site_transient_update_plugins', 'template_include');
     foreach ($filters as $key => $filter) {
         if (is_numeric($key)) {
             Filter::registerHandler($filter, 'wp_filter_handler');
@@ -257,7 +257,7 @@ $container->add('wpdb', $wpdb);
 
         return admin_url($url);
     }
-    add_action('init', function () {
+    add_action('init', function() {
         /*
          * @var Routes $routes
          */
@@ -288,7 +288,7 @@ $container->add('wpdb', $wpdb);
 
     add_filter('redirect_canonical', 'remove_redirect_guess_404_permalink');
 
-    Filter::register('template_include', function ($original_template) {
+    Filter::register('template_include', function($original_template) {
         if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
             global $wp_query;
             if ($wp_query->is_404) {
@@ -328,7 +328,7 @@ function add_header_so_fo($status_header)
     return $status_header;
 }
 
-add_filter('wp_title', function ($title, $sep) {
+add_filter('wp_title', function($title, $sep) {
     $bag = \CLMVC\Core\Container::instance()->fetch('Bag');
     if (isset($bag->title)) {
         return $bag->title.$sep;

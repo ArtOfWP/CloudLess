@@ -24,6 +24,11 @@ class ApplicationBase
      */
     private $basename;
 
+    /**
+     * @param string $name
+     * @param string $basename
+     * @param boolean $file
+     */
     public function __construct($name, $basename, $file, $useOptions = false, $useInstall = false)
     {
         $this->name = $name;

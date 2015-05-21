@@ -21,6 +21,10 @@ class Rendering
      */
     private $controller;
     private $controllerName;
+
+    /**
+     * @param BaseController $controller
+     */
     public function __construct($controller)
     {
         $this->controller = $controller;

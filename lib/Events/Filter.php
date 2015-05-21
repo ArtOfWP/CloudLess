@@ -25,7 +25,7 @@ class Filter
             if (!isset(self::$FilterSections)) {
                 self::$FilterSections = array();
             }
-            $id=generate_hash_for_array($callback);
+            $id = generate_hash_for_array($callback);
             self::$FilterSections[$filter][$priority][$id] = $callback;
 
             return;

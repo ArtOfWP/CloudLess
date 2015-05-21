@@ -102,6 +102,10 @@ abstract class WpFrontIncludes implements IIncludes
     {
         $this->enqueueLocation('frontend');
     }
+
+    /**
+     * @param string $location
+     */
     private function enqueueLocation($location)
     {
         /*
@@ -127,14 +131,14 @@ abstract class WpFrontIncludes implements IIncludes
      * @param string $handle
      * @return FrontInclude
      */
-    public function getRegistered($handle){
+    public function getRegistered($handle) {
         return $this->includes[$handle];
     }
 
     /**
      * @return FrontInclude[]
      */
-    public function getAllRegistered(){
+    public function getAllRegistered() {
         return $this->includes;
     }
 

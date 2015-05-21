@@ -17,7 +17,7 @@ interface IIncludes
     public function register(FrontInclude $include);
 
     /**
-     * @param $handle
+     * @param string $handle
      *
      * @return IIncludes
      */
@@ -64,6 +64,9 @@ interface IIncludes
      */
     public function getEnqueued($location);
 
+    /**
+     * @return void
+     */
     public function registerIncludes();
 
     /**

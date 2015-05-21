@@ -37,12 +37,15 @@ abstract class QueuedIncludes
     abstract public function getRegisteredIncludes();
     abstract public function render($array);
 
+    /**
+     * @param string $tagFormat
+     */
     protected function renderIncludeTag($tagFormat) {
         /**
          * @var FrontInclude[]
          */
         $queue = $this->getQueue('frontend');
-        $array=array();
+        $array = array();
         foreach ($queue as $include) {
             $array[] = sprintf($tagFormat, $include->getSrc());
         }

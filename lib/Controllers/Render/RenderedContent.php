@@ -9,6 +9,9 @@ class RenderedContent
     private static $rendered = false;
     private static $renderedBlocks = array();
 
+    /**
+     * @param string $content
+     */
     public static function set($content)
     {
         self::$renderedContent = $content;
@@ -49,6 +52,9 @@ class RenderedContent
         echo self::$renderedBlocks[$block];
     }
 
+    /**
+     * @param boolean $end
+     */
     public static function endIt($end = null)
     {
         if (is_null($end)) {

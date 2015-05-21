@@ -22,7 +22,7 @@ class View
             if (!isset(self::$ViewSections)) {
                 self::$ViewSections = array();
             }
-            $id=generate_hash_for_array($callback);
+            $id = generate_hash_for_array($callback);
             self::$ViewSections[$section][$priority][$id] = $callback;
 
             return;
@@ -53,7 +53,7 @@ class View
      */
     public static function generate($section, $params = array(), $isArray = false)
     {
-        $priorities = array_key_exists_v($section, self::$ViewSections,array());
+        $priorities = array_key_exists_v($section, self::$ViewSections, array());
         if (!$isArray && !is_array($params)) {
             $params = array($params);
         }
@@ -126,7 +126,7 @@ class View
      */
     private static function getObContents($ob)
     {
-        return $ob?ob_get_clean():'';
+        return $ob ? ob_get_clean() : '';
     }
 
     /**

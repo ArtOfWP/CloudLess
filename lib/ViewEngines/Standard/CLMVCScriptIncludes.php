@@ -15,7 +15,7 @@ class CLMVCScriptIncludes extends CLMVCFrontIncludes
      * @param string $location
      * @param string $handle
      *
-     * @return bool
+     * @return boolean|null
      */
     public function enqueue($location, $handle)
     {

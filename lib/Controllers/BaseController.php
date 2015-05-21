@@ -172,10 +172,10 @@ class BaseController
             }
 
             if ($this->actionHasRun()) {
-                $this->performFilter('afterActionHasRun',$action);
+                $this->performFilter('afterActionHasRun', $action);
             }
 
-            $this->performFilter('afterAction',$action);
+            $this->performFilter('afterAction', $action);
 
             if ($this->renderer->canRender()) {
                 $this->renderer->RenderToAction($action);
@@ -367,11 +367,11 @@ class BaseController
      * @param boolean $result
      * @return mixed
      */
-    private function performFilter($filter_name, $action, &$result=null)
+    private function performFilter($filter_name, $action, &$result = null)
     {
-        if(isset($this->filters[$filter_name])) {
+        if (isset($this->filters[$filter_name])) {
             foreach ($this->filters[$filter_name] as $filter) {
-                $result=$filter->perform($this, $this->values, $action);
+                $result = $filter->perform($this, $this->values, $action);
             }
         }
     }
