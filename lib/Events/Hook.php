@@ -17,10 +17,10 @@ class Hook
      * @param int $priority where in list it should
      * @param string $handle
      */
-    public static function register($hook, $callback, $priority = 100, $handle='')
+    public static function register($hook, $callback, $priority = 100, $handle = '')
     {
         if (!isset(self::$Hooks[$hook]['handler'])) {
-            $id=$handle?$handle:generate_hash_for_array($callback);
+            $id = $handle ? $handle : generate_hash_for_array($callback);
             self::$Hooks[$hook][$priority][$id] = $callback;
 
             return;
@@ -35,7 +35,7 @@ class Hook
      * @param int $priority
      */
     public static function removeCallback($hook, $callback, $priority = 100) {
-        $id=generate_hash_for_array($callback);
+        $id = generate_hash_for_array($callback);
         unset(self::$Hooks[$hook][$priority][$id]);
     }
 
@@ -45,7 +45,7 @@ class Hook
      * @param int $priority
      */
     public static function removeHandle($hook, $handle, $priority = 100) {
-        $id=$handle;
+        $id = $handle;
         unset(self::$Hooks[$hook][$priority][$id]);
     }
 

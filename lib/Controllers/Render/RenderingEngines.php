@@ -16,7 +16,7 @@ class RenderingEngines
      *
      * @throws RenderException
      */
-    public static function getEngine($fileType,  $viewPath)
+    public static function getEngine($fileType, $viewPath)
     {
         if (isset(self::$engines[$fileType])) {
             return new self::$engines[$fileType]($viewPath);

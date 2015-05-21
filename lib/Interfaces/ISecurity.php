@@ -28,7 +28,7 @@ interface ISecurity
     public function getCurrentUser();
 
     /**
-     * @param $action
+     * @param string $action
      *
      * @return mixed
      */
@@ -46,10 +46,13 @@ interface ISecurity
      */
     public function currentUserIsInRole($role);
 
+    /**
+     * @return void
+     */
     public function isAdmin();
 
     /**
-     * @return mixed
+     * @return \CLMVC\ViewEngines\WordPress\WpSecurity
      */
     public static function instance();
 }

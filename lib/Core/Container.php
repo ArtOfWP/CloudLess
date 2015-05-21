@@ -33,7 +33,7 @@ class Container
         if (isset($this->values[strtolower($key)])) {
             throw new \InvalidArgumentException('The key is not unique');
         }
-        $this->values[strtolower($key)] = array($object,$type);
+        $this->values[strtolower($key)] = array($object, $type);
     }
 
     /**

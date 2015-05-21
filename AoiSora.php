@@ -22,18 +22,18 @@ include('init.php');
      */
 class AoiSora extends Core\Application\ApplicationBase {
     /**
-      * @var $options Core\Options
-      */
-	public $options;
-	private static $instance;
+     * @var $options Core\Options
+     */
+    public $options;
+    private static $instance;
 
     /**
      * Sets up aoisoraLoaded hook, calls parent class. Setups up standard libraries
      */
     public function __construct(){
-		parent::__construct('AoiSora',sl_file('AoiSora'),true, true);
+        parent::__construct('AoiSora',sl_file('AoiSora'),true, true);
         $this->setFrontIncludes();
-	}
+    }
 
     /**
      * Setup the environment
@@ -51,21 +51,21 @@ class AoiSora extends Core\Application\ApplicationBase {
     /**
      * Initiates options for the plugin
      */
-    public function onLoadOptions(){
+    public function onLoadOptions() {
     }
 
     /**
      * Configures standard JS libraries etc.
      */
-    private function setFrontIncludes(){
+    private function setFrontIncludes() {
         ScriptIncludes::instance()
-            ->register(new FrontInclude('superagent', clmvc_app_url('AoiSora','/lib/js/superagent/superagent.js')))
-            ->register(new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora','/lib/js/jquery.ui.stars/ui.stars.min.js'),array('jquery','jquery-ui-core','jquery-ui-widget')))
-            ->register(new FrontInclude('jquery-ui-tag-it', clmvc_app_url('AoiSora','/lib/js/jquery.ui.tag-it/ui.tag-it.js'),array('jquery','jquery-ui-core','jquery-ui-widget')));
-        ScriptIncludes::instance()->register(new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora','/lib/js/jquery.ui.stars/ui.stars.min.css')));
+            ->register(new FrontInclude('superagent', clmvc_app_url('AoiSora', '/lib/js/superagent/superagent.js')))
+            ->register(new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora', '/lib/js/jquery.ui.stars/ui.stars.min.js'), array('jquery', 'jquery-ui-core', 'jquery-ui-widget')))
+            ->register(new FrontInclude('jquery-ui-tag-it', clmvc_app_url('AoiSora', '/lib/js/jquery.ui.tag-it/ui.tag-it.js'), array('jquery', 'jquery-ui-core', 'jquery-ui-widget')));
+        ScriptIncludes::instance()->register(new FrontInclude('jquery-ui-stars', clmvc_app_url('AoiSora', '/lib/js/jquery.ui.stars/ui.stars.min.css')));
         StyleIncludes::instance()
-            ->register(new FrontInclude('forms', clmvc_app_url('AoiSora','/lib/css/forms.css')))
-            ->register(new FrontInclude('wordpress', clmvc_app_url('AoiSora','/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css')));
+            ->register(new FrontInclude('forms', clmvc_app_url('AoiSora', '/lib/css/forms.css')))
+            ->register(new FrontInclude('wordpress', clmvc_app_url('AoiSora', '/lib/css/wordpress/jquery-ui-1.7.2.wordpress.css')));
         add_action('wp_print_scripts', function() {?>
             <script>
                 var includesUrl = '<?php echo includes_url() ?>';
@@ -79,11 +79,11 @@ class AoiSora extends Core\Application\ApplicationBase {
      * @return AoiSora
      */
     public static function instance(){
-    	if(self::$instance)
-    		return self::$instance;
-    	self::$instance=new AoiSora();
-    	self::$instance->init();
-    	return self::$instance;
+        if(self::$instance)
+            return self::$instance;
+        self::$instance=new AoiSora();
+        self::$instance->init();
+        return self::$instance;
     }
 
     /**

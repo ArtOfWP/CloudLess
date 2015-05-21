@@ -95,15 +95,15 @@ class Communication
      * @param null $haystack
      * @return array
      */
-    public static function getFormValues($keys = array(), $defaults=[], $haystack = null)
+    public static function getFormValues($keys = array(), $defaults = [], $haystack = null)
     {
         $qs = $haystack ? $haystack : $_POST;
         if (!empty($keys) && is_array($keys)) {
             $values = array();
-            foreach($keys as $key)
-                if(isset($qs[$key]))
+            foreach ($keys as $key)
+                if (isset($qs[$key]))
                     $values[$key] = $qs[$key];
-                elseif(isset($defaults[$key]))
+                elseif (isset($defaults[$key]))
                     $values[$key] = $defaults[$key];
             return $values;
         }
@@ -116,8 +116,8 @@ class Communication
      * @param array $haystack
      * @return array
      */
-    public static function searchKeys($needle, $haystack=[]) {
-        $haystack  = $haystack ? $haystack : $_POST;
+    public static function searchKeys($needle, $haystack = []) {
+        $haystack = $haystack ? $haystack : $_POST;
         return array_search_key($needle, $haystack);
     }
 
@@ -129,7 +129,7 @@ class Communication
      * @param array $haystack
      * @return mixed
      */
-    public static function getFormValue($key, $default=null, $haystack = array())
+    public static function getFormValue($key, $default = null, $haystack = array())
     {
         $haystack = $haystack ? $haystack : $_POST;
         return array_key_exists_v($key, $haystack, $default);
