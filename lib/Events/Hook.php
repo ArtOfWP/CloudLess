@@ -12,20 +12,41 @@ class Hook
     /**
      * Register a hook.
      *
-     * @param string                       $hook
+     * @param string $hook
      * @param array|string|\Closure|object $callback
-     * @param int                          $priority where in list it should
+     * @param int $priority where in list it should
+     * @param string $handle
      */
-    public static function register($hook, $callback, $priority = 100)
+    public static function register($hook, $callback, $priority = 100, $handle='')
     {
         if (!isset(self::$Hooks[$hook]['handler'])) {
-            $id=generate_hash_for_array($callback);
+            $id=$handle?$handle:generate_hash_for_array($callback);
             self::$Hooks[$hook][$priority][$id] = $callback;
 
             return;
         }
         $handler = self::$Hooks[$hook]['handler'];
         call_user_func($handler, $hook, $callback, $priority);
+    }
+
+    /**
+     * @param $hook
+     * @param $callback
+     * @param int $priority
+     */
+    public static function removeCallback($hook, $callback, $priority = 100) {
+        $id=generate_hash_for_array($callback);
+        unset(self::$Hooks[$hook][$priority][$id]);
+    }
+
+    /**
+     * @param $hook
+     * @param $handle
+     * @param int $priority
+     */
+    public static function removeHandle($hook, $handle, $priority = 100) {
+        $id=$handle;
+        unset(self::$Hooks[$hook][$priority][$id]);
     }
 
     /**
