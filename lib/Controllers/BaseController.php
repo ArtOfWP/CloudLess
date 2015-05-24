@@ -74,7 +74,7 @@ class BaseController
     /**
      * @var Rendering
      */
-    protected $renderer;
+    private $renderer;
 
     private $templateType = 'php';
     private $headers = array();
