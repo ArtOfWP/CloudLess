@@ -1,17 +1,20 @@
 <?php
-
 namespace CLMVC\Controllers\Render;
 
 use CLMVC\Controllers\BaseController;
 use CLMVC\Controllers\Views;
 use CLMVC\Events\Filter;
 
+/**
+ * Class Rendering
+ * @package CLMVC\Controllers\Render
+ */
 class Rendering
 {
     /**
      * @var bool if should render
      */
-    private $render = true;
+    private $doRender = true;
     /**
      * @var Views
      */
@@ -51,10 +54,11 @@ class Rendering
      *
      * @throws RenderException
      */
-    public function Render($controller, $action)
+    public function render($controller, $action)
     {
-        if(!$this->canRender())
+        if (!$this->canRender()) {
             return;
+        }
 
         $view_path = $this->views->findView($controller, $action, $this->getTemplate());
         if ($view_path) {
@@ -66,7 +70,7 @@ class Rendering
                 $engine = RenderingEngines::getEngine($this->getTemplate(), $view_path);
                 $view_content = $engine->render($layout_path, array_merge($this->getBag(), $tags, ['bag' => $this->getBag() + $tags], Filter::run("{$this->controllerName}-{$action}-blocks", array(array('view' => $view_content)))));
             }
-            $this->render = false;
+            $this->doRender = false;
             RenderedContent::set($view_content);
 
             return;
@@ -85,10 +89,11 @@ class Rendering
      */
     public function RenderToAction($action)
     {
-        if(!$this->canRender())
+        if (!$this->canRender()) {
             return;
+        }
 
-        $this->Render($this->getControllerName(), $action);
+        $this->render($this->getControllerName(), $action);
     }
 
     /**
@@ -96,10 +101,11 @@ class Rendering
      *
      * @param string $filePath
      */
-    public function RenderFile($filePath)
+    public function renderFile($filePath)
     {
-        if(!$this->canRender())
+        if (!$this->canRender()) {
             return;
+        }
 
         ob_start();
         if (file_exists($filePath)) {
@@ -110,7 +116,7 @@ class Rendering
         } else {
             $viewcontent = 'Could not find view: '.$filePath;
         }
-        $this->render = false;
+        $this->doRender = false;
         ob_end_clean();
         RenderedContent::set($viewcontent);
     }
@@ -121,12 +127,13 @@ class Rendering
      * @param string $text
      * @param bool   $end
      */
-    public function RenderText($text, $end = false)
+    public function renderText($text, $end = false)
     {
-        if(!$this->canRender())
+        if (!$this->canRender()) {
             return;
+        }
 
-        $this->render = false;
+        $this->doRender = false;
         RenderedContent::set($text);
         if ($end) {
             RenderedContent::endIt(true);
@@ -138,17 +145,18 @@ class Rendering
      *
      * @param $data
      */
-    public function RenderJson($data)
+    public function renderJSON($data)
     {
-        if(!$this->canRender())
+        if (!$this->canRender()) {
             return;
+        }
 
         global $aoisora_headers;
         if (!is_array($aoisora_headers)) {
             $aoisora_headers = [];
         }
         $aoisora_headers[] = 'Content-Type: application/json; charset=UTF-8';
-        $this->render = false;
+        $this->doRender = false;
         RenderedContent::set(json_encode($data, JSON_UNESCAPED_UNICODE));
         RenderedContent::endIt(true);
     }
@@ -165,11 +173,11 @@ class Rendering
 
     public function canRender($state = null)
     {
-        if (!is_null($state)) {
-            $this->render = $state;
+        if (null === $state) {
+            $this->doRender = $state;
         }
 
-        return $this->render;
+        return $this->doRender;
     }
 
     /**
