@@ -3,7 +3,8 @@
 namespace CLMVC\Core\Http;
 
 /**
- * Class Route.
+ * Class Route
+ * @package CLMVC\Core\Http
  */
 class Route
 {
@@ -11,19 +12,22 @@ class Route
     private $method;
     private $params;
     private $callback;
+    private $content_type;
 
     /**
-     * @param $route
-     * @param $callback
-     * @param $params
-     * @param $method
+     * @param string $route
+     * @param string|array $callback
+     * @param array $params
+     * @param string $method
+     * @param string $content_type
      */
-    public function __construct($route, $callback, $params, $method = 'get')
+    public function __construct($route, $callback, $params, $method = 'get', $content_type='')
     {
         $this->params = $params;
         $this->method = $method;
         $this->route = $this->build($route, $params);
         $this->callback = $callback;
+        $this->content_type = $content_type;
     }
 
     /**
@@ -36,14 +40,17 @@ class Route
 
     /**
      * @param $uri
-     * @param $method
-     *
+     * @param string $method
+     * @param array $content_types
      * @return mixed
      */
-    public function match($uri, $method = 'get')
+    public function match($uri, $method = 'get', $content_types=[])
     {
-        if ($this->method != $method) {
-            return;
+        if ($this->method !== $method) {
+            return false;
+        }
+        if($this->content_type && !in_array($this->content_type, $content_types)) {
+            return false;
         }
         preg_match($this->route, $uri, $matches);
 
