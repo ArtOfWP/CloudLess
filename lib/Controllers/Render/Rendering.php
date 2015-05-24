@@ -70,7 +70,7 @@ class Rendering
                 $engine = RenderingEngines::getEngine($this->getTemplate(), $view_path);
                 $view_content = $engine->render($layout_path, array_merge($this->getBag(), $tags, ['bag' => $this->getBag() + $tags], Filter::run("{$this->controllerName}-{$action}-blocks", array(array('view' => $view_content)))));
             }
-            $this->doRender = false;
+            $this->disableRendering();
             RenderedContent::set($view_content);
 
             return;
@@ -116,7 +116,7 @@ class Rendering
         } else {
             $viewcontent = 'Could not find view: '.$filePath;
         }
-        $this->doRender = false;
+        $this->disableRendering();
         ob_end_clean();
         RenderedContent::set($viewcontent);
     }
@@ -133,7 +133,7 @@ class Rendering
             return;
         }
 
-        $this->doRender = false;
+        $this->disableRendering();
         RenderedContent::set($text);
         if ($end) {
             RenderedContent::endIt(true);
@@ -156,7 +156,7 @@ class Rendering
             $aoisora_headers = [];
         }
         $aoisora_headers[] = 'Content-Type: application/json; charset=UTF-8';
-        $this->doRender = false;
+        $this->disableRendering();
         RenderedContent::set(json_encode($data, JSON_UNESCAPED_UNICODE));
         RenderedContent::endIt(true);
     }
@@ -173,7 +173,7 @@ class Rendering
 
     public function canRender($state = null)
     {
-        if (null === $state) {
+        if (null !== $state) {
             $this->doRender = $state;
         }
 
@@ -204,5 +204,9 @@ class Rendering
     public function getTemplate()
     {
         return $this->controller->getTemplateType();
+    }
+
+    private function disableRendering() {
+        $this->doRender = false;
     }
 }

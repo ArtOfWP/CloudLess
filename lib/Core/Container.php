@@ -30,7 +30,7 @@ class Container
      */
     public function add($key, $object, $type = 'object')
     {
-        if (isset($this->values[strtolower($key)])) {
+        if (array_key_exists(strtolower($key), $this->values)) {
             throw new \InvalidArgumentException('The key is not unique');
         }
         $this->values[strtolower($key)] = array($object, $type);
@@ -43,7 +43,7 @@ class Container
      */
     public function remove($key)
     {
-        if (isset($this->values[strtolower($key)])) {
+        if (array_key_exists(strtolower($key), $this->values)) {
             unset($this->values[strtolower($key)]);
         }
     }
@@ -57,7 +57,7 @@ class Container
      */
     public function exists($key)
     {
-        return isset($this->values[strtolower($key)]);
+        return array_key_exists(strtolower($key), $this->values);
     }
 
     /**
@@ -65,7 +65,7 @@ class Container
      *
      * @param $key
      *
-     * @return bool|mixed
+     * @return mixed
      */
     public function fetch($key)
     {
@@ -77,7 +77,7 @@ class Container
     /**
      * @param $key
      *
-     * @return bool|mixed
+     * @return mixed
      */
     private function fetchTuple($key)
     {
@@ -132,9 +132,9 @@ class Container
     private function getClassName($key)
     {
         $class = $this->fetchTuple($key);
-        if ('object' == $class[1]) {
+        if ('object' === $class[1]) {
             $className = get_class($class[0]);
-        } elseif ('class' == $class[1]) {
+        } elseif ('class' === $class[1]) {
             $className = $class[0];
         } else {
             $className = $key;
@@ -171,7 +171,7 @@ class Container
      */
     private function getInvokeParam($pValue)
     {
-        if ('class' == $pValue[1]) {
+        if ('class' === $pValue[1]) {
             $value = $this->make($pValue[0]);
         } else {
             $value = $pValue[0];
