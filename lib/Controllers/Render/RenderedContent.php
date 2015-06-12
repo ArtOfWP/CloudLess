@@ -24,6 +24,7 @@ class RenderedContent
     public static function flush()
     {
         echo self::get();
+        self::clear();
     }
 
     public static function endFlush()
@@ -50,8 +51,13 @@ class RenderedContent
     public static function flushBlock($block)
     {
         echo self::$renderedBlocks[$block];
+        unset(self::$renderedBlocks[$block]);
     }
 
+    public static function clear() {
+        self::$renderedContent='';
+        self::$renderedBlocks=[];
+    }
     /**
      * @param boolean $end
      * @return bool

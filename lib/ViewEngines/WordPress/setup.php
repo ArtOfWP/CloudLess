@@ -261,6 +261,10 @@ $container->add('wpdb', $wpdb);
         /*
          * @var Routes $routes
          */
+        Hook::register('base-controller-render', function($controllerName, $action, $controller){
+            global $clmvc_template;
+            $clmvc_template=[$controllerName, $action];
+        });
         $container = \CLMVC\Core\Container::instance();
         $routes = $container->fetch('Routes');
         $routes->routing();
@@ -306,7 +310,7 @@ $container->add('wpdb', $wpdb);
 
                 return '';
             } else {
-                return clmvc_template();
+                return clmvc_template($original_template);
             }
         } else {
             return $original_template;
@@ -337,7 +341,25 @@ add_filter('wp_title', function($title, $sep) {
     return $title.$sep;
 }, 0, 2);
 
-function clmvc_template()
+function clmvc_template($default = '')
 {
-    return get_stylesheet_directory().DIRECTORY_SEPARATOR.'cloudless.php';
+    global $clmvc_template;
+    list($controller, $action) = $clmvc_template;
+    $controller=strtolower($controller);
+    $templates= [
+        'templates'.DIRECTORY_SEPARATOR."$controller-$action.php",
+        'templates'.DIRECTORY_SEPARATOR."$controller".DIRECTORY_SEPARATOR."$action.php",
+        'layouts'.DIRECTORY_SEPARATOR."$controller.php",
+        "layout-$controller.php",
+        "template-$controller-$action.php",
+        "$controller-$action.php",
+        "$controller".DIRECTORY_SEPARATOR."$action.php",
+        "$controller.php",
+        "default-layout.php",
+        'cloudless.php'
+    ];
+    foreach($templates as $template)
+        if(file_exists(get_stylesheet_directory() . DIRECTORY_SEPARATOR .$template))
+            return get_stylesheet_directory() . DIRECTORY_SEPARATOR .$template;
+    return $default;
 }
