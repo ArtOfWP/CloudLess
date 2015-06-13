@@ -24,7 +24,7 @@ class Route
     public function __construct($route, $callback, $params, $method = 'get', $content_type='')
     {
         $this->params = $params;
-        $this->method = $method;
+        $this->method = strtolower($method);
         $this->route = $this->build($route, $params);
         $this->callback = $callback;
         $this->content_type = $content_type;
@@ -46,7 +46,7 @@ class Route
      */
     public function match($uri, $method = 'get', $content_types=[])
     {
-        if ($this->method !== $method) {
+        if ($this->method !== strtolower($method)) {
             return false;
         }
         if($this->content_type && !in_array($this->content_type, $content_types)) {
