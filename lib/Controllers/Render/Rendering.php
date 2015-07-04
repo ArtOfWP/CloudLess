@@ -4,6 +4,7 @@ namespace CLMVC\Controllers\Render;
 use CLMVC\Controllers\BaseController;
 use CLMVC\Controllers\Views;
 use CLMVC\Events\Filter;
+use CLMVC\Events\Hook;
 
 /**
  * Class Rendering
@@ -62,6 +63,7 @@ class Rendering
 
         $view_path = $this->views->findView($controller, $action, $this->getTemplate());
         if ($view_path) {
+            Hook::run('rendering-render', [$controller, strtolower($action), $this->controller]);
             $tags = Filter::run('view-tags', array(array(), $this->controller));
             $engine = RenderingEngines::getEngine($this->getTemplate(), $this->controller->getViewPath());
             $view_content = $engine->render($view_path, array_merge($this->getBag(), $tags, ['bag' => $this->getBag() + $tags]));
@@ -92,7 +94,6 @@ class Rendering
         if (!$this->canRender()) {
             return;
         }
-
         $this->render($this->getControllerName(), $action);
     }
 

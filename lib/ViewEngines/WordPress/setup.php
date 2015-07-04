@@ -258,23 +258,25 @@ $container->add('wpdb', $wpdb);
         return admin_url($url);
     }
     add_action('init', function() {
-        /*
+        /**
          * @var Routes $routes
          */
-        Hook::register('base-controller-render', function($controllerName, $action, $controller){
+        Hook::register('rendering-render', function($controllerName, $action, $controller){
             global $clmvc_template;
             $clmvc_template=[$controllerName, $action];
         });
         $container = \CLMVC\Core\Container::instance();
         $routes = $container->fetch('Routes');
         $routes->routing();
-        if (defined('DOING_AJAX') && DOING_AJAX) {
+        //if (defined('DOING_AJAX') && DOING_AJAX) {
             if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
                 if (\CLMVC\Controllers\Render\RenderedContent::endIt()) {
                     \CLMVC\Controllers\Render\RenderedContent::endFlush();
+                    exit;
+
                 }
             }
-        }
+        //}
     }, 10000);
     function remove_redirect_guess_404_permalink($redirect_url)
     {

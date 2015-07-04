@@ -179,7 +179,6 @@ class BaseController
 
             if ($this->renderer->canRender()) {
                 $this->renderer->RenderToAction($action);
-                Hook::run('base-controller-render', [$this->controller, strtolower($action), $this]);
             }
             $this->setupHeadersAndResponseCode();
         } elseif (method_exists($this, 'notFound')) {
