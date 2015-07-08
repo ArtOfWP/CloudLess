@@ -268,16 +268,18 @@ $container->add('wpdb', $wpdb);
         $container = \CLMVC\Core\Container::instance();
         $routes = $container->fetch('Routes');
         $routes->routing();
-        //if (defined('DOING_AJAX') && DOING_AJAX) {
-            if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
-                if (\CLMVC\Controllers\Render\RenderedContent::endIt()) {
-                    \CLMVC\Controllers\Render\RenderedContent::endFlush();
-                    exit;
+    }, 1);
+    add_action('init', 'cl_render_text', 99999);
 
-                }
+    function cl_render_text() {
+        if (\CLMVC\Controllers\Render\RenderedContent::hasRendered()) {
+            if (\CLMVC\Controllers\Render\RenderedContent::endIt()) {
+                \CLMVC\Controllers\Render\RenderedContent::endFlush();
+                exit;
+
             }
-        //}
-    }, 10000);
+        }
+    }
     function remove_redirect_guess_404_permalink($redirect_url)
     {
         /*
@@ -302,14 +304,7 @@ $container->add('wpdb', $wpdb);
             }
 
             if (\CLMVC\Controllers\Render\RenderedContent::endIt()) {
-                global $aoisora_headers;
-                if (!empty($aoisora_headers)) {
-                    foreach ($aoisora_headers as $header) {
-                        header($header);
-                    }
-                }
                 \CLMVC\Controllers\Render\RenderedContent::endFlush();
-
                 return '';
             } else {
                 return clmvc_template($original_template);
@@ -321,7 +316,7 @@ $container->add('wpdb', $wpdb);
 add_filter('status_header', 'add_header_so_fo');
 function add_header_so_fo($status_header)
 {
-    global $clmvc_http_code;
+    global $clmvc_http_code,$aoisora_headers;
     header_remove('X-Powered-By');
     header_remove('X-Pingback');
     header_remove('Pragma');
@@ -330,7 +325,11 @@ function add_header_so_fo($status_header)
         $protocol = 'HTTP/1.0';
         $status_header = "$protocol $clmvc_http_code $description";
     }
-
+    if (!empty($aoisora_headers)) {
+        foreach ($aoisora_headers as $header) {
+            header($header);
+        }
+    }
     return $status_header;
 }
 
