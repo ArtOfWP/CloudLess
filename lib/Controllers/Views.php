@@ -34,6 +34,9 @@ class Views
         $viewPath = Filter::run("cl-view-path-{$controller}", [$viewPath, $this->controller, $controller, $action]);
 
         if ($viewPath) {
+            if ($path = $this->viewPaths($viewPath, strtolower($controller).DIRECTORY_SEPARATOR.strtolower($action).'.'.$template)) {
+                return $path;
+            }
             if ($path = $this->viewPaths($viewPath, $controller.DIRECTORY_SEPARATOR.$action.'.'.$template)) {
                 return $path;
             }

@@ -134,7 +134,6 @@ class BaseController
     public function __construct($viewPath = '')
     {
         $this->viewpath = $viewPath;
-        Debug::Message('Loaded '.$this->controller.' extends BaseController');
         $this->renderer = new Rendering($this);
         $this->bag = Container::instance()->fetch('Bag');
     }
@@ -388,5 +387,20 @@ class BaseController
         } else {
             $aoisora_headers = $this->headers;
         }
+        header_remove('X-Powered-By');
+        header_remove('X-Pingback');
+        header_remove('Pragma');
+        if ($clmvc_http_code) {
+            $description = get_status_header_desc($clmvc_http_code);
+            $protocol = 'HTTP/1.0';
+            header("$protocol $clmvc_http_code $description");
+        }
+
+        if (!empty($aoisora_headers)) {
+            foreach ($aoisora_headers as $header) {
+                header($header);
+            }
+        }
+
     }
 }

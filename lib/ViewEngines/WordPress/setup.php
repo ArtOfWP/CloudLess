@@ -316,7 +316,7 @@ $container->add('wpdb', $wpdb);
 add_filter('status_header', 'add_header_so_fo');
 function add_header_so_fo($status_header)
 {
-    global $clmvc_http_code,$aoisora_headers;
+    global $clmvc_http_code;
     header_remove('X-Powered-By');
     header_remove('X-Pingback');
     header_remove('Pragma');
@@ -324,11 +324,6 @@ function add_header_so_fo($status_header)
         $description = get_status_header_desc($clmvc_http_code);
         $protocol = 'HTTP/1.0';
         $status_header = "$protocol $clmvc_http_code $description";
-    }
-    if (!empty($aoisora_headers)) {
-        foreach ($aoisora_headers as $header) {
-            header($header);
-        }
     }
     return $status_header;
 }
@@ -359,8 +354,9 @@ function clmvc_template($default = '')
         "default-layout.php",
         'cloudless.php'
     ];
-    foreach($templates as $template)
-        if(file_exists(get_stylesheet_directory() . DIRECTORY_SEPARATOR .$template))
-            return get_stylesheet_directory() . DIRECTORY_SEPARATOR .$template;
+    foreach($templates as $template) {
+        if (file_exists(get_stylesheet_directory() . DIRECTORY_SEPARATOR . $template))
+            return get_stylesheet_directory() . DIRECTORY_SEPARATOR . $template;
+    }
     return $default;
 }
