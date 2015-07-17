@@ -412,6 +412,5 @@ class BaseController
                 header($header);
             }
         }
-        file_put_contents(WP_CONTENT_DIR . '/headers.txt',  print_r(debug_backtrace(), true) );
     }
 }

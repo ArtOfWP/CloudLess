@@ -58,7 +58,7 @@ class Options
      */
     public function get($key)
     {
-        return isset($this->pairs[$key]) ? $this->pairs[$key] : $this->setNewOption($key); ;
+        return isset($this->pairs[$key]) ? $this->pairs[$key] : $this->setNewOption($key);
     }
 
     /**
@@ -209,8 +209,7 @@ class Options
         } else {
             trigger_error("$key key does not exist", E_USER_WARNING);
         }
-
-        return;
+        return null;
     }
 
     /**
@@ -221,6 +220,7 @@ class Options
     {
         $this->pairs[$key]->setValue($value);
     }
+
     /**
      * @deprecated
      */
