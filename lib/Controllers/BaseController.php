@@ -86,6 +86,7 @@ class BaseController
     private $filters;
     private $params;
     private $actionRan;
+    private $prevent_headers=false;
 
     /**
      * Setup the controller.
@@ -376,10 +377,20 @@ class BaseController
     }
 
     /**
+     * Call to prevent setting of headers and response code
+     * @param bool $prevent
+     */
+    public function preventHeaders($prevent=true) {
+        $this->prevent_headers=$prevent;
+    }
+
+    /**
      */
     private function setupHeadersAndResponseCode()
     {
         global $clmvc_http_code, $aoisora_headers;
+        if($this->prevent_headers)
+            return;
         http_response_code($this->code);
         $clmvc_http_code = $this->code;
         if ($aoisora_headers) {
@@ -401,6 +412,6 @@ class BaseController
                 header($header);
             }
         }
-
+        file_put_contents(WP_CONTENT_DIR . '/headers.txt',  print_r(debug_backtrace(), true) );
     }
 }
