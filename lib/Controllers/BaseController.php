@@ -7,6 +7,7 @@ use CLMVC\Core\Debug;
 use CLMVC\Events\Filter;
 use CLMVC\Helpers\Communication;
 use CLMVC\Events\Hook;
+use CLMVC\Interfaces\IFilter;
 use ReflectionMethod;
 use CLMVC\Controllers\Render\Rendering;
 
@@ -105,6 +106,7 @@ class BaseController
         $this->values = Communication::getQueryString();
         if (isset($_SERVER['CONTENT_TYPE']) && $_SERVER['CONTENT_TYPE'] == 'application/json') {
             $request_body = file_get_contents('php://input');
+            $request_body = $request_body? $request_body:'{}';
             $_POST = array_merge($_POST, json_decode($request_body, true));
         }
         $this->values = array_merge($this->values, Communication::getFormValues());
@@ -129,12 +131,9 @@ class BaseController
 
     /**
      * Sets initial variables etc.
-     *
-     * @param string $viewPath THe path to teh views
      */
-    public function __construct($viewPath = '')
+    public function __construct()
     {
-        $this->viewpath = $viewPath;
         $this->renderer = new Rendering($this);
         $this->bag = Container::instance()->fetch('Bag');
     }
@@ -370,6 +369,9 @@ class BaseController
     private function performFilter($filter_name, $action, &$result = null)
     {
         if (isset($this->filters[$filter_name])) {
+            /**
+             * @var IFilter $filter
+             */
             foreach ($this->filters[$filter_name] as $filter) {
                 $result = $filter->perform($this, $this->values, $action);
             }
@@ -389,7 +391,7 @@ class BaseController
     private function setupHeadersAndResponseCode()
     {
         global $clmvc_http_code, $aoisora_headers;
-        if($this->prevent_headers)
+        if($this->prevent_headers || headers_sent())
             return;
         http_response_code($this->code);
         $clmvc_http_code = $this->code;

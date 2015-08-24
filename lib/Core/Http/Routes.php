@@ -3,6 +3,7 @@
 namespace CLMVC\Core\Http;
 
 use CLMVC\Controllers\BaseController;
+use CLMVC\Core\Container;
 use CLMVC\Helpers\Communication;
 
 class Routes
@@ -33,7 +34,7 @@ class Routes
         $uri = $_SERVER['REQUEST_URI'];
         $method = Communication::getMethod();
         /**
-         * @var Route
+         * @var Route $route
          */
         foreach ($routes as $route) {
             if ($matches = $route->match($uri, $method)) {
@@ -43,7 +44,7 @@ class Routes
                 /**
                  * @var BaseController
                  */
-                $ctrl = new $controller(false);
+                $ctrl = Container::instance()->make($controller);
                 $ctrl->init();
                 $action = $array[1];
                 if ($action == ':action') {
