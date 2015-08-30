@@ -391,15 +391,18 @@ class BaseController
     private function setupHeadersAndResponseCode()
     {
         global $clmvc_http_code, $aoisora_headers;
-        if($this->prevent_headers || headers_sent())
+        if($this->prevent_headers)
             return;
-        http_response_code($this->code);
         $clmvc_http_code = $this->code;
         if ($aoisora_headers) {
             $aoisora_headers = array_merge($aoisora_headers, $this->headers);
         } else {
             $aoisora_headers = $this->headers;
         }
+
+        if(headers_sent())
+            return;
+        http_response_code($this->code);
         header_remove('X-Powered-By');
         header_remove('X-Pingback');
         header_remove('Pragma');
