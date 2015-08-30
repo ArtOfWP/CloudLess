@@ -143,7 +143,7 @@ class Container
     }
 
     /**
-     * @param $class_constructor
+     * @param \ReflectionMethod $class_constructor
      * @return array
      */
     private function getInvokeParameters($class_constructor)
@@ -155,7 +155,11 @@ class Container
             if (!$pValue) {
                 $param_class = $mParam->getClass();
                 if ($param_class) {
-                    $pValue = $this->fetchTuple($param_class->getName());
+                    $pValue = $this->fetchTuple($param_class->getShortName());
+                    if(empty($pValue)) {
+                        $name ='\\'.$param_class->getName();
+                        $pValue = $this->make($name);
+                    }
                 } else {
                     continue;
                 }
@@ -171,6 +175,8 @@ class Container
      */
     private function getInvokeParam($pValue)
     {
+        if(!is_array($pValue))
+            return $pValue;
         if ('class' === $pValue[1]) {
             $value = $this->make($pValue[0]);
         } else {
