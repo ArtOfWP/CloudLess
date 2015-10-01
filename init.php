@@ -1,15 +1,21 @@
 <?php
+if (!defined('CLMVC_FILE_PREFIX')) {
+    define('CLMVC_FILE_PREFIX', __DIR__.'/lib');
+}
 define('VIEWENGINE', 'WordPress');
 define('PACKAGEPATH', WP_PLUGIN_DIR.'/AoiSora/');
 
-include(PACKAGEPATH.'/clmvc-autoloader.php');
+require CLMVC_FILE_PREFIX.'/Core/ClassLoader.php';
+global $classLoader;
+$classLoader = CLMVC\Core\UniversalClassLoader::instance();
+include(PACKAGEPATH.'/autoloader.php');
+\CloudLess\register_autoloading();
+include(PACKAGEPATH.'/functions.php');
 if (!defined('CLOUDLESS_CONFIG')) {
     if (file_exists(PACKAGEPATH.'/config.php'))
         include(PACKAGEPATH.'/config.php');
 } else
     include CLOUDLESS_CONFIG;
-require PACKAGEPATH.'/lib/Helpers/ArraysHelper.php';
-require PACKAGEPATH.'/lib/Core/Security/SecurityHelpers.php';
 if (file_exists(PACKAGEPATH.'/lib/ViewEngines/'.ucfirst(VIEWENGINE).'/setup.php'))
     require PACKAGEPATH.'/lib/ViewEngines/'.ucfirst(VIEWENGINE).'/setup.php';
 else {

@@ -8,7 +8,7 @@ define('DOMAIN',LIB.'domain/');
 define('VIEWS',LIB.'Views/');
 define('CONTROLLERS',LIB.'/Controllers/');
 
-include(PACKAGEPATH.'clmvc-autoloader.php');
+include(PACKAGEPATH.'autoloader.php');
 if(LOADALL){
 include(PACKAGEPATH . 'lib/Route.php');
 include(PACKAGEPATH . 'lib/Debug.php');
