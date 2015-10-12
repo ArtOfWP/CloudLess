@@ -58,6 +58,8 @@ namespace CLMVC\Core;
  *
  * @api
  */
+if(class_exists('\CLMVC\Core\UniversalClassLoader'))
+    return;
 class UniversalClassLoader
 {
     private $namespaces = array();

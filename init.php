@@ -5,12 +5,12 @@ if (!defined('CLMVC_FILE_PREFIX')) {
 define('VIEWENGINE', 'WordPress');
 define('PACKAGEPATH', WP_PLUGIN_DIR.'/AoiSora/');
 
-require CLMVC_FILE_PREFIX.'/Core/ClassLoader.php';
+require_once CLMVC_FILE_PREFIX.'/Core/ClassLoader.php';
 global $classLoader;
 $classLoader = CLMVC\Core\UniversalClassLoader::instance();
-include(PACKAGEPATH.'/autoloader.php');
+require_once (PACKAGEPATH.'/autoloader.php');
 \CloudLess\register_autoloading();
-include(PACKAGEPATH.'/functions.php');
+require_once(PACKAGEPATH.'/functions.php');
 if (!defined('CLOUDLESS_CONFIG')) {
     if (file_exists(PACKAGEPATH.'/config.php'))
         include(PACKAGEPATH.'/config.php');
