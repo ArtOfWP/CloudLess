@@ -57,6 +57,7 @@ class RenderedContent
     public static function clear() {
         self::$renderedContent='';
         self::$renderedBlocks=[];
+        self::$rendered=false;
     }
     /**
      * @param boolean $end
