@@ -1,11 +1,12 @@
 {
-  "name": "CyoniteSystems/cloudlessmvc",
+  "name": "ArtOfWP/cloudless",
   "description": "Framework for developing MVC based WordPress plugins or standalone sites",
   "minimum-stability": "dev",
   "license": "MIT",
   "authors": [
     {
-      "name": "Andreas Nurbo"
+      "name": "Andreas Nurbo",
+      "email": "andreas@artofwp.com"
     }
   ],
   "require-dev": {

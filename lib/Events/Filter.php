@@ -72,6 +72,7 @@ class Filter
                     $params[0] = $value;
                 }
             }
+            unset(self::$FilterSections[$filter]);
         }
 
         return $value;
