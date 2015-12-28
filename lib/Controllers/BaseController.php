@@ -197,14 +197,8 @@ class BaseController
      *
      * @return BaggedValues
      */
-    public function getBag()
-    {
-        static $bag;
-        if ($bag) {
-            return $bag;
-        }
-
-        return $bag = Filter::run($this->controller.'-bag', array($this->bag, $this->controller, $this->action, $this->values));
+    public function getBag() {
+        return $this->bag;
     }
 
     /**

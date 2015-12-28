@@ -80,7 +80,6 @@ class Hook
                     call_user_func_array($function, $params);
                 }
             }
-            unset(self::$Hooks[$hook]);
         }
     }
 

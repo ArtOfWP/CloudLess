@@ -34,6 +34,16 @@ class Filter
         call_user_func($handler, $filter, $callback, $priority);
     }
 
+    public static function unregister($filter, $callback, $priority = 100) {
+        if (!isset(self::$FilterSections[$filter]['handler'])) {
+            if (!isset(self::$FilterSections)) {
+                self::$FilterSections = array();
+            }
+            $id = generate_hash_for_array($callback);
+            unset(self::$FilterSections[$filter][$priority][$id]);
+            return;
+        }
+    }
     /**
      * Register an handler for filter.
      *
@@ -72,9 +82,7 @@ class Filter
                     $params[0] = $value;
                 }
             }
-            unset(self::$FilterSections[$filter]);
         }
-
         return $value;
     }
 
@@ -100,5 +108,9 @@ class Filter
     public static function hasCustomHandler($filter)
     {
         return isset(self::$FilterSections[$filter]['handler']);
+    }
+
+    public static function reset() {
+         self::$FilterSections = array();
     }
 }
