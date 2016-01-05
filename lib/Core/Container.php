@@ -151,7 +151,12 @@ class Container
         $methodParams = $class_constructor->getParameters();
         $invokeParams = array();
         foreach ($methodParams as $mParam) {
-            $pValue = $this->fetchTuple($mParam->getName());
+            $class=$mParam->getClass();
+            if($class)
+                $name=$class->getName();
+            else
+                $name = $mParam->getName();
+            $pValue = $this->fetchTuple($name);
             if (!$pValue) {
                 $param_class = $mParam->getClass();
                 if ($param_class) {
