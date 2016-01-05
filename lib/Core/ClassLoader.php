@@ -273,14 +273,18 @@ class UniversalClassLoader
 
             $className = substr($class, $pos + 1);
             $normalizedClass = str_replace('\\', DIRECTORY_SEPARATOR, $namespace).DIRECTORY_SEPARATOR.str_replace('_', DIRECTORY_SEPARATOR, $className).'.php';
-
             foreach ($this->namespaces as $ns => $dirs) {
                 if (0 !== strpos($namespace, $ns)) {
                     continue;
                 }
+                $classRoot = substr($ns, strrpos($ns, '\\') + 1);
                 $normalizedClass = substr($normalizedClass, strpos($normalizedClass, '/') + 1);
                 foreach ($dirs as $dir) {
                     $file = $dir.DIRECTORY_SEPARATOR.$normalizedClass;
+                    if (is_file($file)) {
+                        return $file;
+                    }
+                    $file = $dir.DIRECTORY_SEPARATOR.str_replace($classRoot.'/','',$normalizedClass);
                     if (is_file($file)) {
                         return $file;
                     }
@@ -294,7 +298,7 @@ class UniversalClassLoader
                 }
             }
 
-            return;
+            return false;
         }
         // PEAR-like class name
         $normalizedClass = str_replace('_', DIRECTORY_SEPARATOR, $class).'.php';
@@ -322,7 +326,7 @@ class UniversalClassLoader
             return $file;
         }
 
-        return;
+        return false;
     }
 
     public static function instance()
