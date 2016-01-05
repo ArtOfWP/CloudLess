@@ -10,6 +10,7 @@ use CLMVC\Events\Hook;
 use CLMVC\Interfaces\IFilter;
 use ReflectionMethod;
 use CLMVC\Controllers\Render\Rendering;
+use Symfony\Component\Config\Definition\Exception\Exception;
 
 /**
  * Class BaseController
@@ -104,6 +105,7 @@ class BaseController
         $className = substr($class, $pos + 1);
         $this->controller = str_replace('Controller', '', $className);
         $this->values = Communication::getQueryString();
+
         if (isset($_SERVER['CONTENT_TYPE']) && $_SERVER['CONTENT_TYPE'] == 'application/json') {
             $request_body = file_get_contents('php://input');
             $request_body = $request_body? $request_body:'{}';
@@ -182,6 +184,8 @@ class BaseController
             $this->setupHeadersAndResponseCode();
         } elseif (method_exists($this, 'notFound')) {
             $this->notFound();
+        } else {
+            throw new Exception('There are no action that corresponds to request.');
         }
     }
     public function setStatusCode($code)
