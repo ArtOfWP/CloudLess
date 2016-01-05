@@ -8,12 +8,42 @@ use CLMVC\Helpers\Communication;
 
 class Routes
 {
+    private static $prefix='';
     /**
      * @var Route[]
      */
     private $routes = array();
     private $priorityRoutes = array();
     private $routed = null;
+
+    private static $self = null;
+    public static function instance() {
+        self::$self = self::$self ?: new Routes();
+        return self::$self;
+    }
+
+    public static function group($prefix, $callback) {
+        self::$prefix = $prefix;
+        call_user_func($callback);
+        self::$prefix = '';
+        return self::instance();
+    }
+
+    public static function get($route, $callback, $params = array()) {
+        return self::instance()->add(self::$prefix . '/' . ltrim($route,"/"), $callback, $params, 'get');
+    }
+
+    public static function delete($route, $callback, $params = array()) {
+        return self::instance()->add(self::$prefix . '/' . ltrim($route,"/"), $callback, $params, 'delete');
+    }
+
+    public static function update($route, $callback, $params = array()) {
+        return self::instance()->add(self::$prefix . '/' . ltrim($route,"/"), $callback, $params, 'put');
+    }
+
+    public static function create($route, $callback, $params = array()) {
+        return self::instance()->add(self::$prefix . '/' . ltrim($route,"/"), $callback, $params, 'post');
+    }
 
     public function add($route, $callback, $params = array(), $method = 'get', $priority = false)
     {
@@ -23,6 +53,7 @@ class Routes
         } else {
             $this->routes[] = $theRoute;
         }
+        return $this;
     }
 
     /**

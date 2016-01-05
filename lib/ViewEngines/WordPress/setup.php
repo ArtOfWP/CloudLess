@@ -126,7 +126,7 @@ $container->add('CLMVC\\Interfaces\\IScriptInclude', new CLMVC\ViewEngines\WordP
 $container->add('CLMVC\\Interfaces\\IStyleInclude', new CLMVC\ViewEngines\WordPress\WpStyleIncludes());
 $container->add('CLMVC\\Interfaces\\IOptions', 'CLMVC\\ViewEngines\\WordPress\\WpOptions', 'class');
 $container->add('CLMVC\\Interfaces\\IPost', 'CLMVC\\ViewEngines\\WordPress\\WpPost', 'class');
-$container->add('Routes', new Routes());
+$container->add('Routes', Routes::instance());
 $container->add('Bag', new \CLMVC\Controllers\BaggedValues());
 global $wpdb;
 $container->add('wpdb', $wpdb);
