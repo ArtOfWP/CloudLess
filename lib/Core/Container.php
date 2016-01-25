@@ -65,7 +65,7 @@ class Container
      *
      * @param $key
      *
-     * @return mixed
+     * @return mixed|null Returns null if not found.
      */
     public function fetch($key)
     {
@@ -81,18 +81,16 @@ class Container
      */
     private function fetchTuple($key)
     {
-        return array_key_exists_v(strtolower($key), $this->values);
+        return array_key_exists_v(strtolower($key), $this->values, null);
     }
 
     /**
      * Make an object of type of added key.
      *
      * @param string $key
-     * @param array  $params
+     * @param array $params
      *
      * @return object
-     *
-     * @throws \InvalidArgumentException throws if the key does not exist in container
      */
     public function make($key, $params = array())
     {
@@ -101,11 +99,23 @@ class Container
         $class_constructor = $class->getConstructor();
         if ($class_constructor && $class_constructor->getNumberOfParameters()) {
             $invokeParams = $this->getInvokeParameters($class_constructor);
-            $obj = $class->newInstanceArgs(array_merge($params, $invokeParams));
-        } else {
-            $obj = new $className();
+            return $class->newInstanceArgs(array_merge($params, $invokeParams));
         }
+        return new $className();
+    }
 
+    /**
+     * Fetches based on the class name if it exits or tries to instantiate based on it.
+     * @param string $className
+     * @param array $params
+     * @return mixed|object
+     */
+    public function fetchOrMake($className, $params = array()) {
+        if($obj = $this->fetch($className)) {
+            return $obj;
+        }
+        $obj = $this->make($className, $params);
+        $this->add($className, $obj);
         return $obj;
     }
 
@@ -182,12 +192,8 @@ class Container
     {
         if(!is_array($pValue))
             return $pValue;
-        if ('class' === $pValue[1]) {
-            $value = $this->make($pValue[0]);
-        } else {
-            $value = $pValue[0];
-        }
-        return $value;
+        if ('class' === $pValue[1])
+            return $this->make($pValue[0]);
+        return $pValue[0];
     }
-
 }
