@@ -33,6 +33,18 @@ class StyleIncludes implements IIncludes
 
         return self::$instance;
     }
+
+    /**
+     * Massregister includes
+     * @param array<FrontInclude> $includes
+     */
+    public static function registerAll($includes) {
+        $handler = self::instance();
+        foreach($includes as $include) {
+            $handler->register($include);
+        }
+    }
+
     /**
      * Inject a style handler for includes.
      *

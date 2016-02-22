@@ -27,6 +27,20 @@ class FrontInclude
     }
 
     /**
+     * Creates a front include
+     * @param string $handle name of the resource
+     * @param string $src path to resource
+     * @param string[] $dependency list of short names(handles) that the include depends on
+     * @param string $version version number for the resource
+     * @param bool $inFooter
+     *
+     * @return FrontInclude
+     */
+    public static function make($handle = '', $src = '', $dependency = array(), $version = '', $inFooter = false) {
+        return new FrontInclude($handle, $src, $dependency, $version, $inFooter);
+    }
+
+    /**
      * Set the name for the resource.
      *
      * @param $handle

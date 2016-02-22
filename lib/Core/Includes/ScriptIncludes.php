@@ -35,6 +35,17 @@ class ScriptIncludes implements IIncludes
     }
 
     /**
+     * Massregister includes
+     * @param array<FrontInclude> $includes
+     */
+    public static function registerAll($includes) {
+        $handler = self::instance();
+        foreach($includes as $include) {
+            $handler->register($include);
+        }
+    }
+
+    /**
      * Inject a script handler for includes.
      *
      * @param IIncludes $iScriptInclude
