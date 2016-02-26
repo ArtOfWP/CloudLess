@@ -327,15 +327,23 @@ function add_header_so_fo($status_header)
     }
     return $status_header;
 }
-
-add_filter('wp_title', function($title, $sep) {
-    $bag = \CLMVC\Core\Container::instance()->fetch('Bag');
-    if (isset($bag->title)) {
-        return $bag->title.$sep;
-    }
-
-    return $title.$sep;
-}, 0, 2);
+if (current_theme_supports('title-tag')) {
+    add_filter('document_title_parts', function ($title) {
+        $bag = \CLMVC\Core\Container::instance()->fetch('Bag');
+        if (isset($bag->title)) {
+            array_unshift($title, $bag->title);
+        }
+        return $title;
+    });
+} else {
+    add_filter('wp_title', function($title, $sep) {
+        $bag = \CLMVC\Core\Container::instance()->fetch('Bag');
+        if (isset($bag->title)) {
+            return $bag->title.$sep;
+        }
+        return $title.$sep;
+    }, 0, 2);
+}
 
 function clmvc_template($default = '')
 {
