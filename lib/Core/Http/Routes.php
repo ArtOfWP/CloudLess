@@ -81,8 +81,12 @@ class Routes
                 if ($action == ':action') {
                     $action = str_replace(':action', $matches['action'], $action);
                 }
-                $ctrl->executeAction($action, $params);
-                $this->routed = true;
+                try {
+                    $ctrl->executeAction($action, $params);
+                    $this->routed = true;
+                } catch (\Exception $ex) {
+                    $this->routed = false;
+                }
 
                 return $this->routed;
             }

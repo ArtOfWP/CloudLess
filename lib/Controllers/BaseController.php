@@ -3,14 +3,11 @@
 namespace CLMVC\Controllers;
 
 use CLMVC\Core\Container;
-use CLMVC\Core\Debug;
-use CLMVC\Events\Filter;
 use CLMVC\Helpers\Communication;
 use CLMVC\Events\Hook;
 use CLMVC\Interfaces\IFilter;
 use ReflectionMethod;
 use CLMVC\Controllers\Render\Rendering;
-use Symfony\Component\Config\Definition\Exception\Exception;
 
 /**
  * Class BaseController
@@ -146,7 +143,7 @@ class BaseController
      * @param string $action    The name of the action to execute.
      * @param array  $getParams values part of routing
      *
-     * @throws \RuntimeException Thrown if action is not found.
+     * @throws \Exception Thrown if action is not found.
      */
     public function executeAction($action, $getParams = array())
     {
@@ -185,7 +182,7 @@ class BaseController
         } elseif (method_exists($this, 'notFound')) {
             $this->notFound();
         } else {
-            throw new Exception('There are no action that corresponds to request.');
+            throw new \Exception('There are no action that corresponds to request.');
         }
     }
     public function setStatusCode($code)
