@@ -43,7 +43,7 @@ class WpOptions implements IOptions
     public function save($namespace, $options)
     {
         if (get_option($namespace)) {
-            return update_option($namespace, $options);
+            return update_option($namespace, $options, 'yes');
         } else {
             return add_option($namespace, $options);
         }

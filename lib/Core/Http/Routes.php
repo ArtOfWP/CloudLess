@@ -56,6 +56,23 @@ class Routes
         return $this;
     }
 
+    public function routeExists() {
+        $routes = array_merge($this->priorityRoutes, $this->routes);
+        $uri = $_SERVER['REQUEST_URI'];
+        $method = Communication::getMethod();
+        /**
+         * @var Route $route
+         */
+        foreach ($routes as $route) {
+            if ($matches = $route->match($uri, $method)) {
+                return $this->routed;
+            }
+        }
+        $this->routed = false;
+
+        return $this->routed;
+
+    }
     /**
      * Takes request uri and routes to controller.
      */
@@ -87,7 +104,6 @@ class Routes
                 } catch (\Exception $ex) {
                     $this->routed = false;
                 }
-
                 return $this->routed;
             }
         }

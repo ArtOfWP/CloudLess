@@ -22,3 +22,17 @@ function clmvc_is_tablet() {
     $mobile_detect=\CLMVC\Core\Container::instance()->fetchOrMake(\CLMVC\Helpers\MobileDetect::class);
     return $mobile_detect->isTablet();
 }
+
+/**
+ * Returns plugin path
+ * @param string $file
+ * @return string
+ */
+function sl_file($file, $isPlugin = true)
+{
+    if ($isPlugin) {
+        return CLOUDLESS_APP_DIR.'/'.$file.'/'.$file.'.php';
+    }
+
+    return CLOUDLESS_APP_DIR.'/'.$file;
+}
