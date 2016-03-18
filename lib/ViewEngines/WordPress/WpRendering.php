@@ -33,15 +33,26 @@ class WpRendering {
             global $clmvc_template;
             $clmvc_template=[$controllerName, $action];
         });
+
+        Hook::register('init', [$this, 'templateRendering'],999999);
+        Filter::register('document_title_parts', [$this, 'setTitle']);
+        Filter::register('wp_title', [$this, 'setTitle']);
+        add_filter('pre_get_document_title',  [$this, 'override404']);
+    }
+
+    public function override404() {
+        if ($this->routes->isRouted()) {
+            global $wp_query;
+            $wp_query->is_404 = false;
+        }
+    }
+
+    public function templateRendering() {
         if(!current_theme_supports('cloudless'))
             Container::instance()->make(ThemeCompatibility::class);
         else
             Filter::register('template_include', [$this,'includeTemplate']);
-
-        Filter::register('document_title_parts', [$this, 'setTitle']);
-        Filter::register('wp_title', [$this, 'setTitle']);
     }
-
     /**
      * @param $true
      * @param $instance
@@ -49,6 +60,9 @@ class WpRendering {
      */
     public function disableParseRequest($true, $instance) {
         if($this->routes->routeExists()) {
+            global $wp_query;
+            $wp_query->is_home = false;
+            $wp_query->is_404 = false;
             $instance->query_vars = [];
             return false;
         } else {
@@ -89,9 +103,9 @@ class WpRendering {
     public function setTitle($title, $sep ='') {
         $bag = Container::instance()->fetch('Bag');
         if (isset($bag->title)) {
-            if (current_theme_supports('title-tag'))
+            if (current_theme_supports('title-tag')) {
                 array_unshift($title, $bag->title);
-            else
+            } else
                 $title=$bag->title.$sep;
         }
         return $title;
@@ -104,6 +118,10 @@ class WpRendering {
         $container = Container::instance();
         $routes = $container->fetch('Routes');
         $routes->routing();
+        if ($routes->isRouted()) {
+            global $wp_query;
+            $wp_query->is_404 = false;
+        }
     }
 
     /**

@@ -39,6 +39,7 @@ class ThemeCompatibility {
         $args = ['post_content'=> RenderedContent::get(), 'post_title'=> $bag->title, 'is_page'=>true];
         $dummy = new DummyPost($args);
         $dummy->overrideWpQuery();
+        remove_filter( 'the_content', 'wpautop' );
         unset($dummy);
     }
 }
