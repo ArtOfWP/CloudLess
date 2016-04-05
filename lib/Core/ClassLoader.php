@@ -288,6 +288,10 @@ class UniversalClassLoader
                     if (is_file($file)) {
                         return $file;
                     }
+                    $file = $dir.DIRECTORY_SEPARATOR.basename($normalizedClass);
+                    if (is_file($file)) {
+                        return $file;
+                    }
                 }
             }
 
