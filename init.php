@@ -5,7 +5,7 @@ if (!defined('CLMVC_FILE_PREFIX')) {
 define('VIEWENGINE', 'WordPress');
 define('PACKAGEPATH', WP_PLUGIN_DIR.'/AoiSora/');
 
-require_once CLMVC_FILE_PREFIX.'/Core/ClassLoader.php';
+require_once CLMVC_FILE_PREFIX . '/Core/UniversalClassLoader.php';
 global $classLoader;
 $classLoader = CLMVC\Core\UniversalClassLoader::instance();
 require_once (PACKAGEPATH.'/autoloader.php');
