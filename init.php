@@ -3,7 +3,7 @@ if (!defined('CLMVC_FILE_PREFIX')) {
     define('CLMVC_FILE_PREFIX', __DIR__.'/lib');
 }
 define('VIEWENGINE', 'WordPress');
-define('PACKAGEPATH', WP_PLUGIN_DIR.'/AoiSora/');
+define('PACKAGEPATH', WP_PLUGIN_DIR.'/'.basename(__DIR__).'/');
 
 require_once CLMVC_FILE_PREFIX . '/Core/UniversalClassLoader.php';
 global $classLoader;
