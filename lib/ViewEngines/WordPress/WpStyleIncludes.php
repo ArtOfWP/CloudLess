@@ -26,7 +26,6 @@ class WpStyleIncludes extends WpFrontIncludes
 
     public function registerInclude(FrontInclude $style)
     {
-        echo $style->getHandle(),"<br />";
         wp_register_style($style->getHandle(), $style->getSrc(), $style->getDependency(), $style->getVersion(), $style->loadInFooter());
     }
 
