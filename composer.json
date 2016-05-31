@@ -1,5 +1,5 @@
 {
-  "name": "ArtOfWP/cloudless",
+  "name": "artofwp/cloudless",
   "description": "Framework for developing MVC based WordPress plugins or standalone sites",
   "minimum-stability": "dev",
   "type": "wordpress-plugin",
