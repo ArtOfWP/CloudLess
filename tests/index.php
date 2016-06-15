@@ -1,5 +1,5 @@
 <?php
-define('PACKAGEPATH',dirname(__FILE__).'../../');
+define('PACKAGE_PATH',dirname(__FILE__).'../../');
 class AoiSoraTestSuite extends TestRunner{
 	function __construct(){
 		parent::TestRunner(dirname(__FILE__).'/');

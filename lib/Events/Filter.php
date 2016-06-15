@@ -10,7 +10,7 @@ class Filter
     /**
      * @var array
      */
-    public static $FilterSections = array();
+    public static $FilterSections = [];
 
     /**
      * Register callback for and filter.
@@ -23,7 +23,7 @@ class Filter
     {
         if (!isset(self::$FilterSections[$filter]['handler'])) {
             if (!isset(self::$FilterSections)) {
-                self::$FilterSections = array();
+                self::$FilterSections = [];
             }
             $id = generate_hash_for_array($callback);
             self::$FilterSections[$filter][$priority][$id] = $callback;
@@ -34,10 +34,16 @@ class Filter
         call_user_func($handler, $filter, $callback, $priority);
     }
 
-    public static function unregister($filter, $callback, $priority = 100) {
+    /**
+     * @param $filter
+     * @param $callback
+     * @param int $priority
+     */
+    public static function unregister($filter, $callback, $priority = 100)
+    {
         if (!isset(self::$FilterSections[$filter]['handler'])) {
             if (!isset(self::$FilterSections)) {
-                self::$FilterSections = array();
+                self::$FilterSections = [];
             }
             $id = generate_hash_for_array($callback);
             unset(self::$FilterSections[$filter][$priority][$id]);
@@ -63,18 +69,18 @@ class Filter
      *
      * @return mixed
      */
-    public static function run($filter, $params = array())
+    public static function run($filter, $params = [])
     {
         if (isset($params[0])) {
             $value = $params[0];
         } else {
-            $value = '';
+            $value = null;
         }
         $priorities = array_key_exists_v($filter, self::$FilterSections);
         if (is_array($priorities)) {
             ksort($priorities);
             if (!is_array($params)) {
-                $params = array($params);
+                $params = [$params];
             }
             foreach ($priorities as $functions) {
                 foreach ($functions as $function) {
@@ -110,7 +116,11 @@ class Filter
         return isset(self::$FilterSections[$filter]['handler']);
     }
 
-    public static function reset() {
-         self::$FilterSections = array();
+    /**
+     * Resets the filters.
+     */
+    public static function reset()
+    {
+         self::$FilterSections = [];
     }
 }
