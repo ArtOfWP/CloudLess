@@ -71,7 +71,7 @@ class Route
         $route = str_replace(':action', '(?<action>[a-zA-Z0-9_\+\-%\$\.]+)', $route);
         foreach ($params as $param => $condition) {
             if (is_numeric($param)) {
-                $route = str_replace(":$condition", '(?<'.$condition.'>[a-zA-Z0-9_\+\-%\$\.]+)', $route);
+                $route = str_replace(":$condition", '(?J)(?<'.$condition.'>[a-zA-Z0-9_\+\-%\$\.]+)', $route);
                 continue;
             }
             $route = str_replace(":$param", "(?<$param>$condition)", $route);
