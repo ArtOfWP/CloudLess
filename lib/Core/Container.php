@@ -1,5 +1,4 @@
 <?php
-
 namespace CLMVC\Core;
 
 /**
@@ -8,32 +7,31 @@ namespace CLMVC\Core;
  */
 class Container
 {
-    private $values;
     private static $instance;
+    private $values;
 
     /**
      * Create a container.
      */
     public function __construct()
     {
-        $this->values = array();
+        $this->values = [];
     }
 
     /**
-     * Add an object to be handle by container.
+     * Instantiate a Container.
      *
-     * @param string $key    unique value for object
-     * @param mixed $object
-     * @param string $type
+     * @static
      *
-     * @throws \InvalidArgumentException thrown if key is not unique, i.e already added
+     * @return Container
      */
-    public function add($key, $object, $type = 'object')
+    public static function instance()
     {
-        if (array_key_exists(strtolower($key), $this->values)) {
-            throw new \InvalidArgumentException('The key is not unique');
+        if (!isset(self::$instance) && empty(self::$instance)) {
+            self::$instance = new self();
         }
-        $this->values[strtolower($key)] = array($object, $type);
+
+        return self::$instance;
     }
 
     /**
@@ -58,6 +56,23 @@ class Container
     public function exists($key)
     {
         return array_key_exists(strtolower($key), $this->values);
+    }
+
+    /**
+     * Fetches based on the class name if it exits or tries to instantiate based on it.
+     * @param string $className
+     * @param array $params
+     * @return mixed|object
+     */
+    public function fetchOrMake($className, $params = [])
+    {
+        $obj = $this->fetch($className);
+        if ($obj) {
+            return $obj;
+        }
+        $obj = $this->make($className, $params);
+        $this->add($className, $obj);
+        return $obj;
     }
 
     /**
@@ -92,47 +107,27 @@ class Container
      *
      * @return object
      */
-    public function make($key, $params = array())
+    public function make($key, $params = [])
     {
         $className = $this->getClassName($key);
         $class = new \ReflectionClass($className);
-        $class_constructor = $class->getConstructor();
-        if ($class_constructor && $class_constructor->getNumberOfParameters()) {
-            $invokeParams = $this->getInvokeParameters($class_constructor);
-            return $class->newInstanceArgs(array_merge($params, $invokeParams));
-        }
-        return new $className();
-    }
 
-    /**
-     * Fetches based on the class name if it exits or tries to instantiate based on it.
-     * @param string $className
-     * @param array $params
-     * @return mixed|object
-     */
-    public function fetchOrMake($className, $params = array()) {
-        if($obj = $this->fetch($className)) {
-            return $obj;
+        if (!$class->isInterface()) {
+            $class_constructor = $class->getConstructor();
+            if ($class_constructor && $class_constructor->getNumberOfParameters()) {
+                $invokeParams = $this->getInvokeParameters($class_constructor);
+                $args = $params + $invokeParams;
+                $constructor_params = [];
+                for ($i=0; $i<sizeof($args); $i++) {
+                    $constructor_params[] = $args[$i];
+                }
+                return $class->newInstanceArgs($constructor_params);
+            } else {
+                return $class->newInstanceWithoutConstructor();
+            }
+        } else {
+            return $this->fetch($key);
         }
-        $obj = $this->make($className, $params);
-        $this->add($className, $obj);
-        return $obj;
-    }
-
-    /**
-     * Instantiate a Container.
-     *
-     * @static
-     *
-     * @return Container
-     */
-    public static function instance()
-    {
-        if (!isset(self::$instance) && empty(self::$instance)) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
     }
 
     /**
@@ -159,22 +154,20 @@ class Container
     private function getInvokeParameters($class_constructor)
     {
         $methodParams = $class_constructor->getParameters();
-        $invokeParams = array();
+        $invokeParams = [];
         foreach ($methodParams as $mParam) {
-            $class=$mParam->getClass();
-            if($class)
-                $name=$class->getName();
-            else
+            $class = $mParam->getClass();
+            if ($class) {
+                $name = $class->getName();
+            } else {
                 $name = $mParam->getName();
+            }
             $pValue = $this->fetchTuple($name);
             if (!$pValue) {
                 $param_class = $mParam->getClass();
                 if ($param_class) {
-                    $pValue = $this->fetchTuple($param_class->getShortName());
-                    if(empty($pValue)) {
-                        $name ='\\'.$param_class->getName();
-                        $pValue = $this->make($name);
-                    }
+                    $name = '\\' . $param_class->getName();
+                    $pValue = $this->make($name);
                 } else {
                     continue;
                 }
@@ -190,10 +183,29 @@ class Container
      */
     private function getInvokeParam($pValue)
     {
-        if(!is_array($pValue))
+        if (!is_array($pValue)) {
             return $pValue;
-        if ('class' === $pValue[1])
+        }
+        if ('class' === $pValue[1]) {
             return $this->make($pValue[0]);
+        }
         return $pValue[0];
+    }
+
+    /**
+     * Add an object to be handle by container.
+     *
+     * @param string $key unique value for object
+     * @param mixed $object
+     * @param string $type
+     *
+     * @throws \InvalidArgumentException thrown if key is not unique, i.e already added
+     */
+    public function add($key, $object, $type = 'object')
+    {
+        if (array_key_exists(strtolower($key), $this->values)) {
+            throw new \InvalidArgumentException('The key is not unique');
+        }
+        $this->values[strtolower($key)] = [$object, $type];
     }
 }

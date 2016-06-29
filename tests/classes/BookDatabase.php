@@ -1,16 +1,20 @@
 <?php
+namespace tests\classes;
+
 /**
- * User: andreas
- * Date: 2011-12-21
- * Time: 16:29
+ * Class BookDatabase
+ * @package tests\classes
  */
 class BookDatabase implements ITestDatabase
 {
     public $connectionString;
-    function __construct($connectionString=""){
+
+    /**
+     * BookDatabase constructor.
+     * @param string $connectionString
+     */
+    public function __construct($connectionString = "")
+    {
         $this->connectionString=$connectionString;
     }
-}
-interface ITestDatabase{
-
 }

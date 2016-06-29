@@ -146,7 +146,7 @@ class StyleIncludes implements IIncludes
     /**
      * Initiate the include handler.
      *
-     * @return ScriptIncludes
+     * @return bool
      */
     public function init()
     {

@@ -1,0 +1,26 @@
+<phpunit
+        bootstrap="tests/bootstrap.php"
+        backupGlobals="false"
+        colors="true"
+        convertErrorsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="true"
+>
+    <testsuites>
+        <testsuite name="unit">
+            <directory prefix="" suffix="Test.php">./tests/unit</directory>
+        </testsuite>
+        <testsuite name="integration">
+            <directory prefix="" suffix="Test.php">./tests/integration</directory>
+        </testsuite>
+    </testsuites>
+    <listeners>
+        <listener class="\ArtOfWP\WP\Testing\BootstrapLoader" />
+        <listener class="\Mockery\Adapter\Phpunit\TestListener" />
+    </listeners>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src/</directory>
+        </whitelist>
+    </filter>
+</phpunit>
