@@ -70,6 +70,7 @@ class Container
         if ($obj) {
             return $obj;
         }
+
         $obj = $this->make($className, $params);
         $this->add($className, $obj);
         return $obj;
@@ -116,10 +117,10 @@ class Container
             $class_constructor = $class->getConstructor();
             if ($class_constructor) {
                 if ($class_constructor->getNumberOfParameters()) {
-                    $invokeParams = $this->getInvokeParameters($class_constructor);
+                    $invokeParams = $this->getInvokeParameters($class_constructor, $params);
                     $args = $params + $invokeParams;
                     $constructor_params = [];
-                    for ($i=0; $i<sizeof($args); $i++) {
+                    for ($i = 0; $i < sizeof($args); $i++) {
                         $constructor_params[] = $args[$i];
                     }
                     return $class->newInstanceArgs($constructor_params);
@@ -153,13 +154,18 @@ class Container
 
     /**
      * @param \ReflectionMethod $class_constructor
+     * @param $params
      * @return array
      */
-    private function getInvokeParameters($class_constructor)
+    private function getInvokeParameters($class_constructor, $params)
     {
         $methodParams = $class_constructor->getParameters();
         $invokeParams = [];
-        foreach ($methodParams as $mParam) {
+        for ($i = 0; $i<sizeof($methodParams); $i++) {
+            if (array_key_exists($i, $params)) {
+                continue;
+            }
+            $mParam = $methodParams[$i];
             $class = $mParam->getClass();
             if ($class) {
                 $name = $class->getName();
@@ -176,7 +182,7 @@ class Container
                     continue;
                 }
             }
-            $invokeParams[] = $this->getInvokeParam($pValue);
+            $invokeParams[$i] = $this->getInvokeParam($pValue);
         }
         return $invokeParams;
     }
