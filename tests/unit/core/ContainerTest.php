@@ -5,10 +5,12 @@ use CLMVC\Core\Container;
 use PHPUnit_Framework_TestCase;
 use stdClass;
 use tests\classes\BookDatabase;
+use tests\classes\ClassParams;
 use tests\classes\ITestDatabase;
 use tests\classes\Library;
 use tests\classes\Library2;
 use tests\classes\Library3;
+use tests\classes\ParentClass;
 use tests\classes\SubClass;
 
 /**
@@ -136,6 +138,31 @@ class ContainerTests extends PHPUnit_Framework_TestCase
         $bookdb->connectionString = 'newConnectionString';
         $bookdb = $c->fetchOrMake(BookDatabase::class);
         self::assertEquals('newConnectionString', $bookdb->connectionString);
+    }
+
+    public function testFetchOrMakeNewObjectWithParams()
+    {
+        $c = new Container();
+        $bookdb = $c->fetchOrMake(BookDatabase::class, [0 => 'newConnectionString']);
+        $bookdb = $c->fetchOrMake(BookDatabase::class);
+        self::assertEquals('newConnectionString', $bookdb->connectionString);
+    }
+
+    public function testFetchOrMakeNewObjectWithClassParamsOverload()
+    {
+        $c = new Container();
+        $bookdb = $c->fetchOrMake(ClassParams::class, [0 => new ParentClass('test_param')]);
+        $bookdb = $c->fetchOrMake(ClassParams::class);
+        self::assertEquals('test_param', $bookdb->getClass()->getSomeParam());
+    }
+
+    public function testFetchOrMakeNewObjectWithClassParamsOverload2()
+    {
+        $c = new Container();
+        $bookdb = $c->fetchOrMake(ClassParams::class, [1 => new ParentClass('test_param')]);
+        $bookdb = $c->fetchOrMake(ClassParams::class);
+        self::assertEquals('', $bookdb->getClass()->getSomeParam());
+        self::assertEquals('test_param', $bookdb->getClass2()->getSomeParam());
     }
 
     public function testNoParamsConstructorWithInherit()

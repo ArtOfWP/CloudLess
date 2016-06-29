@@ -13,7 +13,7 @@ class ParentClass
      * ParentClass constructor.
      * @param $some_param
      */
-    public function __construct($some_param)
+    public function __construct($some_param = '')
     {
         $this->some_param = $some_param;
     }
