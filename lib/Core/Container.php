@@ -114,14 +114,18 @@ class Container
 
         if (!$class->isInterface()) {
             $class_constructor = $class->getConstructor();
-            if ($class_constructor && $class_constructor->getNumberOfParameters()) {
-                $invokeParams = $this->getInvokeParameters($class_constructor);
-                $args = $params + $invokeParams;
-                $constructor_params = [];
-                for ($i=0; $i<sizeof($args); $i++) {
-                    $constructor_params[] = $args[$i];
+            if ($class_constructor) {
+                if ($class_constructor->getNumberOfParameters()) {
+                    $invokeParams = $this->getInvokeParameters($class_constructor);
+                    $args = $params + $invokeParams;
+                    $constructor_params = [];
+                    for ($i=0; $i<sizeof($args); $i++) {
+                        $constructor_params[] = $args[$i];
+                    }
+                    return $class->newInstanceArgs($constructor_params);
+                } else {
+                    return $class->newInstance();
                 }
-                return $class->newInstanceArgs($constructor_params);
             } else {
                 return $class->newInstanceWithoutConstructor();
             }

@@ -9,6 +9,7 @@ use tests\classes\ITestDatabase;
 use tests\classes\Library;
 use tests\classes\Library2;
 use tests\classes\Library3;
+use tests\classes\SubClass;
 
 /**
  * Class ContainerTests
@@ -126,5 +127,21 @@ class ContainerTests extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf(Library::class, $objTemp);
         $this->assertInstanceOf(BookDatabase::class, $objTemp->getDatabase());
         $this->assertEquals('string', $objTemp->getDatabase()->connectionString);
+    }
+
+    public function testFetchOrMakeNewObject()
+    {
+        $c = new Container();
+        $bookdb = $c->fetchOrMake(BookDatabase::class);
+        $bookdb->connectionString = 'newConnectionString';
+        $bookdb = $c->fetchOrMake(BookDatabase::class);
+        self::assertEquals('newConnectionString', $bookdb->connectionString);
+    }
+
+    public function testNoParamsConstructorWithInherit()
+    {
+        $c = new Container();
+        $sub = $c->make(SubClass::class);
+        self::assertEquals('someparam', $sub->getSomeParam());
     }
 }
