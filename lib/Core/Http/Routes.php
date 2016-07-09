@@ -28,6 +28,7 @@ class Routes
      */
     public static function group($prefix, $callback)
     {
+        $prefix = '/' . trim($prefix, "/");
         self::$prefix = $prefix;
         call_user_func($callback);
         self::$prefix = '';
