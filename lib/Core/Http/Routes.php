@@ -6,46 +6,63 @@ use CLMVC\Controllers\BaseController;
 use CLMVC\Core\Container;
 use CLMVC\Helpers\Communication;
 
+/**
+ * Class Routes
+ * @package CLMVC\Core\Http
+ */
 class Routes
 {
-    private static $prefix='';
+    private static $prefix = '';
+    private static $self = null;
     /**
      * @var Route[]
      */
-    private $routes = array();
-    private $priorityRoutes = array();
+    private $routes = [];
+    private $priorityRoutes = [];
     private $routed = null;
 
-    private static $self = null;
-    public static function instance() {
-        self::$self = self::$self ?: new Routes();
-        return self::$self;
-    }
-
-    public static function group($prefix, $callback) {
+    /**
+     * @param $prefix
+     * @param $callback
+     * @return Routes|null
+     */
+    public static function group($prefix, $callback)
+    {
         self::$prefix = $prefix;
         call_user_func($callback);
         self::$prefix = '';
         return self::instance();
     }
 
-    public static function get($route, $callback, $params = array()) {
-        return self::instance()->add(self::$prefix . '/' . ltrim($route,"/"), $callback, $params, 'get');
+    /**
+     * @return Routes|null
+     */
+    public static function instance()
+    {
+        self::$self = self::$self ?: new Routes();
+        return self::$self;
     }
 
-    public static function delete($route, $callback, $params = array()) {
-        return self::instance()->add(self::$prefix . '/' . ltrim($route,"/"), $callback, $params, 'delete');
+    /**
+     * @param $route
+     * @param $callback
+     * @param array $params
+     * @return Routes
+     */
+    public static function get($route, $callback, $params = [])
+    {
+        return self::instance()->add(self::$prefix . '/' . ltrim($route, "/"), $callback, $params, 'get');
     }
 
-    public static function update($route, $callback, $params = array()) {
-        return self::instance()->add(self::$prefix . '/' . ltrim($route,"/"), $callback, $params, 'put');
-    }
-
-    public static function create($route, $callback, $params = array()) {
-        return self::instance()->add(self::$prefix . '/' . ltrim($route,"/"), $callback, $params, 'post');
-    }
-
-    public function add($route, $callback, $params = array(), $method = 'get', $priority = false)
+    /**
+     * @param $route
+     * @param $callback
+     * @param array $params
+     * @param string $method
+     * @param bool $priority
+     * @return $this
+     */
+    public function add($route, $callback, $params = [], $method = 'get', $priority = false)
     {
         $theRoute = new Route($route, $callback, $params, $method);
         if ($priority) {
@@ -56,7 +73,44 @@ class Routes
         return $this;
     }
 
-    public function routeExists() {
+    /**
+     * @param $route
+     * @param $callback
+     * @param array $params
+     * @return Routes
+     */
+    public static function delete($route, $callback, $params = [])
+    {
+        return self::instance()->add(self::$prefix . '/' . ltrim($route, "/"), $callback, $params, 'delete');
+    }
+
+    /**
+     * @param $route
+     * @param $callback
+     * @param array $params
+     * @return Routes
+     */
+    public static function update($route, $callback, $params = [])
+    {
+        return self::instance()->add(self::$prefix . '/' . ltrim($route, "/"), $callback, $params, 'put');
+    }
+
+    /**
+     * @param $route
+     * @param $callback
+     * @param array $params
+     * @return Routes
+     */
+    public static function create($route, $callback, $params = [])
+    {
+        return self::instance()->add(self::$prefix . '/' . ltrim($route, "/"), $callback, $params, 'post');
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function routeExists()
+    {
         $routes = array_merge($this->priorityRoutes, $this->routes);
         $uri = $_SERVER['REQUEST_URI'];
         $method = Communication::getMethod();
@@ -64,7 +118,7 @@ class Routes
          * @var Route $route
          */
         foreach ($routes as $route) {
-            if ($matches = $route->match($uri, $method)) {
+            if ($route->match($uri, $method)) {
                 return $this->routed;
             }
         }
@@ -73,6 +127,7 @@ class Routes
         return $this->routed;
 
     }
+
     /**
      * Takes request uri and routes to controller.
      */
@@ -85,7 +140,8 @@ class Routes
          * @var Route $route
          */
         foreach ($routes as $route) {
-            if ($matches = $route->match($uri, $method)) {
+            $matches = $route->match($uri, $method);
+            if ($matches) {
                 $params = $route->params($uri, $method);
                 $array = $route->getCallback();
                 $controller = str_replace('/', '\\', $array[0]);
