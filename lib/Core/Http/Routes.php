@@ -19,7 +19,8 @@ class Routes
      */
     private $routes = [];
     private $priorityRoutes = [];
-    private $routed = null;
+    private $routed = false;
+    private $current_route = null;
 
     /**
      * @param $prefix
@@ -108,7 +109,7 @@ class Routes
     }
 
     /**
-     * @return bool|null
+     * @return bool
      */
     public function routeExists()
     {
@@ -131,6 +132,8 @@ class Routes
 
     /**
      * Takes request uri and routes to controller.
+     * @return bool
+     * @throws \Exception
      */
     public function routing()
     {
@@ -158,7 +161,11 @@ class Routes
                 try {
                     $ctrl->executeAction($action, $params);
                     $this->routed = true;
+                    $this->current_route = $route;
                 } catch (\Exception $ex) {
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        throw $ex;
+                    }
                     $this->routed = false;
                 }
                 return $this->routed;
@@ -170,10 +177,18 @@ class Routes
     }
 
     /**
-     * @return null|bool
+     * @return bool
      */
     public function isRouted()
     {
         return $this->routed;
+    }
+
+    /**
+     * @return Route|null
+     */
+    public function getCurrentRoute()
+    {
+        return $this->current_route;
     }
 }

@@ -13,6 +13,7 @@ class Route
     private $params;
     private $callback;
     private $content_type;
+    private $route_path;
 
     /**
      * @param string $route
@@ -21,40 +22,14 @@ class Route
      * @param string $method
      * @param string $content_type
      */
-    public function __construct($route, $callback, $params, $method = 'get', $content_type='')
+    public function __construct($route, $callback, $params, $method = 'get', $content_type = '')
     {
         $this->params = $params;
         $this->method = strtolower($method);
         $this->route = $this->build($route, $params);
+        $this->route_path = $route;
         $this->callback = $callback;
         $this->content_type = $content_type;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRoute()
-    {
-        return $this->route;
-    }
-
-    /**
-     * @param $uri
-     * @param string $method
-     * @param array $content_types
-     * @return mixed
-     */
-    public function match($uri, $method = 'get', $content_types=[])
-    {
-        if ($this->method !== strtolower($method)) {
-            return false;
-        }
-        if($this->content_type && !in_array($this->content_type, $content_types)) {
-            return false;
-        }
-        preg_match($this->route, $uri, $matches);
-
-        return $matches;
     }
 
     /**
@@ -71,15 +46,24 @@ class Route
         $route = str_replace(':action', '(?<action>[a-zA-Z0-9_\+\-%\$\.]+)', $route);
         foreach ($params as $param => $condition) {
             if (is_numeric($param)) {
-                $route = str_replace(":$condition", '(?J)(?<'.$condition.'>[a-zA-Z0-9_\+\-%\$\.]+)', $route);
+                $route = str_replace(":$condition", '(?J)(?<' . $condition . '>[a-zA-Z0-9_\+\-%\$\.]+)', $route);
                 continue;
             }
             $route = str_replace(":$param", "(?<$param>$condition)", $route);
         }
         $route = str_replace('\\\\', '\\', $route);
-        $route = '^'.rtrim($route, '\\/').'\/?([\#\?].*)?$';
+        $route = '^' . rtrim($route, '\\/') . '\/?([\#\?].*)?$';
 
         return "#$route#";
+    }
+
+    /**
+     * The regex versiong of the route
+     * @return string
+     */
+    public function getRoute()
+    {
+        return $this->route;
     }
 
     /**
@@ -104,10 +88,38 @@ class Route
     }
 
     /**
+     * @param $uri
+     * @param string $method
+     * @param array $content_types
+     * @return mixed
+     */
+    public function match($uri, $method = 'get', $content_types = [])
+    {
+        if ($this->method !== strtolower($method)) {
+            return false;
+        }
+        if ($this->content_type && !in_array($this->content_type, $content_types)) {
+            return false;
+        }
+        preg_match($this->route, $uri, $matches);
+
+        return $matches;
+    }
+
+    /**
      * @return mixed
      */
     public function getCallback()
     {
         return $this->callback;
+    }
+
+    /**
+     * The pure route string without any regex parts
+     * @return string
+     */
+    public function getRoutePath()
+    {
+        return $this->route_path;
     }
 }
