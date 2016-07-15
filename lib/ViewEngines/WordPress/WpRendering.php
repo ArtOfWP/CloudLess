@@ -11,55 +11,67 @@ use CLMVC\Events\Hook;
  * Class WpRendering
  * @package CLMVC\ViewEngines\WordPress
  */
-class WpRendering {
+class WpRendering
+{
     /**
      * @var Routes
      */
     private $routes;
 
-    public function __construct(Routes $routes){
+    /**
+     * WpRendering constructor.
+     * @param Routes $routes
+     */
+    public function __construct(Routes $routes)
+    {
 
         $this->routes = $routes;
     }
-    public function init() {
+
+    public function init()
+    {
 
         Hook::register('init', [$this, 'routeQuery'], 1);
         Hook::register('init', [$this, 'renderText'], 99999);
 
         add_filter('do_parse_request', [$this, 'disableParseRequest'], 9999999, 3);
-        Filter::register('posts_request', [$this, 'disablePostQuery'],9999999);
-        Filter::register('pre_handle_404', [$this,'disable404handling']);
-        Hook::register('rendering-render', function($controllerName, $action){
+        Filter::register('posts_request', [$this, 'disablePostQuery'], 9999999);
+        Filter::register('pre_handle_404', [$this, 'disable404handling']);
+        Hook::register('rendering-render', function ($controllerName, $action) {
             global $clmvc_template;
-            $clmvc_template=[$controllerName, $action];
+            $clmvc_template = [$controllerName, $action];
         });
 
-        Hook::register('init', [$this, 'templateRendering'],999999);
+        Hook::register('init', [$this, 'templateRendering'], 9999);
         Filter::register('document_title_parts', [$this, 'setTitle']);
         Filter::register('wp_title', [$this, 'setTitle']);
-        add_filter('pre_get_document_title',  [$this, 'override404']);
+        add_filter('pre_get_document_title', [$this, 'override404']);
     }
 
-    public function override404() {
+    public function override404()
+    {
         if ($this->routes->isRouted()) {
             global $wp_query;
             $wp_query->is_404 = false;
         }
     }
 
-    public function templateRendering() {
-        if(!current_theme_supports('cloudless'))
+    public function templateRendering()
+    {
+        if (!current_theme_supports('cloudless'))
             Container::instance()->make(ThemeCompatibility::class);
         else
-            Filter::register('template_include', [$this,'includeTemplate']);
+            Filter::register('template_include', [$this, 'includeTemplate']);
     }
+
     /**
      * @param $true
      * @param $instance
      * @return bool
      */
-    public function disableParseRequest($true, $instance) {
-        if($this->routes->routeExists()) {
+    public function disableParseRequest($true, $instance)
+    {
+        if ($this->routes->routeExists()) {
             global $wp_query;
             $wp_query->is_home = false;
             $wp_query->is_404 = false;
@@ -74,8 +86,9 @@ class WpRendering {
      * @param $request
      * @return null
      */
-    public function disablePostQuery($request) {
-        if($this->routes->routeExists()) {
+    public function disablePostQuery($request)
+    {
+        if ($this->routes->routeExists()) {
             global $wp_query;
             $wp_query->is_home = false;
             $wp_query->is_404 = false;
@@ -89,29 +102,33 @@ class WpRendering {
      * @param $handle
      * @return bool
      */
-    public function disable404handling($handle) {
+    public function disable404handling($handle)
+    {
         if ($this->routes->isRouted())
             return false;
         return $handle;
     }
+
     /**
      * Set the WordPress page title
      * @param $title
      * @param string $sep
      * @return string
      */
-    public function setTitle($title, $sep ='') {
+    public function setTitle($title, $sep = '')
+    {
         $bag = Container::instance()->fetch('Bag');
         if (isset($bag->title)) {
             if (current_theme_supports('title-tag')) {
                 array_unshift($title, $bag->title);
             } else
-                $title=$bag->title.$sep;
+                $title = $bag->title . $sep;
         }
         return $title;
     }
 
-    public function routeQuery() {
+    public function routeQuery()
+    {
         /**
          * @var Routes $routes
          */
@@ -127,22 +144,25 @@ class WpRendering {
     /**
      *
      */
-    public function renderText() {
+    public function renderText()
+    {
         if (RenderedContent::hasRendered() && RenderedContent::endIt()) {
             RenderedContent::endFlush();
             exit;
         }
     }
+
     /**
      * @var \WP_Query $wp_query
      */
-    public function overrideWpQuery($wp_query) {
+    public function overrideWpQuery($wp_query)
+    {
         /**
          * @var Routes $routes
          */
         $container = Container::instance();
         $routes = $container->fetch('Routes');
-        if(!$routes->isRouted()) {
+        if (!$routes->isRouted()) {
             $wp_query->set('pagename', $_SERVER['REQUEST_URI']);
             $wp_query->is_page = false;
             $wp_query->is_home = false;
@@ -154,7 +174,8 @@ class WpRendering {
         }
     }
 
-    public function includeTemplate($original_template) {
+    public function includeTemplate($original_template)
+    {
         if (RenderedContent::hasRendered()) {
             if (RenderedContent::endIt()) {
                 RenderedContent::endFlush();
@@ -167,24 +188,25 @@ class WpRendering {
         }
     }
 
-    public function getTemplate($default = '') {
+    public function getTemplate($default = '')
+    {
         global $clmvc_template;
         list($controller, $action) = $clmvc_template;
-        $controller=strtolower($controller);
-        $templates= [
-            'templates'.DIRECTORY_SEPARATOR."$controller-$action.php",
-            'templates'.DIRECTORY_SEPARATOR."$controller".DIRECTORY_SEPARATOR."$action.php",
-            'layouts'.DIRECTORY_SEPARATOR."$controller.php",
+        $controller = strtolower($controller);
+        $templates = [
+            'templates' . DIRECTORY_SEPARATOR . "$controller-$action.php",
+            'templates' . DIRECTORY_SEPARATOR . "$controller" . DIRECTORY_SEPARATOR . "$action.php",
+            'layouts' . DIRECTORY_SEPARATOR . "$controller.php",
             "layout-$controller.php",
             "template-$controller-$action.php",
             "$controller-$action.php",
-            "$controller".DIRECTORY_SEPARATOR."$action.php",
+            "$controller" . DIRECTORY_SEPARATOR . "$action.php",
             "$controller.php",
             "default-layout.php",
             'cloudless.php'
         ];
 
-        foreach($templates as $template) {
+        foreach ($templates as $template) {
             if (file_exists(get_stylesheet_directory() . DIRECTORY_SEPARATOR . $template))
                 return get_stylesheet_directory() . DIRECTORY_SEPARATOR . $template;
         }

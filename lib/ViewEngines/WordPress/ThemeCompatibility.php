@@ -10,7 +10,8 @@ use CLMVC\Events\Hook;
  * Class ThemeCompatibility
  * @package CLMVC\ViewEngines\WordPress
  */
-class ThemeCompatibility {
+class ThemeCompatibility
+{
     /**
      * @var Routes
      */
@@ -20,26 +21,30 @@ class ThemeCompatibility {
      * ThemeCompatibility constructor.
      * @param Routes $routes
      */
-    public function __construct(Routes $routes){
+    public function __construct(Routes $routes)
+    {
         $this->routes = $routes;
-        Hook::register('template_redirect',  [$this, 'override']);
+        add_action('template_redirect', [$this, 'override']);
     }
 
     /**
      * Overrides global $post and $wp_query with the rendered content from CloudLess.
      * Its done if is_main_query and CloudLess detected a correct and matching route.
      */
-    public function override() {
+    public function override()
+    {
         global $wp_query;
         if ($wp_query->is_main_query() && !$this->routes->isRouted() ||
             !$wp_query->is_main_query() && !$this->routes->isRouted() ||
-            !$wp_query->is_main_query() && $this->routes->isRouted())
+            !$wp_query->is_main_query() && $this->routes->isRouted()
+        )
             return;
         $bag = Container::instance()->fetch('Bag');
-        $args = ['post_content'=> RenderedContent::get(), 'post_title'=> $bag->title, 'is_page'=>true];
+        $args = ['post_content' => RenderedContent::get(), 'post_title' => $bag->title, 'is_page' => true,
+            'guid' =>$this->routes->getCurrentRoute()->getRoutePath()];
         $dummy = new DummyPost($args);
         $dummy->overrideWpQuery();
-        remove_filter( 'the_content', 'wpautop' );
+        remove_filter('the_content', 'wpautop');
         unset($dummy);
     }
 }
