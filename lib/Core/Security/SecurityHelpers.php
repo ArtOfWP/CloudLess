@@ -37,3 +37,17 @@ function clmvc_current_user_can($capability, $data = null)
     return CLMVC\Events\Filter::run("clmvc-user-can-{$capability}",
         [current_user_can($capability), $data, wp_get_current_user()]);
 }
+
+/**
+ * Filter:clmvc-user-can-{$action}-{$capability}, [current_user_can(), $data, $current_user]
+ * @param string $action
+ * @param string $capability
+ * @param mixed $data
+ *
+ * @return bool|mixed
+ */
+function clmvc_current_user_can_do_action($action, $capability, $data = null)
+{
+    return CLMVC\Events\Filter::run("clmvc-user-can-{$action}-{$capability}",
+        [current_user_can($capability), $data, wp_get_current_user()]);
+}
