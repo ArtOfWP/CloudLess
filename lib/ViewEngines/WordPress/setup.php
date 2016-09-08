@@ -5,8 +5,8 @@ use CLMVC\ViewEngines\WordPress\WpRendering;
 
 define('CLOUDLESS_APP_DIR', WP_PLUGIN_DIR);
 
-Container::instance()->make(WpEngine::class)->init();
-Container::instance()->make(WpRendering::class)->init();
+Container::instance()->fetchOrMake(WpEngine::class)->init();
+Container::instance()->fetchOrMake(WpRendering::class)->init();
 
 /**
  * @param string $app
