@@ -122,4 +122,12 @@ class Route
     {
         return $this->route_path;
     }
+
+    /**
+     * @return string
+     */
+    public function getMethod()
+    {
+        return strtoupper($this->method);
+    }
 }

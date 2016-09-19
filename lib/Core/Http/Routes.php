@@ -191,4 +191,17 @@ class Routes
     {
         return $this->current_route;
     }
+
+    /**
+     * @return int
+     */
+    public function count()
+    {
+        return sizeof($this->routes);
+    }
+
+    public function getAll()
+    {
+        return $this->priorityRoutes + $this->routes;
+    }
 }

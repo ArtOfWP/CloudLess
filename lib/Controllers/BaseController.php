@@ -159,6 +159,7 @@ class BaseController
             $this->action = $action;
             $perform = true;
             $action_params = $reflection->getParameters();
+            $this->params = $getParams;
             $paramValues = $this->getParameters($getParams, $action_params);
             $this->performFilter('beforeAction', $action, $perform);
 
@@ -348,7 +349,6 @@ class BaseController
             foreach ($params as $param) {
                 if (isset($getParams[$param->name])) {
                     $paramValues[] = $getParams[$param->name];
-                    $this->params[$param->name] = $getParams[$param->name];
                 }
             }
         }
