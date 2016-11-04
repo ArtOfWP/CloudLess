@@ -19,6 +19,7 @@ use CLMVC\Controllers\Render\Rendering;
  */
 class BaseController
 {
+	use HttpResponseCodeTrait;
     /**
      * @var string currently controller
      */
@@ -77,7 +78,7 @@ class BaseController
 
     private $templateType = 'php';
     private $headers = array();
-    private $code = 200;
+
 
     /**
      * @var [string][IFilter]
@@ -186,10 +187,16 @@ class BaseController
             throw new \Exception('There are no action that corresponds to request.');
         }
     }
+
+	/**
+	 * @param $code
+	 * @deprecated
+	 */
     public function setStatusCode($code)
     {
-        $this->code = $code;
+        $this->setHttpResponseCode( $code);
     }
+
     public function setHeaders($headers)
     {
         $this->headers = $headers;
@@ -251,7 +258,14 @@ class BaseController
         return $this->actionRan;
     }
 
-    /**
+	/**
+	 * @return mixed
+	 */
+	public function getFilters() {
+		return $this->filters;
+	}
+
+	/**
      * Redirect request with query.
      *
      * @param string|array $query
@@ -388,7 +402,7 @@ class BaseController
         global $clmvc_http_code, $aoisora_headers;
         if($this->prevent_headers)
             return;
-        $clmvc_http_code = $this->code;
+        $clmvc_http_code = $this->getHttpResponseCode();
         if ($aoisora_headers) {
             $aoisora_headers = array_merge($aoisora_headers, $this->headers);
         } else {
@@ -397,7 +411,7 @@ class BaseController
 
         if(headers_sent())
             return;
-        http_response_code($this->code);
+        http_response_code($this->http_response_code);
         header_remove('X-Powered-By');
         header_remove('X-Pingback');
         header_remove('Pragma');
