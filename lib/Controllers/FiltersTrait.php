@@ -16,15 +16,16 @@ trait FiltersTrait {
 	 * @param IController $controller
 	 * @param $values
 	 * @param $event
+	 * @param string $action
+	 * @param null $result
 	 */
-	protected function performForEvent( $controller, $values, $event ) {
-		if (isset($this->filters[$event]) && is_array($this->filters[$event])) {
-			foreach ($this->filters[$event] as $filter) {
-				/**
-				 * @var IFilter $filter
-				 */
-				$filter->perform($controller, $values);
-			}
+	protected function performForEvent( $controller, $values, $event, $action = '', &$result = null ) {
+		$filters = $this->getFiltersForEvent($event);
+		foreach ($filters as $filter) {
+			/**
+			 * @var IFilter $filter
+			 */
+			$result = $filter->perform($controller, $values, $action);
 		}
 	}
 
@@ -57,9 +58,9 @@ trait FiltersTrait {
 	 *
 	 * @return array<IFilter>
 	 */
-	public function getFilterForEvent($event) {
+	public function getFiltersForEvent($event) {
 		if (isset($this->filters[$event])) {
-			return $this->filters[$event];
+			return (array)$this->filters[$event];
 		}
 		return [];
 	}

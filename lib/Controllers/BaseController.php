@@ -20,6 +20,8 @@ use CLMVC\Controllers\Render\Rendering;
 class BaseController implements IController
 {
 	use HttpResponseCodeTrait;
+	use FiltersTrait;
+
     /**
      * @var string currently controller
      */
@@ -79,11 +81,6 @@ class BaseController implements IController
     private $templateType = 'php';
     private $headers = array();
 
-
-    /**
-     * @var [string][IFilter]
-     */
-    private $filters;
     private $params;
     private $actionRan;
     private $prevent_headers=false;
@@ -117,19 +114,12 @@ class BaseController implements IController
     }
 
     /**
-     * Initiate the controller and execute filter.
+     * Initiate the controller and execute filters for init event.
      */
     public function init()
     {
         $this->initiate();
-        if (isset($this->filters['init']) && is_array($this->filters['init'])) {
-            foreach ($this->filters['init'] as $filter) {
-	            /**
-	             * @var IFilter $filter
-	             */
-                $filter->perform($this, $this->values);
-            }
-        }
+	    $this->performForEvent($this, $this->getValues(), 'init');
     }
 
     /**
@@ -165,7 +155,7 @@ class BaseController implements IController
             $action_params = $reflection->getParameters();
             $this->params = $getParams;
             $paramValues = $this->getParameters($getParams, $action_params);
-            $this->performFilter('beforeAction', $action, $perform);
+            $this->performForEvent($this, $this->getValues(), 'beforeAction', $action, $perform);
 
             if ($perform) {
                 Hook::run($this->controller.'-pre'.ucfirst($action), $this);
@@ -175,10 +165,9 @@ class BaseController implements IController
             }
 
             if ($this->actionHasRun()) {
-                $this->performFilter('afterActionHasRun', $action);
+	            $this->performForEvent($this, $this->getValues(), 'afterActionHasRun', $action);
             }
-
-            $this->performFilter('afterAction', $action);
+	        $this->performForEvent($this, $this->getValues(), 'afterAction', $action);
 
             if ($this->renderer->canRender()) {
                 $this->renderer->RenderToAction($action);
@@ -262,10 +251,10 @@ class BaseController implements IController
     }
 
 	/**
-	 * @return mixed
+	 * @return array
 	 */
-	public function getFilters() {
-		return $this->filters;
+	public function getValues() {
+		return $this->values;
 	}
 
 	/**
@@ -311,23 +300,6 @@ class BaseController implements IController
     }
 
     /**
-     * @param $when
-     * @param $filter
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function addFilter($when, $filter)
-    {
-        if (!method_exists($filter, 'perform')) {
-            throw new \InvalidArgumentException('Supplied filter does not implement the required perform method.');
-        }
-        if (!isset($this->filters[$when])) {
-            $this->filters[$when] = [];
-        }
-        $this->filters[$when][] = $filter;
-    }
-
-    /**
      * Retrieves value from the POST/GET etc array.
      *
      * @param $key
@@ -370,23 +342,6 @@ class BaseController implements IController
             }
         }
         return $paramValues;
-    }
-
-    /**
-     * @param string $filter_name
-     * @param string $action
-     * @param boolean $result
-     */
-    private function performFilter($filter_name, $action, &$result = null)
-    {
-        if (isset($this->filters[$filter_name])) {
-            /**
-             * @var IFilter $filter
-             */
-            foreach ($this->filters[$filter_name] as $filter) {
-                $result = $filter->perform($this, $this->values, $action);
-            }
-        }
     }
 
     /**
