@@ -124,6 +124,9 @@ class BaseController
         $this->initiate();
         if (isset($this->filters['init']) && is_array($this->filters['init'])) {
             foreach ($this->filters['init'] as $filter) {
+	            /**
+	             * @var IFilter $filter
+	             */
                 $filter->perform($this, $this->values);
             }
         }
@@ -373,7 +376,6 @@ class BaseController
      * @param string $filter_name
      * @param string $action
      * @param boolean $result
-     * @return mixed
      */
     private function performFilter($filter_name, $action, &$result = null)
     {
