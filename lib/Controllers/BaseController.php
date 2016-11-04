@@ -17,7 +17,7 @@ use CLMVC\Controllers\Render\Rendering;
  * @method onControllerInit
  * @method notFound
  */
-class BaseController
+class BaseController implements IController
 {
 	use HttpResponseCodeTrait;
     /**
