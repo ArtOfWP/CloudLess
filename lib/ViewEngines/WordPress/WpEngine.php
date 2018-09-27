@@ -63,7 +63,7 @@ class WpEngine
     {
         $plugin = plugin_basename(sl_file('AoiSora'));
         $active = get_option('active_plugins');
-        if ($active[0] == $plugin) {
+        if (isset($active[0]) && $active[0] === $plugin) {
             return;
         }
         $place = array_search($plugin, $active);
